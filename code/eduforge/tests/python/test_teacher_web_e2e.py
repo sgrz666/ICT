@@ -27,7 +27,7 @@ import pytest
 from conftest import free_port, start_engine
 from playwright.sync_api import sync_playwright
 
-from eduforge.worker.steps import derived_id
+from eduforge.infrastructure.db.repositories import artifact_id_for
 
 ROOT = Path(__file__).resolve().parents[2]
 APP_DIR = ROOT / "apps" / "teacher-web"
@@ -135,6 +135,18 @@ def _worker(stack, *, entity: str = "lens_1", focal: str = "15"):
     return proc
 
 
+
+def _candidate_revision_of(uri: str, job_id) -> "uuid.UUID":
+    """读生产写下的候选版本 id：这就是「页面上那个版本确实由这条链发出」的凭据。"""
+    async def go():
+        c = await asyncpg.connect(uri)
+        try:
+            return await c.fetchval("select candidate_revision_id from jobs where id = $1", job_id)
+        finally:
+            await c.close()
+    return _run_async(go)
+
+
 def _latest_experiment(uri: str) -> dict:
     async def go():
         c = await asyncpg.connect(uri)
@@ -217,8 +229,12 @@ def test_golden_path_selects_submits_previews_and_downloads(stack):
             job_row = _job_for(stack["uri"], _u(latest["experiment_id"]))
             assert job_row and job_row["status"] == "succeeded", job_row
             job_id = _u(job_row["id"])
-            assert _u(latest["head"]) == derived_id(job_id, "revision")
-            assert _u(latest["artifact"]["artifact_id"]) == derived_id(job_id, "artifact")
+            # Gate A 之后候选版本 id 由内容哈希派生（同一 job 的连续编辑各自成版），
+            # 用例读生产写进 jobs.candidate_revision_id 的那一个，而不是自己拼 id。
+            cand = _candidate_revision_of(stack["uri"], job_id)
+            assert _u(latest["head"]) == cand, "head 必须前进到本 job 的候选版本"
+            assert _u(latest["artifact"]["artifact_id"]) == artifact_id_for(
+                job_id, "native", latest["artifact"]["sha256"])
 
             # 验证版本回滚（§6.1/§6.2 闭环）：点击回滚到种子版本
             rollback_btn = page.get_by_role("button", name="回滚到此版本")

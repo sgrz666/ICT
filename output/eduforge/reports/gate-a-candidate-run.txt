@@ -1,0 +1,57 @@
+Gate A 统一候选执行链 — 命令与实测结果
+=====================================
+分支 feature/deepagents-e2e，基线 806ede16406aec824a8533789b35f701b7a4f8fb
+时间 北京 2026-10-16 23:26 开工，实测 2026-10-17 00:18-00:24（本机 Windows，无 Docker，Postgres 走 pgserver）
+
+1) 基线（改动前）
+命令: uv run pytest -q            （日志 code/eduforge/output/gate-a/baseline-pytest.log）
+结果: PASS  exit 0，103 收集 / 102 通过 / 1 SKIPPED
+
+2) Gate A 完成后全量
+命令: uv run pytest -q            （日志 code/eduforge/output/gate-a/run8-full.log）
+结果: PASS  exit 0，113 收集 / 112 通过 / 1 SKIPPED
+      SKIPPED = tests/python/test_deepagents_real_model.py:63
+                requires DEEPSEEK key（deepseek / DEEPSEEK / DEEPSEEK_API_KEY）
+命令: uv run pytest --collect-only -q
+结果: collected: 113
+
+3) TypeScript 基线（要求不回退）
+命令: services/engine-host 下 node_modules/.bin/vitest run
+      （日志 code/eduforge/output/gate-a/vitest-run.log 尾部）
+结果: PASS  Test Files 9 passed (9) / Tests 54 passed (54) / Duration 116.14s
+备注: 工程根 `pnpm -r test` 在本机 Git Bash 下是 `pnpm: command not found`（PATH 无 pnpm），
+      故改用包内 vitest 二进制执行同一套用例；不是用例失败。
+
+4) 服务体检
+命令: powershell -NoProfile -Command "& 'D:\codeplus\ICT\scripts\eduforge.ps1' doctor"
+结果: PASS  Python 3.12.14 / Node.js v24.14.1 / Ray Optics Core dist-node/rayOptics.js 1715044 bytes
+      Port 8000、8010 Available / Catalog optics.convex_lens manifest present
+      [INFO] Docker not installed (using pgserver for Postgres 16.2)
+前置修复: scripts/eduforge.ps1 原为 UTF-8 无 BOM 且含中文提示，Windows PowerShell 5.1 按 GBK
+      解码后报 TerminatorExpectedAtEndOfString（line 350-352），doctor/test/smoke 全部起不来；
+      本轮加 UTF-8 BOM 后实测通过（脚本内容一字未改）。
+
+5) 评测 CLI（参数不靠猜）
+命令: uv run python benchmarks/runner.py --help
+结果: usage: runner.py [-h] [--profile {screening,deepseek_direct,agent_graph}]
+      尚无 deepagents_e2e 档位，repeats 未落实 —— 属 Gate D，本轮未做。
+
+6) 中途非代码原因的红（留痕以免误读）
+并跑 pytest + vitest 时内存不足，pgserver 的 initdb.exe 起不来：
+  subprocess.CalledProcessError: ... initdb.exe ... returned non-zero exit status 1 / 3221225773
+表现：test_gate_a_candidate / test_publish_chain / rollback 夹具共 17 项 ERROR。
+处置：停掉并发后单独重跑全量 → exit 0 全绿（见第 2 条）。
+
+7) 本轮新增用例（9 项，全绿）
+tests/python/test_gate_a_candidate.py
+  test_migration_runs_on_old_database_and_is_idempotent
+  test_candidate_table_binds_one_row_per_job
+  test_unpublished_candidate_is_readable_after_process_restart
+  test_edit_a_then_b_only_delivers_b
+  test_retry_after_build_publishes_once_without_duplicate_candidate
+  test_opening_another_experiment_for_the_same_job_is_refused
+  test_stale_writer_is_rejected_by_cas
+  test_view_only_task_passes_base_untouched
+  test_agent_candidate_bytes_are_exactly_what_gets_downloaded
+真模型经 Worker 全链端到端：仍未实测（无 key，且租约不续期）。上面第 9 条用的是脚本化假模型，
+只证明工程正确性，不构成模型能力证据。

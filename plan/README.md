@@ -12,6 +12,7 @@
 | `26.10.15_EduForge_代码级实施方案.md` | 主设计 | 代码级结构（§1 目录与层级、§2 调用关系）、数据协议与数据库（§3）、关键实现代码（§4）、验证/预览/导出（§5）、API 与前端（§6）、实施顺序与测试（§7） |
 | [26.10.16_EduForge_原方案审查与Agent重构建议.md](26.10.16_EduForge_原方案审查与Agent重构建议.md) | 代码审查与设计建议 | 原方案对照、真实链路与边界复现、Agent 工具缺口、开源框架候选及分阶段验收；迁移建议尚未实施 |
 | [26.10.16_EduForge_DeepAgents落地核查与实况修正.md](26.10.16_EduForge_DeepAgents落地核查与实况修正.md) | 核查 + 本轮实施记录 | 对一份外部重构方案的逐条事实核对（5 处不成立/过期，含 §5 P1 的 `run_db.py` 判断已失效）、本轮另查出的 9 项缺陷与修法、Deep Agents 接入实况、真模型实测结果与 9 项 pending |
+| [26.10.17_EduForge_GateA_统一候选执行链.md](26.10.17_EduForge_GateA_统一候选执行链.md) | Gate A 实施与实况 | 按《Deep Agents 实施指令（执行版）》第一轮只做 Gate A：删掉 `operations_from_trace` → `Chain._apply` 的重放语义、候选落 `experiment_candidates`（含迁移与 CAS）、`DeepAgentRunner` 交回候选完成记录；含 §6 模板汇报、对审查文档 P0-1～P0-6 的逐条核对、顺带修掉的 4 项缺陷（含 `eduforge.ps1` 在 PowerShell 5.1 下的 BOM 问题）与 Gate B–F 的 pending 清单 |
 
 ## 阅读顺序
 

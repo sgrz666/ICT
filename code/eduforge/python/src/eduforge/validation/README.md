@@ -13,7 +13,7 @@
 ## 与上下层的关系
 
 - 依赖：[`../domain/contracts.py`](../domain/contracts.py)、[`../validation/reports.py`](reports.py)、[`scientific/optics.py`](scientific/optics.py)。
-- 被谁用：[`../worker/steps.py`](../worker/steps.py)（validating 阶段调 `build_report`）；[`../application/publication.py`](../application/publication.py)（`record_report` 落库 + `publish` 的 `NotPublishable` 门禁）；[`../experiment_tools/service.py`](../experiment_tools/README.md)（`run_validation` 调 `build_report`，并**当场** `record_report` 落 `validation_reports`——本轮之前工具路径完全不写这张表）。
+- 被谁用：[`../experiment_tools/service.py`](../experiment_tools/README.md)（`run_validation` 调 `build_report`，并**当场** `record_report` 落 `validation_reports`，再把 `validation_id` + 候选 `content_hash` 绑回 `experiment_candidates`）；[`../worker/steps.py`](../worker/steps.py) 的 validating 阶段**改为经 `run_validation` 走这一条实现**（2026-10-17 Gate A 起，Worker 不再自己调 `build_report`，两套判据语义收敛为一份）；[`../application/publication.py`](../application/publication.py)（`record_report` 落库 + `publish` 的 `NotPublishable` 门禁）。
 - 测试：[`../../../../tests/python/test_publish_chain.py`](../../../../tests/python/test_publish_chain.py)（门禁全链路）、[`test_gate2_protocol.py`](../../../../tests/python/test_gate2_protocol.py)（薄透镜参考）。
 
 ## 已知的坑与纪律

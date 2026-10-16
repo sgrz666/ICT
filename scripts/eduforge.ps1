@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Position=0, Mandatory=$true)]
     [ValidateSet("doctor", "bootstrap", "up", "test", "smoke", "benchmark", "down")]
     [string]$Action,

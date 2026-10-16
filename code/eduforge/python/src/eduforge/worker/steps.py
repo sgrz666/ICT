@@ -3,10 +3,14 @@
 之前那条链只在测试里就地拼过，只能证明"零件能拼"。Demo 必须走这条，
 否则测的是一条链、跑的是另一条。
 
-规划端口 PlannerPort 是**注入**的：真实实现是 LangGraph + DeepSeek（要 key），
-无 key 时由测试与本地演示注入固定 EditProposal。这不构成规划能力的证据，
-GATE-6 的模型对照仍然开放。
+**执行语义在 Gate A 收敛成一条**：Agent（或对照基线的固定提案）通过受控工具
+改动的是数据库里的候选行；Worker 之后的 editing/building/validating/packaging
+全部消费这同一行候选。以前这里会在基线上重放一遍 `EditProposal` 的操作、
+再把重放结果当成交付物——那份场景从没被模型验过，「验证什么就发布什么」
+当场失效。`operations_from_trace` 从此只作审计与对照，不在生产路径上决定交付。
 
+规划端口仍可注入两种实现：有 `run()` 的是候选 Runner（生产用），
+只有 `plan()` 的旧规划器由 `ProposalRunner` 适配到同一条候选写入路径上。
 每个阶段都只从数据库与磁盘取事实（内存 cache 只是同一次运行内的加速）：
 阶段是 at-least-once 的，接管者可能从 packaging 才开始跑，那时 planning 的返回值
 早就不在了。这与 coordinator 里"唯一可信的是已落下的事件"是同一条要求。
@@ -15,7 +19,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
@@ -23,16 +26,31 @@ from uuid import UUID
 
 import asyncpg
 
-from eduforge.agent.policy import authorize, load_template
-from eduforge.application.publication import Publisher
-from eduforge.domain.contracts import EditProposal, PlannerRequest, SetParameter, SetView, WorkOrder
+from eduforge.application.candidate_service import (
+    CandidateService,
+    CandidateState,
+    native_bytes,
+    views_bytes,
+)
+from eduforge.domain.contracts import EditProposal, PlannerRequest, SetParameter, SetView
+from eduforge.domain.errors import ConflictError
+from eduforge.experiment_tools.contracts import (
+    BuildPackageInput,
+    InspectSceneInput,
+    JobContext,
+    RunValidationInput,
+)
+from eduforge.experiment_tools.service import ExperimentToolService
 from eduforge.infrastructure.clients.engine_client import EngineClient
-from eduforge.infrastructure.db.repositories import JobRepository, derived_id
-from eduforge.validation.policies import build_report
+from eduforge.infrastructure.db.candidate_repository import CandidateVersionConflict
+from eduforge.infrastructure.db.repositories import (
+    JobRepository,
+    artifact_id_for,
+    derived_id,
+    revision_id_for,
+)
+from eduforge.application.publication import Publisher
 from eduforge.worker.errors import TerminalError
-
-# 候选版本与产物 id 由 job_id 派生，不用随机 uuid：崩在 packaging 里重来时必须
-# 落在同一批 id 上。派生规则住在持久层 repositories，工具层与这里共用。
 
 
 class PlannerPort(Protocol):
@@ -51,8 +69,12 @@ class StaticPlanner:
 
 
 def scene_bytes(native: dict[str, Any]) -> bytes:
-    """交付字节的唯一写法。哈希锁这份字节，下载也交这份字节。"""
-    return (json.dumps(native, ensure_ascii=False) + "\n").encode("utf-8")
+    """交付字节的唯一写法。哈希锁这份字节，下载也交这份字节。
+
+    实现住在 `application/candidate_service.py`：工具路径与 Worker 路径以前各写
+    一种（一种带缩进、一种紧凑），同一份场景算得出两个 sha256。
+    """
+    return native_bytes(native)
 
 
 def artifact_path(artifact_dir: Path, candidate_revision: UUID) -> Path:
@@ -83,14 +105,14 @@ class Chain:
     conn: asyncpg.Connection
     engine: EngineClient
     artifact_dir: Path
-    planner: PlannerPort
+    planner: Any
     lease_token: str = ""
     cache: dict[str, Any] = field(default_factory=dict)
 
     async def _base(self, job_id: UUID) -> dict[str, Any]:
         row = await self.conn.fetchrow(
-            """select j.id as job_id, j.experiment_id, j.base_revision, j.prompt, j.work_order,
-                      e.template_id, r.native_data::text as native
+            """select j.id as job_id, j.owner_id, j.experiment_id, j.base_revision, j.prompt,
+                      j.work_order, e.template_id, r.native_data::text as native
                from jobs j
                join experiments e on e.id = j.experiment_id
                join experiment_revisions r on r.id = j.base_revision
@@ -119,25 +141,51 @@ class Chain:
             return False
         return hashlib.sha256(now_text.encode("utf-8")).hexdigest() == base["native_digest"]
 
-    async def _order(self, job_id: UUID) -> tuple[dict[str, Any], WorkOrder, SetParameter | None, list[SetView]]:
-        """授权结果读自 jobs.work_order：planning 之后的一切都必须能只靠持久化事实重建。"""
-        base = await self._base(job_id)
-        if not base["work_order"]:
-            raise TerminalError("WORK_ORDER_MISSING", str(job_id))
-        order = WorkOrder.model_validate_json(base["work_order"])
-        ops = order.proposal.operations
-        if not ops:
-            raise TerminalError("NO_OPERATIONS", str(job_id))
-        param_edits = [op for op in ops if isinstance(op, SetParameter)]
-        view_edits = [op for op in ops if isinstance(op, SetView)]
-        param_edit = param_edits[0] if param_edits else None
-        return base, order, param_edit, view_edits
+    def _job(self, base: dict[str, Any]) -> JobContext:
+        return JobContext(
+            job_id=base["job_id"],
+            owner_id=base["owner_id"],
+            lease_token=self.lease_token,
+            experiment_id=base["experiment_id"],
+            base_revision=base["base_revision"],
+        )
+
+    def _service(self, base: dict[str, Any]) -> ExperimentToolService:
+        """Worker 用的工具服务：与 Agent 同一套实现、同一个候选行。
+
+        每个阶段新建一个实例是有意的——它必须能从库里把候选读回来，
+        否则接管者一重启就只剩内存里那份不存在的工作态。
+        """
+        return ExperimentToolService(
+            engine_client=self.engine, conn=self.conn,
+            artifact_dir=self.artifact_dir, job=self._job(base),
+        )
+
+    async def _candidate(self, base: dict[str, Any]) -> CandidateState:
+        state = await CandidateService(self.conn, job=self._job(base)).load()
+        if state is None:
+            raise TerminalError("CANDIDATE_MISSING", str(base["job_id"]))
+        return state
+
+    @staticmethod
+    def _terminal(exc: Exception, stage: str) -> TerminalError:
+        """工具层的拒绝要变成**可见的终态**，不能像崩溃那样等租约过期。"""
+        if isinstance(exc, ConflictError):
+            text = str(exc)
+            if "科学验证" in text:
+                return TerminalError("VALIDATION_NOT_PASSED", text)
+            if "候选" in text:
+                return TerminalError("CANDIDATE_CONFLICT", text)
+            return TerminalError("TOOL_CONFLICT", text)
+        if isinstance(exc, CandidateVersionConflict):
+            return TerminalError("CANDIDATE_VERSION_CONFLICT", str(exc))
+        code = getattr(exc, "code", None) or getattr(exc, "reason", None) or "TOOL_ERROR"
+        return TerminalError(str(code), str(exc))
 
     async def planning(self, job_id: UUID) -> dict[str, Any]:
         base = await self._base(job_id)
         if not base["prompt"]:
             raise TerminalError("PROMPT_MISSING", str(job_id))
-        template = load_template(base["template_id"])
         request = PlannerRequest(
             job_id=job_id,
             experiment_id=base["experiment_id"],
@@ -145,176 +193,139 @@ class Chain:
             template_id=base["template_id"],
             prompt=base["prompt"],
         )
-        proposal = await self.planner.plan(request)
-        # §4.3 授权链在服务端构造 WorkOrder：模型不能自己决定归属或基础版本
-        order = authorize(request, template, proposal)
-        if order.proposal.route == "code":
-            # Engine Host 没有可执行的 code 路径。宁可明确失败，
-            # 也不拿 config 路径的结果冒充"代码改动成功"。
-            raise TerminalError("CODE_ROUTE_NOT_EXECUTED", "引擎侧未实现代码路径")
-        if not order.proposal.operations:
-            raise TerminalError("NO_OPERATIONS", "没有可执行操作")
-        await self.conn.execute(
-            "update jobs set work_order = $2::jsonb where id = $1",
-            job_id, order.model_dump_json(),
-        )
-        param_edits = [op for op in order.proposal.operations if isinstance(op, SetParameter)]
-        edit = param_edits[0] if param_edits else None
-        u_cm = object_distance_cm(base["native"], template.units_per_unit)
-        return {
-            "route": order.proposal.route,
-            "operation_count": len(order.proposal.operations),
-            "entity_id": edit.entity_id if edit else None,
-            "parameter": edit.parameter if edit else None,
-            "value": edit.value if edit else None,
-            "template_id": base["template_id"],
-            "object_distance_cm": u_cm,
-        }
+        runner = self.planner
+        if not hasattr(runner, "run"):
+            from eduforge.agent.proposal_runner import ProposalRunner
 
-    async def _apply(self, job_id: UUID) -> dict[str, Any]:
-        if "engine_result" in self.cache:
-            return self.cache["engine_result"]
-        base, order, _edit, _views = await self._order(job_id)
-        param_edits = [op for op in order.proposal.operations if isinstance(op, SetParameter)]
-        if param_edits:
-            curr_native = base["native"]
-            last_res = None
-            for p_edit in param_edits:
-                last_res = await self.engine.apply(curr_native, p_edit.model_dump())
-                curr_native = last_res["native"]
-            result = last_res
-        else:
-            result = {
-                "native": base["native"],
-                "validation": {"ok": True, "error": None, "objs": base["native"].get("objs", [])},
-                "measurement": {"probes": [], "processedRayCount": 0},
-            }
-        # 引擎其实已经算对了这个字段（main.ts:60 比对入参与产出的 base_native），
-        # 旧代码用 `... or True` 把它覆盖掉；这里两者取与，任一处不成立就是被改过。
-        result["base_untouched"] = bool(result.get("base_untouched")) and await self._base_untouched(base)
-        if not result.get("validation", {}).get("ok"):
-            raise TerminalError("UPSTREAM_REJECTED", str(result.get("validation")))
-        self.cache["engine_result"] = result
-        return result
+            runner = ProposalRunner(
+                conn=self.conn, engine=self.engine,
+                artifact_dir=self.artifact_dir, planner=runner,
+            )
+        try:
+            record = await runner.run(request)
+        except TerminalError:
+            raise
+        except Exception as exc:
+            raise self._terminal(exc, "planning") from exc
+        return record.model_dump(mode="json")
 
     async def editing(self, job_id: UUID) -> dict[str, Any]:
-        result = await self._apply(job_id)
+        """编辑阶段不再重新应用操作：它核对待交付候选是否被引擎接受，
+        并证明基线版本仍是同一份字节。
+
+        纯视图任务以前在这一步被判死：没有参数修改时这里会构造一个不带
+        `base_untouched` 的伪结果，`bool(result.get("base_untouched"))` 恒为 False。
+        现在引擎观察的就是候选本身，字段由引擎给（`main.ts` 比对入参与产出）。
+        """
+        base = await self._base(job_id)
+        state = await self._candidate(base)
+        eng = await self.engine.apply(state.native_data, [])
+        if not eng.get("validation", {}).get("ok"):
+            raise TerminalError("UPSTREAM_REJECTED", str(eng.get("validation")))
+        untouched = bool(eng.get("base_untouched")) and await self._base_untouched(base)
+        self.cache["engine_result"] = eng
         return {
-            "base_untouched": bool(result.get("base_untouched")),
-            "version": result["native"].get("version"),
-            "processed_ray_count": result["measurement"].get("processedRayCount"),
+            "base_untouched": untouched,
+            "version": state.native_data.get("version"),
+            "processed_ray_count": eng.get("measurement", {}).get("processedRayCount", 0),
+            "state_version": state.state_version,
+            "content_hash": state.content_hash,
         }
 
     async def building(self, job_id: UUID) -> dict[str, Any]:
-        """把候选版本落成文件，并算出要交付的那份字节的指纹。"""
-        result = await self._apply(job_id)
-        base, _order, _edit, view_edits = await self._order(job_id)
-        template = load_template(base["template_id"])
-        cand = derived_id(job_id, "revision")
-        payload = scene_bytes(result["native"])
-        target = artifact_path(self.artifact_dir, cand)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(payload)
-        digest = hashlib.sha256(payload).hexdigest()
-
-        # 真实生成并落盘教学视图配置与数据记录表
-        views_config = {}
-        for v in view_edits:
-            views_config[v.view_id] = {"visible": v.visible}
-            if v.view_id == "measurement_table" and v.visible:
-                from eduforge.validation.scientific.optics import thin_lens_reference
-                u = object_distance_cm(result["native"], template.units_per_unit)
-                lens_obj = next((o for o in result["native"].get("objs", []) if o.get("type") == "IdealLens"), {})
-                f = float(lens_obj.get("focalLength", 100)) / template.units_per_unit
-                ref = thin_lens_reference(f, u)
-                views_config["measurement_table"]["columns"] = [
-                    {"key": "object_distance_cm", "label": "物距 u", "unit": "cm"},
-                    {"key": "focal_length_cm", "label": "焦距 f", "unit": "cm"},
-                    {"key": "image_distance_cm", "label": "像距 v", "unit": "cm"},
-                    {"key": "image_kind", "label": "像的性质", "unit": ""},
-                    {"key": "magnification", "label": "放大率", "unit": ""},
-                ]
-                views_config["measurement_table"]["records"] = [
-                    {
-                        "object_distance_cm": u,
-                        "focal_length_cm": f,
-                        "image_distance_cm": ref["image_distance_cm"],
-                        "image_kind": ref["image_kind"],
-                        "magnification": ref["magnification"],
-                    }
-                ]
-        if views_config:
-            views_file = self.artifact_dir / "revisions" / str(cand) / "teaching_views.json"
-            views_payload = json.dumps(views_config, ensure_ascii=False, indent=2).encode("utf-8")
-            views_file.write_bytes(views_payload)
-            self.cache["views_config"] = views_config
-
-        # 候选 id 由 job_id 派生：重跑写同一个值，不会互相覆盖成不同版本
+        """构建走工具服务那一条实现：冻结候选、落盘、算指纹，不再各写一份。"""
+        base = await self._base(job_id)
+        service = self._service(base)
+        try:
+            out = await service.build_package(BuildPackageInput(
+                experiment_id=str(base["experiment_id"]), export_offline_zip=False
+            ))
+        except TerminalError:
+            raise
+        except Exception as exc:
+            raise self._terminal(exc, "building") from exc
+        cand = UUID(out.candidate_revision_id)
         await self.conn.execute(
             "update jobs set candidate_revision_id = $2 where id = $1", job_id, cand
         )
+        native_artifact = next(
+            (a for a in out.artifacts if a["storage_key"].replace("\\", "/").endswith("native.json")),
+            None,
+        )
+        if native_artifact is None:
+            raise TerminalError("BUILD_ARTIFACT_MISSING", str(cand))
+        target = artifact_path(self.artifact_dir, cand)
         return {
-            "candidate_revision_id": str(cand),
-            "storage_key": str(target.relative_to(self.artifact_dir)),
-            "bytes": len(payload),
-            "sha256": digest,
+            "candidate_revision_id": out.candidate_revision_id,
+            "storage_key": native_artifact["storage_key"],
+            "bytes": target.stat().st_size,
+            "sha256": out.sha256,
         }
 
     async def validating(self, job_id: UUID) -> dict[str, Any]:
-        base, order, _edit, views = await self._order(job_id)
-        template = load_template(base["template_id"])
-        result = await self._apply(job_id)
-        param_edits = [op for op in order.proposal.operations if isinstance(op, SetParameter)]
-        report = build_report(
-            job_id=str(job_id),
-            edit=param_edits[0] if param_edits else None,
-            edits=param_edits,
-            view_edits=views,
-            engine_result=result,
-            object_distance_cm=object_distance_cm(result["native"], template.units_per_unit),
-            units_per_unit=template.units_per_unit,
-            allowed_views=template.views,
-        )
-        await Publisher(self.conn).record_report(job_id=job_id, report=report)
+        """验证用工具服务同一条实现，对**冻结后的候选**重跑一次真实引擎观测。"""
+        base = await self._base(job_id)
+        service = self._service(base)
+        try:
+            val = await service.run_validation(RunValidationInput(
+                experiment_id=str(base["experiment_id"])
+            ))
+        except TerminalError:
+            raise
+        except Exception as exc:
+            raise self._terminal(exc, "validating") from exc
+        insp = await service.inspect_scene(InspectSceneInput(experiment_id=str(base["experiment_id"])))
         return {
-            "verdict": report.verdict,
-            "failed_checks": [c.id for c in report.checks if not c.passed],
+            "verdict": val.verdict,
+            "failed_checks": [c["id"] for c in val.checks if not c.get("passed")],
+            "focal_length_cm": insp.parameters.get("focal_length_cm"),
+            "object_distance_cm": insp.parameters.get("object_distance_cm"),
         }
 
     async def packaging(self, job_id: UUID) -> dict[str, Any]:
-        """发布事务。verdict 与候选字节都取自持久化的事实。"""
+        """发布事务。verdict、候选字节、产物登记全部取自持久化的事实。"""
+        base = await self._base(job_id)
+        state = await self._candidate(base)
+        cand = revision_id_for(job_id, state.content_hash)
+
+        if not state.is_validated or state.validation_id is None:
+            raise TerminalError("REPORT_MISSING", f"候选 {cand} 没有绑定在当前内容上的验证报告")
         row = await self.conn.fetchrow(
-            """select verdict from validation_reports
-               where job_id = $1 order by created_at desc limit 1""",
-            job_id,
+            "select verdict from validation_reports where id = $1", state.validation_id
         )
         if row is None:
-            raise TerminalError("REPORT_MISSING", str(job_id))
+            raise TerminalError("REPORT_MISSING", str(state.validation_id))
         if row["verdict"] != "passed":
             raise TerminalError("VALIDATION_NOT_PASSED", row["verdict"])
 
-        base, _order, _edit, _views = await self._order(job_id)
-        cand = derived_id(job_id, "revision")
         target = artifact_path(self.artifact_dir, cand)
+        expected = scene_bytes(state.native_data)
         try:
             payload = target.read_bytes()
         except FileNotFoundError:
             raise TerminalError("ARTIFACT_FILE_MISSING", str(target)) from None
+        if payload != expected:
+            raise TerminalError(
+                "ARTIFACT_CONTENT_MISMATCH",
+                f"落盘字节与候选内容不一致：{hashlib.sha256(payload).hexdigest()[:12]} != "
+                f"{hashlib.sha256(expected).hexdigest()[:12]}",
+            )
         digest = hashlib.sha256(payload).hexdigest()
 
         artifacts = [{
-            "id": str(derived_id(job_id, "artifact")),
+            "id": str(artifact_id_for(job_id, "native", digest)),
             "storage_key": str(target.relative_to(self.artifact_dir)).replace("\\", "/"),
             "sha256": digest,
             "media_type": "application/json",
         }]
-
-        views_file = self.artifact_dir / "revisions" / str(cand) / "teaching_views.json"
-        if views_file.exists():
-            views_bytes = views_file.read_bytes()
-            views_digest = hashlib.sha256(views_bytes).hexdigest()
+        views_file = target.parent / "teaching_views.json"
+        if views_file.exists() and state.teaching_views:
+            views_payload = views_bytes(state.teaching_views)
+            if views_file.read_bytes() != views_payload:
+                raise TerminalError("ARTIFACT_CONTENT_MISMATCH", str(views_file))
+            views_digest = hashlib.sha256(views_payload).hexdigest()
             artifacts.append({
-                "id": str(derived_id(job_id, "teaching_views")),
+                "id": str(artifact_id_for(job_id, "teaching_views", views_digest)),
                 "storage_key": str(views_file.relative_to(self.artifact_dir)).replace("\\", "/"),
                 "sha256": views_digest,
                 "media_type": "application/json",
@@ -324,17 +335,19 @@ class Chain:
             job_id=job_id,
             lease_token=self.lease_token,
             experiment_id=base["experiment_id"],
-            base_revision=base["base_revision"],
+            base_revision=state.base_revision,
             candidate_revision_id=cand,
-            native_data=json.loads(payload),
+            native_data=state.native_data,
             report_verdict=row["verdict"],
             artifacts=artifacts,
-            lesson={"views": self.cache.get("views_config")},
+            lesson={"views": state.teaching_views},
         )
+        await CandidateService(self.conn, job=self._job(base)).set_status("published")
         return {
             "head_revision_id": str(cand),
-            "artifact_id": str(derived_id(job_id, "artifact")),
+            "artifact_id": artifacts[0]["id"],
             "sha256": digest,
+            "content_hash": state.content_hash,
         }
 
     def steps(self) -> dict[str, Any]:
@@ -348,7 +361,7 @@ class Chain:
 
 
 def make_worker(
-    conn: asyncpg.Connection, *, engine_url: str, artifact_dir: Path, planner: PlannerPort,
+    conn: asyncpg.Connection, *, engine_url: str, artifact_dir: Path, planner: Any,
     lease_seconds: int = 90,
 ):
     """组合根：Worker 拿到租约之后才构造步骤，packaging 要靠 lease_token 证明执行权。"""

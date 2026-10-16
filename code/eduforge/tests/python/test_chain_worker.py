@@ -25,9 +25,9 @@ import pytest
 
 from eduforge.api.main import create_app
 from eduforge.domain.contracts import EditProposal, SetParameter, SetView
-from eduforge.infrastructure.db.repositories import JOBS_DDL
+from eduforge.infrastructure.db.migrations import apply_migrations
 from eduforge.worker.main import SimulatedCrash
-from eduforge.worker.steps import StaticPlanner, artifact_path, derived_id, make_worker, scene_bytes
+from eduforge.worker.steps import StaticPlanner, artifact_path, make_worker, scene_bytes
 
 TABLES = ("artifacts", "validation_reports", "job_events", "jobs", "experiment_revisions", "experiments")
 
@@ -89,10 +89,19 @@ def run_chain(uri, art_dir, engine_url, proposal, *, prompt="把凸透镜焦距�
 
                 job = (await client.get(f"/api/v1/jobs/{job_id}")).json()
                 detail = (await client.get(f"/api/v1/experiments/{exp['experiment_id']}")).json()
-                dl = await client.get(f"/api/v1/artifacts/{derived_id(job_id, 'artifact')}/download")
-                listing = await client.get(f"/api/v1/revisions/{derived_id(job_id, 'revision')}/artifacts")
                 rows = {}
+                # 候选版本 id 由内容哈希派生（Gate A：同一 job 的连续编辑各自成版），
+                # 用例不再自己拼 id，而是读生产写进 jobs.candidate_revision_id 的那一个。
                 async with app.state.pool.acquire() as c:
+                    cand = await c.fetchval(
+                        "select candidate_revision_id from jobs where id = $1", job_id)
+                    native_artifact = await c.fetchval(
+                        "select id from artifacts where revision_id = $1 "
+                        "and storage_key like '%native.json' order by storage_key", cand)
+                    dl = (await client.get(f"/api/v1/artifacts/{native_artifact}/download")
+                          if native_artifact else None)
+                    listing = (await client.get(f"/api/v1/revisions/{cand}/artifacts")
+                               if cand else None)
                     rows["building"] = await c.fetchrow(
                         "select payload from job_events where job_id=$1 and stage='building' "
                         "and event_type='stage_done' order by sequence", job_id)
@@ -100,12 +109,11 @@ def run_chain(uri, art_dir, engine_url, proposal, *, prompt="把凸透镜焦距�
                         "select count(*) from experiment_revisions where experiment_id=$1",
                         uuid.UUID(exp["experiment_id"]))
                     rows["art_count"] = await c.fetchval(
-                        "select count(*) from artifacts where revision_id=$1",
-                        derived_id(job_id, "revision"))
+                        "select count(*) from artifacts where revision_id=$1", cand)
                 return {
                     "exp": exp, "job_id": job_id, "job": job, "detail": detail,
                     "worker": worker_result, "download": dl, "rows": rows,
-                    "listing": listing,
+                    "listing": listing, "cand": cand,
                 }
 
     return asyncio.run(outer())
@@ -120,7 +128,7 @@ def test_chain_publishes_and_delivers_exactly_the_hashed_bytes(uri, art_dir, eng
         "planning", "editing", "building", "validating", "packaging"
     ]
 
-    cand = derived_id(out["job_id"], "revision")
+    cand = out["cand"]
     assert out["detail"]["head_revision"] == str(cand), "head 必须前进到本次候选版本"
     assert out["detail"]["revision_count"] == 2, out["detail"]
     assert out["rows"]["rev_count"] == 2
@@ -142,7 +150,7 @@ def test_chain_publishes_and_delivers_exactly_the_hashed_bytes(uri, art_dir, eng
 
     # 产物清单是前端唯一能拿来下载的入口；它给的 sha256 必须与实际交付字节一致
     listed = out["listing"].json()
-    assert listed["revision_id"] == str(derived_id(out["job_id"], "revision"))
+    assert listed["revision_id"] == str(out["cand"])
     assert len(listed["artifacts"]) == 1, listed
     assert listed["artifacts"][0]["sha256"] == out["download"].headers["x-content-sha256"]
 
@@ -156,7 +164,7 @@ def test_policy_rejection_is_terminal_and_touches_nothing(uri, art_dir, engine_u
     assert out["job"]["stage"] == "planning", out["job"]
     assert out["detail"]["revision_count"] == 1, "被拒的任务不得新增版本"
     assert out["detail"]["head_revision"] == out["exp"]["base_revision"]
-    assert out["download"].status_code == 404
+    assert out["download"] is None, "失败任务不该有可下载的候选产物登记"
     assert not any(e["event_type"] == "stage_done" for e in out["job"]["events"]
                    if e["stage"] in ("editing", "building", "validating", "packaging"))
 
@@ -173,7 +181,7 @@ def test_validation_failure_blocks_publish(uri, art_dir, engine_url):
     assert out["job"]["error_code"] == "VALIDATION_NOT_PASSED"
     assert out["detail"]["head_revision"] == out["exp"]["base_revision"], "验证不过却前进了 head"
     assert out["detail"]["revision_count"] == 1
-    assert out["download"].status_code == 404
+    assert out["download"] is None, "失败任务不该有可下载的候选产物登记"
     # building 已经落了文件（阶段顺序如此），但没有 revision 指向它——
     # 检查一遍别让它悄悄变成"孤儿产物也能下载"
     assert out["rows"]["rev_count"] == 1
@@ -193,7 +201,7 @@ def test_cli_run_once_processes_a_real_job(uri, art_dir, engine_url):
     async def seed():
         c = await asyncpg.connect(uri)
         try:
-            await c.execute(JOBS_DDL)
+            await apply_migrations(c)
             for t in TABLES:
                 await c.execute(f"delete from {t}")
             native = json.loads((Path(__file__).resolve().parents[2] / "catalog" / "templates" /
@@ -239,13 +247,15 @@ def test_cli_run_once_processes_a_real_job(uri, art_dir, engine_url):
         c = await asyncpg.connect(uri)
         try:
             return (await c.fetchval("select status from jobs where id=$1", job_id),
-                    await c.fetchval("select head_revision_id from experiments where id=$1", exp_id))
+                    await c.fetchval("select head_revision_id from experiments where id=$1", exp_id),
+                    await c.fetchval("select candidate_revision_id from jobs where id=$1", job_id))
         finally:
             await c.close()
 
-    status, head = asyncio.run(check())
+    status, head, cand = asyncio.run(check())
     assert status == "succeeded"
-    assert str(head) == str(derived_id(job_id, "revision"))
+    assert str(head) == str(cand), "head 必须前进到本 job 的候选版本"
+    assert cand is not None
 
 
 def test_recovery_rebuilds_context_from_persisted_facts(uri, art_dir, engine_url):
@@ -294,20 +304,24 @@ def test_recovery_rebuilds_context_from_persisted_facts(uri, art_dir, engine_url
 
                 job = (await client.get(f"/api/v1/jobs/{job_id}")).json()
                 detail = (await client.get(f"/api/v1/experiments/{exp_id}")).json()
-                dl = await client.get(f"/api/v1/artifacts/{derived_id(job_id, 'artifact')}/download")
                 async with app.state.pool.acquire() as c:
+                    cand = await c.fetchval("select candidate_revision_id from jobs where id=$1", job_id)
+                    native_artifact = await c.fetchval(
+                        "select id from artifacts where revision_id = $1 "
+                        "and storage_key like '%native.json' order by storage_key", cand)
+                    dl = (await client.get(f"/api/v1/artifacts/{native_artifact}/download")
+                          if native_artifact else None)
                     rev_count = await c.fetchval(
                         "select count(*) from experiment_revisions where experiment_id=$1",
                         uuid.UUID(exp_id))
                     art_count = await c.fetchval(
-                        "select count(*) from artifacts where revision_id=$1",
-                        derived_id(job_id, "revision"))
+                        "select count(*) from artifacts where revision_id=$1", cand)
                     starts = await c.fetch(
                         "select stage, event_type, count(*) n from job_events where job_id=$1 "
                         "group by stage, event_type order by stage, event_type", job_id)
                 return {
                     "job_id": job_id, "job": job, "detail": detail, "dl": dl,
-                    "result_b": result_b, "rev_count": rev_count, "art_count": art_count,
+                    "result_b": result_b, "rev_count": rev_count, "art_count": art_count, "cand": cand,
                     "starts": {f"{r['stage']}/{r['event_type']}": r["n"] for r in starts},
                 }
 

@@ -30,7 +30,7 @@ from eduforge.experiment_tools.contracts import (
 from eduforge.experiment_tools.langchain_tools import get_experiment_tools
 from eduforge.experiment_tools.service import ExperimentToolService
 from eduforge.infrastructure.clients.engine_client import EngineClient
-from eduforge.infrastructure.db.repositories import JOBS_DDL
+from eduforge.infrastructure.db.migrations import apply_migrations
 
 
 @pytest.fixture(scope="module")
@@ -51,7 +51,7 @@ def artifact_dir():
 
 
 async def _fresh_service(c, artifact_dir: Path, engine_url: str) -> ExperimentToolService:
-    await c.execute(JOBS_DDL)
+    await apply_migrations(c)
     for t in ("artifacts", "validation_reports", "job_events", "jobs", "experiment_revisions", "experiments"):
         await c.execute(f"delete from {t}")
     job_id = uuid.uuid4()

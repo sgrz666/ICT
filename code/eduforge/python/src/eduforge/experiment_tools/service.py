@@ -24,6 +24,14 @@ from uuid import UUID
 import asyncpg
 
 from eduforge.agent.policy import authorize_operation, load_template
+from eduforge.application.candidate_service import (
+    CandidateFrozen,
+    CandidateService,
+    CandidateState,
+    content_fingerprint,
+    native_bytes,
+    views_bytes,
+)
 from eduforge.domain.contracts import SetParameter, SetView
 from eduforge.domain.errors import ConflictError, NotFoundError
 from eduforge.experiment_tools.contracts import (
@@ -48,6 +56,10 @@ from eduforge.experiment_tools.contracts import (
 )
 from eduforge.infrastructure.catalog import CatalogError, load_native
 from eduforge.infrastructure.clients.engine_client import EngineClient
+from eduforge.infrastructure.db.candidate_repository import (
+    CandidateScopeConflict,
+    CandidateVersionConflict,
+)
 from eduforge.infrastructure.db.repositories import RevisionConflict, derived_id
 from eduforge.application.publication import Publisher
 from eduforge.validation.policies import build_report
@@ -130,7 +142,10 @@ class ExperimentToolService:
         self.templates_dir = templates_dir or (
             Path(__file__).resolve().parents[4] / "code" / "eduforge" / "catalog" / "templates"
         )
+        # `_sessions` 只是本次进程内的缓存：未发布工作态的真相在 `experiment_candidates`。
+        # 以前它是唯一存储，进程一退教师成果就没了，Worker 只好在基线上重放操作。
         self._sessions: dict[str, dict[str, Any]] = {}
+        self.candidates = CandidateService(conn, job=job)
 
     def _require_owner(self, action: str) -> JobContext:
         """任何要确定归属的动作都得有服务端签发的上下文。
@@ -234,6 +249,20 @@ class ExperimentToolService:
             exp_id_str = bound
 
         if exp_id_str is None:
+            # 不带 experiment_id 的再次打开 = 续用本 job 的候选，不是凭空多开一份实验。
+            # 以前这里每次都 uuid4() 新建，接上候选之后会变成换绑冲突：
+            # 模型绕一圈回来就看不见自己刚改的东西了。
+            resumed = None
+            if self.job is not None:
+                try:
+                    resumed = await self.candidates.load()
+                except CandidateFrozen:
+                    resumed = None
+            if resumed is not None:
+                exp_id_str = str(resumed.experiment_id)
+                base_rev_str = str(resumed.base_revision)
+
+        if exp_id_str is None:
             job = self._require_owner("创建实验")
             exp_uuid = uuid.uuid4()
             rev_uuid = uuid.uuid4()
@@ -276,28 +305,22 @@ class ExperimentToolService:
                     if rev_row is not None:
                         native = json.loads(rev_row["native_data"])
 
-        # 初始化/更新当前工作态。
-        # 已存在会话时不再无条件覆盖：覆盖会静默丢掉未发布的编辑，教师看不见的损失。
-        existing = self._sessions.get(exp_id_str)
-        if existing is not None and existing.get("edits"):
-            raise ConflictError(
-                f"实验 {exp_id_str} 已有未发布的修改，重新打开会丢弃它们；"
-                "请先发布或显式回滚"
+        # 工作态落在候选行上：同一个 job 反复打开，续用的是同一份未发布成果；
+        # 换一个进程（崩溃后接管的 Worker）读回来的是同一行、同一个内容哈希。
+        # 已存在的候选不会被这次 open 覆盖——未发布的编辑被静默丢掉是教师看不见的损失。
+        if not self.candidates.persistent:
+            self.candidates.note_experiment(UUID(exp_id_str))
+        try:
+            state = await self.candidates.open(
+                experiment_id=UUID(exp_id_str),
+                base_revision=UUID(base_rev_str) if base_rev_str else UUID(int=0),
+                owner_id=self.job.owner_id if self.job is not None else "",
+                template_id=template_id,
+                native=native,
             )
-        session = {
-            "experiment_id": exp_id_str,
-            "template_id": template_id,
-            "base_revision": base_rev_str,
-            "head_revision": head_rev_str,
-            "owner_id": self.job.owner_id if self.job is not None else None,
-            "native_data": json.loads(json.dumps(native)),
-            "initial_native": json.loads(json.dumps(native)),
-            "edits": [],
-            "views_config": {},
-            "validation_report": None,
-            "validated_digest": None,
-            "engine_result": None,
-        }
+        except (CandidateScopeConflict, CandidateVersionConflict) as exc:
+            raise ConflictError(str(exc)) from exc
+        session = self._session_from_state(exp_id_str, state)
         self._sessions[exp_id_str] = session
 
         return OpenExperimentOutput(
@@ -311,37 +334,86 @@ class ExperimentToolService:
         )
 
 
-    def _get_session(self, experiment_id: str) -> dict[str, Any]:
+    def _session_from_state(self, experiment_id: str, state: CandidateState) -> dict[str, Any]:
+        """由候选行重建工作态缓存条目——重启后的 Worker 靠这一句回到断点。"""
+        return {
+            "experiment_id": experiment_id,
+            "template_id": state.template_id,
+            "base_revision": str(state.base_revision),
+            "head_revision": str(state.base_revision),
+            "owner_id": state.owner_id,
+            "native_data": json.loads(json.dumps(state.native_data)),
+            "initial_native": json.loads(json.dumps(state.native_data)),
+            "edits": [SetParameter.model_validate(e) for e in state.edits],
+            "views_config": json.loads(json.dumps(state.teaching_views)),
+            "candidate": state,
+            "validation_report": None,
+            "validated_digest": state.validation_hash,
+            "engine_result": None,
+        }
+
+    async def _session(self, experiment_id: str) -> dict[str, Any]:
+        """取本 job 的工作态：先查进程内缓存，缺失就从候选行重建。
+
+        以前缓存没有就是「会话不存在或未打开」，进程一退教师成果即失联；
+        现在候选在库里，新建一个 service 也拿得到同一份工作态。
+        """
         # 作用域边界先于会话查找：job 绑定了哪个实验，就只能碰哪个实验。
         if self.job is not None and self.job.experiment_id is not None:
             if str(self.job.experiment_id) != str(experiment_id):
                 raise ConflictError(
                     f"SCOPE_MISMATCH: 本任务绑定实验 {self.job.experiment_id}，不能操作 {experiment_id}"
                 )
-        if experiment_id not in self._sessions:
+        cached = self._sessions.get(experiment_id)
+        if cached is not None:
+            return cached
+        try:
+            state = await self.candidates.load()
+        except CandidateFrozen:
+            state = None
+        if state is None or str(state.experiment_id) != str(experiment_id):
             raise NotFoundError(f"实验会话不存在或未打开: {experiment_id}")
-        return self._sessions[experiment_id]
+        session = self._session_from_state(experiment_id, state)
+        self._sessions[experiment_id] = session
+        return session
+
+    async def _persist(self, session: dict[str, Any]) -> CandidateState:
+        """把当前缓存内容写穿到候选行；写不进去就不回报成功。"""
+        edits = [e.model_dump() for e in session.get("edits", [])]
+        base = session.get("candidate")
+        expected = base.state_version if base is not None else 0
+        try:
+            state = await self.candidates.write(
+                native=session["native_data"], views=session["views_config"],
+                edits=edits, expected_version=expected,
+            )
+        except (CandidateScopeConflict, CandidateVersionConflict) as exc:
+            raise ConflictError(str(exc)) from exc
+        session["candidate"] = state
+        # 内容变了，之前那份验证结论当场失效（库里也清了，双写只为这一条）
+        session["validation_report"] = None
+        session["validated_digest"] = None
+        return state
 
     @staticmethod
     def _working_digest(session: dict[str, Any]) -> str:
-        """工作态内容的指纹：原生场景 + 教学配置。"""
-        payload = json.dumps(
-            {"native": session.get("native_data"), "views": session.get("views_config")},
-            sort_keys=True,
-            ensure_ascii=False,
-        )
-        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+        """工作态内容的指纹：原生场景 + 教学视图，与候选行的算法完全一致。"""
+        return content_fingerprint(session.get("native_data"), session.get("views_config"))
 
     def _fresh_validation(self, session: dict[str, Any]) -> Any | None:
-        """只承认与当前内容指纹一致的验证报告。
+        """只承认钉在当前候选内容上的验证报告。
 
-        靠「每个写操作记得清标记」会漏；指纹不匹配就当没验过，结构上杜绝
-        「改完场景拿旧绿灯发布」。
+        靠「每个写操作记得清标记」会漏；内容指纹与库里的 `validation_hash`
+        任一对不上就当没验过，结构上杜绝「改完场景拿旧绿灯发布」。
         """
         report = session.get("validation_report")
         if report is None:
             return None
-        if session.get("validated_digest") != self._working_digest(session):
+        digest = self._working_digest(session)
+        if session.get("validated_digest") != digest:
+            return None
+        state = session.get("candidate")
+        if state is not None and not state.is_validated:
             return None
         return report
 
@@ -352,7 +424,7 @@ class ExperimentToolService:
         else:
             req = input_data
 
-        session = self._get_session(req.experiment_id)
+        session = await self._session(req.experiment_id)
         native = session["native_data"]
         extracted = _extract_lens_and_source(native, units_per_unit=10)
 
@@ -389,7 +461,7 @@ class ExperimentToolService:
         else:
             req = input_data
 
-        session = self._get_session(req.experiment_id)
+        session = await self._session(req.experiment_id)
         raw_edits = req.edits
         edits_list = raw_edits if isinstance(raw_edits, list) else [raw_edits]
 
@@ -434,6 +506,11 @@ class ExperimentToolService:
                     existing.append(new_row)
                     table["records"] = existing
 
+        # 引擎改完、记录表补完，这一版内容就写穿到候选行。
+        # 写失败必须让这次工具调用失败：只改内存缓存却回报 applied，
+        # 后面 Worker 读到的候选还是旧的，交付出去的东西与模型验过的东西分家。
+        await self._persist(session)
+
         return ApplyScenePatchOutput(
             experiment_id=req.experiment_id,
             applied_edits=[e.model_dump() for e in parsed_edits],
@@ -455,7 +532,7 @@ class ExperimentToolService:
         else:
             req = input_data
 
-        session = self._get_session(req.experiment_id)
+        session = await self._session(req.experiment_id)
         views = req.views
         view_configs: dict[str, Any] = session["views_config"]
 
@@ -519,6 +596,7 @@ class ExperimentToolService:
 
 
         session["views_config"] = view_configs
+        await self._persist(session)
         return ConfigureTeachingViewsOutput(
             experiment_id=req.experiment_id,
             views_config=view_configs,
@@ -532,7 +610,7 @@ class ExperimentToolService:
         else:
             req = input_data
 
-        session = self._get_session(req.experiment_id)
+        session = await self._session(req.experiment_id)
         template = load_template(session["template_id"])
 
         # 确保有最新 engine_result
@@ -565,10 +643,15 @@ class ExperimentToolService:
         session["validation_report"] = report
         session["validated_digest"] = self._working_digest(session)
 
+        report_id = uuid.uuid4()
         if self.job is not None and self.conn is not None:
             # 验证结论当场落库。以前只有 Worker 的 validating 阶段会写 validation_reports，
             # 工具路径的「验过了」只是内存里的一句话，事后无从核对 observed/expected。
-            await Publisher(self.conn).record_report(job_id=self.job.job_id, report=report)
+            report_id = await Publisher(self.conn).record_report(job_id=self.job.job_id, report=report)
+        # 报告钉在这份候选的当前内容上：内容再变，绑定就作废（仓储里那条
+        # `where content_hash = $3` 是这道保证的唯一实现处）。
+        session["candidate"] = await self.candidates.bind_validation(report_id)
+        session["validation_id"] = str(report_id)
 
         passed = report.verdict == "passed"
         return RunValidationOutput(
@@ -590,7 +673,7 @@ class ExperimentToolService:
         else:
             req = input_data
 
-        session = self._get_session(req.experiment_id)
+        session = await self._session(req.experiment_id)
         report = self._fresh_validation(session)
         if report is None:
             # 没有与当前内容同指纹的报告——必须重验，不能沿用旧绿灯
@@ -600,25 +683,24 @@ class ExperimentToolService:
         elif report.verdict != "passed":
             raise ConflictError(f"场景未通过科学验证，不得打包: {report.verdict}")
 
-        # 候选 id 由内容指纹派生：同一份工作态重跑必须落在同一个 id 上，
-        # 否则重试会插出第二个候选版本、并把同一份字节登记成两个产物。
-        cand_digest = self._working_digest(session)
-        cand_id = derived_id(self.job.job_id, f"candidate:{cand_digest}") if self.job is not None else uuid.uuid4()
+        # 冻结候选：从这里起，字节、验证报告、产物登记都只认这一版内容。
+        # 版本与产物 id 由候选内容哈希派生——同一份内容重跑落在同一个 id 上（幂等），
+        # 内容变了才是新版本（连续编辑），不会把两次编辑悄悄发布成同一版。
+        frozen = await self.candidates.freeze()
+        cand_id = self.candidates.revision_id(frozen)
         session["candidate_revision_id"] = str(cand_id)
+        session["candidate"] = frozen
 
         # 写入候选目录
         cand_dir = self.artifact_dir / "revisions" / str(cand_id)
         cand_dir.mkdir(parents=True, exist_ok=True)
         native_file = cand_dir / "native.json"
-        native_bytes = (json.dumps(session["native_data"], ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-        native_file.write_bytes(native_bytes)
-        native_digest = hashlib.sha256(native_bytes).hexdigest()
+        native_payload = native_bytes(frozen.native_data)
+        native_file.write_bytes(native_payload)
+        native_digest = hashlib.sha256(native_payload).hexdigest()
 
         def art_id(name: str, digest: str) -> str:
-            # 产物 id 同样由内容派生，理由与候选 id 一致：重跑不得多出第二条登记。
-            if self.job is not None:
-                return str(derived_id(self.job.job_id, f"artifact:{name}:{digest}"))
-            return str(uuid.uuid4())
+            return str(self.candidates.artifact_id(frozen, name, digest))
 
         artifacts = [{
             "id": art_id("native", native_digest),
@@ -628,12 +710,12 @@ class ExperimentToolService:
         }]
 
         # 教学视图
-        views_config = session.get("views_config")
+        views_config = frozen.teaching_views
         if views_config:
             views_file = cand_dir / "teaching_views.json"
-            views_bytes = (json.dumps(views_config, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-            views_file.write_bytes(views_bytes)
-            views_digest = hashlib.sha256(views_bytes).hexdigest()
+            views_payload = views_bytes(views_config)
+            views_file.write_bytes(views_payload)
+            views_digest = hashlib.sha256(views_payload).hexdigest()
             artifacts.append({
                 "id": art_id("teaching_views", views_digest),
                 "storage_key": str(views_file.relative_to(self.artifact_dir)).replace("\\", "/"),
@@ -646,7 +728,7 @@ class ExperimentToolService:
             pkg_out_dir = cand_dir / "offline_package"
             pkg_out_dir.mkdir(parents=True, exist_ok=True)
             res = await self.engine_client.export_offline_package(
-                session["native_data"],
+                frozen.native_data,
                 out_dir=str(pkg_out_dir),
                 options={"title": "EduForge 凸透镜成像实验"},
             )
@@ -654,7 +736,7 @@ class ExperimentToolService:
             if views_config:
                 pkg_views = pkg_out_dir / "www" / "scene" / "teaching_views.json"
                 pkg_views.parent.mkdir(parents=True, exist_ok=True)
-                pkg_views.write_bytes(views_bytes)
+                pkg_views.write_bytes(views_payload)
 
             # 逐文件哈希整包，再落一份 manifest：交付字节必须能被复核，
             # 只记 native.json 的哈希等于没记——离线包真出事时是 www/ 里的资源。
@@ -714,7 +796,7 @@ class ExperimentToolService:
             req = input_data
 
         job = self._require_job("发布版本")
-        session = self._get_session(req.experiment_id)
+        session = await self._session(req.experiment_id)
 
         report = self._fresh_validation(session)
         if report is None:
@@ -733,9 +815,19 @@ class ExperimentToolService:
         if not cand_id_str or not artifacts:
             raise ConflictError("没有已构建的候选与产物登记，不能发布")
 
-        cand_uuid = UUID(cand_id_str)
+        # 发布以库里的候选为准，不以缓存的字符串为准：两者不一致说明缓存在
+        # 别处被推进过，这种「发布一份、验证的是另一份」的情形必须挡下来。
+        state = await self.candidates.load()
+        if state is None:
+            raise ConflictError("候选行不存在，无法发布")
+        cand_uuid = self.candidates.revision_id(state)
+        if str(cand_uuid) != str(cand_id_str):
+            raise ConflictError(
+                f"候选内容在构建后又变了（构建 {cand_id_str}，当前 {cand_uuid}），必须重新验证与构建"
+            )
+
         exp_uuid = UUID(req.experiment_id)
-        base_rev_str = req.base_revision or session["head_revision"]
+        base_rev_str = req.base_revision or str(state.base_revision)
         base_uuid = UUID(base_rev_str)
 
         publisher = Publisher(self.conn)
@@ -746,19 +838,22 @@ class ExperimentToolService:
             experiment_id=exp_uuid,
             base_revision=base_uuid,
             candidate_revision_id=cand_uuid,
-            native_data=session["native_data"],
+            native_data=state.native_data,
             report_verdict=report.verdict,
             artifacts=artifacts,
-            lesson={"views": session.get("views_config")},
+            lesson={"views": state.teaching_views},
             close_job=close_job,
         )
 
-        # 推进会话版本状态（支持连续编辑链）
-        session["base_revision"] = cand_id_str
-        session["head_revision"] = cand_id_str
+        # 推进会话版本状态（支持连续编辑链）：候选的基线跟着前进到刚发布的那一版，
+        # 否则同一 job 的第二次发布还拿最初的 base 去撞乐观并发。
+        await self.candidates.rebase(cand_uuid)
+        session["base_revision"] = str(cand_uuid)
+        session["head_revision"] = str(cand_uuid)
         session["candidate_revision_id"] = None
         session["built_artifacts"] = None
         session["built_package"] = None
+        session["candidate"] = await self.candidates.load()
 
         return PublishRevisionOutput(
             experiment_id=req.experiment_id,

@@ -22,6 +22,7 @@
 | [`tests/`](tests/README.md) | pytest 套件 | [`tests/python/`](tests/python/README.md)（19 个 `test_*.py` + conftest.py + 正则对照组夹具） |
 | [`tools/`](tools/README.md) | 验证探针与代码生成工具 | rayoptics_probe.cjs、gate2_binding.cjs、browser_gate1*.py、export_contracts.py |
 | `benchmarks/` | 12 题基准评测数据集与运行器 | `tasks.jsonl`（三类题型）、`profiles.yaml`、`runner.py` |
+| `output/` | **运行期临时落盘区，已列入根 `.gitignore`、不入库、不写 README** | 实测当前只有 `output/eduforge/reports/` 三份基准 JSON（`benchmark-screening.json`、`benchmark-agent_graph.json`、`benchmark-deepseek_direct.json`）。这是 `benchmarks/runner.py` 以工程根为 CWD 时的输出位置；**权威证据目录在仓库根** [`../../output/eduforge/reports/`](../../output/eduforge/reports/README.md)。其中 `benchmark-agent_graph.json` 与 `benchmark-deepseek_direct.json` 与仓库根同名文件内容不同（不同轮次运行），只有 `benchmark-screening.json` 逐字一致——别把这里当权威 |
 
 ## 一次修改的调用链（设计见 plan/§2.2）
 
@@ -29,7 +30,7 @@
 
 ## 当前状态与边界
 
-- 已实测闭环：上游场景程序化修改、仿真结果与独立公式吻合（切片 1–8 主要目标达成；教师端版本回滚与实时改参闭环；单文件 HTML 离线直开通过 i18n 预注入补丁解决；代码定制与沙箱预算模块就绪）；测试规模达 vitest 54 / pytest 103 全绿（其中 1 项真模型用例在无 key 时显式 SKIPPED），计数唯一记在 [`catalog/engines/ray-optics.yaml`](catalog/engines/ray-optics.yaml) 的 `test_totals`。
+- 已实测闭环：上游场景程序化修改、仿真结果与独立公式吻合（切片 1–8 主要目标达成；教师端版本回滚与实时改参闭环；单文件 HTML 离线直开通过 i18n 预注入补丁解决；代码定制与沙箱预算模块就绪）；测试规模达 vitest 54 / pytest 113 全绿（其中 1 项真模型用例在无 key 时显式 SKIPPED），计数唯一记在 [`catalog/engines/ray-optics.yaml`](catalog/engines/ray-optics.yaml) 的 `test_totals`。
 - 2026-10-16 新增：**Deep Agents 执行核心**（`agent/deepagents_runtime.py` + `deepagents_planner.py` + `tool_registry.py`）。真实模型在真实实验上自主完成「焦距 15cm + 物距 30cm + 数据记录表」并留下可核对的 Tool Trace（证据：[`../../output/eduforge/reports/agent-deepagents-real.json`](../../output/eduforge/reports/README.md)）。同时删掉了规则式 `agent/tool_agent.py`（448 行，其「自愈」靠伪造验证记录），并修掉一批让「失败可以说成成功」的缺陷（验证结论不随场景失效、无库连接仍回报已发布、`base_untouched` 恒真、8 项工具不经过策略清单、`owner_id` 可由模型自填等）。详见 [`26.10.16_EduForge_DeepAgents落地核查与实况修正.md`](../../plan/26.10.16_EduForge_DeepAgents落地核查与实况修正.md)。
 - 未闭环：Deep Agents **经 Worker 端到端**跑通（租约从不续期，真模型多轮必然超过默认 90s——本轮实测是直接驱动工具服务）；真实模型 12 题基准档位；容器沙箱运行时（切片 7，无 Docker 环境时优雅降级）；MCP 协议合规（只处理 3 个方法，对 `notifications/initialized` 回 `-32601`）；`experiment_tools` 与 `worker/steps.py` 仍是两份操作实现。
 - 完整排期与逐轮进度在 [`../../plan/26.10.15_EduForge_推进计划.md`](../../plan/26.10.15_EduForge_推进计划.md)；上游事实在 [`../../source/upstream/upstream.lock.json`](../../source/upstream/upstream.lock.json)；验证证据在 [`../../output/eduforge/reports/`](../../output/eduforge/reports/README.md)。
@@ -39,7 +40,7 @@
 ```bash
 # Python 侧（工程根目录）
 uv sync                       # 按 uv.lock 建环境（.venv 在本目录）
-uv run pytest                 # 103 个用例
+uv run pytest                 # 113 个用例
 uv run python -m eduforge.worker.run   # 手动跑一个 Worker
 uv run python benchmarks/runner.py     # 运行 12 题基准评测集
 

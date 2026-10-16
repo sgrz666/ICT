@@ -21,7 +21,7 @@ import asyncpg
 
 from eduforge.agent.planners import MissingApiKey, planner_from_env
 from eduforge.domain.contracts import EditProposal, PlannerRequest, SetParameter
-from eduforge.infrastructure.db.repositories import JOBS_DDL
+from eduforge.infrastructure.db.migrations import apply_migrations
 from eduforge.worker.steps import StaticPlanner, make_worker
 
 STATIC_BANNER = (
@@ -70,7 +70,7 @@ def select_planner(args: argparse.Namespace) -> tuple[Any, str]:
 
 
 async def loop(conn, *, engine_url: str, artifact_dir: Path, planner, args) -> int:
-    await conn.execute(JOBS_DDL)
+    await apply_migrations(conn)
     worker = make_worker(
         conn, engine_url=engine_url, artifact_dir=artifact_dir,
         planner=planner, lease_seconds=args.lease_seconds,
@@ -114,10 +114,12 @@ def main(argv: list[str] | None = None) -> int:
         conn = await asyncpg.connect(args.dsn)
         chosen = planner
         if kind == "deep":
-            from eduforge.agent.deepagents_planner import DeepAgentPlanner
+            # 生产配置走 Runner：模型直接改持久候选，Worker 不再重放第二遍。
+            # （旧的 DeepAgentPlanner 仍在仓库里，作为对照基线与迁移期的兼容入口。）
+            from eduforge.agent.deepagents_runner import DeepAgentRunner
             from eduforge.infrastructure.clients.engine_client import EngineClient
 
-            chosen = DeepAgentPlanner(
+            chosen = DeepAgentRunner(
                 conn=conn, engine=EngineClient(args.engine_url), artifact_dir=Path(args.artifact_dir)
             )
         try:

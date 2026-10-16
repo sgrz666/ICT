@@ -6,6 +6,7 @@
 
 | 文件 | 行数 | 职责 | 关键符号 |
 |---|---|---|---|
+| `candidate_service.py` | 381 | **Gate A 的候选业务层**：`CandidateState`（含 `content_hash`/`state_version`/`validation_hash`）、canonical JSON 与内容指纹（场景 + 教学视图，浮点归一）、`native_bytes`/`views_bytes` 这两个唯一的字节写法、`AgentRunRecord`（Agent 执行完成记录），以及 `CandidateService`：open/load/write(CAS)/bind_validation/freeze/rebase/attach_trace。没库或没 job 时显式退化为进程内缓存并如实标注 | `CandidateState`, `AgentRunRecord`, `CandidateService`, `content_fingerprint`, `canonical_json`, `native_bytes`, `views_bytes` |
 | `coordinator.py` | 46 | **阶段机**：按 `STAGES` 顺序推进；依据 `job_events` 的 `stage_done` 事件断点恢复（崩溃后从首个未完成阶段续跑） | `STAGES`, `Step`, `Coordinator` |
 | `experiment_service.py` | 133 | 模板实例化与版本管理：`create_from_template`（克隆基础版本）、`rollback`（回退 head，校验 owner/活跃任务） | `ExperimentService`, `ExperimentLookup`, `ExperimentNotFound`, `TemplateNotFound`, `RevisionNotFound`, `ActiveJobConflict` |
 | `job_service.py` | 54 | 任务生命周期：提交（幂等）、取消（已成功不回滚）、查询（含事件时间线） | `JobService` |

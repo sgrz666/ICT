@@ -128,6 +128,24 @@ def derived_id(job_id: UUID, kind: str) -> UUID:
     return uuid.uuid5(ID_NAMESPACE, f"{job_id}:{kind}")
 
 
+# 候选与候选派生物（发布版本、产物登记）的 id 一律带内容哈希：
+# 同一份内容重跑落在同一个 id 上（幂等），内容变了就是新版本（连续编辑链）。
+# 只按 job_id 派生会让同一个 job 的第二次编辑撞主键，把「先改 A 再改 B」
+# 悄悄变成「交付 A」。
+def candidate_id_for(job_id: UUID) -> UUID:
+    """一个 job 只有一个工作态候选，id 稳定，不随内容变化。"""
+    return derived_id(job_id, "candidate")
+
+
+def revision_id_for(job_id: UUID, content_hash: str) -> UUID:
+    """发布出去的版本 id：由候选内容哈希派生。"""
+    return derived_id(job_id, f"revision:{content_hash}")
+
+
+def artifact_id_for(job_id: UUID, name: str, digest: str) -> UUID:
+    return derived_id(job_id, f"artifact:{name}:{digest}")
+
+
 class DuplicateIdempotencyKey(Exception):
     """同一个幂等键配了不同请求内容。"""
 

@@ -36,6 +36,7 @@ from eduforge.domain.contracts import (
     RollbackRequest,
     TemplateList,
 )
+from eduforge.infrastructure.db.migrations import apply_migrations
 from eduforge.infrastructure.db.repositories import (
     JOBS_DDL,
     DuplicateIdempotencyKey,
@@ -53,7 +54,8 @@ CONFLICT = {409: {"model": ApiErrorResponse}}
 async def lifespan(app: FastAPI):
     pool = await asyncpg.create_pool(dsn=app.state.dsn, min_size=1, max_size=4)
     async with pool.acquire() as c:
-        await c.execute(JOBS_DDL)
+        # 建表不再是「跑一遍 DDL」：迁移按版本推进并记账，旧库才能拿到新列
+        await apply_migrations(c)
     app.state.pool = pool
     yield
     await pool.close()
