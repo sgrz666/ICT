@@ -429,7 +429,63 @@ def test_agent_candidate_bytes_are_exactly_what_gets_downloaded(uri, art_dir, en
             assert hashlib.sha256(delivered).hexdigest() == downloaded
             rev_native = await c.fetchval(
                 "select native_data::text from experiment_revisions where id=$1", head)
-            assert json.loads(rev_native) == native
+            scene = json.loads(rev_native)
+            lens = next(o for o in scene["objs"] if o.get("type") == "IdealLens")
+            source = next(o for o in scene["objs"] if o.get("type") == "PointSource")
+            lens_x = (float(lens["p1"]["x"]) + float(lens["p2"]["x"])) / 2
+            assert float(lens["focalLength"]) / 10 == 15.0, "发布的必须是教师要的 15cm 焦距"
+            assert abs(float(source["x"]) - lens_x) / 10 == 30.0, "发布的必须是 30cm 物距"
+            lesson = await c.fetchval(
+                "select lesson::text from experiment_revisions where id=$1", head)
+            views = json.loads(lesson)["views"]
+            assert views.get("measurement_table", {}).get("visible") is True, views
+            assert content_fingerprint(scene, views) == state["content_hash"], (
+                "发布版本的内容必须与候选同一指纹——否则「验证 A 发布 B」又回来了"
+            )
+        finally:
+            await c.close()
+
+    asyncio.run(go())
+
+
+def test_view_only_task_runs_through_the_worker_chain(uri, art_dir, engine_url):
+    """纯视图任务（只打开记录表、不动参数）必须能走完五阶段并发布。
+
+    外部审查文档特别提醒过这一点：以前只用「改参数 + 开表」验证，纯视图那条
+    分支会构造一个不含 `base_untouched` 的伪结果，`bool(result.get(...))` 恒 False，
+    于是任务被误判为「基线被暗改」。用例因此直接打 Worker 组合根，而不是只打工具层。
+    """
+    from eduforge.worker.steps import make_worker
+
+    async def go():
+        c = await asyncpg.connect(uri)
+        try:
+            await _schema(c)
+            exp_id, base_rev = await _seed_experiment(c)
+            job_id, token = await _seed_job(c, exp_id=exp_id, base_rev=base_rev)
+            await c.execute("update jobs set status='queued', lease_token=NULL, lease_until=NULL")
+            proposal = EditProposal(
+                route="config", operations=[SetView(view_id="measurement_table", visible=True)]
+            )
+            from eduforge.worker.steps import StaticPlanner
+
+            worker = make_worker(c, engine_url=engine_url, artifact_dir=art_dir,
+                                 planner=StaticPlanner(proposal), lease_seconds=600)
+            result = await worker.run_once()
+            assert "failed" not in result, result
+            assert result["last_stage"] == "packaging", result
+
+            editing = await c.fetchrow(
+                "select payload from job_events where job_id=$1 and stage='editing' and event_type='stage_done'",
+                job_id)
+            payload = json.loads(editing["payload"])
+            assert payload["base_untouched"] is True, payload
+            state = await c.fetchrow("select native_data, teaching_views from experiment_candidates")
+            assert json.loads(state["teaching_views"])["measurement_table"]["visible"] is True
+            assert json.loads(state["native_data"]) == json.loads(
+                await c.fetchval("select native_data::text from experiment_revisions where id=$1", base_rev)
+            ), "只开视图不该动场景一个字节"
+            assert await c.fetchval("select count(*) from experiment_revisions") == 2
         finally:
             await c.close()
 
