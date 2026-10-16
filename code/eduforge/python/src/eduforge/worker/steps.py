@@ -27,18 +27,12 @@ from eduforge.agent.policy import authorize, load_template
 from eduforge.application.publication import Publisher
 from eduforge.domain.contracts import EditProposal, PlannerRequest, SetParameter, SetView, WorkOrder
 from eduforge.infrastructure.clients.engine_client import EngineClient
-from eduforge.infrastructure.db.repositories import JobRepository
+from eduforge.infrastructure.db.repositories import JobRepository, derived_id
 from eduforge.validation.policies import build_report
 from eduforge.worker.errors import TerminalError
 
-# 候选版本与产物 id 由 job_id 派生，不用随机 uuid：
-# 崩在 packaging 里重来时必须落在同一批 id 上，否则重跑会插出第二个候选版本、
-# 或把同一份字节登记成两个产物。
-ID_NAMESPACE = UUID("6b1c9df8-7f6a-4f0e-9b9f-4b8a9c1edf01")
-
-
-def derived_id(job_id: UUID, kind: str) -> UUID:
-    return uuid.uuid5(ID_NAMESPACE, f"{job_id}:{kind}")
+# 候选版本与产物 id 由 job_id 派生，不用随机 uuid：崩在 packaging 里重来时必须
+# 落在同一批 id 上。派生规则住在持久层 repositories，工具层与这里共用。
 
 
 class PlannerPort(Protocol):
@@ -106,8 +100,24 @@ class Chain:
         if row is None:
             raise TerminalError("JOB_NOT_FOUND", str(job_id))
         out = dict(row)
+        # 留下原始文本指纹：后面要断言基线版本在编辑之后仍是同一份字节
+        out["native_digest"] = hashlib.sha256(out["native"].encode("utf-8")).hexdigest()
         out["native"] = json.loads(out["native"])
         return out
+
+    async def _base_untouched(self, base: dict[str, Any]) -> bool:
+        """基线版本必须逐字节仍是取回来的那一份——这才叫可回滚。
+
+        这里原来写成 `(base["native"] != result["native"]) or True`：恒真，
+        `validation/policies.py` 的 base_untouched 判据因此永远不会失败，
+        README 宣称的那道闸门实际不存在。
+        """
+        now_text = await self.conn.fetchval(
+            "select native_data::text from experiment_revisions where id = $1", base["base_revision"]
+        )
+        if now_text is None:
+            return False
+        return hashlib.sha256(now_text.encode("utf-8")).hexdigest() == base["native_digest"]
 
     async def _order(self, job_id: UUID) -> tuple[dict[str, Any], WorkOrder, SetParameter | None, list[SetView]]:
         """授权结果读自 jobs.work_order：planning 之后的一切都必须能只靠持久化事实重建。"""
@@ -173,14 +183,15 @@ class Chain:
                 last_res = await self.engine.apply(curr_native, p_edit.model_dump())
                 curr_native = last_res["native"]
             result = last_res
-            result["base_untouched"] = (base["native"] != result["native"]) or True
         else:
             result = {
-                "base_untouched": True,
                 "native": base["native"],
                 "validation": {"ok": True, "error": None, "objs": base["native"].get("objs", [])},
                 "measurement": {"probes": [], "processedRayCount": 0},
             }
+        # 引擎其实已经算对了这个字段（main.ts:60 比对入参与产出的 base_native），
+        # 旧代码用 `... or True` 把它覆盖掉；这里两者取与，任一处不成立就是被改过。
+        result["base_untouched"] = bool(result.get("base_untouched")) and await self._base_untouched(base)
         if not result.get("validation", {}).get("ok"):
             raise TerminalError("UPSTREAM_REJECTED", str(result.get("validation")))
         self.cache["engine_result"] = result

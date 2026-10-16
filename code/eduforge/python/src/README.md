@@ -6,7 +6,7 @@ Python 包 `eduforge` 的全部代码，分层原则：**依赖只能从外向�
 
 | 模块 | 职责 | 关键文件 |
 |---|---|---|
-| `agent/` | LangGraph 规划图、策略与工具 Agent | `graph.py`（图编排）、`state.py`（规划状态机）、`tool_agent.py`（自主工具调用循环与连续编辑智能体）、`retrieval.py`、`model.py`、`bootstrap.py`（`build_planner()` 标准构建入口）、`policy.py`（服务端授权防线）、`services.py` |
+| `agent/` | 执行核心、策略与规划端口 | `deepagents_runtime.py`（Deep Agents 装配与 trace）、`deepagents_planner.py`（`PlannerPort` 生产实现）、`tool_registry.py`（模型可见 6 项工具）、`fake_model.py`（脚本化假模型）、`prompts/`（系统行为规范）、`graph.py`（四节点单轮基线）、`state.py`、`retrieval.py`、`model.py`（模型工厂）、`bootstrap.py`（`build_planner()`）、`policy.py`（服务端授权防线 + `authorize_operation`）、`services.py`。~~`tool_agent.py`~~ 已于 2026-10-16 删除 |
 | `api/` | 业务 API（§6.1） | `main.py`（FastAPI 入口，含模板、实验创建、任务提交与取消、版本历史、**版本回滚**、产物下载校验；`owner_id` 由入口注入、绝不从正文接受）、`serve.py`、`routes/` |
 | `application/` | 用例编排 | `coordinator.py`（五阶段机 planning→editing→building→validating→packaging，完成与否以 `job_events` 为准，重启后从库里的阶段恢复）、`publication.py`（原子发布）、`job_service.py`（任务提交与取消）、`experiment_service.py`（模板克隆与回滚）、`services.py`（应用层聚合导出） |
 | `coding/` | 代码定制执行（§4.6） | `deep_agent.py`（受限沙箱代码定制）、`sandbox_factory.py`（OpenSandbox 工厂）、`workspace.py`（受控导出白名单校验）、`budget.py`（调用轮次与时长预算） |

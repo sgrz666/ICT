@@ -8,7 +8,7 @@
 
 | 子包 | 一句话职责 | 关键入口 | 逐文件细节 |
 |---|---|---|---|
-| [`agent/`](agent/README.md) | 规划智能体：LangGraph 四节点图 + 工具调用循环 + 服务端授权 | `bootstrap.build_planner` | agent/README.md |
+| [`agent/`](agent/README.md) | 执行核心：Deep Agents 自主循环 + 四节点单轮基线 + 服务端授权 | `DeepAgentPlanner.plan` / `bootstrap.build_planner` | agent/README.md |
 | [`api/`](api/README.md) | FastAPI 业务接口（模板/实验/任务/产物） | `main.create_app` | api/README.md |
 | [`application/`](application/README.md) | 应用服务层：实验版本、任务生命周期、发布门禁、阶段机 | `coordinator.Coordinator` | application/README.md |
 | [`coding/`](coding/README.md) | 代码定制沙箱与执行预算（切片 7 预留，**未接入运行时**） | `deep_agent.customize` | coding/README.md |
@@ -30,7 +30,7 @@
 2. `POST /jobs`（带 `Idempotency-Key`）→ [`application/job_service.py`](application/job_service.py) → [`infrastructure/db/repositories.py`](infrastructure/db/repositories.py) `create_job`：`request_hash` 幂等去重，落 `queued`。
 3. Worker 进程（[`worker/run.py`](worker/run.py)）循环 `Worker.run_once`（[`worker/main.py`](worker/main.py)）；`claim` 用 `FOR UPDATE SKIP LOCKED` 原子领取拿 `lease_token`；[`worker/steps.py`](worker/steps.py) `make_worker` 组装 `Chain`。
 4. [`application/coordinator.py`](application/coordinator.py) 按 `STAGES` 推进，依据 `job_events.stage_done` 断点恢复。
-5. **planning**：`Chain.planning` → `planner.plan`（[`agent/planners.py`](agent/planners.py) `GraphPlanner` → [`agent/graph.py`](agent/graph.py) 四节点，`draft` 节点 HTTP 调 DeepSeek）→ [`agent/policy.py`](agent/policy.py) `authorize` 二次校验生成 `WorkOrder`。
+5. **planning**：`Chain.planning` → `planner.plan`。端口有两个生产实现：`--planner deep` 走 [`agent/deepagents_planner.py`](agent/deepagents_planner.py)（模型在真实实验上多轮调工具，提案**由成功的工具调用派生**）；`--planner model` 走 [`agent/planners.py`](agent/planners.py) `GraphPlanner` → [`agent/graph.py`](agent/graph.py) 四节点，`draft` 节点 HTTP 调 DeepSeek。两者都再由 [`agent/policy.py`](agent/policy.py) `authorize` 二次校验生成 `WorkOrder`；`--planner static` 只验链路，不作 Agent 证据。
 6. **editing**：`Chain._apply` → [`infrastructure/clients/engine_client.py`](infrastructure/clients/engine_client.py) `EngineClient.apply` → HTTP 到 Engine Host（Node）改上游场景并仿真。
 7. **building**：`Chain.building` 序列化候选场景写 `artifact_dir/revisions/{candidate}/native.json`，算 sha256。
 8. **validating**：`Chain.validating` → [`validation/policies.py`](validation/policies.py) `build_report`（科学对照调 [`validation/scientific/optics.py`](validation/scientific/optics.py)）→ [`application/publication.py`](application/publication.py) `record_report`。

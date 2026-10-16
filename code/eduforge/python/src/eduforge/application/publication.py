@@ -48,6 +48,7 @@ class Publisher:
         cancelled: bool = False,
         lesson: dict | None = None,
         bindings: dict | None = None,
+        close_job: bool = True,
     ) -> None:
         if report_verdict != "passed":
             # 失败或没验过的任务，不得发布为成功资源（§7.5 的项目方法比较目标之一）
@@ -64,4 +65,5 @@ class Publisher:
             cancelled=cancelled,
             lesson=lesson,
             bindings=bindings,
+            close_job=close_job,
         )

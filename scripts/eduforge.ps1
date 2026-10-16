@@ -329,13 +329,28 @@ switch ($Action) {
             $deepseekKey = [System.Environment]::GetEnvironmentVariable("DEEPSEEK_API_KEY", "Machine")
         }
 
+        # 规划器选择：默认 deep（Deep Agents 自主循环），可用 EDUFORGE_PLANNER=model|deep|static 覆盖。
+        # 没有 key 时**不再**自动塞 --planner-static-focal：那会让一次链路演练
+        # 看起来像模型产出，正是上一版把「静态提案」当成「Agent 能力」的源头。
+        $plannerKind = if ($env:EDUFORGE_PLANNER) { $env:EDUFORGE_PLANNER } else { "deep" }
+
         if ($deepseekKey) {
             $env:deepseek = $deepseekKey
             $env:DEEPSEEK_API_KEY = $deepseekKey
-            Write-Host "  [OK] DeepSeek API Key loaded from environment: deepseek" -ForegroundColor Green
-        } else {
-            Write-Host "  [INFO] Environment variable 'deepseek' not set. Worker using --planner-static-focal 15 for local execution." -ForegroundColor DarkGray
+            Write-Host "  [OK] DeepSeek API key loaded from environment (value not printed)" -ForegroundColor Green
+            if ($plannerKind -eq "static") {
+                $workerArgsStr += " --planner-static-focal 15"
+            } else {
+                $workerArgsStr += " --planner $plannerKind"
+            }
+        } elseif ($env:EDUFORGE_ALLOW_STATIC_PLANNER -eq "1") {
             $workerArgsStr += " --planner-static-focal 15"
+            Write-Host "  [警告] 无 key，且显式允许 static：Worker 用命令行注入的固定提案跑链路。" -ForegroundColor DarkYellow
+            Write-Host "         这只验证任务链路与交付，不构成任何 Agent 规划能力的证据。" -ForegroundColor DarkYellow
+        } else {
+            Write-Host "  [错误] 未检测到 DeepSeek 密钥，Worker 不会用固定提案冒充模型产出。" -ForegroundColor Red
+            Write-Host "         配置密钥后再启动；或设 EDUFORGE_ALLOW_STATIC_PLANNER=1 明确只做链路验证。" -ForegroundColor Red
+            return
         }
         $workerProc = Start-EduForgeService $PythonExe $workerArgsStr $EduForgeDir $null
         $pids += $workerProc.Id

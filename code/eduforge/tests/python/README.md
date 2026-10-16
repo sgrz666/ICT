@@ -1,13 +1,13 @@
 # python — pytest 用例
 
-EduForge Python 侧的全部测试：**17 个文件（16 个用例 + `conftest.py`）**。跑法：工程根 `uv run pytest`（`-q`）。这里的共同风格是**起真东西**：真 Postgres（pgserver）、真 uvicorn、真 Worker 子进程、真浏览器，只有规划用命令行注入的固定提案。
+EduForge Python 侧的全部测试：**21 个文件（19 个 `test_*.py` + `conftest.py` + `_regex_baseline.py` 对照组夹具）**，收集 103 项（计数唯一来源仍是 [`../../catalog/engines/ray-optics.yaml`](../../catalog/engines/ray-optics.yaml) 的 `test_totals`）。跑法：工程根 `uv run pytest`（`-q`）。这里的共同风格是**起真东西**：真 Postgres（pgserver）、真 uvicorn、真 Worker 子进程、真浏览器；只有规划在部分用例里由命令行注入固定提案，那种绿不代表模型能力。
 
 ## 文件地图
 
 | 文件 | 行数 | 覆盖 |
 |---|---|---|
 | `conftest.py` | 70 | 夹具（库、应用、临时环境） |
-| `test_agent_tools_acceptance.py` | 410 | 8 项实验引擎原子工具与 Agent 工具调用循环验收测试：端到端验证 5 项验收准则（真实导入、多参数与测量表格生效、连续编辑父子链演进、离线包解开可用、Trace留痕与科学验证通过）；涵盖并发 RevisionConflict、自愈修复循环、以及无穷远像与虚像物理极值边界 |
+| `test_agent_tools_acceptance.py` | 616 | 8 项原子工具的端到端验收与**门禁负向用例**：真实导入、多参数与测量表格生效、连续编辑父子链（先构建核验再原子发布）、离线包 manifest 逐文件对上磁盘、并发 RevisionConflict、超量程请求如实被拒（不得偷换值）、过期验证结论不得授权发布、无执行上下文不得回报「已发布」 |
 | `test_gate2_protocol.py` | 126 | 修改协议：pydantic 校验、阈值（清晰 ≥0.8 / 弥散 ≤0.4 / 之间不可判）与控制组 |
 | `test_gate5_api_chain.py` | 242 | §6.1 使用链：选模板→建实验→提交(幂等)→查任务→取消→查实验→下载产物；产物完整性（哈希锁定、缺失 404、不符 500、`storage_key` 越界 403） |
 | `test_gate5_cancel.py` | 143 | 取消语义（已成功不回滚、活跃任务状态一致性） |
@@ -23,12 +23,18 @@ EduForge Python 侧的全部测试：**17 个文件（16 个用例 + `conftest.p
 | `test_publish_chain.py` | 304 | 发布链（原子性、版本可恢复） |
 | `test_contracts_surface.py` | 132 | §6.2 守卫：每个业务接口 2xx 都必须指向具名 DTO（生成物落后于后端即红） |
 | `test_teacher_web_e2e.py` | 288 | 切片 8 金路径：真浏览器驱动教师前端走完整使用链（含版本回滚、下载文件本地重算哈希校验） |
+| `test_deepagents_runtime.py` | 228 | Deep Agents 循环与门禁（**脚本化假模型**，不触网）：多轮往返确实发生、`build_package`/`publish_revision` 不在模型可见集且模型可见 schema 无身份字段、观察驱动写入值、越界请求以失败被观察而非偷偷换值、正则对照组的措辞脆弱性 |
+| `test_deepagents_real_model.py` | 123 | 真实模型（`deepseek-flash`）自主完成「焦距 15 + 物距 30 + 记录表」并落 Tool Trace 报告；**无 key 时显式 SKIPPED**，不拿规则冒充模型 |
+| `test_single_publish_path.py` | 68 | 结构守卫：带租约证明的发布插入只存在于持久层一条事务、工具层发布不再自写 SQL、DDL 单一来源、回滚不改写既有修订 |
+| `_regex_baseline.py` | 51 | 对照组夹具（非用例）：从 `main` 分支原样取回已删除的正则意图解析器，用于「模型 vs 模式匹配」的可执行比较 |
 
 ## 测试 → 被测代码（主要映射）
 
 | 测试 | 主要打到的源码 |
 |---|---|
-| `test_agent_tools_acceptance` | [`experiment_tools/`](../../python/src/eduforge/experiment_tools/README.md)（8 项工具服务）、[`agent/tool_agent.py`](../../python/src/eduforge/agent/README.md)（Agent 工具循环） |
+| `test_agent_tools_acceptance` | [`experiment_tools/`](../../python/src/eduforge/experiment_tools/README.md)（8 项工具服务 + 策略清单 + 发布委托） |
+| `test_deepagents_runtime` / `test_deepagents_real_model` | [`agent/`](../../python/src/eduforge/agent/README.md)（`deepagents_runtime`、`tool_registry`、`fake_model`、`model`）、[`experiment_tools/`](../../python/src/eduforge/experiment_tools/README.md) |
+| `test_single_publish_path` | [`infrastructure/db/repositories.py`](../../python/src/eduforge/infrastructure/README.md)、[`application/`](../../python/src/eduforge/application/README.md)、[`experiment_tools/service.py`](../../python/src/eduforge/experiment_tools/README.md) |
 | `test_chain_worker` / `test_publish_chain` | [`worker/`](../../python/src/eduforge/worker/README.md)（五阶段）、[`application/`](../../python/src/eduforge/application/README.md)（发布门禁）、[`infrastructure/db/`](../../python/src/eduforge/infrastructure/README.md) |
 | `test_gate5_*` | [`api/`](../../python/src/eduforge/api/README.md)、[`application/coordinator.py`](../../python/src/eduforge/application/README.md)、`repositories.py` |
 | `test_gate6_planning` / `test_planner_port` | [`agent/`](../../python/src/eduforge/agent/README.md)（图、策略、端口） |

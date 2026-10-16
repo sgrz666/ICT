@@ -80,7 +80,7 @@ verification_baseline:
   engine_host_tests: code/eduforge/services/engine-host/tests/
   report: output/eduforge/reports/slice1-rayoptics-probe.json
   measured_at: "2026-10-16T18:00:00+08:00"
-  test_totals: { vitest: 54, pytest: 91 }   # 计数只在这里记一次，别处引用本文件
+  test_totals: { vitest: 54, pytest: 103 }   # 计数只在这里记一次，别处引用本文件
   passed:
     - 上游接受我们手写的场景，scene.error 与 scene.warning 均为 null
     - toJSON → loadJSON → toJSON 字符串完全一致

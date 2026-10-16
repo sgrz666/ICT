@@ -38,6 +38,31 @@ class Rejected(Exception):
 
 
 
+def authorize_operation(template: TemplateSpec, op: SetParameter | SetView) -> None:
+    """逐条判定单个操作是否被这张模板清单许可。
+
+    抽出来是为了让工具层能用**同一套**判据：`experiment_tools` 的 8 项工具过去
+    完全不经过策略层，模型可以指名任意 entity_id/parameter 与任意数值，
+    只剩上游 loadJSON 和事后验证兜底。规则只能有一份，否则又多一条执行路径。
+    """
+    if isinstance(op, SetParameter):
+        # 2) 对象与参数必须登记过
+        spec = next(
+            (c for c in template.controls
+             if c.entity_id == op.entity_id and c.parameter == op.parameter),
+            None,
+        )
+        if spec is None:
+            raise Rejected("PARAMETER_NOT_REGISTERED", f"{op.entity_id}.{op.parameter}")
+        # 3) 数值/单位/量程符合清单（NaN 与 Infinity 在协议层已被拦下）
+        if not (spec.min <= op.value <= spec.max):
+            raise Rejected("VALUE_OUT_OF_RANGE", f"{op.value} not in [{spec.min}, {spec.max}]")
+    elif isinstance(op, SetView):
+        # 4) 视图必须存在
+        if op.view_id not in template.views:
+            raise Rejected("VIEW_NOT_REGISTERED", op.view_id)
+
+
 def authorize(
     request: PlannerRequest,
     template: TemplateSpec,
@@ -54,22 +79,7 @@ def authorize(
         raise Rejected("ROUTE_NOT_SUPPORTED", "code")
 
     for op in proposal.operations:
-        if isinstance(op, SetParameter):
-            # 2) 对象与参数必须登记过
-            spec = next(
-                (c for c in template.controls
-                 if c.entity_id == op.entity_id and c.parameter == op.parameter),
-                None,
-            )
-            if spec is None:
-                raise Rejected("PARAMETER_NOT_REGISTERED", f"{op.entity_id}.{op.parameter}")
-            # 3) 数值/单位/量程符合清单（NaN 与 Infinity 在协议层已被拦下）
-            if not (spec.min <= op.value <= spec.max):
-                raise Rejected("VALUE_OUT_OF_RANGE", f"{op.value} not in [{spec.min}, {spec.max}]")
-        elif isinstance(op, SetView):
-            # 4) 视图必须存在
-            if op.view_id not in template.views:
-                raise Rejected("VIEW_NOT_REGISTERED", op.view_id)
+        authorize_operation(template, op)
 
     # 5) 代码路径的范围只能由清单的能力决定，不由模型自述决定
     if proposal.route == "code" and proposal.code_task:

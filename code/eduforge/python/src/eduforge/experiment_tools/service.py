@@ -23,7 +23,7 @@ from uuid import UUID
 
 import asyncpg
 
-from eduforge.agent.policy import load_template
+from eduforge.agent.policy import authorize_operation, load_template
 from eduforge.domain.contracts import SetParameter, SetView
 from eduforge.domain.errors import ConflictError, NotFoundError
 from eduforge.experiment_tools.contracts import (
@@ -35,6 +35,7 @@ from eduforge.experiment_tools.contracts import (
     ConfigureTeachingViewsOutput,
     ExperimentSummary,
     InspectSceneInput,
+    JobContext,
     OpenExperimentInput,
     OpenExperimentOutput,
     PublishRevisionInput,
@@ -47,7 +48,8 @@ from eduforge.experiment_tools.contracts import (
 )
 from eduforge.infrastructure.catalog import CatalogError, load_native
 from eduforge.infrastructure.clients.engine_client import EngineClient
-from eduforge.infrastructure.db.repositories import RevisionConflict
+from eduforge.infrastructure.db.repositories import RevisionConflict, derived_id
+from eduforge.application.publication import Publisher
 from eduforge.validation.policies import build_report
 from eduforge.validation.scientific.optics import thin_lens_reference
 
@@ -117,9 +119,11 @@ class ExperimentToolService:
         conn: asyncpg.Connection | None = None,
         artifact_dir: Path | None = None,
         templates_dir: Path | None = None,
+        job: JobContext | None = None,
     ) -> None:
         self.engine_client = engine_client
         self.conn = conn
+        self.job = job
         self.artifact_dir = artifact_dir or (
             Path(__file__).resolve().parents[4] / "output" / "eduforge" / "artifacts"
         )
@@ -127,6 +131,26 @@ class ExperimentToolService:
             Path(__file__).resolve().parents[4] / "code" / "eduforge" / "catalog" / "templates"
         )
         self._sessions: dict[str, dict[str, Any]] = {}
+
+    def _require_owner(self, action: str) -> JobContext:
+        """任何要确定归属的动作都得有服务端签发的上下文。
+
+        没有 JobContext 就没有归属答案，也就没有「谁能改这个实验」的判据；
+        宁可拒绝，不能拿默认身份写库或放行。
+        """
+        if self.job is None:
+            raise ConflictError(f"{action} 需要服务端签发的 JobContext（job_id/owner_id/lease_token）")
+        return self.job
+
+    def _require_job(self, action: str) -> JobContext:
+        """落库动作必须有执行上下文与库连接。
+
+        连不上库就无法登记版本，此时返回成功就是假成功。
+        """
+        job = self._require_owner(action)
+        if self.conn is None:
+            raise ConflictError(f"{action} 需要数据库连接，否则无法落库，也不能声称成功")
+        return job
 
     async def search_experiments(self, input_data: SearchExperimentsInput | dict[str, Any]) -> SearchExperimentsOutput:
         """1. search_experiments: 检索实验与模板。"""
@@ -201,7 +225,16 @@ class ExperimentToolService:
         base_rev_str = req.revision_id
         head_rev_str = req.revision_id
 
+        # job 绑定了实验就不允许新建，也不允许改开别的实验：智能体探索的必须就是
+        # 这条 job 的目标实验，否则它验得再对也交付到别处去了。
+        if self.job is not None and self.job.experiment_id is not None:
+            bound = str(self.job.experiment_id)
+            if exp_id_str not in (None, bound):
+                raise ConflictError(f"SCOPE_MISMATCH: 本任务绑定实验 {bound}，不能打开 {exp_id_str}")
+            exp_id_str = bound
+
         if exp_id_str is None:
+            job = self._require_owner("创建实验")
             exp_uuid = uuid.uuid4()
             rev_uuid = uuid.uuid4()
             exp_id_str = str(exp_uuid)
@@ -212,7 +245,7 @@ class ExperimentToolService:
                 await self.conn.execute(
                     """insert into experiments (id, owner_id, template_id, head_revision_id)
                        values ($1, $2, $3, $4)""",
-                    exp_uuid, req.owner_id, template_id, rev_uuid,
+                    exp_uuid, job.owner_id, template_id, rev_uuid,
                 )
                 await self.conn.execute(
                     """insert into experiment_revisions (id, experiment_id, parent_id, engine_id, native_data)
@@ -222,11 +255,16 @@ class ExperimentToolService:
         else:
             exp_uuid = UUID(exp_id_str)
             if self.conn is not None:
+                job = self._require_owner("打开已有实验")
                 exp_row = await self.conn.fetchrow(
-                    "select id, template_id, head_revision_id from experiments where id = $1",
+                    "select id, template_id, owner_id, head_revision_id from experiments where id = $1",
                     exp_uuid,
                 )
                 if exp_row is not None:
+                    # 归属校验：服务端签发的身份必须与实验行一致。
+                    # 「读一下别人的实验」同样是授权决定，不放行无上下文的访问。
+                    if str(exp_row["owner_id"]) != job.owner_id:
+                        raise ConflictError(f"实验 {exp_id_str} 不属于当前身份")
                     template_id = exp_row["template_id"]
                     head_rev_str = str(exp_row["head_revision_id"])
                     target_rev_id = UUID(req.revision_id) if req.revision_id else exp_row["head_revision_id"]
@@ -238,18 +276,26 @@ class ExperimentToolService:
                     if rev_row is not None:
                         native = json.loads(rev_row["native_data"])
 
-        # 初始化/更新当前会话工作态
+        # 初始化/更新当前工作态。
+        # 已存在会话时不再无条件覆盖：覆盖会静默丢掉未发布的编辑，教师看不见的损失。
+        existing = self._sessions.get(exp_id_str)
+        if existing is not None and existing.get("edits"):
+            raise ConflictError(
+                f"实验 {exp_id_str} 已有未发布的修改，重新打开会丢弃它们；"
+                "请先发布或显式回滚"
+            )
         session = {
             "experiment_id": exp_id_str,
             "template_id": template_id,
             "base_revision": base_rev_str,
             "head_revision": head_rev_str,
-            "owner_id": req.owner_id,
+            "owner_id": self.job.owner_id if self.job is not None else None,
             "native_data": json.loads(json.dumps(native)),
             "initial_native": json.loads(json.dumps(native)),
             "edits": [],
             "views_config": {},
             "validation_report": None,
+            "validated_digest": None,
             "engine_result": None,
         }
         self._sessions[exp_id_str] = session
@@ -266,9 +312,38 @@ class ExperimentToolService:
 
 
     def _get_session(self, experiment_id: str) -> dict[str, Any]:
+        # 作用域边界先于会话查找：job 绑定了哪个实验，就只能碰哪个实验。
+        if self.job is not None and self.job.experiment_id is not None:
+            if str(self.job.experiment_id) != str(experiment_id):
+                raise ConflictError(
+                    f"SCOPE_MISMATCH: 本任务绑定实验 {self.job.experiment_id}，不能操作 {experiment_id}"
+                )
         if experiment_id not in self._sessions:
             raise NotFoundError(f"实验会话不存在或未打开: {experiment_id}")
         return self._sessions[experiment_id]
+
+    @staticmethod
+    def _working_digest(session: dict[str, Any]) -> str:
+        """工作态内容的指纹：原生场景 + 教学配置。"""
+        payload = json.dumps(
+            {"native": session.get("native_data"), "views": session.get("views_config")},
+            sort_keys=True,
+            ensure_ascii=False,
+        )
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    def _fresh_validation(self, session: dict[str, Any]) -> Any | None:
+        """只承认与当前内容指纹一致的验证报告。
+
+        靠「每个写操作记得清标记」会漏；指纹不匹配就当没验过，结构上杜绝
+        「改完场景拿旧绿灯发布」。
+        """
+        report = session.get("validation_report")
+        if report is None:
+            return None
+        if session.get("validated_digest") != self._working_digest(session):
+            return None
+        return report
 
     async def inspect_scene(self, input_data: InspectSceneInput | dict[str, Any]) -> SceneInspectionOutput:
         """3. inspect_scene: 探查场景实体、参数与光学指标。"""
@@ -318,26 +393,23 @@ class ExperimentToolService:
         raw_edits = req.edits
         edits_list = raw_edits if isinstance(raw_edits, list) else [raw_edits]
 
+        # 先过策略层，再碰引擎：未登记的对象/参数、超量程的值应当在清单这一层就拒掉。
+        # 这里以前完全不判——模型给什么就交给上游什么，只剩 loadJSON 兜底。
+        parsed_edits = [SetParameter.model_validate(e) for e in edits_list]
+        template = load_template(session["template_id"])
+        for op in parsed_edits:
+            authorize_operation(template, op)
+
         # 调 engine apply
         try:
             eng_res = await self.engine_client.apply(session["native_data"], edits_list)
             session["native_data"] = eng_res["native"]
             session["engine_result"] = eng_res
         except Exception as exc:
-            extracted = _extract_lens_and_source(session["native_data"], units_per_unit=10)
-            return ApplyScenePatchOutput(
-                experiment_id=req.experiment_id,
-                applied_edits=[],
-                updated_parameters={
-                    "focal_length_cm": extracted["focal_length_cm"],
-                    "object_distance_cm": extracted["object_distance_cm"],
-                },
-                ray_count=0,
-                probes=[],
-                status=f"rejected: {exc}",
-            )
+            # 引擎拒绝就是失败，不能包成 status 字段返回——调用方一旦漏看这个字符串，
+            # 就把没改动的场景当成改好了继续发布。
+            raise ConflictError(f"场景修改被引擎拒绝: {exc}") from exc
 
-        parsed_edits = [SetParameter.model_validate(e) for e in edits_list]
         session["edits"].extend(parsed_edits)
 
         extracted = _extract_lens_and_source(session["native_data"], units_per_unit=10)
@@ -386,6 +458,16 @@ class ExperimentToolService:
         session = self._get_session(req.experiment_id)
         views = req.views
         view_configs: dict[str, Any] = session["views_config"]
+
+        # 视图也要过清单：模板没登记的视图，模型不能自己造一个出来
+        template = load_template(session["template_id"])
+        if isinstance(views, dict):
+            requested_view_ids = list(views.keys())
+        else:
+            requested_view_ids = [it.get("view_id") or it.get("id") for it in views]
+        for vid in requested_view_ids:
+            if vid:
+                authorize_operation(template, SetView(view_id=str(vid), visible=True))
 
         # 解析规范输入
         if isinstance(views, dict):
@@ -465,10 +547,13 @@ class ExperimentToolService:
         ]
 
         extracted = _extract_lens_and_source(session["native_data"], units_per_unit=template.units_per_unit)
-        u_cm = extracted["object_distance_cm"] or 30.0
+        u_cm = extracted["object_distance_cm"]
+        if u_cm is None:
+            # 兜一个常量会让验证对着伪造的物距通过；提不出物距就是不适用，必须明说。
+            raise ConflictError("场景中提不出物距，无法做高斯光学可比性验证")
 
         report = build_report(
-            job_id=str(uuid.uuid4()),
+            job_id=str(self.job.job_id) if self.job is not None else str(uuid.uuid4()),
             edit=last_edit,
             edits=session["edits"],
             view_edits=view_edits,
@@ -478,6 +563,12 @@ class ExperimentToolService:
             allowed_views=template.views,
         )
         session["validation_report"] = report
+        session["validated_digest"] = self._working_digest(session)
+
+        if self.job is not None and self.conn is not None:
+            # 验证结论当场落库。以前只有 Worker 的 validating 阶段会写 validation_reports，
+            # 工具路径的「验过了」只是内存里的一句话，事后无从核对 observed/expected。
+            await Publisher(self.conn).record_report(job_id=self.job.job_id, report=report)
 
         passed = report.verdict == "passed"
         return RunValidationOutput(
@@ -500,13 +591,19 @@ class ExperimentToolService:
             req = input_data
 
         session = self._get_session(req.experiment_id)
-        if not session.get("validation_report") or session["validation_report"].verdict != "passed":
-            # 自动执行一次验证
+        report = self._fresh_validation(session)
+        if report is None:
+            # 没有与当前内容同指纹的报告——必须重验，不能沿用旧绿灯
             val = await self.run_validation(RunValidationInput(experiment_id=req.experiment_id))
             if not val.passed:
                 raise ConflictError(f"场景未通过科学验证，不得打包: {val.verdict}")
+        elif report.verdict != "passed":
+            raise ConflictError(f"场景未通过科学验证，不得打包: {report.verdict}")
 
-        cand_id = uuid.uuid4()
+        # 候选 id 由内容指纹派生：同一份工作态重跑必须落在同一个 id 上，
+        # 否则重试会插出第二个候选版本、并把同一份字节登记成两个产物。
+        cand_digest = self._working_digest(session)
+        cand_id = derived_id(self.job.job_id, f"candidate:{cand_digest}") if self.job is not None else uuid.uuid4()
         session["candidate_revision_id"] = str(cand_id)
 
         # 写入候选目录
@@ -517,8 +614,14 @@ class ExperimentToolService:
         native_file.write_bytes(native_bytes)
         native_digest = hashlib.sha256(native_bytes).hexdigest()
 
+        def art_id(name: str, digest: str) -> str:
+            # 产物 id 同样由内容派生，理由与候选 id 一致：重跑不得多出第二条登记。
+            if self.job is not None:
+                return str(derived_id(self.job.job_id, f"artifact:{name}:{digest}"))
+            return str(uuid.uuid4())
+
         artifacts = [{
-            "id": str(uuid.uuid4()),
+            "id": art_id("native", native_digest),
             "storage_key": str(native_file.relative_to(self.artifact_dir)).replace("\\", "/"),
             "sha256": native_digest,
             "media_type": "application/json",
@@ -532,7 +635,7 @@ class ExperimentToolService:
             views_file.write_bytes(views_bytes)
             views_digest = hashlib.sha256(views_bytes).hexdigest()
             artifacts.append({
-                "id": str(uuid.uuid4()),
+                "id": art_id("teaching_views", views_digest),
                 "storage_key": str(views_file.relative_to(self.artifact_dir)).replace("\\", "/"),
                 "sha256": views_digest,
                 "media_type": "application/json",
@@ -553,10 +656,34 @@ class ExperimentToolService:
                 pkg_views.parent.mkdir(parents=True, exist_ok=True)
                 pkg_views.write_bytes(views_bytes)
 
+            # 逐文件哈希整包，再落一份 manifest：交付字节必须能被复核，
+            # 只记 native.json 的哈希等于没记——离线包真出事时是 www/ 里的资源。
+            manifest_entries = []
+            for p in sorted(pkg_out_dir.rglob("*")):
+                if p.is_file() and p.name != "manifest.json":
+                    manifest_entries.append({
+                        "path": str(p.relative_to(pkg_out_dir)).replace("\\", "/"),
+                        "sha256": hashlib.sha256(p.read_bytes()).hexdigest(),
+                    })
+            manifest_bytes = (json.dumps(manifest_entries, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+            (pkg_out_dir / "manifest.json").write_bytes(manifest_bytes)
+            manifest_digest = hashlib.sha256(manifest_bytes).hexdigest()
+            artifacts.append({
+                "id": art_id("offline_manifest", manifest_digest),
+                "storage_key": str((pkg_out_dir / "manifest.json").relative_to(self.artifact_dir)).replace("\\", "/"),
+                "sha256": manifest_digest,
+                "media_type": "application/json",
+            })
+
+            index_file = Path(res.get("index_file", str(pkg_out_dir / "www" / "index.html")))
             offline_pkg_info = {
                 "dir": res.get("dir", str(pkg_out_dir)),
-                "index_file": res.get("index_file", str(pkg_out_dir / "www" / "index.html")),
-                "offline_ready": True,
+                "index_file": str(index_file),
+                # 这里只断言「入口文件已在盘上」；离线可运行性要靠浏览器实测，
+                # 本轮没实测就不写 ready。
+                "index_present": index_file.is_file(),
+                "file_count": len(manifest_entries),
+                "manifest_sha256": manifest_digest,
             }
 
         session["built_artifacts"] = artifacts
@@ -570,72 +697,74 @@ class ExperimentToolService:
             sha256=native_digest,
         )
 
-    async def publish_revision(self, input_data: PublishRevisionInput | dict[str, Any]) -> PublishRevisionOutput:
-        """8. publish_revision: 原子发布新版本并推进 head。"""
+    async def publish_revision(
+        self,
+        input_data: PublishRevisionInput | dict[str, Any],
+        *,
+        close_job: bool = True,
+    ) -> PublishRevisionOutput:
+        """8. publish_revision: 原子发布新版本并推进 head。
+
+        发布不走这套服务自己的 SQL，而是复用持久层那条四道闸门事务
+        （执行权/取消/验证结论/基础版本一致），否则两条路径会验出两种「已发布」。
+        """
         if isinstance(input_data, dict):
             req = PublishRevisionInput.model_validate(input_data)
         else:
             req = input_data
 
+        job = self._require_job("发布版本")
         session = self._get_session(req.experiment_id)
-        if not session.get("validation_report") or session["validation_report"].verdict != "passed":
+
+        report = self._fresh_validation(session)
+        if report is None:
             val = await self.run_validation(RunValidationInput(experiment_id=req.experiment_id))
             if not val.passed:
                 raise ConflictError(f"未通过科学验证不得发布: {val.verdict}")
+            report = self._fresh_validation(session)
+        elif report.verdict != "passed":
+            raise ConflictError(f"未通过科学验证不得发布: {report.verdict}")
 
         if not session.get("built_artifacts"):
             await self.build_package(BuildPackageInput(experiment_id=req.experiment_id))
 
-        cand_id_str = session.get("candidate_revision_id") or str(uuid.uuid4())
+        cand_id_str = session.get("candidate_revision_id")
+        artifacts = session.get("built_artifacts") or []
+        if not cand_id_str or not artifacts:
+            raise ConflictError("没有已构建的候选与产物登记，不能发布")
+
         cand_uuid = UUID(cand_id_str)
         exp_uuid = UUID(req.experiment_id)
         base_rev_str = req.base_revision or session["head_revision"]
         base_uuid = UUID(base_rev_str)
-        artifacts = session.get("built_artifacts", [])
 
-        if self.conn is None and req.base_revision and str(req.base_revision) != str(session["head_revision"]):
-            raise RevisionConflict(f"head={session['head_revision']} base={req.base_revision}")
-
-        if self.conn is not None:
-            async with self.conn.transaction():
-                head = await self.conn.fetchval(
-                    "select head_revision_id from experiments where id = $1 for update", exp_uuid
-                )
-                if head is not None and str(head) != str(base_rev_str):
-                    raise RevisionConflict(f"head={head} base={base_rev_str}")
-
-                await self.conn.execute(
-                    """insert into experiment_revisions (id, experiment_id, parent_id, engine_id, native_data, lesson)
-                       values ($1, $2, $3, 'ray_optics', $4::jsonb, $5::jsonb)""",
-                    cand_uuid, exp_uuid, base_uuid,
-                    json.dumps(session["native_data"]),
-                    json.dumps({"views": session.get("views_config")}) if session.get("views_config") else None,
-                )
-                for art in artifacts:
-                    await self.conn.execute(
-                        """insert into artifacts (id, revision_id, storage_key, sha256, media_type)
-                           values ($1, $2, $3, $4, $5)""",
-                        UUID(art["id"]), cand_uuid, art["storage_key"], art["sha256"], art.get("media_type", "application/json"),
-                    )
-                await self.conn.execute(
-                    "update experiments set head_revision_id = $1 where id = $2",
-                    cand_uuid, exp_uuid,
-                )
+        publisher = Publisher(self.conn)
+        # 报告已在 run_validation 当场落库；这里只负责把它交给四道闸门事务
+        await publisher.publish(
+            job_id=job.job_id,
+            lease_token=job.lease_token,
+            experiment_id=exp_uuid,
+            base_revision=base_uuid,
+            candidate_revision_id=cand_uuid,
+            native_data=session["native_data"],
+            report_verdict=report.verdict,
+            artifacts=artifacts,
+            lesson={"views": session.get("views_config")},
+            close_job=close_job,
+        )
 
         # 推进会话版本状态（支持连续编辑链）
         session["base_revision"] = cand_id_str
         session["head_revision"] = cand_id_str
         session["candidate_revision_id"] = None
         session["built_artifacts"] = None
-
-        native_digest = artifacts[0]["sha256"] if artifacts else ""
-        art_id = artifacts[0]["id"] if artifacts else str(uuid.uuid4())
+        session["built_package"] = None
 
         return PublishRevisionOutput(
             experiment_id=req.experiment_id,
             head_revision_id=cand_id_str,
             base_revision=base_rev_str,
-            artifact_id=art_id,
-            sha256=native_digest,
+            artifact_id=artifacts[0]["id"],
+            sha256=artifacts[0]["sha256"],
             status="published",
         )

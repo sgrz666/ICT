@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import uuid
 from datetime import datetime
 from uuid import UUID
 
@@ -115,6 +116,16 @@ def request_hash(experiment_id: UUID, base_revision: UUID, prompt: str) -> str:
         sort_keys=True,
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+# 候选版本与产物 id 由 job_id 派生，不用随机 uuid：
+# 崩在 packaging 里重来时必须落在同一批 id 上，否则重跑会插出第二个候选版本、
+# 或把同一份字节登记成两个产物。Worker 与工具层共用这一条派生规则。
+ID_NAMESPACE = UUID("6b1c9df8-7f6a-4f0e-9b9f-4b8a9c1edf01")
+
+
+def derived_id(job_id: UUID, kind: str) -> UUID:
+    return uuid.uuid5(ID_NAMESPACE, f"{job_id}:{kind}")
 
 
 class DuplicateIdempotencyKey(Exception):
@@ -250,12 +261,16 @@ class JobRepository:
         cancelled: bool = False,
         lesson: dict | None = None,
         bindings: dict | None = None,
+        close_job: bool = True,
     ) -> None:
         """§3.5 的发布事务：执行权、取消、验证、基础版本四道闸门后写版本。
 
         必须在同一个事务里插入版本、文件索引并推进 head——分开写会出现
         head 指向不存在版本的中闲状态。artifacts 外键指向本事务插入的
         experiment_revisions 行，所以文件索引只能在发布时登记。
+
+        close_job=False 时只提交版本、不把 job 置为 succeeded：智能体的连续编辑
+        要在同一个 job 里提交多个版本，job 的终态由最后一次发布负责。
         """
         if cancelled:
             raise LeaseLost("cancelled")
@@ -304,7 +319,8 @@ class JobRepository:
                 "update experiments set head_revision_id = $2 where id = $1",
                 experiment_id, candidate_revision_id,
             )
-            await self.conn.execute(
-                "update jobs set status='succeeded', stage='packaging', updated_at=now() where id = $1",
-                job_id,
-            )
+            if close_job:
+                await self.conn.execute(
+                    "update jobs set status='succeeded', stage='packaging', updated_at=now() where id = $1",
+                    job_id,
+                )

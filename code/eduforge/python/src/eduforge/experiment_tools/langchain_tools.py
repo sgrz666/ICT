@@ -29,15 +29,17 @@ def get_experiment_tools(service: ExperimentToolService) -> list[StructuredTool]
         experiment_id: str | None = None,
         template_id: str | None = "optics.convex_lens",
         revision_id: str | None = None,
-        owner_id: str = "teacher_agent",
     ) -> dict[str, Any]:
-        """打开已有实验工作区或由模板初始化新实验。"""
+        """打开已有实验工作区或由模板初始化新实验。
+
+        这里刻意没有 owner_id：归属来自服务端签发的 JobContext，
+        模型能填身份就等于能把自己的实验写成别人的。
+        """
         out = await service.open_experiment(
             OpenExperimentInput(
                 experiment_id=experiment_id,
                 template_id=template_id,
                 revision_id=revision_id,
-                owner_id=owner_id,
             )
         )
         return out.model_dump()

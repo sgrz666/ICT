@@ -13,11 +13,15 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from eduforge.agent.graph import build_planning_graph
+from eduforge.agent.model import resolve_base_url, resolve_model_name
 from eduforge.agent.services import PlanningServices
 from eduforge.domain.contracts import PlannerRequest
 
-MODEL_URL = "https://api.deepseek.com/chat/completions"
-MODEL_NAME = os.environ.get("EDUFORGE_MODEL", "deepseek-chat")
+# 端点与模型名单一来源：agent/model.py 的解析链。
+# DeepSeek 当前只有 deepseek-flash / deepseek-v4-pro 两个标识，旧默认名仍可用但会
+# 被服务端改名，把名字抄在两处迟早变成「一处改了另一处没改」。
+MODEL_URL = f"{resolve_base_url().rstrip('/')}/chat/completions"
+MODEL_NAME = resolve_model_name()
 
 ModelFn = Callable[[str, dict[str, Any], list[dict[str, Any]]], Awaitable[dict[str, Any]]]
 

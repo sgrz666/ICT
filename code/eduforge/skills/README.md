@@ -19,7 +19,7 @@
 ## 3. 与上下层的关系
 
 - **上游依据**：依据 [`../catalog/templates/`](../catalog/templates/) 的实验模板清单与 [`../catalog/engines/`](../catalog/engines/) 引擎元数据提炼；
-- **下游消费**：由 [`../python/src/eduforge/coding/deep_agent.py`](../python/src/eduforge/coding/deep_agent.py) 与 [`../python/src/eduforge/agent/retrieval.py`](../python/src/eduforge/agent/retrieval.py) 作为系统提示词与检索证据注入执行沙箱。
+- **下游消费**：2026-10-16 起由 [`../python/src/eduforge/agent/deepagents_runtime.py`](../python/src/eduforge/agent/README.md) 的 `load_skill_text()` 读入并拼进主 Agent 的系统提示词（`SKILL_PATH` 指向 `ray-optics-customization/SKILL.md`；`test_deepagents_runtime.py` 一侧有对应断言）。此前本文件**零代码读取**——旧 README 声称由 `coding/deep_agent.py` 与 `agent/retrieval.py` 注入沙箱，代码里并不存在这条路径，那两个模块都不读 skills；`deep_agent.py` 至今仍是未接入状态。
 
 ## 4. 已知的坑与纪律
 

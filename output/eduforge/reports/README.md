@@ -18,6 +18,7 @@
 | `benchmark-screening.json` | `benchmarks/runner.py` | §7.4 基准评测筛查报告：12 题三类任务（参数修改、视图控制、超出能力应拒）全量实跑，通过率与策略拦截率 100% |
 | `benchmark-deepseek_direct.json` | `benchmarks/runner.py` | `deepseek_direct` 档位：`status: SKIPPED`——缺 `DEEPSEEK_API_KEY`，显式跳过（不伪充结果） |
 | `benchmark-agent_graph.json` | `benchmarks/runner.py` | `agent_graph` 档位：`status: SKIPPED`——同上，缺 key |
+| `agent-deepagents-real.json` | `tests/python/test_deepagents_real_model.py` | 2026-10-16 真实模型（`deepseek-flash`）自主完成「焦距 15cm + 物距 30cm + 数据记录表」的完整 Tool Trace：7 次调用（含一次自主换查询词重试的 `search_experiments`）、逐项 `observed`/`expected` 判据、最终场景读数与验证结论。**注意**：`profile` 标注的是这一条任务实测通过，不是 12 题基准的模型档位成绩 |
 
 ## 注意
 

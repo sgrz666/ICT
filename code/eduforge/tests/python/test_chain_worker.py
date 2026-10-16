@@ -218,11 +218,15 @@ def test_cli_run_once_processes_a_real_job(uri, art_dir, engine_url):
     asyncio.run(seed())
 
     env = {k: v for k, v in os.environ.items() if k != "DEEPSEEK_API_KEY"}
+    # 子进程横幅是中文，而 Windows 控制台默认 GBK：`text=True` 会按本地编码解码，
+    # 一旦环境里有 PYTHONIOENCODING=utf-8 就会读到 None 并抛 UnicodeDecodeError。
+    # 两侧都钉死 UTF-8，用例才不依赖调用它的 shell 配置。
+    env["PYTHONIOENCODING"] = "utf-8"
     proc = subprocess.run(
         [sys.executable, "-m", "eduforge.worker.run", "--once",
          "--planner-static-focal", "15",
          "--dsn", uri, "--engine-url", engine_url, "--artifact-dir", str(art_dir)],
-        capture_output=True, text=True, timeout=180, env=env,
+        capture_output=True, text=True, encoding="utf-8", timeout=180, env=env,
     )
     assert proc.returncode == 0, f"stdout={proc.stdout}\nstderr={proc.stderr}"
     # 子进程 stderr 走控制台编码，中文断言留给库层用例；这里按 ASCII 标记查横幅

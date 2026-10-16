@@ -1,42 +1,48 @@
-# agent — 规划智能体（LangGraph 四节点 + DeepSeek）
+# agent — 执行核心与授权防线（Deep Agents 主循环 + 服务端授权）
 
-**职责**：把「教师自然语言需求 + 模板上下文」转成一份受服务端授权的 `WorkOrder`（要改哪些对象、改成什么值、导出哪些视图），并保证任何未经模板登记的修改在服务端被拒绝。规划是"提议"，授权是"裁决"——两者分属 `planners.py`（提议）与 `policy.py`（裁决），Worker 在 planning 阶段还会**重跑一次授权**（纵深防御）。
+**职责**：两件事，界限分明。一是**决定**——`deepagents_runtime.py` / `deepagents_planner.py` 让真实模型自己在实验上多轮调工具、读观察、决定要不要修；二是**裁决**——`policy.py` 保证任何未经模板登记的修改在服务端被拒。2026-10-16 起，`graph.py` 的四节点图降级为单轮对照基线，不再是「Agent 的全部」。
+
+规划是「提议」，授权是「裁决」，两者分属 `deepagents_planner.py`（提议，且提议由**实际成功的工具调用**派生，不是模型自述的 JSON）与 `policy.py`（裁决），Worker 在 planning 阶段还会**重跑一次授权**（纵深防御）。
 
 ## 内容（逐文件）
 
 | 文件 | 行数 | 职责 | 关键符号 |
 |---|---|---|---|
-| `__init__.py` | 8 | 模块统一导出入口 | `build_planner`, `ExperimentToolAgent` |
-| `bootstrap.py` | 30 | 组装规划器：本地与 AgentArts 共用 `build_planner()`；`default_template_of` 解析模板 id | `build_planner`, `default_template_of` |
-| `graph.py` | 46 | LangGraph 四节点规划图：load_context → retrieve → draft → authorize | `build_planning_graph` |
-| `model.py` | 77 | DeepSeek 模型接入封装（关闭思考/重试，优先 langchain-deepseek，回退 langchain-openai）。**仅测试引用，运行时实际走 `planners.deepseek_model`** | `create_model` |
-| `planners.py` | 133 | 规划端口实现：提示词构造、JSON 剥离解析、DeepSeek HTTP 调用、`GraphPlanner`；无 key 抛 `MissingApiKey`。key 解析统一走 [`../infrastructure/settings.py`](../infrastructure/README.md) 的 `get_deepseek_api_key()`（多变量名优先级 + Windows 注册表兜底） | `MissingApiKey`, `chat_prompt`, `parse_proposal_json`, `deepseek_model`, `GraphPlanner`, `planner_from_env` |
-| `policy.py` | 86 | **服务端授权防线**：七步顺序校验（模板同源、route、参数登记、量程、视图、code 任务长度、补服务端身份字段） | `authorize`, `load_template`, `Rejected` |
-| `retrieval.py` | 83 | 实验依据检索器（读 `manifest.yaml`，注入受控参数/视图/教学规则）。**仅测试引用，运行时规划图用 `services.retrieve`** | `EvidenceRetriever` |
-| `services.py` | 57 | 规划图节点实现：`PlanningServices` 具体类（load_context/retrieve/draft/authorize） | `PlanningServices`（类）, `ModelFn` |
+| `__init__.py` | 11 | 只再导出 `build_planner`。**刻意不在包导入时拉起运行时依赖**——`agent ↔ experiment_tools` 曾因包级再导出形成循环导入，`tool_agent.py` 就是那条环上的一环 | `build_planner` |
+| `deepagents_runtime.py` | 145 | Deep Agents 装配：`create_deep_agent(model, tools, backend=StateBackend(), checkpointer, system_prompt)`、把 `skills/ray-optics-customization/SKILL.md` 注入系统提示词、把消息轨迹摊成可核对的 `trace` | `build_experiment_agent`, `run_experiment_agent`, `extract_trace`, `summarise` |
+| `deepagents_planner.py` | 113 | `PlannerPort` 的生产实现：模型跑完循环后，**只把成功的工具调用**折算成 `EditProposal`；一次有效修改都没有就抛 `NO_EFFECTIVE_OPERATIONS`，不交出一份「看起来完成了」的提案 | `DeepAgentPlanner`, `operations_from_trace` |
+| `tool_registry.py` | 65 | 模型可见工具集（6 项：search/open/inspect/patch/views/validate）+ 把领域异常转成 `isError` 观察。`build_package` / `publish_revision` **不在这里** | `AGENT_VISIBLE_TOOLS`, `BACKEND_ONLY_TOOLS`, `agent_tools` |
+| `fake_model.py` | 172 | 脚本化工具调用模型：不解析自然语言、按观察推进，用于在无 key、不花钱的前提下验证循环/门禁/修复。与真模型走同一条装配路径 | `ScriptedToolModel` |
+| `model.py` | 67 | DeepSeek 接入工厂。**本轮转正**（此前零运行时引用）：`base_url`/`model` 全配置化，默认 `deepseek-flash`；`planners.py` 也从这里取端点与模型名，避免两处各写一份 | `create_model`, `resolve_model_name`, `resolve_base_url`, `DEFAULT_MODEL` |
+| `prompts/__init__.py` + `prompts/experiment_agent.md` | 18 + 27 | 系统行为规范（先查再改、验过之后改内容即作废、拒绝不得换值蒙混）。提示词按文件存放便于逐字核对 | `load_experiment_prompt` |
+| `bootstrap.py` | 30 | 组装单轮规划器：本地与 AgentArts 共用 `build_planner()`；`default_template_of` 解析模板 id | `build_planner`, `default_template_of` |
+| `graph.py` | 46 | LangGraph 四节点图（load_context → retrieve → draft → authorize），线性、无环、不调工具。**现在是 `--planner model` 的单轮基线**，不再是默认智能体 | `build_planning_graph` |
+| `planners.py` | 137 | 单轮端口实现：提示词构造、JSON 剥离解析、DeepSeek HTTP 调用、`GraphPlanner`；无 key 抛 `MissingApiKey`。端点/模型名改由 `model.py` 供给 | `MissingApiKey`, `api_key`, `chat_prompt`, `parse_proposal_json`, `GraphPlanner`, `planner_from_env`, `MODEL_URL`, `MODEL_NAME` |
+| `policy.py` | 96 | **服务端授权防线**：七步顺序校验；本轮抽出 `authorize_operation`，让**工具层用同一套判据**（此前 8 项工具完全不经过策略层） | `authorize`, `authorize_operation`, `load_template`, `Rejected` |
+| `retrieval.py` | 83 | 实验依据检索器（读 `manifest.yaml`）。**仅测试引用**，运行时规划图用 `services.retrieve` | `EvidenceRetriever` |
+| `services.py` | 57 | 规划图节点实现：`PlanningServices` 具体类 | `PlanningServices`（类）, `ModelFn` |
 | `state.py` | 48 | 规划状态机类型：`PlanningState`（TypedDict）+ `PlanningServices`（Protocol） | `PlanningState`, `PlanningServices`（协议） |
-| `tool_agent.py` | 448 | **自主工具调用循环智能体**：驱动 [`../experiment_tools/`](../experiment_tools/README.md) 的 8 项原子工具完成任务，记录调用历史 Trace | `ToolTraceRecord`, `ToolAgentState`, `ExperimentToolAgent` |
 
-> `__init__.py` 再导出 `build_planner` 与 `ExperimentToolAgent`——两个对外入口（规划器 / 工具智能体）。
-| `tool_agent.py` | 449 | 自主工具调用循环智能体：基于 LangGraph StateGraph 构建显式状态机（parse_and_open -> execute_phase1 -> validate_phase1 -> [repair_phase1] -> publish_r2 -> execute_phase2 -> validate_phase2 -> [repair_phase2] -> publish_r3 -> build_package），支持 8 项原子工具执行、细粒度调用 Trace 追踪、自愈验证与连续版本演进 | `ExperimentToolAgent`, `ToolTraceRecord` |
+> 已删除：`tool_agent.py`（448 行，规则式「工具循环」）。它 docstring 写的「LangGraph 成熟工具调用循环与自愈修复」不成立——意图解析是四条正则（只认 `调整为|设为|为`）、`model_fn` 参数从未被读、分发是 8 分支 `if/elif`、修复靠**伪造**一条 `expected=50.0` 的验证记录再硬编码回填。它的正则原样保留在 [`tests/python/_regex_baseline.py`](../../../../tests/python/_regex_baseline.py) 作对照组。
 
 
-## 四节点图（`graph.py` 的真实行为）
+## 两条规划路径（都在跑，但证据等级不同）
 
-1. `load_context` → 经 `policy.load_template` 读模板清单；
-2. `retrieve` → `services.retrieve` 注入受控参数/视图/教学规则（受控检索，不是向量检索）；
-3. `draft` → `services.draft` → `planners.deepseek_model` 真正 HTTP 调 DeepSeek，产出 `EditProposal`；
-4. `authorize` → `policy.authorize` 七步校验后补服务端身份字段，产出 `WorkOrder`。
+1. **Deep Agents 自主循环**（`--planner deep`）：`deepagents_planner.DeepAgentPlanner.plan()` → `run_experiment_agent()` → 模型自己发起 `open_experiment`/`inspect_scene`/`apply_scene_patch`/`configure_teaching_views`/`run_validation` 的多轮往返 → `operations_from_trace()` 只取**成功**的调用组成提案。
+2. **单轮四节点图**（`--planner model`）：`load_context → retrieve → draft → authorize`，一次 LLM 调用产一份 `WorkOrder`，不调用任何工具。留着它是为了让「Deep Agents 比单轮 JSON 强在哪」有可跑的对照，也是 benchmark `agent_graph` 档位的被测对象。
 
 ## 与上下层的关系
 
-- 被谁用：[`../entrypoints/agent_local.py`](../entrypoints/agent_local.py) 与 [`../entrypoints/agentarts.py`](../entrypoints/agentarts.py) 都经 `bootstrap.build_planner` 组装；[`../worker/run.py`](../worker/run.py) 经 `planners.planner_from_env` 选择规划器（`--planner-static-focal` 时退化为 `StablePlanner` 桩，仅用于链路验证）；[`../worker/steps.py`](../worker/steps.py) 在 planning 阶段再次调用 `policy.authorize`。
-- 依赖：[`../domain/contracts.py`](../domain/contracts.py)（全部出入参模型）、[`../infrastructure/catalog.py`](../infrastructure/catalog.py)（policy 读模板）。
-- 测试：[`../../../../tests/python/test_gate6_planning.py`](../../../../tests/python/test_gate6_planning.py)、[`test_planner_port.py`](../../../../tests/python/test_planner_port.py)、[`test_plan_architecture_alignment.py`](../../../../tests/python/test_plan_architecture_alignment.py)、[`test_entrypoints.py`](../../../../tests/python/test_entrypoints.py)。
+- 被谁用：[`../worker/run.py`](../worker/run.py) 的 `select_planner()` 按 `--planner model|deep|static` 选择规划器；[`../worker/steps.py`](../worker/steps.py) 在 planning 阶段再次调用 `policy.authorize`。[`../entrypoints/agent_local.py`](../entrypoints/agent_local.py) 与 [`../entrypoints/agentarts.py`](../entrypoints/agentarts.py) 仍经 `bootstrap.build_planner` 组装单轮图（它们只出 `WorkOrder`，不是执行入口）。
+- 依赖：[`../domain/contracts.py`](../domain/contracts.py)（全部出入参模型）、[`../infrastructure/catalog.py`](../infrastructure/catalog.py)（policy 读模板）、[`../experiment_tools/`](../experiment_tools/README.md)（deep 路径的真实工具面）、`deepagents` + `langchain-openai`（本轮新增依赖）。
+- 测试：[`../../../../tests/python/test_gate6_planning.py`](../../../../tests/python/test_gate6_planning.py)（单轮与授权）、[`test_planner_port.py`](../../../../tests/python/test_planner_port.py)、[`test_plan_architecture_alignment.py`](../../../../tests/python/test_plan_architecture_alignment.py)、[`test_entrypoints.py`](../../../../tests/python/test_entrypoints.py)、[`test_deepagents_runtime.py`](../../../../tests/python/test_deepagents_runtime.py)（循环与门禁，假模型）、[`test_deepagents_real_model.py`](../../../../tests/python/test_deepagents_real_model.py)（真模型，无 key 时 SKIPPED）、[`test_single_publish_path.py`](../../../../tests/python/test_single_publish_path.py)（结构守卫）。
 
 ## 已知的坑与纪律
 
 - `state.py` 与 `services.py` 各有一个 `PlanningServices` 名字——前者是 Protocol、后者是具体类，靠模块路径区分（import 时别混）。
-- `model.py` 与 `retrieval.py` 是早期实现，**运行时未接入**；改动规划行为请动 `planners.py` 与 `services.py`。
-- 缺 DeepSeek key 时 `planner_from_env` 抛 `MissingApiKey` 拒绝启动——key 解析在 [`../infrastructure/settings.py`](../infrastructure/README.md) `get_deepseek_api_key()`（依次查 `deepseek` / `DEEPSEEK` / `DEEPSEEK_API_KEY` / `deepseek_api_key`，Windows 下带注册表兜底）。这是纪律不是缺陷：不允许静默退化为桩模型冒充规划。
-- 授权是**顺序七步**校验，调整顺序会改变拒绝语义，动 `policy.authorize` 前先读 `test_gate6_planning.py`。
+- `retrieval.py` 仍是早期实现、运行时未接入；`model.py` 本轮已转正（被 `planners.py` 与 `deepagents_planner.py` 共同使用），别再当成死代码删掉。
+- **不要在 `agent/__init__.py` 里再导出会 import `experiment_tools` 的模块**：`experiment_tools/service.py` 反向 import `agent.policy`，包级再导出会成环（这轮就靠这条才把 `deepagents_runtime` 导进来）。
+- `deepagents` 的 `FilesystemMiddleware` / `SubAgentMiddleware` 是**必需中间件**，模型总会看到 `ls`/`read_file`/`write_file`/`execute`/`task`；`_ToolExclusionMiddleware` 的文档明说排除「不是安全边界」。本仓库的安全来自选 `StateBackend`（非沙箱 backend，`execute` 直接返回错误、文件工具只作用于会话状态），不来自工具屏蔽。
+- `langsmith` 随 `deepagents` 一起装进来了。若环境存在 `LANGSMITH_API_KEY` / `LANGCHAIN_TRACING_V2`，提示词与轨迹会被静默上传——本地优先的仓库要在启动前显式 `LANGSMITH_TRACING=false`。
+- 缺 DeepSeek key 时 `planner_from_env` / `--planner deep` 抛 `MissingApiKey` 拒绝启动——key 解析在 [`../infrastructure/settings.py`](../infrastructure/README.md) `get_deepseek_api_key()`（依次查 `deepseek` / `DEEPSEEK` / `DEEPSEEK_API_KEY` / `deepseek_api_key`，Windows 下带注册表兜底）。这是纪律不是缺陷：不允许静默退化为桩模型冒充规划。开发机上实测：注册表里既无 `deepseek` 也无可用 DeepSeek key（`LLM_API_KEY` 被服务端判 401），所以默认走 SKIPPED 而不是假通过。
+- 授权是**顺序七步**校验，调整顺序会改变拒绝语义，动 `policy.authorize` 前先读 `test_gate6_planning.py`；`authorize_operation` 是它抽出的逐条判据，工具层与这里必须同源。
