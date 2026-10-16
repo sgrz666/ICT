@@ -16,6 +16,8 @@
 | `probe-out.txt` | 交互探针 | 预览 iframe 内 HTTP 响应摘要（200、长度、开头内容） |
 | `gate3-interaction.log` | vitest（失败留痕） | GATE-3 交互测试一次失败运行的完整输出——保留它是为了记录排查过程，不是当前状态 |
 | `benchmark-screening.json` | `benchmarks/runner.py` | §7.4 基准评测筛查报告：12 题三类任务（参数修改、视图控制、超出能力应拒）全量实跑，通过率与策略拦截率 100% |
+| `benchmark-deepseek_direct.json` | `benchmarks/runner.py` | `deepseek_direct` 档位：`status: SKIPPED`——缺 `DEEPSEEK_API_KEY`，显式跳过（不伪充结果） |
+| `benchmark-agent_graph.json` | `benchmarks/runner.py` | `agent_graph` 档位：`status: SKIPPED`——同上，缺 key |
 
 ## 注意
 

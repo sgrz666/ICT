@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-import { setRayParameter } from "./patch.js";
+import { setRayParameter, setRayParameters } from "./patch.js";
 import { simulate, validateNative } from "./upstream.js";
 import type { LensBinding, RayScene, SetParameter } from "../../contracts.js";
 
@@ -31,8 +31,8 @@ export function loadBindings(): LensBinding[] {
     const get = (key: string) => raw.match(new RegExp(`${key}:\\s*(.+)`))?.[1].trim();
     return {
       entity_id: get("entity_id") as string,
-      native_type: get("native_type") as "IdealLens",
-      parameter: get("parameter") as "focal_length_cm",
+      native_type: get("native_type") as string,
+      parameter: get("parameter") as string,
       min: Number(get("min")),
       max: Number(get("max")),
       units_per_unit: topLevelUnits,
@@ -59,8 +59,9 @@ export const rayOpticsAdapter = {
   },
 
   // 只接受已登记的参数修改；WorkOrder 由 Python 侧构造，这里不重新决定归属
-  apply(scene: RayScene, edit: SetParameter, bindings = loadBindings()): Candidate {
-    const next = setRayParameter(scene, edit, bindings);
+  apply(scene: RayScene, edit: SetParameter | readonly SetParameter[], bindings = loadBindings()): Candidate {
+    const edits = Array.isArray(edit) ? edit : [edit];
+    const next = setRayParameters(scene, edits, bindings);
     // 关键一步：改完立刻交回上游解释，而不是等浏览器
     return {
       engine_id: "ray_optics",

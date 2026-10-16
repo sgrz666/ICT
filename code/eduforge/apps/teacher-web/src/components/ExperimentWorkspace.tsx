@@ -26,6 +26,8 @@ export function ExperimentWorkspace(props: {
   preview: { path: string; revision: string } | null;
   artifact: { id: string; sha256: string } | null;
   controls?: ControlSummary[];
+  onSaveTunedRevision?: (changes: Array<{ entityId: string; parameter: string; value: number }>) => void;
+  savingTuned?: boolean;
   loadErrorCode: string | null;
   loadErrorDetail: string | null;
 }) {
@@ -60,6 +62,8 @@ export function ExperimentWorkspace(props: {
         wrapperPath={props.preview?.path ?? null}
         revision={props.preview?.revision ?? ""}
         controls={props.controls}
+        onSaveTunedRevision={props.onSaveTunedRevision}
+        savingTuned={props.savingTuned}
       />
       <section>
         <h2>交付</h2>

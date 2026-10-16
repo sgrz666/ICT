@@ -1,6 +1,7 @@
 import { createServer, type Server } from "node:http";
 
 import { loadBindings, loadTemplateScene, rayOpticsAdapter } from "./adapters/ray-optics/adapter.js";
+import { buildOfflinePackage } from "./export/offline-package.js";
 import { createGateway } from "./gateway/server.js";
 import { createPreviewRoutes } from "./preview/server.js";
 import type { SetParameter } from "./contracts.js";
@@ -41,9 +42,11 @@ export function createEngineHost(): Server {
       if (req.method === "POST" && url.pathname === "/adapters/ray_optics/apply") {
         const body = JSON.parse(await readBody(req)) as {
           native: ReturnType<typeof loadTemplateScene>;
-          edit: SetParameter;
+          edit?: SetParameter | SetParameter[];
+          edits?: SetParameter[];
         };
-        const candidate = rayOpticsAdapter.apply(body.native, body.edit);
+        const editList = body.edits ?? (Array.isArray(body.edit) ? body.edit : body.edit ? [body.edit] : []);
+        const candidate = rayOpticsAdapter.apply(body.native, editList);
         if (!candidate.validation.ok) {
           // 上游拒绝了就返回不可发布，不返回一个"看起来改了"的候选
           return json(res, 422, {
@@ -58,6 +61,20 @@ export function createEngineHost(): Server {
           native: candidate.native,
           validation: candidate.validation,
           measurement,
+        });
+      }
+
+      if (req.method === "POST" && url.pathname === "/export/offline_package") {
+        const body = JSON.parse(await readBody(req)) as {
+          scene: unknown;
+          outDir: string;
+          options?: { title?: string };
+        };
+        const pkg = await buildOfflinePackage(body.scene, body.outDir, body.options);
+        return json(res, 200, {
+          ok: true,
+          dir: pkg.dir,
+          index_file: pkg.indexFile,
         });
       }
 

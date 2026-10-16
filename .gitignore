@@ -11,6 +11,10 @@ __pycache__/
 dist-node/
 dist/
 output/eduforge/candidates/
+output/eduforge/pgdata/
+output/eduforge/artifacts/
+output/eduforge/pg_uri.txt
+output/eduforge/eduforge.pids
 
 # 本地 Agent 工作区数据（记忆/会话，非交付内容）
 .workbuddy/

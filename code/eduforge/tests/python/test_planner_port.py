@@ -39,15 +39,25 @@ def args(argv):
 
 def test_no_key_refuses_to_start(monkeypatch, capsys):
     monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("deepseek", raising=False)
+    monkeypatch.delenv("DEEPSEEK", raising=False)
+    monkeypatch.delenv("deepseek_api_key", raising=False)
     with pytest.raises(MissingApiKey):
         select_planner(args([]))
 
     assert main(["--dsn", "x", "--engine-url", "y", "--artifact-dir", "z"]) == 2
     err = capsys.readouterr().err
-    assert "DEEPSEEK_API_KEY" in err
+    assert "DEEPSEEK_API_KEY" in err or "deepseek" in err
     assert "注入固定提案" not in err + capsys.readouterr().out, (
         "无 key 时绝不能自动改用静态提案"
     )
+
+
+def test_deepseek_env_var_accepted(monkeypatch):
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.setenv("deepseek", "sk-custom-deepseek-key")
+    from eduforge.agent.planners import api_key
+    assert api_key() == "sk-custom-deepseek-key"
 
 
 def test_missing_config_reported(monkeypatch, capsys):

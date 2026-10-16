@@ -4,9 +4,19 @@
 
 ## 内容
 
-| 脚本 | 语言 | 作用 |
+| 脚本 | 语言 | 行数 | 作用 |
+|---|---|---|---|
+| `eduforge.ps1` | PowerShell | 405 | 工作区统一操作入口（§7.4）：`doctor` / `bootstrap` / `up` / `test` / `smoke` / `benchmark` / `down` 七个命令（`-Action` 位置参数由 `ValidateSet` 约束；`-Profile` 默认 `screening`） |
+
+## 端口一览（与脚本内检查一致）
+
+| 端口 | 角色 | 谁在用 |
 |---|---|---|
-| `eduforge.ps1` | PowerShell | 工作区统一操作入口（§7.4）：支持 `doctor`、`bootstrap`、`up`、`test`、`smoke`、`benchmark`、`down` 命令 |
+| 8000 | API 后端（FastAPI） | `up` 启动（第 2 步），`doctor` 检查 |
+| 8010 | Engine Host（仿真宿主/预览） | `up` 启动，`doctor` 检查 |
+| 4174 | 浏览器网关（静态 + `/api` 反代 + 预览同源） | `up` 启动 |
+
+> 另有容器路径的端口拓扑（engine-host 4000 / agent 8001，见 [`../code/eduforge/infra/README.md`](../code/eduforge/infra/README.md)）——两套并存：本脚本走"无容器直跑"，compose 走容器。
 
 ## 用法
 
@@ -28,7 +38,7 @@ Set-Location D:\codeplus\ICT
 # 运行基准评测集（支持 -Profile screening / deepseek_direct / agent_graph）
 .\scripts\eduforge.ps1 benchmark -Profile screening
 
-# 启动本地服务（网关 8010）
+# 启动本地服务（API :8000 + Engine Host :8010 + 浏览器网关 :4174）
 .\scripts\eduforge.ps1 up
 
 # 停止服务（保留数据）

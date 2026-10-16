@@ -27,10 +27,18 @@ class MissingApiKey(Exception):
 
 
 def api_key() -> str:
-    key = (os.environ.get("DEEPSEEK_API_KEY") or "").strip()
+    key = (
+        (os.environ.get("deepseek") or "").strip()
+        or (os.environ.get("DEEPSEEK") or "").strip()
+        or (os.environ.get("DEEPSEEK_API_KEY") or "").strip()
+        or (os.environ.get("deepseek_api_key") or "").strip()
+    )
+    if not key:
+        from eduforge.infrastructure.settings import get_deepseek_api_key
+        key = get_deepseek_api_key() or ""
     if not key:
         raise MissingApiKey(
-            "DEEPSEEK_API_KEY 未设置。规划需要真实模型；"
+            "DeepSeek API 密钥未设置（支持环境变量 deepseek 或 DEEPSEEK_API_KEY）。规划需要真实模型；"
             "不想用模型就在启动 Worker 时显式传 --planner-static-focal，"
             "那条路只用于验证链路，不能当作 Agent 能力。"
         )
@@ -47,8 +55,10 @@ def chat_prompt(prompt: str, context: dict[str, Any], evidence: list[dict[str, A
     return (
         "你在为中学物理教师修改一个凸透镜成像实验场景。只能输出一个 JSON 对象，"
         "不要解释、不要代码围栏。\n"
-        "形状：{\"route\":\"config\",\"operations\":[{\"op\":\"set_parameter\","
-        "\"entity_id\":\"...\",\"parameter\":\"...\",\"value\":数字}]}\n"
+        "形状：{\"route\":\"config\",\"operations\":["
+        "{\"op\":\"set_parameter\",\"entity_id\":\"...\",\"parameter\":\"...\",\"value\":数字},"
+        "{\"op\":\"set_view\",\"view_id\":\"...\",\"visible\":true}"
+        "]}\n"
         "或 {\"route\":\"code\",\"code_task\":\"...\"}。\n"
         f"模板：{context['template_id']}\n"
         f"允许的操作数（越界或未知一律会被服务端拒绝）：{evidence_text(evidence)}\n"

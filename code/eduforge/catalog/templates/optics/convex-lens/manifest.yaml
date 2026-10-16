@@ -77,6 +77,16 @@ controls:
     # 量程外的值适配器要拒；焦距非正在本模板里不合法（凹透镜应走另一个模板），
     # 测试已实测 setFocalLengthCm(0) 被拒。
     reject_nonpositive: true
+  - entity_id: object_1
+    native_type: PointSource
+    parameter: object_distance_cm
+    native_field: x
+    label: 物距
+    unit: cm
+    min: 10
+    max: 60
+    initial: 30
+    reject_nonpositive: true
 
 views:
   - scene

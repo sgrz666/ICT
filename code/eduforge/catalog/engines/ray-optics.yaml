@@ -51,13 +51,13 @@ headless:
 
 capabilities:
   set_parameter: true               # 已实测：IdealLens.focalLength 改后仿真实质性改变
-  set_view: unknown                 # 尚未验证
+  set_view: true                    # 已实测：支持 measurement_table 视图控制与复合操作
   add_entity: true                  # 上游编辑器支持，我们的适配器尚未封装
   remove_entity: true
   run_pause_reset: unknown          # 属浏览器路径，尚未验证
   sample_measurement: true          # Detector.power / binData 已实测可读
   export_native_scene: true         # toJSON 往返已实测 identical
-  export_offline_package: pending
+  export_offline_package: true      # 随包静态服务打开已实测通过；单文件直开受限已实测留痕
 
 # 参数符号语义：这是教学内容正确性的关键，不能只当数值范围处理
 parameter_semantics:
@@ -79,8 +79,8 @@ verification_baseline:
   gate2_probe: code/eduforge/tools/gate2_binding.cjs
   engine_host_tests: code/eduforge/services/engine-host/tests/
   report: output/eduforge/reports/slice1-rayoptics-probe.json
-  measured_at: "2026-10-16T12:18:00+08:00"
-  test_totals: { vitest: 54, pytest: 79 }   # 计数只在这里记一次，别处引用本文件
+  measured_at: "2026-10-16T18:00:00+08:00"
+  test_totals: { vitest: 54, pytest: 91 }   # 计数只在这里记一次，别处引用本文件
   passed:
     - 上游接受我们手写的场景，scene.error 与 scene.warning 均为 null
     - toJSON → loadJSON → toJSON 字符串完全一致

@@ -19,7 +19,7 @@
 | [`services/`](services/README.md) | Node 侧服务 | [`services/engine-host/`](services/engine-host/README.md)（适配器、预览桥接、浏览器网关、离线导出） |
 | [`skills/`](skills/README.md) | 定制智能体可信领域规范 | [`skills/ray-optics-customization/`](skills/ray-optics-customization/SKILL.md) |
 | [`infra/`](infra/README.md) | 容器编排与 Dockerfile | [`infra/compose.local.yaml`](infra/compose.local.yaml) |
-| [`tests/`](tests/README.md) | pytest 套件 | [`tests/python/`](tests/python/README.md)（15 个用例 + conftest.py） |
+| [`tests/`](tests/README.md) | pytest 套件 | [`tests/python/`](tests/python/README.md)（16 个用例 + conftest.py） |
 | [`tools/`](tools/README.md) | 验证探针与代码生成工具 | rayoptics_probe.cjs、gate2_binding.cjs、browser_gate1*.py、export_contracts.py |
 | `benchmarks/` | 12 题基准评测数据集与运行器 | `tasks.jsonl`（三类题型）、`profiles.yaml`、`runner.py` |
 
@@ -29,7 +29,7 @@
 
 ## 当前状态与边界
 
-- 已实测闭环：上游场景程序化修改、仿真结果与独立公式吻合（切片 1–8 主要目标达成；教师端版本回滚与实时改参闭环；单文件 HTML 离线直开通过 i18n 预注入补丁解决；代码定制与沙箱预算模块就绪）；测试规模达 vitest 54 / pytest 79 全绿，计数唯一记在 [`catalog/engines/ray-optics.yaml`](catalog/engines/ray-optics.yaml) 的 `test_totals`。
+- 已实测闭环：上游场景程序化修改、仿真结果与独立公式吻合（切片 1–8 主要目标达成；教师端版本回滚与实时改参闭环；单文件 HTML 离线直开通过 i18n 预注入补丁解决；代码定制与沙箱预算模块就绪）；测试规模达 vitest 54 / pytest 91 全绿，计数唯一记在 [`catalog/engines/ray-optics.yaml`](catalog/engines/ray-optics.yaml) 的 `test_totals`。
 - 未闭环：真实模型线上规划（缺 `DEEPSEEK_API_KEY`，已用桩模型覆盖图结构与策略链）、容器沙箱运行时（切片 7，无 Docker 环境时优雅降级）。
 - 完整排期与逐轮进度在 [`../../plan/26.10.15_EduForge_推进计划.md`](../../plan/26.10.15_EduForge_推进计划.md)；上游事实在 [`../../source/upstream/upstream.lock.json`](../../source/upstream/upstream.lock.json)；验证证据在 [`../../output/eduforge/reports/`](../../output/eduforge/reports/README.md)。
 
@@ -38,7 +38,7 @@
 ```bash
 # Python 侧（工程根目录）
 uv sync                       # 按 uv.lock 建环境（.venv 在本目录）
-uv run pytest                 # 72 个用例
+uv run pytest                 # 91 个用例
 uv run python -m eduforge.worker.run   # 手动跑一个 Worker
 uv run python benchmarks/runner.py     # 运行 12 题基准评测集
 

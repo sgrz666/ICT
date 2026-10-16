@@ -27,7 +27,7 @@
 | eduforge 工程级配置（`pyproject.toml` / `pnpm-workspace.yaml` / 依赖） | `code/eduforge/README.md` |
 | 新增 app，或其组件 / 依赖变化 | `code/eduforge/apps/README.md` + `apps/teacher-web/README.md` |
 | 新增引擎描述，或能力状态变化 | `code/eduforge/catalog/engines/README.md` |
-| 新增模板 | `code/eduforge/catalog/templates/README.md` |
+| 新增模板 | `code/eduforge/catalog/templates/README.md` + 模板目录自己的短 README |
 | OpenAPI 再生成 / 契约变化 | `code/eduforge/packages/contracts/README.md` |
 | Python 模块增删或职责变化 | `code/eduforge/python/src/README.md`（模块地图） |
 | engine-host 源码 / 测试 / 端口变化 | `code/eduforge/services/engine-host/README.md` |
@@ -41,7 +41,7 @@
 
 新增目录时，按同一风格为它写一份新 README（见第 3 节），并在父层 README 里登记。
 
-## 3. 写法规范（与现有 31 份一致）
+## 3. 写法规范（与现有 74 份一致）
 
 1. **结构四段式**：职责 → 内容（真实文件名、实测数字）→ 与上下层的关系 → 已知的坑与纪律。
 2. 简体中文，具体到文件名；不写「专门功能模块或产物」这类空话模板。
@@ -54,7 +54,7 @@
 
 - 依赖与缓存目录：`node_modules/`、`.venv/`、`dist/`、`__pycache__/`、`.pytest_cache/`——由所属层 README 统一说明。
 - 上游源码内部：`source/upstream/ray-optics/` 的各级 README 是上游资产，保持原样；项目侧说明降级写在 [`source/upstream/README.md`](source/upstream/README.md)。
-- 数据叶子：`output/eduforge/candidates/offline-package/www/`（477 个静态资源文件）、`catalog/templates/optics/convex-lens/`（模板实例）——模式写在父层 README，不逐叶撰写。
+- 数据叶子：`output/eduforge/candidates/offline-package/www/`（当前实测 2162 个静态资源文件，随构建内容变化）——模式写在父层 README，不逐叶撰写。模板实例目录（如 `catalog/templates/optics/convex-lens/`）**各配一份短 README**（状态、文件、关系），模板模式说明仍以 `catalog/templates/README.md` 为准。
 
 ## 5. 完成定义（收尾前自查）
 

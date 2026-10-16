@@ -8,9 +8,13 @@
 
 ## 2. 内容
 
-- [`ray-optics-customization/SKILL.md`](ray-optics-customization/SKILL.md)：Ray Optics 几何光学实验定制规范。限定交付 `src/lesson.ts` 与 `src/controls.ts`，强调必须使用 `name` 绑定对象身份、禁止非法 key 注入、严格按 `units_per_unit: 10` 换算教学单位；
-- [`mechanics-customization/SKILL.md`](mechanics-customization/SKILL.md)：myPhysicsLab 经典力学实验定制规范（第 7～8 周切片 9 保留位）；
-- [`circuit-customization/SKILL.md`](circuit-customization/SKILL.md)：CircuitJS 电路实验定制规范（第 7～8 周切片 9 保留位）。
+三个子目录各只含一份 `SKILL.md`（该技能的唯一文件；不含其它附件）：
+
+| 技能目录 | 行数 | 状态 | 内容 |
+|---|---|---|---|
+| [`ray-optics-customization/`](ray-optics-customization/SKILL.md) | 27 | **已启用** | Ray Optics 几何光学实验定制规范：限定交付 `src/lesson.ts` 与 `src/controls.ts`，强制 `name` 绑定对象身份、禁止非法 key 注入、严格按 `units_per_unit: 10` 换算教学单位 |
+| [`mechanics-customization/`](mechanics-customization/SKILL.md) | 13 | 保留位（切片 9） | myPhysicsLab 经典力学实验定制规范 |
+| [`circuit-customization/`](circuit-customization/SKILL.md) | 13 | 保留位（切片 9） | CircuitJS 电路实验定制规范 |
 
 ## 3. 与上下层的关系
 

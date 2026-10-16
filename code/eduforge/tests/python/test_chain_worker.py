@@ -24,7 +24,7 @@ import pgserver
 import pytest
 
 from eduforge.api.main import create_app
-from eduforge.domain.contracts import EditProposal, SetParameter
+from eduforge.domain.contracts import EditProposal, SetParameter, SetView
 from eduforge.infrastructure.db.repositories import JOBS_DDL
 from eduforge.worker.main import SimulatedCrash
 from eduforge.worker.steps import StaticPlanner, artifact_path, derived_id, make_worker, scene_bytes
@@ -321,3 +321,60 @@ def test_recovery_rebuilds_context_from_persisted_facts(uri, art_dir, engine_url
     assert out["starts"]["building/stage_start"] == 1
     assert out["starts"]["packaging/stage_start"] == 2
     assert out["starts"]["packaging/stage_done"] == 1
+
+
+def test_chain_composite_operations_publish(uri, art_dir, engine_url):
+    """验证复合教学需求：修改焦距到 15cm 并显示测量记录表（SetParameter + SetView）。
+    Worker 支持复合操作且门禁核验通过，正常完成 5 阶段并发布新版本。
+    """
+    composite = EditProposal(
+        route="config",
+        operations=[
+            SetParameter(entity_id="lens_1", parameter="focal_length_cm", value=15),
+            SetView(view_id="measurement_table", visible=True),
+        ],
+    )
+    out = run_chain(uri, art_dir, engine_url, composite, prompt="把凸透镜焦距改成 15cm，并显示测量记录表")
+    assert out["worker"]["last_stage"] == "packaging", out["worker"]
+    assert out["job"]["status"] == "succeeded", out["job"]
+    assert out["detail"]["revision_count"] == 2
+
+
+def test_chain_focal_parallel_beams_at_infinity(uri, art_dir, engine_url):
+    """f=30cm 时物距 u=30cm 等于焦距，折射光线为平行光束（像在无穷远）。
+    门禁物理规则判定通过（focal_parallel_beams: passed），不再因 NoneType 异常报错。
+    """
+    out = run_chain(uri, art_dir, engine_url, focal_proposal(30), prompt="把焦距改成 30cm，物点正好在焦点上")
+    assert out["worker"]["last_stage"] == "packaging", out["worker"]
+    assert out["job"]["status"] == "succeeded", out["job"]
+    assert out["detail"]["revision_count"] == 2
+
+
+def test_chain_virtual_image_valid(uri, art_dir, engine_url):
+    """f=40cm 时物距 u=30cm 小于焦距，成正立放大虚像。
+    门禁物理规则判定通过（virtual_image_valid: passed），不再误要求实像屏聚焦。
+    """
+    out = run_chain(uri, art_dir, engine_url, focal_proposal(40), prompt="把焦距改成 40cm，成放大虚像")
+    assert out["worker"]["last_stage"] == "packaging", out["worker"]
+    assert out["job"]["status"] == "succeeded", out["job"]
+    assert out["detail"]["revision_count"] == 2
+
+
+def test_chain_multiple_parameter_edits_validating(uri, art_dir, engine_url):
+    """验证批量参数编辑（focal_length_cm + object_distance_cm）由 Worker 成功应用与闭环门禁核验。
+    物距从候选场景正确提取（u=20cm），预测像距 v=30cm 且与实测屏一致，门禁全部核验通过。
+    """
+    multi = EditProposal(
+        route="config",
+        operations=[
+            SetParameter(entity_id="lens_1", parameter="focal_length_cm", value=12),
+            SetParameter(entity_id="object_1", parameter="object_distance_cm", value=20),
+            SetView(view_id="measurement_table", visible=True),
+        ],
+    )
+    out = run_chain(uri, art_dir, engine_url, multi, prompt="焦距改为12cm，物距设为20cm，显示测量表")
+    assert out["worker"]["last_stage"] == "packaging", out["worker"]
+    assert out["job"]["status"] == "succeeded", out["job"]
+    assert out["detail"]["revision_count"] == 2
+
+

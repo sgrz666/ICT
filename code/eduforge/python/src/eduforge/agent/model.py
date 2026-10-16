@@ -22,10 +22,19 @@ def create_model(
     **kwargs: Any,
 ) -> Any:
     """创建接入 DeepSeek 的 ChatModel 实例。"""
-    resolved_key = api_key or os.getenv("DEEPSEEK_API_KEY")
+    resolved_key = (
+        api_key
+        or os.getenv("deepseek")
+        or os.getenv("DEEPSEEK")
+        or os.getenv("DEEPSEEK_API_KEY")
+        or os.getenv("deepseek_api_key")
+    )
+    if not resolved_key:
+        from eduforge.infrastructure.settings import get_deepseek_api_key
+        resolved_key = get_deepseek_api_key()
     if not resolved_key:
         raise EduForgeError(
-            "DEEPSEEK_API_KEY 未配置。请在环境变量或入参中提供有效的 DeepSeek API Key。",
+            "DeepSeek API 密钥未配置。请在环境变量（deepseek 或 DEEPSEEK_API_KEY）或入参中提供有效的 DeepSeek API Key。",
             code="MODEL_CONFIG_ERROR",
         )
 

@@ -106,7 +106,9 @@ def create_app(dsn: str, artifact_dir: Path | str) -> FastAPI:
     async def create_experiment(request: Request, template_id: str):
         async with request.app.state.pool.acquire() as c:
             try:
-                return await ExperimentService(c).create_from_template(
+                return await ExperimentService(
+                    c, artifact_dir=request.app.state.artifact_dir
+                ).create_from_template(
                     owner_id=request.state.owner_id, template_id=template_id
                 )
             except (TemplateNotFound, CatalogError):

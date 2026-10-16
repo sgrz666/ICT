@@ -52,7 +52,30 @@ export function setRayParameter(
     throw new Error("ENTITY_TYPE_MISMATCH");
   }
 
-  target.focalLength = edit.value * binding.units_per_unit;
+  if (binding.parameter === "focal_length_cm") {
+    target.focalLength = edit.value * binding.units_per_unit;
+  } else if (binding.parameter === "object_distance_cm") {
+    const lensObj = result.objs.find(o => o.type === "IdealLens");
+    let lensX = 0;
+    if (lensObj && typeof lensObj.p1 === "object" && typeof lensObj.p2 === "object") {
+      const p1 = lensObj.p1 as { x: number };
+      const p2 = lensObj.p2 as { x: number };
+      lensX = (p1.x + p2.x) / 2;
+    }
+    target.x = lensX - edit.value * binding.units_per_unit;
+  }
 
   return result;
+}
+
+export function setRayParameters(
+  scene: RayScene,
+  edits: readonly SetParameter[],
+  bindings: readonly LensBinding[]
+): RayScene {
+  let current = scene;
+  for (const edit of edits) {
+    current = setRayParameter(current, edit, bindings);
+  }
+  return current;
 }

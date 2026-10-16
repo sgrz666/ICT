@@ -4,6 +4,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 import uuid
@@ -33,10 +34,18 @@ class ActiveJobConflict(ConflictError):
 class ExperimentService:
     """实验聚合与版本管理服务。"""
 
-    def __init__(self, conn: asyncpg.Connection, templates_dir: Path | None = None) -> None:
+    def __init__(
+        self,
+        conn: asyncpg.Connection,
+        templates_dir: Path | None = None,
+        artifact_dir: Path | None = None,
+    ) -> None:
         self.conn = conn
         self.templates_dir = templates_dir or (
             Path(__file__).resolve().parents[4] / "catalog" / "templates"
+        )
+        self.artifact_dir = artifact_dir or (
+            Path(__file__).resolve().parents[4] / "output" / "eduforge" / "artifacts"
         )
 
     async def create_from_template(self, *, owner_id: str, template_id: str) -> ExperimentCreated:
@@ -59,6 +68,7 @@ class ExperimentService:
                values ($1, $2, NULL, 'ray_optics', $3::jsonb)""",
             rev_id, exp_id, json.dumps(native),
         )
+
         return ExperimentCreated(experiment_id=exp_id, base_revision=rev_id, template_id=template_id)
 
     async def instantiate(self, *, owner_id: str, template_id: str) -> dict:

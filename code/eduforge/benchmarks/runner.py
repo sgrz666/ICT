@@ -184,6 +184,13 @@ async def run_deepseek_direct_task(task: dict[str, Any], api_key: str) -> dict[s
         if task["expected_action"] == "accept":
             result["status"] = "PASSED"
             result["decision"] = "accepted"
+            check = task.get("check")
+            if check:
+                op = wo.proposal.operations[0].model_dump(mode="json")
+                for k, v in check.items():
+                    if op.get(k) != v:
+                        result["status"] = "FAILED"
+                        result["reason"] = f"mismatch on {k}: expected {v}, got {op.get(k)}"
         else:
             result["status"] = "FAILED"
             result["reason"] = "Model generated valid operation for out-of-scope prompt"
@@ -227,6 +234,13 @@ async def run_agent_graph_task(task: dict[str, Any], planner: Any) -> dict[str, 
             result["status"] = "PASSED"
             result["decision"] = "accepted"
             result["work_order"] = wo.model_dump(mode="json")
+            check = task.get("check")
+            if check:
+                op = wo.proposal.operations[0].model_dump(mode="json")
+                for k, v in check.items():
+                    if op.get(k) != v:
+                        result["status"] = "FAILED"
+                        result["reason"] = f"mismatch on {k}: expected {v}, got {op.get(k)}"
         else:
             result["status"] = "FAILED"
             result["reason"] = "Graph accepted out-of-scope task"
@@ -259,19 +273,26 @@ def main() -> int:
     print(f"Loaded {len(tasks)} benchmark tasks from {tasks_file.name}")
     print(f"Running profile: {args.profile}")
 
-    api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
+    api_key = (
+        os.environ.get("deepseek", "").strip()
+        or os.environ.get("DEEPSEEK", "").strip()
+        or os.environ.get("DEEPSEEK_API_KEY", "").strip()
+    )
+    if not api_key:
+        from eduforge.infrastructure.settings import get_deepseek_api_key
+        api_key = get_deepseek_api_key() or ""
     out_dir = Path("output/eduforge/reports")
     out_dir.mkdir(parents=True, exist_ok=True)
     report_file = out_dir / f"benchmark-{args.profile}.json"
 
     # 若需要真模型但无 key，如实记录并优雅退出，绝不冒充通过
     if args.profile in ("deepseek_direct", "agent_graph") and not api_key:
-        print(f"[NOTICE] Profile '{args.profile}' requires DEEPSEEK_API_KEY (currently unset).")
-        print("To run live model evaluation, set DEEPSEEK_API_KEY environment variable.")
+        print(f"[NOTICE] Profile '{args.profile}' requires DEEPSEEK_API_KEY (currently unset). You can also set 'deepseek' environment variable.")
+        print("To run live model evaluation, set DEEPSEEK_API_KEY or deepseek environment variable.")
         report = {
             "profile": args.profile,
             "status": "SKIPPED",
-            "reason": "DEEPSEEK_API_KEY environment variable is not configured.",
+            "reason": "DeepSeek API Key (deepseek or DEEPSEEK_API_KEY) environment variable is not configured.",
             "total_tasks": len(tasks),
             "passed": 0,
             "pass_rate_percent": 0.0,
@@ -321,7 +342,7 @@ def main() -> int:
 
     report_file.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"\n=== Benchmark Results [{args.profile}] ===")
-    print(f"Total: {len(results)}, Passed: {total_passed}, Pass Rate: {pass_rate:.1f}%")
+    print(f"Overall Pass Rate: {total_passed}/{len(results)} ({pass_rate:.1f}%)")
     for cat, stat in category_stats.items():
         print(f"  - {cat}: {stat['passed']}/{stat['total']}")
     print(f"Report saved to {report_file}")

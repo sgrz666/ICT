@@ -248,6 +248,8 @@ class JobRepository:
         checks_passed: bool,
         artifacts: list[dict] | None = None,
         cancelled: bool = False,
+        lesson: dict | None = None,
+        bindings: dict | None = None,
     ) -> None:
         """§3.5 的发布事务：执行权、取消、验证、基础版本四道闸门后写版本。
 
@@ -276,8 +278,8 @@ class JobRepository:
                 raise RevisionConflict(f"head={head} base={base_revision}")
 
             inserted = await self.conn.execute(
-                """insert into experiment_revisions (id, experiment_id, parent_id, engine_id, native_data)
-                   select $1, $2, $3, 'ray_optics', $4::jsonb
+                """insert into experiment_revisions (id, experiment_id, parent_id, engine_id, native_data, lesson, bindings)
+                   select $1, $2, $3, 'ray_optics', $4::jsonb, $7::jsonb, $8::jsonb
                    where exists (
                      select 1 from jobs
                      where id = $5 and lease_token = $6
@@ -285,6 +287,8 @@ class JobRepository:
                    )""",
                 candidate_revision_id, experiment_id, base_revision,
                 json.dumps(native_data), job_id, lease_token,
+                json.dumps(lesson) if lesson else None,
+                json.dumps(bindings) if bindings else None,
             )
             if not inserted.endswith("1"):
                 raise LeaseLost("no execution right")

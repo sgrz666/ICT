@@ -46,6 +46,8 @@ class Publisher:
         report_verdict: str,
         artifacts: list[dict] | None = None,
         cancelled: bool = False,
+        lesson: dict | None = None,
+        bindings: dict | None = None,
     ) -> None:
         if report_verdict != "passed":
             # 失败或没验过的任务，不得发布为成功资源（§7.5 的项目方法比较目标之一）
@@ -60,4 +62,6 @@ class Publisher:
             checks_passed=True,
             artifacts=artifacts,
             cancelled=cancelled,
+            lesson=lesson,
+            bindings=bindings,
         )

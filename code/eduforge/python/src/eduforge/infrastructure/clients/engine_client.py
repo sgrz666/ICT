@@ -35,11 +35,16 @@ class EngineClient:
                 raise EngineUnavailable(f"template endpoint -> {r.status_code}")
             return r.json()
 
-    async def apply(self, native: dict, edit: dict) -> dict[str, Any]:
+    async def apply(self, native: dict, edit: dict | list[dict]) -> dict[str, Any]:
         async with httpx.AsyncClient(timeout=self.timeout) as c:
+            payload: dict[str, Any] = {"native": native}
+            if isinstance(edit, list):
+                payload["edits"] = edit
+            else:
+                payload["edit"] = edit
             r = await c.post(
                 f"{self.base}/adapters/ray_optics/apply",
-                json={"native": native, "edit": edit},
+                json=payload,
             )
             if r.status_code == 422:
                 raise EditRejected(r.status_code, r.json())
@@ -48,6 +53,19 @@ class EngineClient:
             if r.status_code != 200:
                 raise EngineUnavailable(f"apply -> {r.status_code}")
             return r.json()
+
+    async def export_offline_package(
+        self, scene: dict, out_dir: str, options: dict | None = None
+    ) -> dict[str, Any]:
+        async with httpx.AsyncClient(timeout=self.timeout) as c:
+            r = await c.post(
+                f"{self.base}/export/offline_package",
+                json={"scene": scene, "outDir": out_dir, "options": options or {}},
+            )
+            if r.status_code != 200:
+                raise EngineUnavailable(f"export_offline_package -> {r.status_code}: {r.text}")
+            return r.json()
+
 
 
 def sharpest_screen(result: dict[str, Any]) -> dict[str, Any] | None:

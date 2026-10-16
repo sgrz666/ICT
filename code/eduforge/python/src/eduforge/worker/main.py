@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from eduforge.agent.policy import Rejected
 from eduforge.application.coordinator import Coordinator, Step
-from eduforge.infrastructure.db.repositories import JobRepository
+from eduforge.infrastructure.db.repositories import JobRepository, RevisionConflict
 from eduforge.worker.errors import TerminalError
 
 
@@ -52,13 +52,18 @@ class Worker:
             }
         try:
             last = await self.coordinator.run(job_id, token)
-        except (TerminalError, Rejected) as e:
+        except (TerminalError, Rejected, RevisionConflict) as e:
             # 终态失败：重试不会改变结果，必须让任务可见地停下来。
             # 不这么做的话任务永远停在 running，教师前端只能转圈。
             # 崩溃（SimulatedCrash）与网络/引擎不可用不在这里，它们该被别的 Worker 接管。
-            code = getattr(e, "code", "TERMINAL")
-            await self.repo.append_event(job_id, stage=getattr(e, "stage", None),
-                                         event_type="job_failed", payload={"code": code})
+            if isinstance(e, RevisionConflict):
+                code = "REVISION_CONFLICT"
+                stage = "packaging"
+            else:
+                code = getattr(e, "code", "TERMINAL")
+                stage = getattr(e, "stage", None)
+            await self.repo.append_event(job_id, stage=stage,
+                                         event_type="job_failed", payload={"code": code, "detail": str(e)})
             status = await self.repo.mark_failed(job_id, token, code)
             return {"job_id": job_id, "failed": code, "status": status, "lease_token": token}
         finally:

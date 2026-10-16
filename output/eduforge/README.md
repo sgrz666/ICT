@@ -4,10 +4,12 @@ EduForge 跑出来的东西分四类，按性质分目录，不混放：
 
 | 目录 | 性质 | 状态 |
 |---|---|---|
-| [`reports/`](reports/README.md) | 验证证据（切片/gate 的原始输出：JSON、日志、截图） | 12 个文件，内容最实 |
-| [`candidates/`](candidates/README.md) | 候选交付物（给用户/评委看的东西） | `offline-package/`：GATE-8 离线网页包 |
-| `artifacts/` | 运行期产物交付区 | **预留，当前为空**——下载交付目前按 API 链路的 `storage_key` 直接取字节，不落地到此 |
-| `research/` | 调研材料 | **预留，当前为空** |
+| [`reports/`](reports/README.md) | 验证证据（切片/gate 的原始输出：JSON、日志、截图） | 15 个文件，内容最实 |
+| `candidates/` | 候选交付物（给用户/评委看的东西） | `offline-package/`：GATE-8 离线网页包；**已列入 `.gitignore`** |
+| `artifacts/` | 运行期产物区（worker building 阶段写 `revisions/{candidate}/native.json`） | **运行数据，不入库**（已列入 `.gitignore`） |
+| `research/` | 调研材料 | 预留，当前只有 README |
+
+另有两个本地运行状态（不入库，均在 `.gitignore`）：`pgdata/`（pgserver 数据目录）、`eduforge.pids` 与 `pg_uri.txt`（一键启动脚本的运行痕迹）。
 
 ## 约定
 

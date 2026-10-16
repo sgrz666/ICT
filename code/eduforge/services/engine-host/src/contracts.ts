@@ -21,8 +21,8 @@ export type EditProposal = {
 
 export type LensBinding = {
   entity_id: string;
-  native_type: "IdealLens";
-  parameter: "focal_length_cm";
+  native_type: string;
+  parameter: string;
   min: number;
   max: number;
   units_per_unit: number;

@@ -12,10 +12,14 @@ export function PreviewFrame({
   wrapperPath,
   revision,
   controls,
+  onSaveTunedRevision,
+  savingTuned,
 }: {
   wrapperPath: string | null;
   revision: string;
   controls?: ControlSummary[];
+  onSaveTunedRevision?: (changes: Array<{ entityId: string; parameter: string; value: number }>) => void;
+  savingTuned?: boolean;
 }) {
   const frame = useRef<HTMLIFrameElement | null>(null);
   const [status, setStatus] = useState<string>("等待预览就绪…");
@@ -71,7 +75,13 @@ export function PreviewFrame({
     <section>
       <h2>预览（由上游模拟器渲染）</h2>
       {wrapperPath ? (
-        <iframe ref={frame} title="EduForge 预览" src={wrapperPath} allow="fullscreen" />
+        <iframe
+          ref={frame}
+          title="EduForge 预览"
+          src={wrapperPath}
+          allow="fullscreen"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+        />
       ) : (
         <p className="muted">还没有可预览的已验证版本。</p>
       )}
@@ -140,6 +150,27 @@ export function PreviewFrame({
               </div>
             );
           })}
+          {onSaveTunedRevision && Object.keys(paramValues).length > 0 ? (
+            <div style={{ marginTop: "0.8rem", paddingTop: "0.6rem", borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: "0.8rem" }}>
+              <button
+                type="button"
+                className="primary"
+                disabled={tuning || savingTuned}
+                onClick={() => {
+                  const changes = Object.entries(paramValues).map(([key, val]) => {
+                    const [entityId, ...rest] = key.split(".");
+                    return { entityId, parameter: rest.join("."), value: val };
+                  });
+                  onSaveTunedRevision(changes);
+                }}
+              >
+                {savingTuned ? "正在发布新版本…" : "保存调参为新版本"}
+              </button>
+              <span className="muted" style={{ fontSize: "0.85rem" }}>
+                将实时调参结果持久化为正式交付版本（经过物理门禁校验并生成可下载产物）
+              </span>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </section>

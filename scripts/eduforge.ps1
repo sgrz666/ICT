@@ -8,7 +8,16 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$ScriptDir = $PSScriptRoot
+if (-not $ScriptDir -and $MyInvocation.MyCommand.Path) {
+    $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+if (-not $ScriptDir -and $MyInvocation.MyCommand.Definition) {
+    $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+}
+if (-not $ScriptDir) {
+    $ScriptDir = Join-Path (Get-Location).Path "scripts"
+}
 $WorkspaceRoot = (Resolve-Path (Join-Path $ScriptDir "..")).Path
 $EduForgeDir = Join-Path $WorkspaceRoot "code\eduforge"
 $PyVenv = Join-Path $EduForgeDir ".venv"
@@ -18,9 +27,40 @@ $NodeModules = Join-Path $EduForgeDir "node_modules"
 $PidFile = Join-Path $WorkspaceRoot "output\eduforge\eduforge.pids"
 
 function Check-PortAvailable([int]$Port) {
-    $connections = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
-    return ($null -eq $connections)
+    try {
+        $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, $Port)
+        $listener.Start()
+        $listener.Stop()
+        return $true
+    } catch {
+        return $false
+    }
 }
+
+function Start-EduForgeService([string]$FileName, [string]$Arguments, [string]$WorkingDirectory, [hashtable]$EnvVars) {
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $FileName
+    $psi.Arguments = $Arguments
+    if ($WorkingDirectory) { $psi.WorkingDirectory = $WorkingDirectory }
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+    if ($EnvVars) {
+        foreach ($k in $EnvVars.Keys) {
+            $psi.EnvironmentVariables[$k] = [string]$EnvVars[$k]
+        }
+    }
+    return [System.Diagnostics.Process]::Start($psi)
+}
+
+
+function Stop-ProcessTree([int]$ParentId) {
+    $children = Get-CimInstance Win32_Process -Filter "ParentProcessId = $ParentId" -ErrorAction SilentlyContinue
+    foreach ($child in $children) {
+        Stop-ProcessTree $child.ProcessId
+    }
+    Stop-Process -Id $ParentId -Force -ErrorAction SilentlyContinue
+}
+
 
 switch ($Action) {
     "doctor" {
@@ -171,42 +211,195 @@ switch ($Action) {
     }
 
     "up" {
-        Write-Host "=== Starting EduForge Local Services ===" -ForegroundColor Cyan
-        if (-not (Check-PortAvailable 8010)) {
-            Write-Host "Error: Port 8010 is already in use." -ForegroundColor Red
+        Write-Host "=== Starting EduForge Full System Services ===" -ForegroundColor Cyan
+
+        # 1. 检查构建产物
+        $webDistFile = Join-Path $EduForgeDir "apps\teacher-web\dist\index.html"
+        $engineDistFile = Join-Path $EduForgeDir "services\engine-host\dist\main.js"
+        if (-not (Test-Path $webDistFile) -or -not (Test-Path $engineDistFile)) {
+            Write-Host "Bootstrap artifacts missing. Running bootstrap first..." -ForegroundColor Yellow
+            & (Join-Path $ScriptDir "eduforge.ps1") bootstrap
+        }
+
+        # 2. 检查端口占用
+        $free8000 = Check-PortAvailable 8000
+        $free8010 = Check-PortAvailable 8010
+        $free4174 = Check-PortAvailable 4174
+        if (-not $free8010) { Write-Host "Error: Port 8010 (Engine Host) is already in use." -ForegroundColor Red; exit 1 }
+        if (-not $free4174) { Write-Host "Error: Port 4174 (Browser Gateway) is already in use." -ForegroundColor Red; exit 1 }
+        if (-not $free8000) { Write-Host "Error: Port 8000 (API Backend) is already in use." -ForegroundColor Red; exit 1 }
+
+        $outDir = Join-Path $WorkspaceRoot "output\eduforge"
+        if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
+        $artDir = Join-Path $outDir "artifacts"
+        if (-not (Test-Path $artDir)) { New-Item -ItemType Directory -Path $artDir -Force | Out-Null }
+        $pgDataDir = Join-Path $outDir "pgdata"
+        $uriFile = Join-Path $outDir "pg_uri.txt"
+
+        $pids = @()
+
+        # 3. 启动数据库 (Postgres via run_db.py)
+        Write-Host "`n[1/4] Starting PostgreSQL database..." -ForegroundColor Yellow
+        if (Test-Path $uriFile) { Remove-Item $uriFile -Force -ErrorAction SilentlyContinue }
+        $dbProc = Start-EduForgeService $PythonExe "tools/run_db.py --data-dir `"$pgDataDir`" --uri-file `"$uriFile`"" $EduForgeDir $null
+        $pids += $dbProc.Id
+        Write-Host ("  PostgreSQL started with PID " + $dbProc.Id) -ForegroundColor Green
+
+        # 等待 URI 文件就绪
+        $dbUri = ""
+        $timeout = 30
+        while ($timeout -gt 0) {
+            if (Test-Path $uriFile) {
+                $dbUri = (Get-Content $uriFile -Raw).Trim()
+                if ($dbUri) { break }
+            }
+            Start-Sleep -Milliseconds 500
+            $timeout--
+        }
+        if (-not $dbUri) {
+            Write-Host "Error: Failed to obtain PostgreSQL URI within timeout." -ForegroundColor Red
+            & (Join-Path $ScriptDir "eduforge.ps1") down
+            exit 1
+        }
+        Write-Host ("  Database URI: " + $dbUri) -ForegroundColor Cyan
+
+        # 4. 启动业务 API (FastAPI / uvicorn)
+        Write-Host "`n[2/4] Starting API backend (FastAPI :8000)..." -ForegroundColor Yellow
+        $apiEnv = @{
+            "EDUFORGE_DSN" = $dbUri
+            "EDUFORGE_ARTIFACT_DIR" = $artDir
+        }
+        $apiProc = Start-EduForgeService $PythonExe "-m uvicorn eduforge.api.serve:app --host 127.0.0.1 --port 8000 --log-level warning" $EduForgeDir $apiEnv
+        $pids += $apiProc.Id
+        Write-Host ("  API Backend started with PID " + $apiProc.Id) -ForegroundColor Green
+
+        # 等待 API 端口就绪
+        $apiReady = $false
+        for ($i = 0; $i -lt 30; $i++) {
+            if (-not (Check-PortAvailable 8000)) {
+                $apiReady = $true
+                break
+            }
+            Start-Sleep -Milliseconds 400
+        }
+        if (-not $apiReady) {
+            Write-Host "Error: API Backend failed to bind to port 8000." -ForegroundColor Red
+            & (Join-Path $ScriptDir "eduforge.ps1") down
             exit 1
         }
 
+        # 5. 启动 Engine Host 与 Browser Gateway (Node)
+        Write-Host "`n[3/4] Starting Engine Host (:8010) and Browser Gateway (:4174)..." -ForegroundColor Yellow
         $engineHostDir = Join-Path $EduForgeDir "services\engine-host"
-        $proc = Start-Process node -ArgumentList "dist/main.js" -WorkingDirectory $engineHostDir -PassThru -NoNewWindow
-        
-        $outDir = Split-Path -Parent $PidFile
-        if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
-        $proc.Id | Out-File -FilePath $PidFile -Encoding ascii
+        $teacherWebDist = Join-Path $EduForgeDir "apps\teacher-web\dist"
+        $nodeEnv = @{
+            "ENGINE_HOST_PORT" = "8010"
+            "ENGINE_GATEWAY_PORT" = "4174"
+            "EDUFORGE_API_URL" = "http://127.0.0.1:8000"
+            "EDUFORGE_TEACHER_WEB_DIST" = $teacherWebDist
+        }
+        $nodeProc = Start-EduForgeService "node" "dist/main.js" $engineHostDir $nodeEnv
+        $pids += $nodeProc.Id
+        Write-Host ("  Engine Host & Gateway started with PID " + $nodeProc.Id) -ForegroundColor Green
 
-        Write-Host ("Engine Host and Gateway started with PID " + $proc.Id) -ForegroundColor Green
-        Write-Host "  Web UI URL: http://127.0.0.1:8010/" -ForegroundColor Cyan
+        # 等待 8010 和 4174 就绪
+        for ($i = 0; $i -lt 30; $i++) {
+            if (-not (Check-PortAvailable 8010) -and -not (Check-PortAvailable 4174)) { break }
+            Start-Sleep -Milliseconds 400
+        }
+
+        # 6. 启动 Worker 进程
+        Write-Host "`n[4/4] Starting EduForge Worker..." -ForegroundColor Yellow
+        $workerArgsStr = "-m eduforge.worker.run --dsn `"$dbUri`" --engine-url http://127.0.0.1:8010 --artifact-dir `"$artDir`""
+
+        # 解析 DeepSeek API Key（优先支持 $env:deepseek，并自动回填 $env:DEEPSEEK_API_KEY）
+        $deepseekKey = $env:deepseek
+        if (-not $deepseekKey) { $deepseekKey = $env:DEEPSEEK }
+        if (-not $deepseekKey) { $deepseekKey = $env:DEEPSEEK_API_KEY }
+        if (-not $deepseekKey) {
+            $deepseekKey = [System.Environment]::GetEnvironmentVariable("deepseek", "User")
+        }
+        if (-not $deepseekKey) {
+            $deepseekKey = [System.Environment]::GetEnvironmentVariable("deepseek", "Machine")
+        }
+        if (-not $deepseekKey) {
+            $deepseekKey = [System.Environment]::GetEnvironmentVariable("DEEPSEEK_API_KEY", "User")
+        }
+        if (-not $deepseekKey) {
+            $deepseekKey = [System.Environment]::GetEnvironmentVariable("DEEPSEEK_API_KEY", "Machine")
+        }
+
+        if ($deepseekKey) {
+            $env:deepseek = $deepseekKey
+            $env:DEEPSEEK_API_KEY = $deepseekKey
+            Write-Host "  [OK] DeepSeek API Key loaded from environment: deepseek" -ForegroundColor Green
+        } else {
+            Write-Host "  [INFO] Environment variable 'deepseek' not set. Worker using --planner-static-focal 15 for local execution." -ForegroundColor DarkGray
+            $workerArgsStr += " --planner-static-focal 15"
+        }
+        $workerProc = Start-EduForgeService $PythonExe $workerArgsStr $EduForgeDir $null
+        $pids += $workerProc.Id
+        Write-Host ("  Worker started with PID " + $workerProc.Id) -ForegroundColor Green
+
+        # 记录所有 PID
+        $pids | Out-File -FilePath $PidFile -Encoding ascii
+
+        Write-Host "`n========================================================" -ForegroundColor Green
+        Write-Host " EduForge & Ray Optics 全系统一键启动成功！" -ForegroundColor Green
+        Write-Host "  综合工作台 (Web UI): http://127.0.0.1:4174/" -ForegroundColor Cyan
+        Write-Host "  ⚡ Ray Optics 原生模拟器直开: http://127.0.0.1:4174/simulator/?zh-CN" -ForegroundColor Cyan
+        Write-Host "  📚 81个交互演示案例库: http://127.0.0.1:4174/cn/gallery/" -ForegroundColor Cyan
+        Write-Host "  业务 API 文档 (Swagger): http://127.0.0.1:8000/docs" -ForegroundColor Cyan
+        Write-Host "  仿真引擎宿主 (Engine Host): http://127.0.0.1:8010/healthz" -ForegroundColor Cyan
+        Write-Host "  停止全部服务请运行: .\scripts\eduforge.ps1 down" -ForegroundColor Yellow
+        Write-Host "========================================================`n" -ForegroundColor Green
         exit 0
     }
 
     "down" {
         Write-Host "=== Stopping EduForge Services ===" -ForegroundColor Cyan
+
+        # 1. 优先优雅停止 PostgreSQL，防止 WAL/log 崩溃状态
+        $pgDataDir = Join-Path $WorkspaceRoot "output\eduforge\pgdata"
+        if (Test-Path $pgDataDir) {
+            $pgCtl = Join-Path $EduForgeDir ".venv\Lib\site-packages\pgserver\pginstall\bin\pg_ctl.exe"
+            $pidPath = Join-Path $pgDataDir "postmaster.pid"
+            if ((Test-Path $pgCtl) -and (Test-Path $pidPath)) {
+                cmd /c "`"$pgCtl`" -D `"$pgDataDir`" stop -m fast >nul 2>nul"
+                Remove-Item $pidPath -Force -ErrorAction SilentlyContinue
+            }
+        }
+
+        # 2. 停止记录在 PID 文件的服务
         if (Test-Path $PidFile) {
             $pids = Get-Content $PidFile
             foreach ($p in $pids) {
                 if ($p -match "^\d+$") {
-                    $proc = Get-Process -Id ([int]$p) -ErrorAction SilentlyContinue
-                    if ($proc) {
-                        Write-Host ("Stopping PID " + $p + " (" + $proc.ProcessName + ")") -ForegroundColor Yellow
-                        Stop-Process -Id ([int]$p) -Force -ErrorAction SilentlyContinue
-                    }
+                    Write-Host ("Stopping PID " + $p + " and child processes") -ForegroundColor Yellow
+                    Stop-ProcessTree ([int]$p)
                 }
             }
             Remove-Item $PidFile -Force -ErrorAction SilentlyContinue
         } else {
             Write-Host "No running PID recorded." -ForegroundColor DarkGray
         }
-        Write-Host "Services stopped. Database and artifact data preserved." -ForegroundColor Green
+
+        # 3. 补充清理子进程或可能残留的端口进程
+        $cleanPorts = @(8000, 8010, 4174)
+        foreach ($port in $cleanPorts) {
+            $conns = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
+            foreach ($c in $conns) {
+                if ($c.OwningProcess -and $c.OwningProcess -gt 0) {
+                    Write-Host ("Cleaning residual process on port " + $port + " (PID " + $c.OwningProcess + ")") -ForegroundColor Yellow
+                    Stop-ProcessTree $c.OwningProcess
+                }
+            }
+        }
+
+        $uriFile = Join-Path $WorkspaceRoot "output\eduforge\pg_uri.txt"
+        if (Test-Path $uriFile) { Remove-Item $uriFile -Force -ErrorAction SilentlyContinue }
+
+        Write-Host "All EduForge services stopped cleanly." -ForegroundColor Green
         exit 0
     }
 }

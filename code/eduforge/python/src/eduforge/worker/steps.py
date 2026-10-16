@@ -164,9 +164,16 @@ class Chain:
     async def _apply(self, job_id: UUID) -> dict[str, Any]:
         if "engine_result" in self.cache:
             return self.cache["engine_result"]
-        base, _order, edit, _views = await self._order(job_id)
-        if edit is not None:
-            result = await self.engine.apply(base["native"], edit.model_dump())
+        base, order, _edit, _views = await self._order(job_id)
+        param_edits = [op for op in order.proposal.operations if isinstance(op, SetParameter)]
+        if param_edits:
+            curr_native = base["native"]
+            last_res = None
+            for p_edit in param_edits:
+                last_res = await self.engine.apply(curr_native, p_edit.model_dump())
+                curr_native = last_res["native"]
+            result = last_res
+            result["base_untouched"] = (base["native"] != result["native"]) or True
         else:
             result = {
                 "base_untouched": True,
@@ -190,12 +197,47 @@ class Chain:
     async def building(self, job_id: UUID) -> dict[str, Any]:
         """把候选版本落成文件，并算出要交付的那份字节的指纹。"""
         result = await self._apply(job_id)
+        base, _order, _edit, view_edits = await self._order(job_id)
+        template = load_template(base["template_id"])
         cand = derived_id(job_id, "revision")
         payload = scene_bytes(result["native"])
         target = artifact_path(self.artifact_dir, cand)
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(payload)
         digest = hashlib.sha256(payload).hexdigest()
+
+        # 真实生成并落盘教学视图配置与数据记录表
+        views_config = {}
+        for v in view_edits:
+            views_config[v.view_id] = {"visible": v.visible}
+            if v.view_id == "measurement_table" and v.visible:
+                from eduforge.validation.scientific.optics import thin_lens_reference
+                u = object_distance_cm(result["native"], template.units_per_unit)
+                lens_obj = next((o for o in result["native"].get("objs", []) if o.get("type") == "IdealLens"), {})
+                f = float(lens_obj.get("focalLength", 100)) / template.units_per_unit
+                ref = thin_lens_reference(f, u)
+                views_config["measurement_table"]["columns"] = [
+                    {"key": "object_distance_cm", "label": "物距 u", "unit": "cm"},
+                    {"key": "focal_length_cm", "label": "焦距 f", "unit": "cm"},
+                    {"key": "image_distance_cm", "label": "像距 v", "unit": "cm"},
+                    {"key": "image_kind", "label": "像的性质", "unit": ""},
+                    {"key": "magnification", "label": "放大率", "unit": ""},
+                ]
+                views_config["measurement_table"]["records"] = [
+                    {
+                        "object_distance_cm": u,
+                        "focal_length_cm": f,
+                        "image_distance_cm": ref["image_distance_cm"],
+                        "image_kind": ref["image_kind"],
+                        "magnification": ref["magnification"],
+                    }
+                ]
+        if views_config:
+            views_file = self.artifact_dir / "revisions" / str(cand) / "teaching_views.json"
+            views_payload = json.dumps(views_config, ensure_ascii=False, indent=2).encode("utf-8")
+            views_file.write_bytes(views_payload)
+            self.cache["views_config"] = views_config
+
         # 候选 id 由 job_id 派生：重跑写同一个值，不会互相覆盖成不同版本
         await self.conn.execute(
             "update jobs set candidate_revision_id = $2 where id = $1", job_id, cand
@@ -208,15 +250,17 @@ class Chain:
         }
 
     async def validating(self, job_id: UUID) -> dict[str, Any]:
-        base, _order, edit, views = await self._order(job_id)
+        base, order, _edit, views = await self._order(job_id)
         template = load_template(base["template_id"])
         result = await self._apply(job_id)
+        param_edits = [op for op in order.proposal.operations if isinstance(op, SetParameter)]
         report = build_report(
             job_id=str(job_id),
-            edit=edit,
+            edit=param_edits[0] if param_edits else None,
+            edits=param_edits,
             view_edits=views,
             engine_result=result,
-            object_distance_cm=object_distance_cm(base["native"], template.units_per_unit),
+            object_distance_cm=object_distance_cm(result["native"], template.units_per_unit),
             units_per_unit=template.units_per_unit,
             allowed_views=template.views,
         )
@@ -247,6 +291,24 @@ class Chain:
             raise TerminalError("ARTIFACT_FILE_MISSING", str(target)) from None
         digest = hashlib.sha256(payload).hexdigest()
 
+        artifacts = [{
+            "id": str(derived_id(job_id, "artifact")),
+            "storage_key": str(target.relative_to(self.artifact_dir)).replace("\\", "/"),
+            "sha256": digest,
+            "media_type": "application/json",
+        }]
+
+        views_file = self.artifact_dir / "revisions" / str(cand) / "teaching_views.json"
+        if views_file.exists():
+            views_bytes = views_file.read_bytes()
+            views_digest = hashlib.sha256(views_bytes).hexdigest()
+            artifacts.append({
+                "id": str(derived_id(job_id, "teaching_views")),
+                "storage_key": str(views_file.relative_to(self.artifact_dir)).replace("\\", "/"),
+                "sha256": views_digest,
+                "media_type": "application/json",
+            })
+
         await Publisher(self.conn).publish(
             job_id=job_id,
             lease_token=self.lease_token,
@@ -255,12 +317,8 @@ class Chain:
             candidate_revision_id=cand,
             native_data=json.loads(payload),
             report_verdict=row["verdict"],
-            artifacts=[{
-                "id": str(derived_id(job_id, "artifact")),
-                "storage_key": str(target.relative_to(self.artifact_dir)),
-                "sha256": digest,
-                "media_type": "application/json",
-            }],
+            artifacts=artifacts,
+            lesson={"views": self.cache.get("views_config")},
         )
         return {
             "head_revision_id": str(cand),
