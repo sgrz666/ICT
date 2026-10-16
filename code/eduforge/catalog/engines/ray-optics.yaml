@@ -1,0 +1,112 @@
+engine_id: ray_optics
+display_name: Ray Optics Simulation
+upstream_id: ray-optics            # 对应 source/upstream/upstream.lock.json
+upstream_version: "5.5.0"
+license: Apache-2.0
+
+# 上游场景数据的实际情况（源码与探针实测，不是设计意图）
+native_format:
+  kind: json
+  data_version: 5                   # src/core/Scene.js:26 export const DATA_VERSION = 5
+  version_policy: delegate_to_loadjson
+  version_policy_note: >-
+    上游 loadJSON 自己处理版本：无 version 字段则迁移，version 为字符串或大于
+    DATA_VERSION 则置 scene.error 并拒绝，version 小于 DATA_VERSION 则迁移。
+    适配器不要写 `if (version !== 5) throw`，改为读回 scene.error。
+  unit_system: none
+  unit_system_note: >-
+    上游没有单位系统，坐标是纯场景单位。Scene 的 lengthScale 注释明确只用于
+    线宽与默认字号；没有 unitScale 字段。教学单位换算完全是我们的约定，
+    因此每个模板必须自己声明 units_per_unit 并锁 lengthScale。
+  serializer: Scene.toJSON / Scene.loadJSON
+  object_identity: name
+  object_identity_note: >-
+    对象绑定必须走上游的 name 字段，不能用数组下标。实测三条证据：
+    reorderObj(from,to) 会重排 objs（reorderObj(1,0) 后 objs[0] 由 IdealLens 变 PointSource）；
+    Editor 拖动时对 Handle 调 unshiftObj 插到队首（objs[0] 变 Handle，透镜移到 index 2）；
+    removeObj(index) 把后续对象整体前移。也不能注入自定义 id——BaseSceneObj 的
+    knownKeys 白名单外的键会置 scene.error（实测 'Unknown key: "eduforge_id" ...'）。
+    name 在白名单内且实测能往返保留；代价是模板里每个可绑定对象都要有唯一 name，
+    重名与未命名必须拒。上游自带 name 语义是用户可编辑的显示名，用户在编辑器里改名
+    会破坏绑定，这条到切片 1 的人工验证阶段确认。
+  order_stable_under_edit: false    # 实测，见 object_identity_note
+
+# 无头调用：观测值不经浏览器取得（探针已实测跑通）
+headless:
+  bundle: dist-node/rayOptics.js    # npm run build-node 产出，1715044 字节
+  entry: src/core/index.js
+  exports: [Scene, Simulator, PrimitiveBasedSimulator, CpuSimulationEngine,
+            WebGpuSimulationEngine, FLOAT32_EPSILON, Editor, sceneObjs, geometry]
+  simulation_start: simulator.updateSimulation(false, false)
+  simulation_start_note: >-
+    构造 Simulator 不会自动开跑。漏掉这一句的后果是 simulationComplete 永不触发、
+    Node 事件循环排空后以 exit 0 静默退出且不打印任何东西——本工作区踩过，
+    排查方向是调度而不是报错。
+  reference_impl: integrations/runner.js
+  measurement_objects: [Detector]
+  detector_readback: [power, normal, shear, binData]
+  requires_canvas: >-
+    仅 CropBox 出图需要 node-canvas；本机 canvas 未装成（optionalDependencies
+    静默失败），探测器读数不受影响。出图类导出改走浏览器渲染或另行安装。
+
+capabilities:
+  set_parameter: true               # 已实测：IdealLens.focalLength 改后仿真实质性改变
+  set_view: unknown                 # 尚未验证
+  add_entity: true                  # 上游编辑器支持，我们的适配器尚未封装
+  remove_entity: true
+  run_pause_reset: unknown          # 属浏览器路径，尚未验证
+  sample_measurement: true          # Detector.power / binData 已实测可读
+  export_native_scene: true         # toJSON 往返已实测 identical
+  export_offline_package: pending
+
+# 参数符号语义：这是教学内容正确性的关键，不能只当数值范围处理
+parameter_semantics:
+  IdealLens.focalLength:
+    positive: 会聚（凸透镜）
+    negative: 发散（凹透镜）
+    zero: 未定义，上游无保护，适配器需拒
+    ui_range: "±1000 * scene.lengthScale，步进 1 * scene.lengthScale"
+    upstream_default: 100
+    scale_coupling: "Scene 几何缩放会等比改 focalLength（IdealLens.scale 里乘 scale）"
+  object_types_not_interchangeable: >-
+    IdealLens 是理想薄透镜（DAG: slope = d_0x/(-d_0y) - h/f），可与薄透镜参考公式对照。
+    SphericalLens 是厚透镜，带 refIndex 1.5、cauchyB 0.004、partialReflect，
+    含球差与色散，与薄透镜参考不等价。官方 galleryScenes/convex-lens.json 用的是
+    SphericalLens，不能直接当理想凸透镜模板的种子。
+
+verification_baseline:
+  probe: code/eduforge/tools/rayoptics_probe.cjs
+  gate2_probe: code/eduforge/tools/gate2_binding.cjs
+  engine_host_tests: code/eduforge/services/engine-host/tests/
+  report: output/eduforge/reports/slice1-rayoptics-probe.json
+  measured_at: "2026-10-16T12:18:00+08:00"
+  test_totals: { vitest: 54, pytest: 79 }   # 计数只在这里记一次，别处引用本文件
+  passed:
+    - 上游接受我们手写的场景，scene.error 与 scene.warning 均为 null
+    - toJSON → loadJSON → toJSON 字符串完全一致
+    - 焦距按教学单位映射修改（15cm → focalLength 150）且源数据未被就地改写
+    - 版本策略交给上游：v4 被迁移为 5，v99 被明确拒绝
+    - 未登记对象与重名绑定分别返回 ENTITY_NOT_FOUND / ENTITY_AMBIGUOUS
+    - 像面定位：f=5/6/8/10/12/15/20/25 八档 argmax 全部与独立薄透镜预测一致
+      （判据为光斑二矩半径 + 捕获功率下限，见模板 manifest.observations）
+    - UI 人工路径：代码页签改焦距 → 应用同步 → 复制分享链接导出 → 解回，
+      focalLength 由缺失变 150，四个 name 保留，页面零错误
+    - 浏览器复位路径：预览 iframe 里点"清空"后欢迎页重新可见、光层总光强与点亮像素双双归零、零页面错误
+    - 浏览器新增对象路径：展开 #lightSourceToolsDropdown 选 #tool_SingleRay、按画布矩形点画布 ⇒
+      上游自查选工具(#tool_SingleRay isChecked)、objBar 出现且带控件、稳定渲染后截图哈希改变
+    - 渲染可复现性实测：同场景两次 sum/lit/截图哈希三者全等（f=10: sum=302526662 lit=476563）；
+      f=15 为 sum=287776335 lit=453202 ⇒ 焦距改变确实反映到光路渲染上
+    - 上游没有"播放/暂停"按钮，仿真自动跑；"运行"以光层像素 >0 作为在跑的证据
+  rejected_criterion: >-
+    peak_share = max_bin/total 不可用作像面判据。实测 f=5（预测像距 6cm）时它把
+    40cm 屏判成最清晰——该屏几乎全部光线漏检，分母塌到一两条光线使比值趋近 1。
+    已有一条回归用例专门断言这个假阳性，防止判据被改回去。
+    - 浏览器桥接（§5.2/§5.3）：宿主页收到 eduforge.ready 恰好一次；改参数后先 ready 后
+      parameter_changed 且报出新 revision；越界值回 APPLY_FAILED；编辑前与编辑后两个 revision
+      都仍可访问（"编辑前版本保持可恢复"在预览链路上也成立）；非同源入站消息一律忽略
+    - 桥接改参数走 POST /param，复用与业务 API 同一个 rayOpticsAdapter：上游不接受就 422，
+      桥接层没有自己的编辑能力，也就无从"自己编造场景编辑"
+  not_yet_measured:
+    - iframe 内用"复制分享链接"读场景（隐藏菜单项的 click 不触发 Vue 处理器；直接开页面时已验过）。
+      预览链路已由自建桥接覆盖，这条只影响"在教师前端里复用上游导出按钮"的可行性
+    - 除改名以外，其它上游 UI 操作对 objs 顺序的影响

@@ -1,0 +1,212 @@
+{
+  "thresholds": {
+    "sharp_at_least": 0.8,
+    "diffuse_at_most": 0.4,
+    "between": "inconclusive"
+  },
+  "strata": [
+    {
+      "stratum": "u<f (虚像)",
+      "u_cm": 5,
+      "f_cm": 10,
+      "predicted_v_cm": -10,
+      "probes": [
+        {
+          "name": "probe_0",
+          "x_cm": 15,
+          "power": 12,
+          "peak_share": 0.08333333333333333
+        },
+        {
+          "name": "probe_1",
+          "x_cm": 30,
+          "power": 8,
+          "peak_share": 0.125
+        }
+      ],
+      "rays": 92,
+      "classifications": [
+        "diffuse",
+        "diffuse"
+      ]
+    },
+    {
+      "stratum": "u=f (无穷远)",
+      "u_cm": 10,
+      "f_cm": 10,
+      "predicted_v_cm": null,
+      "probes": [
+        {
+          "name": "probe_0",
+          "x_cm": 15,
+          "power": 14,
+          "peak_share": 0.07142857142857142
+        },
+        {
+          "name": "probe_1",
+          "x_cm": 30,
+          "power": 14,
+          "peak_share": 0.07142857142857142
+        }
+      ],
+      "rays": 96,
+      "classifications": [
+        "diffuse",
+        "diffuse"
+      ]
+    },
+    {
+      "stratum": "f<u<2f (放大实像)",
+      "u_cm": 15,
+      "f_cm": 10,
+      "predicted_v_cm": 30,
+      "probes": [
+        {
+          "name": "probe_0",
+          "x_cm": 30,
+          "power": 16,
+          "peak_share": 0.8125
+        },
+        {
+          "name": "probe_1",
+          "x_cm": 42,
+          "power": 16,
+          "peak_share": 0.0625
+        }
+      ],
+      "rays": 98,
+      "classifications": [
+        "sharp",
+        "diffuse"
+      ]
+    },
+    {
+      "stratum": "u=2f (等大实像)",
+      "u_cm": 20,
+      "f_cm": 10,
+      "predicted_v_cm": 20,
+      "probes": [
+        {
+          "name": "probe_0",
+          "x_cm": 20,
+          "power": 14,
+          "peak_share": 1
+        },
+        {
+          "name": "probe_1",
+          "x_cm": 28,
+          "power": 14,
+          "peak_share": 0.07142857142857142
+        }
+      ],
+      "rays": 92,
+      "classifications": [
+        "sharp",
+        "diffuse"
+      ]
+    },
+    {
+      "stratum": "u>2f (缩小实像)",
+      "u_cm": 60,
+      "f_cm": 10,
+      "predicted_v_cm": 12,
+      "probes": [
+        {
+          "name": "probe_0",
+          "x_cm": 12,
+          "power": 6,
+          "peak_share": 0.6666666666666666
+        },
+        {
+          "name": "probe_1",
+          "x_cm": 16.799999999999997,
+          "power": 6,
+          "peak_share": 0.16666666666666666
+        }
+      ],
+      "rays": 68,
+      "classifications": [
+        "inconclusive",
+        "diffuse"
+      ]
+    }
+  ],
+  "control": {
+    "baseline": [
+      {
+        "name": "probe_0",
+        "x_cm": 15,
+        "power": 12,
+        "peak_share": 1
+      },
+      {
+        "name": "probe_1",
+        "x_cm": 21,
+        "power": 12,
+        "peak_share": 0.08333333333333333
+      }
+    ],
+    "patched_to_initial": [
+      {
+        "name": "probe_0",
+        "x_cm": 15,
+        "power": 12,
+        "peak_share": 1
+      },
+      {
+        "name": "probe_1",
+        "x_cm": 21,
+        "power": 12,
+        "peak_share": 0.08333333333333333
+      }
+    ],
+    "identical": true
+  },
+  "effect": {
+    "before_sharp": "sharp",
+    "after_sharp": "diffuse",
+    "before": [
+      {
+        "name": "probe_0",
+        "x_cm": 15,
+        "power": 12,
+        "peak_share": 1
+      },
+      {
+        "name": "probe_1",
+        "x_cm": 30,
+        "power": 6,
+        "peak_share": 0.16666666666666666
+      }
+    ],
+    "after": [
+      {
+        "name": "probe_0",
+        "x_cm": 15,
+        "power": 10,
+        "peak_share": 0.1
+      },
+      {
+        "name": "probe_1",
+        "x_cm": 30,
+        "power": 12,
+        "peak_share": 0.9166666666666666
+      }
+    ]
+  },
+  "versionPolicy": {
+    "v4": {
+      "accepted": true,
+      "version_after": 5
+    },
+    "v99": {
+      "accepted": false,
+      "error": "The version of the scene is newer than the current version of the simulator."
+    }
+  },
+  "bindings": {
+    "unknown": "ENTITY_NOT_FOUND",
+    "duplicate": "ENTITY_AMBIGUOUS",
+    "single": "ok"
+  }
+}

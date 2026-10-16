@@ -1,0 +1,127 @@
+template_id: optics.convex_lens
+title: 凸透镜成像
+engine_id: ray_optics
+engine_version: "5.5.0"
+native_format_version: 5
+
+native_file: native.json
+lesson_file: lesson.md
+
+# 本模板的场景单位与教学单位换算。上游没有单位系统，这个数是我们定的，
+# 且与上游 IdealLens 的默认 focalLength: 100 自洽（100 / 10 = 10cm）。
+# 前提：lengthScale 锁在 1；若改 lengthScale，上游滑块的量程与步进会跟着变，
+# 换算系数必须从 lengthScale 推导，不能两处各写一遍。
+units_per_unit: 10
+lengthScale: 1
+
+scene_layout:                       # 对象身份 = objs[].name，不是数组下标（下标绑定已实测否决）
+  - entity_id: lens_1
+    native_type: IdealLens
+    geometry: { p1: [0, -250], p2: [0, 250] }
+  - entity_id: object_1
+    native_type: PointSource
+    geometry: { x: -300, y: 0 }
+    teaching_meaning: 物点，物距 300 场景单位 = 30cm
+
+  # 光屏阵列（"光具座"）。为什么是一排屏而不是两块：
+  # 两块固定屏只在像面正好落在屏上那两个工况有判别力，其余焦距读数是量子化噪声，
+  # 无法支撑"不同物距下的成像记录表"。实测改成 7 屏阵列 + RMS 判据后，
+  # f=5..25 共 8 档的 argmax 全部与独立薄透镜预测一致（见 observations.measured_baseline）。
+  - entity_id: screen_8
+    native_type: Detector
+    geometry: { p1: [80, -120], p2: [80, 120] }
+    irradMap: true
+    binSize: 2
+  - entity_id: screen_12
+    native_type: Detector
+    geometry: { p1: [120, -120], p2: [120, 120] }
+    irradMap: true
+    binSize: 2
+  - entity_id: screen_16
+    native_type: Detector
+    geometry: { p1: [160, -120], p2: [160, 120] }
+    irradMap: true
+    binSize: 2
+  - entity_id: screen_20
+    native_type: Detector
+    geometry: { p1: [200, -120], p2: [200, 120] }
+    irradMap: true
+    binSize: 2
+  - entity_id: screen_25
+    native_type: Detector
+    geometry: { p1: [250, -120], p2: [250, 120] }
+    irradMap: true
+    binSize: 2
+  - entity_id: screen_30
+    native_type: Detector
+    geometry: { p1: [300, -120], p2: [300, 120] }
+    irradMap: true
+    binSize: 2
+  - entity_id: screen_40
+    native_type: Detector
+    geometry: { p1: [400, -120], p2: [400, 120] }
+    irradMap: true
+    binSize: 2
+
+controls:
+  - entity_id: lens_1
+    native_type: IdealLens
+    parameter: focal_length_cm
+    native_field: focalLength
+    label: 焦距
+    unit: cm
+    min: 5
+    max: 50
+    initial: 10
+    # min/max 是教学量程（对应场景单位 50..500），落在此前上游滑块量程 ±1000 内。
+    # 量程外的值适配器要拒；焦距非正在本模板里不合法（凹透镜应走另一个模板），
+    # 测试已实测 setFocalLengthCm(0) 被拒。
+    reject_nonpositive: true
+
+views:
+  - scene
+  - controls
+  - measurement_table
+
+observations:
+  - id: image_plane_localization
+    method: detector_rms_spot_width            # 判据形式，勿改回 peak_share
+    reads: Detector.binData
+    criterion: >-
+      先按 power_fraction >= 0.2 剔除"光斑超出屏宽、几乎全漏检"的退化读数，
+      再取光斑二矩半径 rms_units 最小的屏作为实测像面。
+    why_not_peak_share: >-
+      peak_share = max_bin/total 在像面远离该屏时会假清晰：光斑半径远超屏的接收范围
+      （±120 场景单位）时绝大多数光线落在屏外，total 塌到只剩一两条光线，
+      max/total 反而趋近 1。实测 f=5（预测像距 6cm）时它把 40cm 屏判成最清晰。
+    measured_baseline:                         # slice3 实测，非期望值
+      rayModeDensity: 2.0
+      argmax_matches_prediction_for: [5, 6, 8, 10, 12, 15, 20, 25]
+      rms_when_image_on_screen: 1.0            # f=12 与 f=15 像面正好落在屏上
+      rms_when_image_off_screen: 44.6          # f=5，像面在屏阵列之外
+      density_0_5_fails_at: [20]               # 密度不足时 f=20 判错，故 2.0 是必要条件
+  - id: focus_quality
+    method: detector_rms_spot_width
+    reads: Detector.binData
+    teaching_meaning: 同一屏上 rms 随 |v_actual - x_screen| 单调增大，即"光斑变大变模糊"
+
+exports:
+  - native_scene
+  - offline_package
+
+science_profile: ideal_convex_lens
+science_profile_note: >-
+  参考式 v = f·u/(u−f) 只在理想薄透镜下成立，IdealLens 的折射面 DAG 正是薄透镜模型，
+  故本模板可与独立参考公式对照。换成 SphericalLens（官方 convex-lens.json 用的那个，
+  refIndex 1.5、含球差色散）就不成立，差值是物理不是 bug。
+
+ray_density:
+  rayModeDensity: 2.0                            # 从 0.1 提到 2.0；0.1 下 power 仅 6~16，
+  measured_processed_ray_count: 1855             # 统计量被整数光通量量子化支配
+  note: 密度是判据可用性的前提，不是调参偏好。0.5 仍会在 f=20 判错。
+
+# 本模板允许的路径。策略层据此判 ROUTE_NOT_SUPPORTED，
+# 不由代码硬编码"支持"——首版就只声明实际测过的两条。
+routes:
+  - config
+  - code

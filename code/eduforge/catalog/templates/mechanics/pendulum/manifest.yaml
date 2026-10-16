@@ -1,0 +1,23 @@
+template_id: mechanics.pendulum
+title: 单摆周期与简谐振动
+engine_id: myphysicslab
+status: pending_slice_9               # 方案排期在第 7～8 周切片 9
+
+controls:
+  - entity_id: pendulum_1
+    parameter: length
+    teaching_label: 摆长
+    unit: m
+    min: 0.1
+    max: 2.0
+    step: 0.05
+    default: 1.0
+
+views:
+  - view_id: energy_graph
+    teaching_label: 动能势能转化曲线
+    default_visible: true
+
+notes: >-
+  首批排期专注 Ray Optics 单一闭环；本模板作为力学实验保留位，
+  待第 7～8 周切片 9 引入 myPhysicsLab 适配器时正式启用。

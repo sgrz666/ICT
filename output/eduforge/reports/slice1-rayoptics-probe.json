@@ -1,0 +1,268 @@
+{
+  "upstream": "D:\\codeplus\\ICT\\source\\upstream\\ray-optics",
+  "bundle_bytes": 1715044,
+  "load": {
+    "accepted": true,
+    "scene_error": null,
+    "scene_warning": null,
+    "version_after_load": 5,
+    "objs": [
+      {
+        "i": 0,
+        "type": "IdealLens",
+        "name": "lens_1"
+      },
+      {
+        "i": 1,
+        "type": "PointSource",
+        "name": "object_1"
+      },
+      {
+        "i": 2,
+        "type": "Detector",
+        "name": "screen_8"
+      },
+      {
+        "i": 3,
+        "type": "Detector",
+        "name": "screen_12"
+      },
+      {
+        "i": 4,
+        "type": "Detector",
+        "name": "screen_16"
+      },
+      {
+        "i": 5,
+        "type": "Detector",
+        "name": "screen_20"
+      },
+      {
+        "i": 6,
+        "type": "Detector",
+        "name": "screen_25"
+      },
+      {
+        "i": 7,
+        "type": "Detector",
+        "name": "screen_30"
+      },
+      {
+        "i": 8,
+        "type": "Detector",
+        "name": "screen_40"
+      }
+    ]
+  },
+  "roundtrip": {
+    "identical": true,
+    "bytes": 1988,
+    "name_survives_serialization": true
+  },
+  "binding": {
+    "index_of_lens_1_before": 0,
+    "index_of_lens_1_after_shuffle": 1,
+    "still_ideal_lens": true,
+    "rejects_unknown_entity": true
+  },
+  "patch": {
+    "baseline_focalLength": 100,
+    "patched_focalLength": 150,
+    "expected": 150,
+    "source_unmutated": true,
+    "rejects_nonpositive": true
+  },
+  "simulations": {
+    "f10cm": {
+      "detectors": [
+        {
+          "index": 2,
+          "name": "screen_8",
+          "x": 80,
+          "power": 55.25,
+          "bins": 120,
+          "peak_share": 0.013574660633484163,
+          "peak_offset_units": -35,
+          "rms_units": 62.467403100446184,
+          "power_fraction": 1
+        },
+        {
+          "index": 3,
+          "name": "screen_12",
+          "x": 120,
+          "power": 55.25,
+          "bins": 120,
+          "peak_share": 0.027149321266968326,
+          "peak_offset_units": -7,
+          "rms_units": 26.754201723133896,
+          "power_fraction": 1
+        },
+        {
+          "index": 4,
+          "name": "screen_16",
+          "x": 160,
+          "power": 55.25,
+          "bins": 120,
+          "peak_share": 0.07239819004524888,
+          "peak_offset_units": -3,
+          "rms_units": 8.935413168101112,
+          "power_fraction": 1
+        },
+        {
+          "index": 5,
+          "name": "screen_20",
+          "x": 200,
+          "power": 55.25,
+          "bins": 120,
+          "peak_share": 0.01809954751131222,
+          "peak_offset_units": -11,
+          "rms_units": 44.59150921932925,
+          "power_fraction": 1
+        },
+        {
+          "index": 6,
+          "name": "screen_25",
+          "x": 250,
+          "power": 43.25,
+          "bins": 120,
+          "peak_share": 0.011560693641618497,
+          "peak_offset_units": -119,
+          "rms_units": 66.88636702464278,
+          "power_fraction": 0.7828054298642534
+        },
+        {
+          "index": 7,
+          "name": "screen_30",
+          "x": 300,
+          "power": 30.25,
+          "bins": 120,
+          "peak_share": 0.01652892561983471,
+          "peak_offset_units": -35,
+          "rms_units": 67.75703993404872,
+          "power_fraction": 0.5475113122171946
+        },
+        {
+          "index": 8,
+          "name": "screen_40",
+          "x": 400,
+          "power": 18.75,
+          "bins": 120,
+          "peak_share": 0.013333333333333334,
+          "peak_offset_units": -119,
+          "rms_units": 68.74833202017017,
+          "power_fraction": 0.3393665158371041
+        }
+      ],
+      "processedRayCount": 2474,
+      "totalTruncation": 0,
+      "sim_error": null,
+      "sim_warning": null
+    },
+    "f15cm": {
+      "detectors": [
+        {
+          "index": 2,
+          "name": "screen_8",
+          "x": 80,
+          "power": 39.75,
+          "bins": 120,
+          "peak_share": 0.012578616352201259,
+          "peak_offset_units": -113,
+          "rms_units": 66.8311960500188,
+          "power_fraction": 0.7194570135746606
+        },
+        {
+          "index": 3,
+          "name": "screen_12",
+          "x": 120,
+          "power": 46.75,
+          "bins": 120,
+          "peak_share": 0.0106951871657754,
+          "peak_offset_units": -115,
+          "rms_units": 65.7056714867209,
+          "power_fraction": 0.8461538461538461
+        },
+        {
+          "index": 4,
+          "name": "screen_16",
+          "x": 160,
+          "power": 55.25,
+          "bins": 120,
+          "peak_share": 0.013574660633484163,
+          "peak_offset_units": -35,
+          "rms_units": 62.467403100446184,
+          "power_fraction": 1
+        },
+        {
+          "index": 5,
+          "name": "screen_20",
+          "x": 200,
+          "power": 55.25,
+          "bins": 120,
+          "peak_share": 0.01809954751131222,
+          "peak_offset_units": -11,
+          "rms_units": 44.591509219329254,
+          "power_fraction": 1
+        },
+        {
+          "index": 6,
+          "name": "screen_25",
+          "x": 250,
+          "power": 55.25,
+          "bins": 120,
+          "peak_share": 0.03167420814479638,
+          "peak_offset_units": -5,
+          "rms_units": 22.28212719187919,
+          "power_fraction": 1
+        },
+        {
+          "index": 7,
+          "name": "screen_30",
+          "x": 300,
+          "power": 55.25,
+          "bins": 120,
+          "peak_share": 0.6923076923076923,
+          "peak_offset_units": 1,
+          "rms_units": 0.923076923076923,
+          "power_fraction": 1
+        },
+        {
+          "index": 8,
+          "name": "screen_40",
+          "x": 400,
+          "power": 55.25,
+          "bins": 120,
+          "peak_share": 0.01809954751131222,
+          "peak_offset_units": -11,
+          "rms_units": 44.59150921932925,
+          "power_fraction": 1
+        }
+      ],
+      "processedRayCount": 2672,
+      "totalTruncation": 0,
+      "sim_error": null,
+      "sim_warning": null
+    }
+  },
+  "reference": {
+    "object_distance_cm": 30,
+    "f10": {
+      "vCm": 15,
+      "m": -0.5,
+      "kind": "real"
+    },
+    "f15": {
+      "vCm": 30,
+      "m": -1,
+      "kind": "real"
+    }
+  },
+  "verdict": {
+    "criterion": "rms_spot_width_with_power_floor",
+    "f10cm_sharp_screen": "screen_16",
+    "f10cm_predicted_screen": "screen_16",
+    "f15cm_sharp_screen": "screen_30",
+    "f15cm_predicted_screen": "screen_30",
+    "matches": true
+  }
+}

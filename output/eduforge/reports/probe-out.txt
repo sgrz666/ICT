@@ -1,0 +1,98 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mD:/codeplus/ICT/code/eduforge/services/engine-host[39m
+
+[90mstdout[2m | tests/e2e/_probe.test.ts[2m > [22m[2m用 contentFrame 探交互控件
+[22m[39mHTTP {
+ "/simulator/": "200 len=11681 <!doctype html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"x-ua-compatible\" conten",
+ "/simulator/index.html": "200 len=11681 <!doctype html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"x-ua-compatible\" conten",
+ "/p/rev-1": "200 len=731 <!doctype html> <html lang=\"zh-CN\"><head><meta charset=\"utf-8\"><title>EduForge 预览 rev-1</t"
+}
+FRAMES [{"url":"http://127.0.0.1:50680/p/rev-1","parent":"MAIN"},{"url":"http://127.0.0.1:50680/simulator/#XQAAAAIWAwAAAAAAAABEqcrGU8","parent":"main"},{"url":"","parent":"other"}]
+
+[90mstdout[2m | tests/e2e/_probe.test.ts[2m > [22m[2m用 contentFrame 探交互控件
+[22m[39mPROBE {
+ "ready": "complete",
+ "title": "模拟器 - 射线光学模拟",
+ "canvases": [
+  "canvasGrid:1400x900",
+  "canvasBelowLight:1400x900",
+  "canvasLight:1400x900",
+  "canvasLightWebGL:1400x900",
+  "canvasLightWebGPU:1400x900",
+  "canvasAboveLight:1400x900"
+ ],
+ "buttonCount": 141,
+ "buttons": [
+  "可视化",
+  "代码",
+  "AI",
+  "Hide sidebar",
+  "Show sidebar",
+  "复制消息",
+  "Ctrl",
+  "Shift",
+  "清空",
+  "保存…",
+  "打开…",
+  "导入形状…",
+  "导出为PNG/SVG…",
+  "复制分享链接",
+  "浏览作品集",
+  "光源",
+  "单一光线",
+  "光束",
+  "点光源 (360°)",
+  "点光源 (<360°)",
+  "镜子",
+  "线段",
+  "圆弧",
+  "抛物线",
+  "理想曲面镜",
+  "分光镜",
+  "更多工具",
+  "自定义函数",
+  "参数曲线",
+  "贝塞尔曲线",
+  "凹面光栅",
+  "透光物",
+  "半平面",
+  "圆形",
+  "多边形 / 圆弧",
+  "理想透镜",
+  "球面透镜",
+  "渐变折射率圆形",
+  "渐变折射率多边形",
+  "渐变折射率参数曲线"
+ ],
+ "inputs": [
+  "text:xybox",
+  "radio:tool_SingleRay",
+  "radio:tool_Beam",
+  "radio:tool_PointSource",
+  "radio:tool_AngleSource",
+  "radio:tool_Mirror",
+  "radio:tool_ArcMirror",
+  "radio:tool_ParabolicMirror",
+  "radio:tool_IdealMirror",
+  "radio:tool_BeamSplitter",
+  "radio:tool_CustomMirror",
+  "radio:tool_ParamMirror",
+  "radio:tool_CurveMirror",
+  "radio:tool_ConcaveDiffractionGrating",
+  "radio:tool_PlaneGlass",
+  "radio:tool_CircleGlass",
+  "radio:tool_Glass",
+  "radio:tool_IdealLens",
+  "radio:tool_SphericalLens",
+  "radio:tool_CustomGlass"
+ ]
+}
+
+ [32m✓[39m tests/e2e/_probe.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 6810[2mms[22m[39m
+   [33m[2m✓[22m[39m 用 contentFrame 探交互控件 [33m6809[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 23:45:20
+[2m   Duration [22m 7.49s[2m (transform 67ms, setup 0ms, collect 307ms, tests 6.81s, environment 0ms, prepare 153ms)[22m
+

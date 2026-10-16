@@ -1,0 +1,26 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mD:/codeplus/ICT/code/eduforge/services/engine-host[39m
+
+ [31m❯[39m tests/e2e/gate3_interaction.test.ts [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Suites 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/e2e/gate3_interaction.test.ts[2m [ tests/e2e/gate3_interaction.test.ts ][22m
+[31m[1mError[22m: Cannot find module 'D:\codeplus\source\upstream\ray-optics\node_modules\json-url'
+Require stack:
+- D:\codeplus\ICT\code\eduforge\services\engine-host\tests\e2e\gate3_interaction.test.ts[39m
+[36m [2m❯[22m tests/e2e/gate3_interaction.test.ts:[2m16:17[22m[39m
+    [90m 14| [39m[35mconst[39m require [33m=[39m [34mcreateRequire[39m([35mimport[39m[33m.[39mmeta[33m.[39murl)[33m;[39m
+    [90m 15| [39m[35mconst[39m [33mUPSTREAM[39m [33m=[39m [34mresolve[39m([35mimport[39m[33m.[39mmeta[33m.[39mdirname[33m,[39m [32m"../../../../../../../so[39m…
+    [90m 16| [39m[35mconst[39m jsonurl [33m=[39m [34mrequire[39m([34mresolve[39m([33mUPSTREAM[39m[33m,[39m [32m"node_modules/json-url"[39m))([32m"l[39m…
+    [90m   | [39m                [31m^[39m
+    [90m 17| [39m
+    [90m 18| [39m[35mconst[39m [33mDIST[39m [33m=[39m [34mresolve[39m([33mUPSTREAM[39m[33m,[39m [32m"dist"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 23:47:05
+[2m   Duration [22m 1.24s[2m (transform 106ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 280ms)[22m
+

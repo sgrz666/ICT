@@ -1,0 +1,26 @@
+engine_id: circuitjs
+display_name: CircuitJS1 (Electronic Circuits)
+upstream_id: circuitjs1
+upstream_version: "2.8.2"
+license: GPL-2.0
+status: pending_slice_9               # 方案排期在第 7～8 周切片 9
+
+native_format:
+  kind: text_line_based
+  data_version: 1
+  unit_system: SI (V, A, Ohm, F, H)
+  serializer: custom_circuit_dump
+
+capabilities:
+  set_parameter: pending
+  set_view: pending
+  add_entity: pending
+  remove_entity: pending
+  run_pause_reset: pending
+  sample_measurement: pending
+  export_native_scene: pending
+  export_offline_package: pending
+
+notes: >-
+  首批排期专注 Ray Optics 单一可信闭环；CircuitJS1 保持目录与规范预留，
+  待切片 9 阶段在隔离上游构建链中落地。

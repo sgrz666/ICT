@@ -1,0 +1,108 @@
+{
+  "url_with_hash_len": 382,
+  "steps": [
+    "load",
+    "toolbar_texts",
+    "json_tab",
+    "scene_from_ui",
+    "name_edit_affordances"
+  ],
+  "load": {
+    "title": "模拟器 - 射线光学模拟",
+    "canvases": [
+      {
+        "id": "canvasGrid",
+        "w": 1400,
+        "h": 900
+      },
+      {
+        "id": "canvasBelowLight",
+        "w": 1400,
+        "h": 900
+      },
+      {
+        "id": "canvasLight",
+        "w": 1400,
+        "h": 900
+      },
+      {
+        "id": "canvasLightWebGL",
+        "w": 1400,
+        "h": 900
+      },
+      {
+        "id": "canvasLightWebGPU",
+        "w": 1400,
+        "h": 900
+      },
+      {
+        "id": "canvasAboveLight",
+        "w": 1400,
+        "h": 900
+      }
+    ],
+    "sized_canvases": 6,
+    "welcome_visible": false,
+    "page_errors": []
+  },
+  "toolbar_texts": {
+    "found": [
+      "请前往“作品集”页面",
+      "可视化",
+      "代码",
+      "AI",
+      "Ray Optics Coder",
+      "这里",
+      "Ctrl",
+      "Shift",
+      "清空",
+      "保存…",
+      "打开…",
+      "导入形状…",
+      "导出为PNG/SVG…",
+      "复制分享链接",
+      "浏览作品集",
+      "光源",
+      "镜子",
+      "更多工具",
+      "透光物",
+      "更多工具",
+      "遮光物",
+      "其他",
+      "创建模块…",
+      "导入模块…",
+      "更多工具",
+      "默认",
+      "实验性的高性能引擎",
+      "简体中文",
+      "在 Weblate 上",
+      "清空",
+      "保存…",
+      "打开…",
+      "导入形状…",
+      "导出为PNG/SVG…",
+      "复制分享链接",
+      "浏览作品集",
+      "工具",
+      "光源",
+      "镜子",
+      "透光物"
+    ]
+  },
+  "json_tab": {
+    "opened": false
+  },
+  "scene_from_ui": {
+    "parsed": false,
+    "objs": null,
+    "version": null,
+    "names": null,
+    "lens_focalLength": null
+  },
+  "name_edit_affordances": {
+    "found": [
+      "名称"
+    ]
+  },
+  "final_page_errors": []
+}

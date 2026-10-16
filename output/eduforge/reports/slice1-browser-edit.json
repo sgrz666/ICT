@@ -1,0 +1,40 @@
+{
+  "step1_load": {
+    "title": "模拟器 - 射线光学模拟",
+    "welcome_hidden": true,
+    "sized_canvases": 6,
+    "page_errors": []
+  },
+  "step2_export_before": {
+    "url_len": 354,
+    "hash_len": 312,
+    "hash": "XQAAAAI4AQAAAAAAAABDKcrGU8hqLFnpmU9EnTFrVnU9-XiP9Y4HrwOM8x5EPftyWOnZVK2wwiFMlibVCZgqnGyuyzSrHuYYP3pCunR12Px1Z0PztqYqaNjX4FpZIr_1TNCTAZYhRxzOlKj8-5cmWIRBh8XjST4Ff8BZ-eHL1JRn3U0TJa9G75DBw4hEvDZ4Q7aC43Q-mihPsOMA_ZIhUddA47Ao-AA5QDr2rjHWH9tYbmpXwuayUJX6BWBdu7d3dHz6dkGN6whLbVxXNJD-QCXT5gKw1F3mwwKYJyqKg-apVn2xP__SB4gA"
+  },
+  "sidebar_expand": {
+    "found": true
+  },
+  "sidebar_visible_class": true,
+  "sidebar_tabs": {
+    "count": 5,
+    "labels": [
+      "可视化",
+      "代码",
+      "AI",
+      "场景",
+      "创建模块"
+    ]
+  },
+  "step3_code_tab": {
+    "present": true,
+    "visible": true
+  },
+  "step4_ace_value": {
+    "readable": false,
+    "lens_focalLength": null
+  },
+  "step5_export_after": {
+    "url_len": 370,
+    "hash": "XQAAAAJGAQAAAAAAAABDKcrGU8hqLFnpmU9EnTFrVnVPOniP9Y4HrwOM8x5EPftyWOnZVK2wwiFMlibVCZgqnGyuyzSrHuYYP3pCunR1W3P-AAtSA9omtVvvJcd94Sv28t-p7UHRCNeBHLaaLNQaHrHICkuNhc-Pnzu2JXQpeVzgx7V9euMxuj0SrxhrMZOwEPiNLyPzM4ho8I-o0mUEhpXW0hGKaBPy_vtGIEp4R8BHSW1nrqOlcNwDoU0Omclunpa4JGIEofgsNSROe7k8SEM-R1R4bKK2N5K1ezHI9huOQoBFxdVs_hVpFU6BX3OL___2FuS8"
+  },
+  "final_page_errors": []
+}

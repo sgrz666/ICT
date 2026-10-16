@@ -1,0 +1,21 @@
+# EduForge 基准评测配置（§7.4 / §1.2）
+profiles:
+  screening:
+    description: 筛查与门禁基线评测（离线模拟器，覆盖 12 题三类任务，检验策略与授权链完整性）
+    model_provider: mock_policy
+    timeout_seconds: 15
+    repeats: 1
+
+  deepseek_direct:
+    description: 直接调用 DeepSeek 模型无约束基线（需要 DEEPSEEK_API_KEY）
+    model_provider: deepseek
+    requires_key: true
+    timeout_seconds: 60
+    repeats: 3
+
+  agent_graph:
+    description: LangGraph 规划图 + 知识清单 + 策略授权链闭环（需要 DEEPSEEK_API_KEY）
+    model_provider: deepseek_graph
+    requires_key: true
+    timeout_seconds: 60
+    repeats: 3

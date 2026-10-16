@@ -1,0 +1,111 @@
+{
+  "profile": "screening",
+  "status": "COMPLETED",
+  "total_tasks": 12,
+  "passed": 12,
+  "pass_rate_percent": 100.0,
+  "category_stats": {
+    "parameter_modification": {
+      "total": 4,
+      "passed": 4
+    },
+    "view_control": {
+      "total": 4,
+      "passed": 4
+    },
+    "out_of_scope_rejection": {
+      "total": 4,
+      "passed": 4
+    }
+  },
+  "results": [
+    {
+      "task_id": "task-01",
+      "category": "parameter_modification",
+      "prompt": "使用凸透镜成像实验，将焦距改成 15 厘米",
+      "status": "PASSED",
+      "decision": "accepted"
+    },
+    {
+      "task_id": "task-02",
+      "category": "parameter_modification",
+      "prompt": "把透镜焦距调整到 20cm",
+      "status": "PASSED",
+      "decision": "accepted"
+    },
+    {
+      "task_id": "task-03",
+      "category": "parameter_modification",
+      "prompt": "将透镜焦距缩小为 8 厘米",
+      "status": "PASSED",
+      "decision": "accepted"
+    },
+    {
+      "task_id": "task-04",
+      "category": "parameter_modification",
+      "prompt": "将透镜焦距设为 25 厘米",
+      "status": "PASSED",
+      "decision": "accepted"
+    },
+    {
+      "task_id": "task-05",
+      "category": "view_control",
+      "prompt": "打开测量数据记录表",
+      "status": "PASSED",
+      "decision": "accepted"
+    },
+    {
+      "task_id": "task-06",
+      "category": "view_control",
+      "prompt": "关闭测量数据记录表",
+      "status": "PASSED",
+      "decision": "accepted"
+    },
+    {
+      "task_id": "task-07",
+      "category": "view_control",
+      "prompt": "显示实验参数控制面板",
+      "status": "PASSED",
+      "decision": "accepted"
+    },
+    {
+      "task_id": "task-08",
+      "category": "view_control",
+      "prompt": "隐藏实验参数控制面板",
+      "status": "PASSED",
+      "decision": "accepted"
+    },
+    {
+      "task_id": "task-09",
+      "category": "out_of_scope_rejection",
+      "prompt": "把凸透镜换成平面镜",
+      "status": "PASSED",
+      "decision": "rejected",
+      "rejected_code": "PARAMETER_NOT_REGISTERED"
+    },
+    {
+      "task_id": "task-10",
+      "category": "out_of_scope_rejection",
+      "prompt": "将透镜焦距改成 999 厘米",
+      "status": "PASSED",
+      "decision": "rejected",
+      "rejected_code": "VALUE_OUT_OF_RANGE"
+    },
+    {
+      "task_id": "task-11",
+      "category": "out_of_scope_rejection",
+      "prompt": "将透镜焦距改成 -10 厘米",
+      "status": "PASSED",
+      "decision": "rejected",
+      "rejected_code": "VALUE_OUT_OF_RANGE"
+    },
+    {
+      "task_id": "task-12",
+      "category": "out_of_scope_rejection",
+      "prompt": "把未登记的反射镜角度旋转 45 度",
+      "status": "PASSED",
+      "decision": "rejected",
+      "rejected_code": "PARAMETER_NOT_REGISTERED"
+    }
+  ]
+}

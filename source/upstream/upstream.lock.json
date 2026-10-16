@@ -1,0 +1,149 @@
+{
+  "comment": "上游源码记录。本文件是 source/upstream 下唯一的自有文件；这里记的每一条要么是上游文件里读到的，要么是本机真实跑过的输出。未跑的一律标 pending，不写成已完成。",
+  "updated_at": "2026-10-15T20:35:00+08:00",
+  "upstreams": [
+    {
+      "id": "ray-optics",
+      "display_name": "Ray Optics Simulation",
+      "role": "首批唯一接通的实验引擎（光学）",
+      "source": {
+        "repository": "https://github.com/ricktu288/ray-optics",
+        "branch": "master",
+        "commit": "daf76772c73a85e1a2568c4e2e71613bba1fab77",
+        "commit_date_confirmed_via": "git ls-remote HEAD 与本地 git rev-parse HEAD 一致",
+        "version": "5.5.0",
+        "license": "Apache-2.0",
+        "author": "Yi-Ting Tu",
+        "npm_published": false,
+        "npm_published_evidence": "package.json 标 private:true；GET https://registry.npmjs.org/ray-optics 返回 404。只能 git 克隆，不能 npm install ray-optics。",
+        "local_path": "source/upstream/ray-optics",
+        "fetched_at": "2026-10-15T20:22:00+08:00",
+        "fetch_command": "git clone --depth 1 --single-branch --branch master https://github.com/ricktu288/ray-optics.git source/upstream/ray-optics",
+        "repo_size": "20M，1080 个文件（--depth 1 浅克隆）"
+      },
+      "build": {
+        "install": {
+          "command": "npm install --no-audit --no-fund",
+          "result": "pass",
+          "measured": "added 901 packages in 56s；exit 0；node_modules 324M",
+          "note": "canvas/sharp 在 optionalDependencies，装不上不会让 install 失败，所以要单独验，见 native_optional_deps"
+        },
+        "native_optional_deps": {
+          "canvas": {
+            "declared": "^2.11.2 (optionalDependencies)",
+            "result": "absent",
+            "measured": "node_modules/canvas 不存在；require('canvas') → Cannot find module 'canvas'",
+            "consequence": "上游 integrations/runner.js 明确：无 CropBox 时不需要 canvas（探测器读数可用）；有 CropBox 且缺 canvas 时直接报错退出。⇒ 首批的数值验证走探测器读数这条路不受影响；出图类导出需要另行装 canvas 或改用浏览器渲染。"
+          },
+          "sharp": {
+            "declared": "^0.35.4 (optionalDependencies)",
+            "result": "pass",
+            "measured": "require('sharp') 正常"
+          }
+        },
+        "commands_verified": [
+          {
+            "name": "build-node",
+            "command": "npm run build-node",
+            "result": "pass",
+            "measured": "webpack 5.105.0 compiled successfully in 34116 ms；exit 0；产出 dist-node/rayOptics.js 1715044 字节（commonjs2，target node，entry src/core/index.js）",
+            "why_it_matters": "这是无头调用仿真核心的入口。EduForge 的观测值可以不经浏览器直接取，见 headless_interface。"
+          }
+        ],
+        "commands_pending": [
+          {
+            "name": "start",
+            "command": "npm start  # webpack serve --open simulator/ --mode=development",
+            "status": "pending",
+            "note": "切片 1 的人工验收项：本地开编辑器、手改场景、保存再重载。尚未跑过。"
+          },
+          {
+            "name": "build-simulator / build-app / build-scenes / build-pages / build-images / build-docs",
+            "status": "pending",
+            "note": "npm run build 会把六个串起来，首轮验证不要用它（V3 §4.1 的判断已核实成立：入口确实是分段的）。"
+          },
+          {
+            "name": "test:scenes / test:sceneObjs",
+            "command": "node ./scripts/testScenes.mjs；jest test/sceneObjs",
+            "status": "pending",
+            "note": "上游自带场景回归，可当作我们适配器的对照基线。"
+          }
+        ]
+      },
+      "facts_read_from_source": {
+        "DATA_VERSION": "5（src/core/Scene.js:26 `export const DATA_VERSION = 5;`）",
+        "loadJSON_version_policy": "src/core/Scene.js:489-498：无 version 字段 → 走 versionUpdate 迁移；version 是字符串或 > DATA_VERSION → 置 scene.error 并 callback(true,true) 拒绝；version < DATA_VERSION → versionUpdate 迁移。⇒ 适配器不应硬编码 `!== 5` 拒绝，应把版本判断交给 loadJSON 并读它的 error；只在 > DATA_VERSION 时报不支持。",
+        "Scene_serializable_defaults": "lengthScale: 1、origin {0,0}、scale: 1、width: 1500、height: 900、gridSize: 20、mode: 'rays'、rayModeDensity: 0.1、simulateColors: false、maxRayDepth: Infinity、rayPowerCutoff: 1e-6（src/core/Scene.js:201-230）",
+        "unit_system": "上游场景数据没有单位系统。Scene 只有 lengthScale（注释：用于线宽、默认字号等），没有 unitScale 字段；lengthUnitInfo 只是 UI 的 i18n 文案。坐标是纯场景单位。⇒ 教学单位与场景单位的换算必须由我们的模板自己定义并守住。",
+        "IdealLens": {
+          "type": "IdealLens（src/core/sceneObjs/glass/IdealLens.js）",
+          "serializableDefaults": "{ p1: null, p2: null, focalLength: 100 }",
+          "sign_semantics": "focalLength > 0 会聚（凸），< 0 发散（凹）；onRayIncident 按符号走两套作图法",
+          "ui_range": "objBar 滑块范围 ±1000 * scene.lengthScale、步进 1 * scene.lengthScale",
+          "scale_behavior": "scale() 会把 focalLength 一起乘 scale，几何缩放会改焦距",
+          "dag_model": "IDEAL_LENS_SURFACE_TYPE 用 slope = d_0x/(-d_0y) - h/f 的理想折射面，即薄透镜近似——可与独立薄透镜参考公式对照"
+        },
+        "SphericalLens": {
+          "type": "SphericalLens",
+          "serializableDefaults_excerpt": "{ path: null, defBy: 'DR1R2', p1: null, p2: null, params: null, refIndex: 1.5, cauchyB: 0.004, partialReflect: true }",
+          "why_it_matters": "官方 data/galleryScenes/convex-lens.json 用的正是 SphericalLens（version 5，4 个对象：SphericalLens + Beam + 2×CropBox），不是理想薄透镜。它含厚度、折射率与 Cauchy 色散，存在球差，与 thin_lens_reference 不等价。⇒ 不能拿这个官方场景当 ideal_convex_lens 模板的种子，否则数值验收失败的原因会是物理而不是 bug。"
+        },
+        "light_sources": "src/core/sceneObjs/lightSource/ 下四个：AngleSource、Beam、PointSource、SingleRay。PointSource 序列化为 { x, y, brightness: 0.5, wavelength }，360° 点光源——适合做成像实验的物点。",
+        "detector": "Detector 序列化 { p1, p2, twoSided: true, irradMap: false, binSize: 1 }；仿真后可读 power、normal、shear，irradMap 为真时有 binData 辐照度分布。",
+        "core_exports": "Scene、Simulator、PrimitiveBasedSimulator、CpuSimulationEngine、WebGpuSimulationEngine、FLOAT32_EPSILON、Editor、sceneObjs、geometry",
+        "gallery_inventory": "data/galleryScenes 86 项、data/moduleScenes 11 项（注意：没有 data/scenes 这个目录）。其中 24 个场景含 IdealLens，可作理想薄透镜模板的种子来源。"
+      },
+      "serialization_and_identity": {
+        "serialize_drops_defaults": "src/core/sceneObjs/BaseSceneObj.js:115-132：serialize() 只输出 JSON.stringify 后与该字段默认值不同的键。base 默认是 name:'' 与 locked:'default'。⇒ 与上游默认值相同的字段（如 focalLength:100、lengthScale:1）不会出现在导出 JSON 里，浏览器实测已证实：未编辑时导出的场景 lens_1 没有 focalLength 键，改成 150 后该键才出现。",
+        "consequence_for_roundtrip": "不能断言'编辑器保存后的 JSON 与载入前逐字节一致'。正确做法是把两边都按 serializableDefaults 补全默认值后再比较，否则每次都会误报差异。",
+        "unnamed_objects_omit_name": "name 默认是空串，所以未命名对象根本不会输出 name 键（而不是输出 name:''）。适配器的命名完整性校验要按'键缺失'处理。",
+        "no_ui_rename_path": "全量 grep 后确认：objBar.js 无任何 name 编辑入口，没有组件给 obj.name 赋值；zh-CN 语言包里唯一的'名称'是 saveModal.fileName（保存对话框的文件名，不是对象名）。⇒ 教师在 UI 里改对象名破坏 name 绑定这条路不存在，风险只剩直接编辑 Code 页签 JSON 这一种专家路径。"
+      },
+      "app_entry_points": {
+        "scene_load": "URL hash：src/app/services/app.js:1030-1041，hash 长度 > 70 时按 json-url('lzma') 压缩的场景解压并 editor.loadJSON；1 < 长度 <= 70 时按图库条目名 openSample。",
+        "scene_export": "src/app/services/app.js:1474-1479：对 editor.lastActionJson 做 lzma 压缩后写完整 URL 到剪贴板，对应菜单'复制分享链接'(file.copyLink.title)。",
+        "sidebar": "侧边栏默认折叠成抽屉，页签在视口外点不到，要先点 button.drawer-toggle-expand[aria-label='Show sidebar'] 展开。#sidebar button[role=tab] 实际有 5 个：可视化/代码/AI/场景/创建模块，'代码'是第 2 个。",
+        "json_editor": "src/app/services/jsonEditor.js:44 是 ace.edit('jsonEditor')——ACE 挂在 #jsonEditor 元素自己身上（不是子元素），取全文要用该元素自身。"
+      },
+      "object_identity_probe": {
+        "question": "适配器能不能用 objs 数组下标绑定教学对象？",
+        "answer": "不能。必须用 name 字段。",
+        "measured": [
+          "Scene.reorderObj(fromIndex,toIndex) 存在且自带 remapIndex 内部重映射（src/core/Scene.js:756-766）⇒ 重排是一等用户操作。实测 reorderObj(1,0) 后 objs[0] 从 IdealLens 变成 PointSource。",
+          "Scene.removeObj(index)（src/core/Scene.js:706-712）把 index 之后的对象逐个重建并前移 ⇒ 删除任意对象会让后面所有下标失效。",
+          "Editor 在拖动时对新 Handle 调 scene.unshiftObj（src/core/Editor.js:1230/1249/1838）⇒ 实测 unshift 一个 Handle 后 objs[0] 是 Handle、透镜跑到 index 2。也就是说绑定在用户拖动一次之后就会指错对象，不需要任何'高级操作'。",
+          "BaseSceneObj 构造时校验 knownKeys = ['type','name','locked', ...该类型 serializableDefaults]，白名单外的键置 scene.error。实测注入 eduforge_id → error: 'Unknown key: \"eduforge_id\" in object of type \"IdealLens\".' ⇒ 不能往原生对象里塞我们自己的 id。",
+          "name 在白名单内且实测能 toJSON→loadJSON→toJSON 往返保留（'lens_1' 原样回来）。未命名对象的 name 序列化为空/省略，故模板必须显式给每个可绑定对象命名。"
+        ],
+        "residual_risk": "name 在上游是用户可编辑的显示名。教师在编辑器里改名会破坏我们的绑定。切片 1 的人工浏览器验证要确认改名路径与是否能在 UI 里禁用它。"
+      },
+      "headless_interface": {
+        "reference": "integrations/runner.js（读 stdin 的 scene JSON → new Scene() → loadJSON → 找 CropBox/Detector → new Simulator(scene,null,null,null,null,null,false,Infinity,null,null,canvasFactory) → on('simulationComplete') → 输出 detectors[]）",
+        "built_package": "官方把构建产物放在单独的 dist-integrations 分支；integrations/README.md 指的就是它",
+        "decision": "首批用本地 dist-node/rayOptics.js 自己起子进程，不依赖 dist-integrations 分支：版本锁在我们自己手里，且 runner.js 的 stdin/stdout 协议可原样沿用。",
+        "implication": "数值观测可以完全不经浏览器取得（探测器读数），浏览器只用于交互与视觉验证。这比原方案里所有观测都过 bridge.ts 少一层，且观测端用的是上游真实仿真而不是我们的公式。"
+      },
+      "known_pits": [
+        "npm install 报成功不代表 canvas 装上了；optionalDependencies 静默失败，必须单独 require 验证。",
+        "webpack.node.config.mjs 用 path.resolve(...)，构建必须在 ray-optics 目录内执行，从工作区根跑会产出到错误位置。",
+        "scene.lengthScale 一旦不是 1，上游 UI 滑块的量程和步进会随它变，我们的教学单位映射也就和上游显示脱节；模板要么锁 lengthScale: 1，要么从 lengthScale 推导换算系数，不能两边各写一遍。",
+        "不能用 objs 下标绑定对象（见 object_identity_probe，已实测否决）。改用 name，并要求模板对象命名唯一。",
+        "构造 Simulator 不会自动开始仿真，必须显式调 simulator.updateSimulation(false, false)。漏掉时 simulationComplete 永不触发，Node 事件循环排空后以 exit 0 且零输出结束——极像脚本什么都没干，实际是缺一次启动调用。",
+        "npm start 指向 simulator/ 目录，但仓库里没有这个目录（由 build-pages 生成）。直接 npm start 不做前置构建会 404。",
+        "loadJSON 对版本的处理是：无 version 则迁移，version 为字符串或大于 DATA_VERSION 则置 error 拒绝，小于则迁移。适配器不要硬编码 !== 5，应读回 scene.error。"
+      ]
+    },
+    {
+      "id": "myphysicslab",
+      "status": "deferred",
+      "decision": "本轮决定不进首批，仅保留目录位与 engine_id 取值。",
+      "reason": "首批范围收口为 Ray Optics 一条线打穿；三套上游构建链同时接是主要进度风险来源。"
+    },
+    {
+      "id": "circuitjs1",
+      "status": "deferred",
+      "decision": "本轮决定不进首批，仅保留目录位与 engine_id 取值。",
+      "extra": "其构建需要 Java/GWT 工具链，且控制页与模拟器必须同源，本机 Docker 守护进程当前未运行。"
+    }
+  ]
+}

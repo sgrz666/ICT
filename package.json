@@ -1,0 +1,17 @@
+{
+  "name": "ict",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ICT 创新赛道项目：本地已部署 REA (Reverse Engineer Anything) 逆向分析 CLI 与 MCP 服务器",
+  "scripts": {
+    "rea": "rea",
+    "rea:doctor": "rea doctor",
+    "rea:mcp:doctor": "rea mcp doctor",
+    "rea:analyze": "rea analyze-javascript-application",
+    "rea:update": "npm i -D rea-agents@latest && npm i -g rea-agents@latest"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "rea-agents": "^6.5.0"
+  }
+}

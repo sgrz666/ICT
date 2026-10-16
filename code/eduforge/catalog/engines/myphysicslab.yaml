@@ -1,0 +1,26 @@
+engine_id: myphysicslab
+display_name: myPhysicsLab (Classical Mechanics)
+upstream_id: myphysicslab
+upstream_version: "2.0.0"
+license: Apache-2.0
+status: pending_slice_9               # 方案排期在第 7～8 周切片 9
+
+native_format:
+  kind: javascript_eval / url_state
+  data_version: 1
+  unit_system: SI (m, kg, s, rad)
+  serializer: custom_parameters
+
+capabilities:
+  set_parameter: pending
+  set_view: pending
+  add_entity: pending
+  remove_entity: pending
+  run_pause_reset: pending
+  sample_measurement: pending
+  export_native_scene: pending
+  export_offline_package: pending
+
+notes: >-
+  首批排期专注 Ray Optics 单一可信闭环；myPhysicsLab 保持目录与规范预留，
+  待切片 9 阶段在隔离上游构建链中落地。

@@ -1,0 +1,33 @@
+{
+  "version": 5,
+  "objs": [
+    {
+      "type": "IdealLens",
+      "name": "lens_1",
+      "p1": { "x": 0, "y": -250 },
+      "p2": { "x": 0, "y": 250 },
+      "focalLength": 100
+    },
+    {
+      "type": "PointSource",
+      "name": "object_1",
+      "x": -300,
+      "y": 0,
+      "brightness": 0.5
+    },
+    { "type": "Detector", "name": "screen_8",  "p1": { "x": 80,  "y": -120 }, "p2": { "x": 80,  "y": 120 }, "twoSided": true, "irradMap": true, "binSize": 2 },
+    { "type": "Detector", "name": "screen_12", "p1": { "x": 120, "y": -120 }, "p2": { "x": 120, "y": 120 }, "twoSided": true, "irradMap": true, "binSize": 2 },
+    { "type": "Detector", "name": "screen_16", "p1": { "x": 160, "y": -120 }, "p2": { "x": 160, "y": 120 }, "twoSided": true, "irradMap": true, "binSize": 2 },
+    { "type": "Detector", "name": "screen_20", "p1": { "x": 200, "y": -120 }, "p2": { "x": 200, "y": 120 }, "twoSided": true, "irradMap": true, "binSize": 2 },
+    { "type": "Detector", "name": "screen_25", "p1": { "x": 250, "y": -120 }, "p2": { "x": 250, "y": 120 }, "twoSided": true, "irradMap": true, "binSize": 2 },
+    { "type": "Detector", "name": "screen_30", "p1": { "x": 300, "y": -120 }, "p2": { "x": 300, "y": 120 }, "twoSided": true, "irradMap": true, "binSize": 2 },
+    { "type": "Detector", "name": "screen_40", "p1": { "x": 400, "y": -120 }, "p2": { "x": 400, "y": 120 }, "twoSided": true, "irradMap": true, "binSize": 2 }
+  ],
+  "lengthScale": 1,
+  "origin": { "x": 350, "y": 0 },
+  "scale": 1,
+  "width": 1500,
+  "height": 900,
+  "mode": "rays",
+  "rayModeDensity": 2
+}

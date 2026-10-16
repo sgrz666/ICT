@@ -1,0 +1,24 @@
+node_modules/
+package-lock.json.bak
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 构建产物与本地数据
+dist-node/
+dist/
+output/eduforge/candidates/
+
+# 本地 Agent 工作区数据（记忆/会话，非交付内容）
+.workbuddy/
+
+# 基准评测等运行产物（相对工程根生成，可重新生成）
+code/eduforge/output/
+
+# 上游引擎检出：第三方代码 + 嵌套 .git + node_modules（628M）。
+# 上游身份由 source/upstream/upstream.lock.json 固定（commit daf76772），
+# 需要时按 lock 重新 git clone --depth 1，不在本仓库复制一份。
+source/upstream/ray-optics/

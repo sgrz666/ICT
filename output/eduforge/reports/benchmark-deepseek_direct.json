@@ -1,0 +1,9 @@
+{
+  "profile": "deepseek_direct",
+  "status": "SKIPPED",
+  "reason": "DEEPSEEK_API_KEY environment variable is not configured.",
+  "total_tasks": 12,
+  "passed": 0,
+  "pass_rate_percent": 0.0,
+  "results": []
+}

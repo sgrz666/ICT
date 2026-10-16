@@ -1,0 +1,100 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, "Microsoft YaHei", sans-serif;
+}
+body {
+  margin: 0;
+  background: #14161a;
+  color: #e8eaf0;
+}
+main {
+  display: grid;
+  grid-template-columns: 20rem 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+h1 {
+  font-size: 1.1rem;
+  margin: 0 0 .8rem;
+}
+h2 {
+  font-size: .9rem;
+  text-transform: none;
+  margin: 0 0 .5rem;
+  color: #9aa3b2;
+}
+section {
+  background: #1b1f26;
+  border: 1px solid #262b34;
+  border-radius: 8px;
+  padding: .8rem;
+  margin-bottom: 1rem;
+}
+button {
+  background: #2b6cff;
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: .45rem .8rem;
+  font: inherit;
+  cursor: pointer;
+}
+button:disabled {
+  background: #3a3f48;
+  cursor: not-allowed;
+}
+button.ghost {
+  background: transparent;
+  border: 1px solid #3a4150;
+  color: #cfd6e4;
+}
+textarea, select {
+  width: 100%;
+  background: #11141a;
+  color: #e8eaf0;
+  border: 1px solid #2c3340;
+  border-radius: 6px;
+  padding: .5rem;
+  font: inherit;
+}
+ul.stages {
+  list-style: none;
+  padding: 0;
+  margin: .4rem 0 0;
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+ul.stages li {
+  border: 1px solid #2c3340;
+  border-radius: 999px;
+  padding: .15rem .6rem;
+  font-size: .78rem;
+  color: #8b93a3;
+}
+ul.stages li.done { border-color: #2f8f5b; color: #7fd6a4; }
+ul.stages li.active { border-color: #2b6cff; color: #9cc0ff; }
+ul.stages li.failed { border-color: #c0392b; color: #ff9b8f; }
+.notice {
+  border-left: 3px solid #c0392b;
+  background: #241a1a;
+  padding: .5rem .7rem;
+  border-radius: 4px;
+  margin: .5rem 0;
+  font-size: .85rem;
+}
+.notice.ok { border-left-color: #2f8f5b; background: #17211b; }
+iframe {
+  width: 100%;
+  height: 60vh;
+  border: 1px solid #262b34;
+  border-radius: 6px;
+  background: #000;
+}
+table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+th, td { text-align: left; padding: .3rem .4rem; border-bottom: 1px solid #262b34; }
+code { font-family: ui-monospace, Consolas, monospace; font-size: .78rem; color: #9cc0ff; }
+.row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.muted { color: #7b8496; }
