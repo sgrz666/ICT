@@ -1,0 +1,4 @@
+START 2026-10-17T20:57:58+08:00
+$ node --import tsx/esm apps/cli/src/bin.ts web --no-open
+dsh web: http://127.0.0.1:3080/?token=REDACTED
+[ELIFECYCLE] Command failed with exit code 1.

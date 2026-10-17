@@ -1,0 +1,17 @@
+## Qoder-managed shells (this agent's Bash tool)
+node: v24.14.1 @ /c/Program Files/nodejs/node
+npm: 11.11.0
+git: git version 2.33.1.windows.1 @ /mingw64/bin/git
+python: Python 3.13.13 @ /c/Users/sg/AppData/Local/Doubao/User Data/sandbox_runtime/bases/d0ace100fdff5b2d247847aca1e3d83b/python/python
+corepack: 0.34.6
+
+## Windows user PATH (cmd.exe), i.e. what the dsh agent's pwsh tool will see
+v24.14.1
+11.11.0
+git version 2.33.1.windows.1
+Python 3.13.13
+C:\Program Files\nodejs\node.exe
+C:\Users\sg\AppData\Local\Doubao\User Data\sandbox_runtime\bases\d0ace100fdff5b2d247847aca1e3d83b\node\node.exe
+C:\Users\sg\AppData\Local\Doubao\User Data\sandbox_runtime\bases\d0ace100fdff5b2d247847aca1e3d83b\python\python.exe
+C:\Users\sg\AppData\Local\Programs\Python\Python313\python.exe
+C:\Users\sg\AppData\Local\Microsoft\WindowsApps\python.exe

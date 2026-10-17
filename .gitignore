@@ -29,6 +29,11 @@ code/eduforge/output/
 # 需要时按 lock 重新 git clone --depth 1，不在本仓库复制一份。
 source/upstream/ray-optics/
 
-# DeepSeek Harness 官方源码验证工作区（第三方仓库 + node_modules，非 EduForge 交付内容）。
-# 与上游同理：嵌套 .git 与依赖目录不入本仓库，验证结论写在 deep-agent/harness-validation-reports/。
-deep-agent/
+# DeepSeek Harness 官方源码验证工作区（deep-agent/）。
+# 只入库「验证资产」：报告、驱动脚本、事件日志、上游 overlay 补丁、失败基线副本、UI 冒烟工作区。
+# 不入库：2.7G 第三方源码克隆、pnpm 核心包缓存、隔离 DSH_HOME、
+# 以及带嵌套 .git 的一次性 Agent 工作区（嵌套 .git 会让父仓库把它当成 submodule 指针）。
+deep-agent/deepseek-harness/
+deep-agent/_corepack/
+deep-agent/.dsh-home/
+deep-agent/harness-smoke-workspace/

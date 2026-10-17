@@ -1,0 +1,13 @@
+# Confine the harness agent to the disposable smoke workspace.
+# Applied with `dsh --profile headless --patch <this file>`.
+# working-directory supplies the session execution directory; sandbox-policy
+# derives the writable root from the session cwd, so both are pinned here.
+
+- id: working-directory
+  config:
+    defaultDirectory: 'D:/codeplus/ICT/deep-agent/harness-smoke-workspace'
+
+- id: sandbox-policy
+  config:
+    mode: workspace-write
+    workspaceRoot: 'D:/codeplus/ICT/deep-agent/harness-smoke-workspace'

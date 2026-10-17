@@ -1,0 +1,5 @@
+START 2026-10-17T21:19:39+08:00
+$ node --import tsx/esm apps/cli/src/bin.ts --patch apps/web/tests/pin-browse-picker.overlay.yml web --no-open
+error: --profile <name> is required
+[ELIFECYCLE] Command failed with exit code 1.
+WEB_EXIT=1

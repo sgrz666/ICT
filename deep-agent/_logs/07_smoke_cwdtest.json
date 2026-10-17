@@ -1,0 +1,8 @@
+{"type":"session","sessionId":"session-63146e58-5763-478b-a87b-78581f8227ba","cwd":"D:\\codeplus\\ICT\\deep-agent\\harness-smoke-workspace"}
+{"type":"status","phase":"turn_start","turn":1}
+{"type":"status","phase":"step_start","turn":1,"step":1}
+{"type":"thinking","text":""}
+{"type":"text","text":"OK"}
+{"type":"status","phase":"step_end","turn":1,"step":1,"usage":{"inputTokens":1691,"outputTokens":2,"cacheReadTokens":5760,"cacheWriteTokens":0,"totalTokens":7453}}
+{"type":"status","phase":"turn_end","turn":1,"reason":{"kind":"completed"}}
+{"type":"final","text":"OK"}
