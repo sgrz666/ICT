@@ -89,6 +89,12 @@ export interface RevisionList {
   revisions: RevisionSummary[];
 }
 
+export interface RevisionNative {
+  revision_id: string;
+  engine_id: string;
+  native_data: Record<string, unknown>;
+}
+
 export interface RevisionSummary {
   revision_id: string;
   parent_id: string | null;
@@ -139,6 +145,7 @@ export interface ApiOperations {
   "GET /api/v1/jobs/{job_id}": "get_job_api_v1_jobs__job_id__get";
   "POST /api/v1/jobs/{job_id}/cancel": "cancel_job_api_v1_jobs__job_id__cancel_post";
   "GET /api/v1/revisions/{revision_id}/artifacts": "revision_artifacts_api_v1_revisions__revision_id__artifacts_get";
+  "GET /api/v1/revisions/{revision_id}/native": "revision_native_api_v1_revisions__revision_id__native_get";
   "GET /api/v1/revisions/{revision_id}/offline_verification": "revision_offline_verification_api_v1_revisions__revision_id__offline_verification_get";
   "GET /api/v1/revisions/{revision_id}/views": "revision_views_api_v1_revisions__revision_id__views_get";
   "GET /api/v1/templates": "templates_api_v1_templates_get";

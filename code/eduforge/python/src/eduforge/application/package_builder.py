@@ -428,8 +428,8 @@ class PackageBuilder:
         manifest_digest = _digest(manifest_bytes)
 
         index_file = Path(res.get("index_file") or pkg_dir / "www" / "index.html")
-        # Gate C §C.5：交付前用真浏览器实测这份包。测不过就拿不到包，也就发布不出去。
-        verification = await self._verify_package(pkg_dir)
+        # Gate C §C.5/§C.5c：交付前用真浏览器实测这份包，并核对回报的场景哈希。测不过就拿不到包，也就发布不出去。
+        verification = await self._verify_package(pkg_dir, expected_scene_sha256=native_digest)
         self._write_verifying(
             pkg_dir.parent / "offline_verification.json",
             (json.dumps(verification, ensure_ascii=False, indent=2) + "\n").encode("utf-8"),
@@ -461,7 +461,7 @@ class PackageBuilder:
         }
         return artifacts, offline, pkg_sha
 
-    async def _verify_package(self, pkg_dir: Path) -> dict[str, Any]:
+    async def _verify_package(self, pkg_dir: Path, expected_scene_sha256: str | None = None) -> dict[str, Any]:
         """让引擎宿主用 Chromium 真打开这份包，拿逐项判据回来。
 
         判据在引擎侧产生：入口存在、欢迎页被隐藏（场景真进去了）、光层画出了像素、
@@ -480,12 +480,22 @@ class PackageBuilder:
             raise DeliveryIntegrityError(
                 f"离线包浏览器实测未通过：{failed or '引擎未回报判据'}", code="OFFLINE_NOT_RENDERED"
             )
+        scene_seen = result.get("scene_sha256")
+        if not scene_seen:
+            raise DeliveryIntegrityError(
+                "浏览器预检未回报场景哈希（观测来源缺失），禁止放行", code="SCENE_SHA256_MISSING"
+            )
+        if expected_scene_sha256 and scene_seen != expected_scene_sha256:
+            raise DeliveryIntegrityError(
+                f"浏览器预检回报场景哈希与候选哈希不一致：seen={scene_seen}, expected={expected_scene_sha256}",
+                code="SCENE_SHA256_MISMATCH",
+            )
         return {
             "source": "browser:chromium",
             "ok": True,
             "checks": checks,
             "screenshot_sha256": result.get("screenshot_sha256"),
-            "scene_sha256_seen": result.get("scene_sha256"),
+            "scene_sha256_seen": scene_seen,
         }
 
     def _engine_metadata(self, manifest_path: Path) -> dict[str, Any]:

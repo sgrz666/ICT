@@ -7,6 +7,7 @@
 | 脚本 | 语言 | 行数 | 作用 |
 |---|---|---|---|
 | `eduforge.ps1` | PowerShell | 405 | 工作区统一操作入口（§7.4）：`doctor` / `bootstrap` / `up` / `test` / `smoke` / `benchmark` / `down` 七个命令（`-Action` 位置参数由 `ValidateSet` 约束；`-Profile` 默认 `screening`） |
+| `check_readmes.py` | Python | 16 | 快速校验仓库所有入库 README 与相对链接完整性（执行 `AGENTS.md` 纪律，0 悬空链接） |
 
 ## 端口一览（与脚本内检查一致）
 

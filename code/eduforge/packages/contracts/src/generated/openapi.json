@@ -484,6 +484,57 @@
         }
       }
     },
+    "/api/v1/revisions/{revision_id}/native": {
+      "get": {
+        "summary": "Revision Native",
+        "description": "§C.5c 可信种子版本预览：未发布版本没有产物时，只允许按该 revision 自己存储的 native_data 实体校验后展示。\n\n归属照样顺着 experiments.owner_id 走一遍：知道 UUID 从来不是访问凭据。",
+        "operationId": "revision_native_api_v1_revisions__revision_id__native_get",
+        "parameters": [
+          {
+            "name": "revision_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Revision Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionNative"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/revisions/{revision_id}/offline_verification": {
       "get": {
         "summary": "Revision Offline Verification",
@@ -1118,6 +1169,33 @@
           "revisions"
         ],
         "title": "RevisionList"
+      },
+      "RevisionNative": {
+        "properties": {
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "engine_id": {
+            "type": "string",
+            "title": "Engine Id"
+          },
+          "native_data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Native Data"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_id",
+          "engine_id",
+          "native_data"
+        ],
+        "title": "RevisionNative",
+        "description": "§C.5c 可信种子版本预览 DTO：未发布的原始种子版本通过该实体安全预览其真实的 native_data。"
       },
       "RevisionSummary": {
         "properties": {

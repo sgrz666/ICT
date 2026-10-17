@@ -8,7 +8,7 @@
  * 而不是猜一个默认结构渲染半张表。
  */
 
-type Column = { key: string; label: string; unit: string };
+type Column = { key: string; label: string; unit: string; source?: string };
 
 const VIEW_LABELS: Record<string, string> = {
   scene: "场景",
@@ -29,6 +29,7 @@ function columnsOf(raw: unknown): Column[] | null {
       key: c.key,
       label: typeof c.label === "string" ? c.label : String(c.key),
       unit: typeof c.unit === "string" ? c.unit : "",
+      source: typeof c.source === "string" ? c.source : undefined,
     });
   }
   return out;
@@ -67,26 +68,41 @@ export function TeachingViews({ views }: { views: Record<string, unknown> | null
             </p>
           );
         }
+        const sourceNote =
+          typeof cfg.source_note === "string"
+            ? cfg.source_note
+            : "数据来源说明：像距、像性质与放大率基于薄透镜公式 (thin_lens_reference) 理论计算；真实光路物理指标由引擎探测屏 (probes) 独立测量。";
         return (
-          <table key="mt">
-            <caption className="muted">测量记录表（{records.length} 行）</caption>
-            <thead>
-              <tr>
-                {columns.map(c => (
-                  <th key={c.key}>{c.unit ? `${c.label}（${c.unit}）` : c.label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {records.map((r, i) => (
-                <tr key={i}>
+          <div key="mt" className="table-wrapper">
+            <table>
+              <caption className="muted">测量记录表（{records.length} 行）· 理论参考值与模拟观测</caption>
+              <thead>
+                <tr>
                   {columns.map(c => (
-                    <td key={c.key}>{cell(r[c.key])}</td>
+                    <th
+                      key={c.key}
+                      title={c.source === "thin_lens_reference" ? "理论参考值 (thin_lens_reference)" : c.source === "scene_parameter" ? "场景设定参数" : undefined}
+                      data-source={c.source}
+                    >
+                      {c.unit ? `${c.label}（${c.unit}）` : c.label}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {records.map((r, i) => (
+                  <tr key={i}>
+                    {columns.map(c => (
+                      <td key={c.key}>{cell(r[c.key])}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="muted" style={{ fontSize: "0.85em", marginTop: "4px" }}>
+              {sourceNote}
+            </p>
+          </div>
         );
       })}
     </section>

@@ -240,3 +240,40 @@ def test_download_refuses_hash_mismatch_and_traversal(uri, art_dir):
         assert "must-not-leak" not in r.text
 
     run_in_app(uri, art_dir, body)
+
+
+def test_seed_revision_native_endpoint_and_isolation(uri, art_dir):
+    """§C.5c：未发布的种子版本通过 /native 端点获取真实 native_data，且执行严格租户隔离。"""
+
+    async def body(client, pool, _):
+        # 1. 建立实验与种子版本
+        r_create = await client.post("/api/v1/experiments?template_id=optics.convex_lens")
+        assert r_create.status_code == 201, r_create.text
+        data = r_create.json()
+        exp_id = data["experiment_id"]
+        base_rev = data["base_revision"]
+
+        # 2. 正常读取种子版本的 native_data（属于默认 local-dev）
+        r_native = await client.get(f"/api/v1/revisions/{base_rev}/native")
+        assert r_native.status_code == 200, r_native.text
+        seed_data = r_native.json()
+        assert seed_data["revision_id"] == base_rev
+        assert seed_data["engine_id"] == "ray_optics"
+        assert isinstance(seed_data["native_data"], dict)
+        assert len(seed_data["native_data"].get("objs", [])) > 0
+
+        # 3. 跨租户偷读：更换 X-Owner-Id 为 teacher-intruder，必须 404
+        r_intruder = await client.get(
+            f"/api/v1/revisions/{base_rev}/native",
+            headers={"X-Owner-Id": "teacher-intruder", "X-Gateway-Token": "test-dev-token"},
+        )
+        assert r_intruder.status_code == 404, r_intruder.text
+        assert r_intruder.json()["detail"]["code"] == "REVISION_NOT_FOUND"
+
+        # 4. 读不存在的 revision id，必须 404
+        random_rev = str(uuid.uuid4())
+        r_nonexistent = await client.get(f"/api/v1/revisions/{random_rev}/native")
+        assert r_nonexistent.status_code == 404, r_nonexistent.text
+        assert r_nonexistent.json()["detail"]["code"] == "REVISION_NOT_FOUND"
+
+    run_in_app(uri, art_dir, body)

@@ -94,7 +94,9 @@ def _extract_lens_and_source(native: dict[str, Any], units_per_unit: int = 10) -
     return res
 
 
-def _make_measurement_record(f: float, u: float, ref: dict[str, Any]) -> dict[str, Any]:
+def _make_measurement_record(
+    f: float, u: float, ref: dict[str, Any], data_source: str = "理论参考值 (thin_lens_reference)"
+) -> dict[str, Any]:
     v = ref.get("image_distance_cm")
     if v is None:
         kind = "不成像"
@@ -116,6 +118,8 @@ def _make_measurement_record(f: float, u: float, ref: dict[str, Any]) -> dict[st
         "image_distance_cm": v_val,
         "image_kind": kind,
         "magnification": mag,
+        "source": "thin_lens_reference",
+        "data_source": data_source,
     }
 
 
@@ -634,12 +638,13 @@ class ExperimentToolService:
         if view_configs.get("measurement_table", {}).get("visible"):
             tbl = view_configs["measurement_table"]
             tbl["columns"] = [
-                {"key": "object_distance_cm", "label": "物距 u", "unit": "cm"},
-                {"key": "focal_length_cm", "label": "焦距 f", "unit": "cm"},
-                {"key": "image_distance_cm", "label": "像距 v", "unit": "cm"},
-                {"key": "image_kind", "label": "像的性质", "unit": ""},
-                {"key": "magnification", "label": "放大率", "unit": ""},
+                {"key": "object_distance_cm", "label": "物距 u", "unit": "cm", "source": "scene_parameter"},
+                {"key": "focal_length_cm", "label": "焦距 f", "unit": "cm", "source": "scene_parameter"},
+                {"key": "image_distance_cm", "label": "像距 v", "unit": "cm", "source": "thin_lens_reference"},
+                {"key": "image_kind", "label": "像的性质", "unit": "", "source": "thin_lens_reference"},
+                {"key": "magnification", "label": "放大率", "unit": "", "source": "thin_lens_reference"},
             ]
+            tbl["source_note"] = "数据来源说明：像距、像性质与放大率基于薄透镜公式 (thin_lens_reference) 理论计算；真实光路物理指标由引擎探测屏 (probes) 独立测量。"
             if "records" not in tbl:
                 tbl["records"] = []
 

@@ -26,6 +26,7 @@ React 18 + Vite 5 + TypeScript 的单页应用（包名 `@eduforge/teacher-web`�
 - **教学视图已上屏（§C.3，2026-10-17 Chromium 实测）**：`TeachingViews.tsx` 渲染后端 `GET /api/v1/revisions/{id}/views` 给的记录表列与行；数据源是发布时冻结在 `lesson` 里的那一份，界面上那一行与磁盘上的 `teaching_views.json` 逐值比对（用例 `test_teacher_web_e2e.py` 同时断言 u=30 / f=15 / v=30 / 实像 / 放大率 −1）。**仍未做**：视图的导出（下载成表格文件）与切换版本时的实时增量刷新只做到"选版本即重取"。
 - **交付场景按 `storage_key` 认领**：一次发布现在登记 native、教学视图、离线包清单三份产物，`App.tsx` 不再取 `artifacts[0]`——靠下标认交付物会在多产物版本上悄悄预览错东西。
 - **完整离线实验包一键下载与校验（Gate C §C.5b R2）**：交付区域显式并列「下载原生场景」与「下载完整离线实验包 (.zip)」，通过 `client.downloadVerified` 调用后端流式下载 API，并在浏览器内存自主比对 SHA256 摘要，校验无误后直接落盘保存。
+- **种子版本可信真实预览与数据表来源标识（Gate C §C.5c R3）**：未发布原始种子版本通过新增 `GET /api/v1/revisions/{id}/native` 安全读取库中真实原生数据，彻底消除对通用模板的假预览；`TeachingViews.tsx` 为测量表表头标注数据来源（理论参考值 vs 场景参数）并在附注中对理论计算与物理观测进行区分提示。
 
 ## 关系
 

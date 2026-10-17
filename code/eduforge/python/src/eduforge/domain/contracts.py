@@ -194,6 +194,14 @@ class RevisionViews(Contract):
     views: dict[str, Any]
 
 
+class RevisionNative(Contract):
+    """§C.5c 可信种子版本预览 DTO：未发布的原始种子版本通过该实体安全预览其真实的 native_data。"""
+
+    revision_id: UUID
+    engine_id: str
+    native_data: dict[str, Any]
+
+
 class OfflineVerification(Contract):
     """发布后的重验结论：磁盘上的离线包还是不是清单所写的那一份（§C.5b）。
 

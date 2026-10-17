@@ -67,23 +67,17 @@ export function App() {
       );
       setZipArtifact(zip ? { id: zip.artifact_id, sha256: zip.sha256 } : null);
       if (!native) {
-        // 种子版本：若无独立交付产物，从可信模板载入只读预览
-        try {
-          const tplRes = await fetch("/adapters/ray_optics/template");
-          if (tplRes.ok) {
-            const tplJson = (await tplRes.json()) as { native?: unknown };
-            if (tplJson.native) {
-              const reg = await api.registerPreview(tplJson.native);
-              setPreview({ path: reg.path, revision: revisionId });
-              setArtifact(null);
-              setZipArtifact(null);
-              return;
-            }
-          }
-        } catch {
-          // ignore fallback failure and report error below
+        // §C.5c：未发布的原始种子 revision 没有产物时，按该 revision 自己存储的 native_data 实体校验后展示。
+        // 绝不静默退回到通用模板 /adapters/ray_optics/template。
+        const seed = await api.revisionNative(revisionId);
+        if (seed && seed.native_data && typeof seed.native_data === "object" && Object.keys(seed.native_data).length > 0) {
+          const reg = await api.registerPreview(seed.native_data);
+          setPreview({ path: reg.path, revision: revisionId });
+          setArtifact(null);
+          setZipArtifact(null);
+          return;
         }
-        setLoadErrorCode("ARTIFACT_NOT_FOUND");
+        setLoadErrorCode("INVALID_REVISION_DATA");
         setPreview(null);
         setArtifact(null);
         setZipArtifact(null);

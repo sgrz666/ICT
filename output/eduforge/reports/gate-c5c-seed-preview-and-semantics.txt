@@ -1,0 +1,81 @@
+EduForge Gate C §C.5c R3 种子版本可信预览、假阳性清除与证据来源标注验收报告
+========================================================================================
+测试时间: 2026-10-17 21:05:00 CST
+测试环境: Windows 11 / Python 3.12 (uv venv) / Node v20 / asyncpg / Playwright Chromium
+执行阶段: Gate C §C.5c R3 (可信种子版本预览、回归假阳性与证据语义 P1)
+
+一、改动概述与交付物架构
+----------------------------------------------------------------------------------------
+1. api/main.py 与 domain/contracts.py:
+   - 新增端点 GET /api/v1/revisions/{revision_id}/native:
+     * DTO 规范: RevisionNative(revision_id, engine_id, native_data)
+     * 严格租户隔离: SQL 按 experiments.owner_id 关联过滤，未授权访问返回 404 REVISION_NOT_FOUND
+     * 校验实体有效性: 确保从库中读取到的原生场景对象非空且合法，不满足返回 500 INVALID_REVISION_DATA
+     * 彻底废除向通用模板的静默回退，保证未发布原始种子版本预览的真实性。
+
+2. apps/teacher-web (前端可信预览与教学视图):
+   - api/client.ts: 新增 revisionNative(revisionId) 接口调用。
+   - App.tsx::loadRevision:
+     * 当版本无独立 native.json 产物时（即未发布的基线种子版本），调用 api.revisionNative(revisionId) 获取真实 native_data 并注册预览。
+     * 彻底删除对 /adapters/ray_optics/template 通用透镜模板的 fetch 回退，避免出现无论导入什么案例均显示默认透镜的假预览缺陷。
+   - components/TeachingViews.tsx:
+     * 表头支持 column.source 属性（如 thin_lens_reference, scene_parameter）。
+     * 为表头单元格提供 data-source 与 title 提示，说明计算来源。
+     * 表格底部与 caption 显式标注数据来源说明："像距、像性质与放大率基于薄透镜公式 (thin_lens_reference) 理论计算；真实光路物理指标由引擎探测屏 (probes) 独立测量。"
+
+3. experiment_tools/service.py:
+   - _make_measurement_record 与 configure_teaching_views:
+     * 数据记录表列定义中注入 source: "scene_parameter" 与 source: "thin_lens_reference"。
+     * 数据记录行中标记 source 与 data_source。
+     * 配置注入 source_note 字段，避免教师与评估模型将公式参考误认为真实光学实测。
+
+4. application/package_builder.py:
+   - _verify_package:
+     * 接收 expected_scene_sha256 参数并在验证时核对 Chromium 预检返回的 scene_sha256_seen。
+     * 若预检未返回场景哈希，拒绝放行并抛 DeliveryIntegrityError (SCENE_SHA256_MISSING)。
+     * 若预检返回场景哈希与候选哈希不一致，拒绝放行并抛 DeliveryIntegrityError (SCENE_SHA256_MISMATCH)。
+
+5. services/engine-host:
+   - tests/e2e/gate8_offline.test.ts:
+     * 消除 locator("#welcome").isHidden() 在元素不存在时的假阳性：显式遍历 frame 树并核查 #welcome 元素确实存在 (welcomeFound) 且 display 为 none (welcomeHidden)。
+     * 增加 canvasLight 光层像素真实读数检查 (light.lit > 0 且 light.sum > 0)。
+     * 超时时间由 180000ms 优化缩短为 45000ms，消除假死隐患。
+   - src/verify/offline-runner.ts:
+     * 增加磁盘场景文件 hash 与 manifest.scene_sha256 的一致性校验，不匹配时置空 scene_sha256 破坏放行凭据。
+
+二、实测证据记录
+----------------------------------------------------------------------------------------
+1. tests/python/test_gate5_api_chain.py:
+   - test_seed_revision_native_endpoint_and_isolation:
+     * 创建实验与种子版本 -> GET /api/v1/revisions/{base_rev}/native 返回 200，内容与模板场景完全一致。
+     * 传入 X-Owner-Id: teacher-intruder -> 返回 404 REVISION_NOT_FOUND (租户隔离)。
+     * 查询不存在的 revision_id -> 返回 404 REVISION_NOT_FOUND。
+   结果: 3 passed in 5.85s。
+
+2. tests/python/test_package_builder.py:
+   - test_verify_package_rejects_missing_scene_sha256_from_browser:
+     * 替身引擎 omit_scene_sha256=True，实测捕获 DeliveryIntegrityError (SCENE_SHA256_MISSING)。
+   - test_verify_package_rejects_mismatched_scene_sha256:
+     * 替身引擎回报错误哈希，实测捕获 DeliveryIntegrityError (SCENE_SHA256_MISMATCH)。
+   结果: 19 passed in 1.40s。
+
+3. services/engine-host/tests/e2e/gate8_offline.test.ts:
+   - 随包静态服务打开测试: welcomeFound=true, welcomeHidden=true, light.lit=453202, light.sum=287776335, 零出网, 零页面错误，耗时 14.5s 通过。
+   - file:// 直开负向测试: welcomeFound/welcomeHidden/localeMissing 准确捕获失败原因，耗时 6.1s 通过。
+   结果: 3 passed in 18.63s。
+
+4. services/engine-host 全量 Vitest:
+   - 12 个测试套件，84 项测试全部通过，耗时 144.89s。
+
+5. Python 全量回归:
+   - 23 个测试文件，收集 153 项测试：152 passed, 1 skipped (test_deepagents_real_model 因未配 API Key 依规跳过)，0 failed。
+
+6. apps/teacher-web 构建:
+   - npm run typecheck: 0 错误。
+   - npm run build: 顺利打包产物 dist/。
+
+三、指标与测试计数统计 (全仓唯一计数源: ray-optics.yaml)
+----------------------------------------------------------------------------------------
+- vitest: 84
+- pytest: 153 (收集 153, 152 passed, 1 skipped)
+- 覆盖率与健康度: 无回归，假阳性全面消除。

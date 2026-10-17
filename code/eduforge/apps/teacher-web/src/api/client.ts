@@ -6,6 +6,7 @@ import type {
   JobView,
   RevisionArtifacts,
   RevisionList,
+  RevisionNative,
   RevisionViews,
   TemplateList,
 } from "@eduforge/contracts";
@@ -69,6 +70,10 @@ export const api = {
   /** §C.3：教学视图配置只能从后端读，前端不自己拼一份"看起来一样"的表。 */
   views: (revisionId: string) =>
     call<RevisionViews>(`/api/v1/revisions/${revisionId}/views`),
+
+  /** §C.5c：未发布的种子版本通过该接口获取其真实的 native_data 实体进行预览。 */
+  revisionNative: (revisionId: string) =>
+    call<RevisionNative>(`/api/v1/revisions/${revisionId}/native`),
 
   cancelJob: (jobId: string) => call<{ job_id: string; status: string }>(`/api/v1/jobs/${jobId}/cancel`, { method: "POST" }),
 

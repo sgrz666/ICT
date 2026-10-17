@@ -23,6 +23,7 @@
 | `GET /api/v1/jobs/{id}` | 任务状态与事件时间线（按 owner 限定） |
 | `POST /api/v1/jobs/{id}/cancel` | 取消（已成功不回滚） |
 | `GET /api/v1/revisions/{id}/artifacts` | 版本产物列表 |
+| `GET /api/v1/revisions/{id}/native` | **§C.5c 种子版本可信实体**：按 experiments.owner_id 鉴权只读返回存储在库中的原生场景 `native_data`，供未发布版本准确预览 |
 | `GET /api/v1/revisions/{id}/offline_verification` | **§C.5b 发布后重验**：按清单逐文件重算磁盘字节（约 2162 个文件），并把发布前那份浏览器实测记录一并带回；审计端点，不是热路径 |
 | `GET /api/v1/revisions/{id}/views` | **§C.3 教学视图出口**：读发布时冻结在 `lesson->'views'` 的那一份配置（owner join 后才给，别的路径一律 404） |
 | `GET /api/v1/artifacts/{id}/download` | 产物下载（流式 64KB 传输，支持 RFC 7233 Range 206/416 分段，先按 owner 或活跃任务租约 token 鉴权，再走多重防护） |

@@ -41,6 +41,7 @@ from eduforge.domain.contracts import (
     JobView,
     OfflineVerification,
     RevisionArtifacts,
+    RevisionNative,
     RevisionViews,
     RevisionList,
     RollbackRequest,
@@ -286,6 +287,37 @@ def create_app(
         else:
             views = raw  # asyncpg 的 jsonb 解码器若已给出对象就直接用
         return {"revision_id": revision_id, "views": views}
+
+    @app.get(
+        "/api/v1/revisions/{revision_id}/native",
+        response_model=RevisionNative,
+        responses=NOT_FOUND,
+    )
+    async def revision_native(request: Request, revision_id: uuid.UUID):
+        """§C.5c 可信种子版本预览：未发布版本没有产物时，只允许按该 revision 自己存储的 native_data 实体校验后展示。
+
+        归属照样顺着 experiments.owner_id 走一遍：知道 UUID 从来不是访问凭据。
+        """
+        async with request.app.state.pool.acquire() as c:
+            row = await c.fetchrow(
+                """select r.id as revision_id, r.engine_id, r.native_data
+                   from experiment_revisions r
+                   join experiments e on e.id = r.experiment_id
+                   where r.id = $1 and e.owner_id = $2""",
+                revision_id, request.state.owner_id,
+            )
+        if row is None:
+            raise HTTPException(404, detail={"code": "REVISION_NOT_FOUND"})
+        raw_native = row["native_data"]
+        if isinstance(raw_native, str):
+            native_data = json.loads(raw_native)
+        elif isinstance(raw_native, dict):
+            native_data = raw_native
+        else:
+            native_data = {}
+        if not isinstance(native_data, dict) or not native_data:
+            raise HTTPException(500, detail={"code": "INVALID_REVISION_DATA"})
+        return {"revision_id": row["revision_id"], "engine_id": row["engine_id"], "native_data": native_data}
 
     @app.get(
         "/api/v1/revisions/{revision_id}/offline_verification",

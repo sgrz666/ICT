@@ -168,6 +168,18 @@ export async function verifyOfflinePackage(
   checks.push({ id: "entry_file_present", passed: existsSync(target), observed: target });
   if (!existsSync(target)) return out;
 
+  const sceneFile = resolve(pkgDir, "www", "scene", "native.json");
+  if (existsSync(sceneFile) && out.scene_sha256) {
+    try {
+      const diskSceneHash = createHash("sha256").update(readFileSync(sceneFile)).digest("hex");
+      if (diskSceneHash !== out.scene_sha256) {
+        out.scene_sha256 = null;
+      }
+    } catch {
+      out.scene_sha256 = null;
+    }
+  }
+
   const urlPath = "/" + rawEntry.replace(/^www\/?/, "");
   const { server, origin } = await serveStatic(root);
   let browser: Browser | null = null;

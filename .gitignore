@@ -28,3 +28,7 @@ code/eduforge/output/
 # 上游身份由 source/upstream/upstream.lock.json 固定（commit daf76772），
 # 需要时按 lock 重新 git clone --depth 1，不在本仓库复制一份。
 source/upstream/ray-optics/
+
+# DeepSeek Harness 官方源码验证工作区（第三方仓库 + node_modules，非 EduForge 交付内容）。
+# 与上游同理：嵌套 .git 与依赖目录不入本仓库，验证结论写在 deep-agent/harness-validation-reports/。
+deep-agent/

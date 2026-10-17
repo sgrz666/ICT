@@ -53,9 +53,19 @@ def make_state(*, views: dict[str, Any] | None = None) -> CandidateState:
 class FakeEngine:
     """模拟引擎的离线包产出：包里放一个**嵌套的同名 manifest.json**（上游 dist 真有：www/simulator/manifest/manifest.json）。"""
 
-    def __init__(self, *, metadata: bool = True, verify_ok: bool = True, supports_verify: bool = True) -> None:
+    def __init__(
+        self,
+        *,
+        metadata: bool = True,
+        verify_ok: bool = True,
+        supports_verify: bool = True,
+        scene_sha256: str | None = None,
+        omit_scene_sha256: bool = False,
+    ) -> None:
         self.metadata = metadata
         self.verify_ok = verify_ok
+        self.scene_sha256 = scene_sha256
+        self.omit_scene_sha256 = omit_scene_sha256
         self.calls: list[str] = []
         self.verified: list[str] = []
         if not supports_verify:
@@ -97,8 +107,21 @@ class FakeEngine:
                     {"id": "rays_rendered", "passed": False, "observed": "光强 0，点亮像素 0（3 个 frame）"},
                 ],
             }
+        if self.omit_scene_sha256:
+            scene_sha = None
+        elif self.scene_sha256 is not None:
+            scene_sha = self.scene_sha256
+        else:
+            manifest_file = Path(package_dir) / MANIFEST_NAME
+            scene_sha = None
+            if manifest_file.is_file():
+                try:
+                    scene_sha = json.loads(manifest_file.read_text(encoding="utf-8")).get("scene_sha256")
+                except Exception:
+                    pass
+            scene_sha = scene_sha or "abc"
         return {
-            "ok": True, "scene_sha256": "abc", "screenshot_sha256": "f" * 64,
+            "ok": True, "scene_sha256": scene_sha, "screenshot_sha256": "f" * 64,
             "checks": [{"id": "rays_rendered", "passed": True, "observed": "光强 287776335，点亮像素 453202"}],
         }
 
@@ -411,4 +434,20 @@ def test_verify_offline_zip_rejects_tampered_package_sha256_or_empty_readme(tmp_
     res_readme = verify_offline_zip(empty_readme_zip)
     assert res_readme["ok"] is False
     assert res_readme["reason"] == "readme_empty"
+
+
+def test_verify_package_rejects_missing_scene_sha256_from_browser(tmp_path):
+    """§C.5c：浏览器预检未回报场景哈希（观测来源缺失），禁止放行。"""
+    engine = FakeEngine(omit_scene_sha256=True)
+    with pytest.raises(DeliveryIntegrityError) as exc_info:
+        asyncio.run(builder(tmp_path, engine).build(make_state(), include_offline=True))
+    assert exc_info.value.code == "SCENE_SHA256_MISSING"
+
+
+def test_verify_package_rejects_mismatched_scene_sha256(tmp_path):
+    """§C.5c：浏览器预检回报场景哈希与候选哈希不一致，禁止放行。"""
+    engine = FakeEngine(scene_sha256="0" * 64)
+    with pytest.raises(DeliveryIntegrityError) as exc_info:
+        asyncio.run(builder(tmp_path, engine).build(make_state(), include_offline=True))
+    assert exc_info.value.code == "SCENE_SHA256_MISMATCH"
 
