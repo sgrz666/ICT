@@ -27,7 +27,7 @@
 ## 测试结构（tests/）
 
 - `adapters/ray-optics/patch.test.ts` — 补丁纯函数（含控制组：改回原值必须逐位一致）。
-- `engines/` — `gate3_engine_host.test.ts`（起真 HTTP 服务走完整链路）、`gate4_science_profile.test.ts`（科学剖面）、`measure_separation.test.ts`（像面定位：7 屏 + RMS，八档 argmax 全对）。
+- `engines/` — `gate3_engine_host.test.ts`（起真 HTTP 服务走完整链路）、`gate4_science_profile.test.ts`（科学剖面）、`measure_separation.test.ts`（像面定位：7 屏 + RMS，八档 argmax 全对）、`beam_geometry.test.ts`（光束几何：实像交点/虚像反向延长/准直/不可判四态）。
 - `e2e/` — `gate3_interaction.test.ts`（浏览器交互：复位、新增对象）、`gate3_bridge.test.ts`（§5.3 桥接消息时序）、`gate8_offline.test.ts`（离线包断网检查）、`preview_render.test.ts` + `render_harness.ts`（渲染可复现性：同场景两次 sum/lit/截图哈希全等）。
 - `gateway/gateway.test.ts` — 7 条网关用例（静态挂载、反代保真、501/502、回环限制）。
 

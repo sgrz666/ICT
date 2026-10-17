@@ -1,0 +1,36 @@
+Gate C（C.1 + C.2）验证几何与候选绑定 — 命令与实测结果
+========================================================
+分支 main，起点 0573ea1（Gate B 落点）。时间 北京 2026-10-17 13:36–14:13。
+本机 Windows，无 Docker；Postgres 走 pgserver；引擎为真实上游无头 bundle。
+
+1) 命令与退出码
+uv run pytest -q                       → exit 0，125 收集 / 124 通过 / 1 SKIPPED
+                                        （SKIPPED = test_deepagents_real_model.py:63 无 DEEPSEEK key）
+uv run pytest --collect-only -q        → collected: 125
+services/engine-host: node_modules/.bin/vitest run → Test Files 10 passed / Tests 67 passed
+services/engine-host: node_modules/.bin/tsc -p tsconfig.build.json → 无错误
+
+2) 引擎实测光束几何（同一场景逐焦距）
+f=15 u=30  kind=real          apex=30.86cm  R²=0.919  → 报告 passed（参考 30cm，分辨率 2cm）
+f=12 u=30  kind=inconclusive  右侧两点拟合 R²=0.78   → 报告 passed（靠屏位+聚焦两项决定性观测）
+f=30 u=30  全部屏 rms 67.76 ≈ 均匀上限 69.3（98%）→ 孔径截断 → 报告 inconclusive
+f=40 u=30  宽度只变 0.3%      → 孔径截断 → 报告 inconclusive
+f=50 u=10  宽度只变 5.2%      → 孔径截断 → 报告 inconclusive
+f=5  u=30  最窄 rms 44.6 > 15 → spot_is_actually_focused 反驳 → 报告 failed
+
+3) 本轮判据变化（收紧，不是回归）
+删除：virtual_image_valid（`u < f`）、focal_parallel_beams（`abs(f-u)<1e-4`）——公式恒真自证。
+新增：beam_geometry_agrees / beam_geometry_resolved / beam_parallelism_observed，
+      全部带 source=engine:beam_width_fit、profile、tolerance（容差依据=屏分辨率）。
+`image_plane_matches_reference` 的 `abs(...) < 1e-9` 假精确改为「≤ 分辨率 2cm」。
+报告与库：validation_reports 新增 candidate_id/content_hash/engine_version/profile 列（迁移 0003）。
+
+4) 因此当前不可发布的教学工况（如实记录，未闭环）
+虚像（近与远都测不出：屏半高 12cm，发散光溢出）与 u=f 准直工况 → 一律 inconclusive → 拒绝发布。
+补齐路径二选一：读上游光线折线的出射方向（Ray/Light 数据，本轮未探明无头可用性），
+或加宽探测器/加密屏阵列（会牵动 catalog 模板、67 项 TS 基线与离线包）。
+
+5) 一次夹具修正
+test_publish_chain.py 等 5 个测试文件此前直接执行 JOBS_DDL 建库，缺 0003 新列 →
+record_report 抛 asyncpg PostgresError → 被 Gate B 新增的「可重试」分支退成 queued（表现为
+"未发布却把任务转成 queued"）。统一改走 apply_migrations 后消除。

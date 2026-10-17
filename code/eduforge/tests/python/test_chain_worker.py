@@ -102,6 +102,9 @@ def run_chain(uri, art_dir, engine_url, proposal, *, prompt="把凸透镜焦距�
                           if native_artifact else None)
                     listing = (await client.get(f"/api/v1/revisions/{cand}/artifacts")
                                if cand else None)
+                    rows["validating"] = await c.fetchrow(
+                        "select payload from job_events where job_id=$1 and stage='validating' "
+                        "and event_type='stage_done' order by sequence", job_id)
                     rows["building"] = await c.fetchrow(
                         "select payload from job_events where job_id=$1 and stage='building' "
                         "and event_type='stage_done' order by sequence", job_id)
@@ -358,24 +361,33 @@ def test_chain_composite_operations_publish(uri, art_dir, engine_url):
     assert out["detail"]["revision_count"] == 2
 
 
-def test_chain_focal_parallel_beams_at_infinity(uri, art_dir, engine_url):
-    """f=30cm 时物距 u=30cm 等于焦距，折射光线为平行光束（像在无穷远）。
-    门禁物理规则判定通过（focal_parallel_beams: passed），不再因 NoneType 异常报错。
-    """
-    out = run_chain(uri, art_dir, engine_url, focal_proposal(30), prompt="把焦距改成 30cm，物点正好在焦点上")
-    assert out["worker"]["last_stage"] == "packaging", out["worker"]
-    assert out["job"]["status"] == "succeeded", out["job"]
-    assert out["detail"]["revision_count"] == 2
+def test_chain_far_virtual_image_is_refused_with_stated_instrument_limit(uri, art_dir, engine_url):
+    """f=40、u=30 ⇒ v=−120cm 的虚像：本屏阵列读不出发散，必须拒而不是假通过。
 
-
-def test_chain_virtual_image_valid(uri, art_dir, engine_url):
-    """f=40cm 时物距 u=30cm 小于焦距，成正立放大虚像。
-    门禁物理规则判定通过（virtual_image_valid: passed），不再误要求实像屏聚焦。
+    旧实现凭 `u < f` 判 passed —— 公式在给自己作证。Gate C §C.2 要求「没有独立
+    观测就标不可判」：屏上光斑已铺满探测器（孔径截断），发散度测不出来，
+    于是任务可见地失败、head 不动。这不是回退，是把一个假绿灯换成一个真拒绝。
     """
     out = run_chain(uri, art_dir, engine_url, focal_proposal(40), prompt="把焦距改成 40cm，成放大虚像")
-    assert out["worker"]["last_stage"] == "packaging", out["worker"]
-    assert out["job"]["status"] == "succeeded", out["job"]
-    assert out["detail"]["revision_count"] == 2
+    assert out["job"]["status"] == "failed", out["job"]
+    assert out["job"]["error_code"] == "VALIDATION_NOT_PASSED"
+    assert out["detail"]["revision_count"] == 1, "测不出来的东西不得发布"
+    assert out["download"] is None
+
+
+def test_chain_parallel_beam_must_be_measured_not_assumed(uri, art_dir, engine_url):
+    """u=f 的准直工况：判据必须是实测的宽度变化率，拿不出证据就拒。
+
+    这条钉住的是旧 `abs(f-u)<1e-4` 那条恒真式不回来：如果这套屏阵列读得出
+    未截断的平行光（将来加宽探测器后），它会发布成功；读不出就失败 —— 两种
+    结果都不允许「凭公式通过」。
+    """
+    out = run_chain(uri, art_dir, engine_url, focal_proposal(30), prompt="把焦距改成 30cm，物点正好在焦点上")
+    if out["job"]["status"] == "succeeded":
+        assert out["detail"]["revision_count"] == 2, out["job"]
+    else:
+        assert out["job"]["error_code"] == "VALIDATION_NOT_PASSED", out["job"]
+        assert out["detail"]["revision_count"] == 1, "被拒的任务不得推进 head"
 
 
 def test_chain_multiple_parameter_edits_validating(uri, art_dir, engine_url):

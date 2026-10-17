@@ -29,7 +29,7 @@ from eduforge.agent.model import create_model, resolve_model_name
 from eduforge.experiment_tools.contracts import InspectSceneInput, JobContext
 from eduforge.experiment_tools.service import ExperimentToolService
 from eduforge.infrastructure.clients.engine_client import EngineClient
-from eduforge.infrastructure.db.repositories import JOBS_DDL
+from eduforge.infrastructure.db.migrations import apply_migrations
 from eduforge.infrastructure.settings import get_deepseek_api_key
 
 # tests/python/x.py 的 parents：0=python 1=tests 2=eduforge 3=code 4=仓库根
@@ -67,7 +67,7 @@ def artifact_dir():
 def test_real_model_autonomously_completes_combination_task(engine_url, uri, artifact_dir):
     async def _go():
         c = await asyncpg.connect(uri)
-        await c.execute(JOBS_DDL)
+        await apply_migrations(c)
         for t in ("artifacts", "validation_reports", "job_events", "jobs", "experiment_revisions", "experiments"):
             await c.execute(f"delete from {t}")
         job_id = uuid.uuid4()

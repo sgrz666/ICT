@@ -23,6 +23,8 @@ BASELINE_VERSION = 1
 BASELINE_NAME = "baseline_jobs_schema"
 CANDIDATES_VERSION = 2
 CANDIDATES_NAME = "experiment_candidates"
+REPORT_BINDING_VERSION = 3
+REPORT_BINDING_NAME = "validation_report_binding"
 
 _MIGRATION_DIR = Path(__file__).resolve().parent
 
@@ -30,6 +32,10 @@ _MIGRATION_DIR = Path(__file__).resolve().parent
 def _candidates_sql() -> str:
     # 迁移 SQL 与代码同目录存放：评审时能一眼看到落库的到底是哪几列
     return (_MIGRATION_DIR / "0002_experiment_candidates.sql").read_text(encoding="utf-8")
+
+
+def _report_binding_sql() -> str:
+    return (_MIGRATION_DIR / "0003_validation_report_binding.sql").read_text(encoding="utf-8")
 
 
 async def current_version(conn: asyncpg.Connection) -> int:
@@ -52,6 +58,7 @@ async def apply_migrations(conn: asyncpg.Connection) -> list[int]:
     migrations: list[tuple[int, str, str]] = [
         (BASELINE_VERSION, BASELINE_NAME, JOBS_DDL),
         (CANDIDATES_VERSION, CANDIDATES_NAME, _candidates_sql()),
+        (REPORT_BINDING_VERSION, REPORT_BINDING_NAME, _report_binding_sql()),
     ]
     head = await current_version(conn)
     applied: list[int] = []

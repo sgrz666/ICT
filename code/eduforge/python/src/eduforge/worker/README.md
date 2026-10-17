@@ -10,7 +10,7 @@
 | `lease.py` | 151 | **租约守护器（Gate B 起真正接线）**：`from_pool` 从池里单独 acquire 一条连接给心跳用（不与 Agent SQL 抢同一条），后台按 `heartbeat_interval_seconds`（默认 25s）调 `renew_and_check` 续 90s 租约；状态词 `ok/cancelled/stolen/expired/lost/missing/timeout`；`check_active()` 是各阶段与新工具动作前的闸门，`check_now()` 供发布前当场复查；`max_runtime_seconds` 给单任务运行时长封顶 | `LeaseManager`, `from_pool`, `beat`, `check_active`, `check_now` |
 | `main.py` | 145 | 单任务执行：`run_once` 领取（attempt 已在 SQL 里 +1）→ 超上限即终态 `MAX_ATTEMPTS_EXCEEDED` → 起心跳守护 → `Coordinator.run`；失败分三类处理：终态写 `failed`、可重试（`RETRYABLE`：OSError/httpx.TransportError/asyncpg.PostgresError）退回 `queued` 并写 `next_run_at` 退避、丢执行权或已取消只记事件不改状态；`SimulatedCrash` 供崩溃恢复测试 | `Worker`, `SimulatedCrash`, `RETRYABLE` |
 | `run.py` | 141 | 进程入口 `python -m eduforge.worker.run`：参数解析、启动即 `apply_migrations`、规划器选择（`--planner model\|deep\|static`；`deep` 现在构造的是 **`DeepAgentRunner`**，不再是 `DeepAgentPlanner`；缺 DeepSeek key 拒绝启动——解析见 [`../infrastructure/settings.py`](../infrastructure/README.md) `get_deepseek_api_key()`）、事件循环。`deep` 需要活的库连接，真正构造发生在连库之后 | `main`, `build_parser`, `select_planner`, `STATIC_BANNER` |
-| `steps.py` | 429 | **生产组合根**：`Chain` 五阶段实现——planning 交候选 Runner（`DeepAgentRunner`，或由 `ProposalRunner` 适配的旧 `PlannerPort`），editing/building/validating/packaging **全部消费同一行持久候选**；`make_worker` 注入 `EngineClient`/`planner`/`lease_token`；`base_untouched` 是真实断言（引擎字段 ∧ 基线修订逐字节复核），纯视图任务不再因此被误判 | `Chain`, `PlannerPort`, `StaticPlanner`, `make_worker`, `scene_bytes`, `artifact_path` |
+| `steps.py` | 432 | **生产组合根**：`Chain` 五阶段实现——planning 交候选 Runner（`DeepAgentRunner`，或由 `ProposalRunner` 适配的旧 `PlannerPort`），editing/building/validating/packaging **全部消费同一行持久候选**；`make_worker` 注入 `EngineClient`/`planner`/`lease_token`；`base_untouched` 是真实断言（引擎字段 ∧ 基线修订逐字节复核），纯视图任务不再因此被误判 | `Chain`, `PlannerPort`, `StaticPlanner`, `make_worker`, `scene_bytes`, `artifact_path` |
 
 ## 五阶段（`steps.py: Chain`；每个阶段只从 DB/磁盘取事实，保证 at-least-once 可重跑）
 
@@ -19,7 +19,7 @@
 | planning | 跑执行端口：模型（或固定提案）**通过受控工具直接改动 `experiment_candidates` 那一行**；返回候选完成记录 `AgentRunRecord`（candidate_id、content_hash、state_version、validation_id、terminal_state）。旧 `PlannerPort` 由 `agent/proposal_runner.py` 适配，仍先过 `policy.authorize` 再落候选，`work_order` 照旧写回 jobs 供审计 | `runner.run` → [`../agent/deepagents_runner.py`](../agent/README.md) / [`../agent/proposal_runner.py`](../agent/README.md) |
 | editing | 不再重放操作：对**待交付候选**做一次真实引擎观测，并逐字节复核基线修订未被改写 | `EngineClient.apply`, `CandidateService.load` |
 | building | 调工具服务那一条 `build_package`：冻结候选、落盘 `revisions/{candidate}/native.json`（+ `teaching_views.json`）、算 sha256、写 `jobs.candidate_revision_id` | `ExperimentToolService.build_package` |
-| validating | 对冻结后的候选重跑同一套验证实现，报告当场落库并绑定候选内容哈希 | `ExperimentToolService.run_validation` |
+| validating | 对冻结后的候选重跑同一套验证实现（`final=True`：先重新读回候选再冻结再验），报告当场落库并绑定候选内容哈希；payload 里区分 `failed_checks` 与 `unverifiable_checks` | `ExperimentToolService.run_validation` |
 | packaging | 校验「报告绑在当前内容哈希上」+ 交付字节与候选逐字节一致，再进四道闸门事务；不一致直接 `ARTIFACT_CONTENT_MISMATCH` | `CandidateService`, `Publisher.publish` |
 
 > **本轮拆掉的东西**：`Chain._apply()` 在基线上重放 `EditProposal` 的那条路径、以及 `planning`→`operations_from_trace` 的「把模型的成功调用折算成清单」在生产链上的地位。Trace 从此只作审计（`experiment_candidates.agent_trace`）。理由与实况见 [`../../../../../../plan/`](../../../../../../plan/README.md) 里的 `26.10.17_EduForge_GateA_统一候选执行链.md`：那份重放出来的场景从没被模型验过，「验证什么就发布什么」当场失效。

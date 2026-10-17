@@ -17,7 +17,7 @@ import pytest
 
 from eduforge.api.main import LOCAL_DEV_OWNER, create_app
 from eduforge.infrastructure.catalog import CATALOG
-from eduforge.infrastructure.db.repositories import JOBS_DDL
+from eduforge.infrastructure.db.migrations import apply_migrations
 
 ART_INSERT = (
     "insert into artifacts (id, revision_id, storage_key, sha256, media_type) "

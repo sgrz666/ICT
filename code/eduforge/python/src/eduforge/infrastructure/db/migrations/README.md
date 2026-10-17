@@ -8,6 +8,7 @@
 |---|---|
 | `__init__.py` | `MIGRATIONS` 清单（版本 → 名称 → SQL）、`apply_migrations`、`current_version`、`schema_status`。基线迁移 0001 直接引用持久层的 `JOBS_DDL`，**不复制第二份 DDL** |
 | `0002_experiment_candidates.sql` | 未发布候选工作态表：`job_id` 主键（一 job 一行）、`state_version`（CAS）、`validation_hash`（内容一变即失效）、`agent_trace`（仅审计） |
+| `0003_validation_report_binding.sql` | 给 `validation_reports` 加 `candidate_id`/`content_hash`/`engine_version`/`profile` 四列（Gate C §C.1：报告必须说清验的是哪一版）。全部可空、不改写老行，历史报告按历史现场理解 |
 
 ## 与上下层的关系
 

@@ -586,9 +586,17 @@ def test_physics_boundary_infinite_and_virtual_image(engine_url, uri, artifact_d
         assert "不成像" in rec_inf["image_kind"]
 
         val_inf = await service.run_validation(RunValidationInput(experiment_id=exp_id))
-        assert val_inf.passed is True
-        check_inf = next(c for c in val_inf.checks if c["id"] == "focal_parallel_beams")
-        assert check_inf["passed"] is True
+        # Gate C §C.2：准直不能再由 `abs(f-u)<1e-4` 判通过。判据是屏上实测的宽度
+        # 变化率；这套屏被孔径截断读不出来时，结论必须是 inconclusive（不是 failed，
+        # 也不是 passed）。发布门禁因此挡住它 —— 这是刻意的收紧。
+        parallel_checks = [c for c in val_inf.checks if "parallel" in c["id"] or "geometry" in c["id"]]
+        assert parallel_checks, "没有光束几何判据，说明独立观测被悄悄省掉了"
+        assert val_inf.verdict in ("passed", "inconclusive"), val_inf.verdict
+        if val_inf.verdict == "inconclusive":
+            assert any(c["status"] == "na" for c in parallel_checks), parallel_checks
+            assert any("孔径" in c["detail"] or "不判" in c["detail"] for c in parallel_checks), parallel_checks
+        else:
+            assert val_inf.passed is True, val_inf.checks
 
         # 2. 工况二：u = 20cm, f = 30cm (u < f，正立放大虚像)
         await service.apply_scene_patch(
@@ -607,9 +615,12 @@ def test_physics_boundary_infinite_and_virtual_image(engine_url, uri, artifact_d
         assert "虚像" in rec_v["image_kind"]
 
         val_v = await service.run_validation(RunValidationInput(experiment_id=exp_id))
-        assert val_v.passed is True
-        check_v = next(c for c in val_v.checks if c["id"] == "virtual_image_valid")
-        assert check_v["passed"] is True
+        geo_v = [c for c in val_v.checks if "geometry" in c["id"]]
+        assert geo_v, "虚像工况必须有光束几何判据"
+        # 旧的 virtual_image_valid 是 `u < f` 的公式自证，已删。这里钉的是：
+        # 要么测出发散并给出反向延长交点（passed），要么明确承认测不出来（inconclusive）
+        assert val_v.verdict in ("passed", "inconclusive"), val_v.verdict
+        assert all(c["source"].startswith("engine:") for c in geo_v), geo_v
 
         await c.close()
 

@@ -8,7 +8,7 @@
 |---|---|---|---|
 | `adapter.ts` | 81 | 适配器门面：从 catalog 模板解析绑定表/模板场景；统一调度改参、校验、采样、导出 | `loadBindings()`, `loadTemplateScene()`, `Candidate`, `rayOpticsAdapter`（apply/sample/validateNative/exportNative） |
 | `patch.ts` | 81 | 按**实体名**（非数组下标）定位对象并做参数修改与量程校验 | `findEntityIndex()`, `setRayParameter()` |
-| `upstream.ts` | 206 | 加载上游无头 bundle 驱动真实仿真，读探测器 `binData` 算光斑 RMS/捕获功率；像面判据 = `rms_units` + 功率下限（**不用 `peak_share`**，避免远屏假清晰） | `upstream()`, `Probe`, `sharpestProbe()`, `validateNative()`, `simulate()`, `bundlePath`, `halfSpanCm` |
+| `upstream.ts` | 465 | 加载上游无头 bundle 驱动真实仿真，读探测器 `binData` 算光斑 RMS/质心/捕获功率；像面判据 = `rms_units` + 功率下限（**不用 `peak_share`**，避免远屏假清晰）。**Gate C §C.2 新增 `beamGeometry()`**：用屏阵列上的实测宽度做线性拟合，给出实像交点 / 虚像反向延长交点 / 高平行度三态，并在光斑铺满探测器时明确判「孔径截断，测不出来」 | `upstream()`, `Probe`, `sharpestProbe()`, `beamGeometry()`, `lensAxisXcm()`, `validateNative()`, `simulate()`, `bundlePath`, `halfSpanCm` |
 
 ## 数据流（一次改参的完整路径）
 

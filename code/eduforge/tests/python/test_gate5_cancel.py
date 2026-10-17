@@ -15,7 +15,7 @@ import pytest
 
 from eduforge.api.main import LOCAL_DEV_OWNER, create_app
 from eduforge.application.coordinator import STAGES  # noqa: F401  (确保包可导入)
-from eduforge.infrastructure.db.repositories import JOBS_DDL
+from eduforge.infrastructure.db.migrations import apply_migrations
 
 
 @pytest.fixture(scope="module")

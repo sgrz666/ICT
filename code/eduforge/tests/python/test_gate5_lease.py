@@ -14,9 +14,10 @@ import asyncpg
 import pgserver
 import pytest
 
+from eduforge.infrastructure.db.migrations import apply_migrations
+
 from eduforge.infrastructure.db.repositories import (
-    JOBS_DDL,
-    DuplicateIdempotencyKey,
+        DuplicateIdempotencyKey,
     JobRepository,
     LeaseLost,
     RevisionConflict,
@@ -38,7 +39,7 @@ def uri():
 async def fresh(uri):
     """建表并清空，返回一个干净连接。"""
     c = await asyncpg.connect(uri)
-    await c.execute(JOBS_DDL)
+    await apply_migrations(c)
     await c.execute("delete from experiment_revisions")
     await c.execute("delete from jobs")
     await c.execute("delete from experiments")

@@ -24,7 +24,8 @@ from eduforge.application.publication import NotPublishable, Publisher
 from eduforge.application.services import JobService
 from eduforge.domain.contracts import CreateJobRequest, SetParameter
 from eduforge.infrastructure.clients.engine_client import EngineClient, sharpest_screen
-from eduforge.infrastructure.db.repositories import JOBS_DDL, JobRepository
+from eduforge.infrastructure.db.migrations import apply_migrations
+from eduforge.infrastructure.db.repositories import JobRepository
 from eduforge.validation.policies import build_report
 from eduforge.worker.main import Worker
 
@@ -94,7 +95,7 @@ def run_publish_case(uri, engine_url, *, target_f_cm, claimed_u_cm):
 
     async def inner():
         c = await asyncpg.connect(uri)
-        await c.execute(JOBS_DDL)
+        await apply_migrations(c)
         for t in ("artifacts", "validation_reports", "job_events", "jobs", "experiment_revisions", "experiments"):
             await c.execute(f"delete from {t}")
 
@@ -254,7 +255,7 @@ def test_publish_is_atomic_when_artifact_insert_fails(uri):
 
     async def inner():
         c = await asyncpg.connect(uri)
-        await c.execute(JOBS_DDL)
+        await apply_migrations(c)
         for t in ("artifacts", "validation_reports", "job_events", "jobs",
                   "experiment_revisions", "experiments"):
             await c.execute(f"delete from {t}")

@@ -27,10 +27,21 @@ class Publisher:
         self.repo = JobRepository(conn)
 
     async def record_report(self, *, job_id: uuid.UUID, report: ValidationReport) -> uuid.UUID:
+        """落一份报告，并把「验的是哪一版候选」一起写进列里（Gate C §C.1）。
+
+        `checks` JSON 里也有这些事实，但可查询的列才是发布门禁能核对的东西——
+        只存在 JSON 里的绑定等于没有绑定。
+        """
         rid = uuid.uuid4()
         await self.conn.execute(
-            "insert into validation_reports (id, job_id, checks, verdict) values ($1,$2,$3::jsonb,$4)",
+            """insert into validation_reports
+                   (id, job_id, checks, verdict, candidate_id, content_hash, engine_version, profile)
+               values ($1,$2,$3::jsonb,$4,$5,$6,$7,$8)""",
             rid, job_id, json.dumps(report.as_dict()), report.verdict,
+            uuid.UUID(str(report.candidate_id)) if report.candidate_id else None,
+            report.content_hash,
+            str(report.engine_version) if report.engine_version is not None else None,
+            report.profile,
         )
         return rid
 

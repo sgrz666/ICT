@@ -1,6 +1,6 @@
 # validation — 验证与发布门禁
 
-**职责**：validating 阶段的检查项构建与发布裁决。把「上游接受修改 / 基础版本未被暗改 / 视图已登记 / 测量非退化 / 薄透镜独立对照 / 像面位置匹配 / 是否真聚焦」等检查汇总为 `ValidationReport`，由 `verdict`（passed / failed / inconclusive）决定任务能否走到 packaging。**科学纪律：对照公式必须与上游仿真互不共用代码**——同一实现算两遍不构成验证。
+**职责**：validating 阶段的检查项构建与发布裁决。每条判据必须交代 `source`（证据从哪来）与 `profile`（在什么科学剖面下成立），并且三态化：`pass`（观测支持）/`fail`（观测反驳）/`na`（**没有独立观测**）；`na` 把整份结论压成 `inconclusive`，发布因此被挡住而不是被蒙过去。报告还绑定 `candidate_id`+`content_hash`+`engine_version`+`profile`。把「上游接受修改 / 基础版本未被暗改 / 视图已登记 / 测量非退化 / 薄透镜独立对照 / 像面位置匹配 / 是否真聚焦」等检查汇总为 `ValidationReport`，由 `verdict`（passed / failed / inconclusive）决定任务能否走到 packaging。**科学纪律：对照公式必须与上游仿真互不共用代码**——同一实现算两遍不构成验证。
 
 ## 内容（逐文件）
 
@@ -19,7 +19,9 @@
 ## 已知的坑与纪律
 
 - **`base_untouched` 本轮才真的成立**：`worker/steps.py` 过去写 `(base != result) or True`，恒真，于是本文件第 3 行宣称的「基础版本未被暗改」这道闸门实际不存在；`policies.py` 的该判据永远不会红。现在取「引擎返回的 `base_untouched`（`main.ts:60` 比对入参与产出）∧ 库里基线修订逐字节复核」两者之与，它才可能失败。
-- 已知判据弱点（如实记录，别当成已完备）：`image_plane_matches_reference` 对着 `SCREENS_CM = [8,12,16,20,25,30,40]` 这 7 格量化屏比，`abs(...) < 1e-9`——物理判据的分辨率受屏位网格限制，不是连续的；无穷远与虚像工况的**出射方向**尚无独立观测判据（pending）。
+- **已收紧的判据（2026-10-17 Gate C §C.2）**：旧的 `virtual_image_valid: u < f` 与 `focal_parallel_beams: abs(f-u)<1e-4` 是公式恒真自证，已删除；现在虚像/无穷远必须拿引擎实测的光束几何（`measurement.geometry`，见 [`upstream.ts`](../../../../services/engine-host/src/adapters/ray-optics/README.md)）。
+- **仍未解决的量具极限（如实记录）**：7 格屏每块半高 12cm，虚像与准直工况下光斑铺满探测器（实测 rms ≈ 均匀照明上限的 98%），`beamGeometry` 只能报「孔径截断，测不出来」→ 这两个工况**当前一律不发布**（f=40、f=50、u=f 都实测如此）。要真正覆盖虚像/无穷远，需要读上游的**出射光线方向**（或加宽探测器），这项没做，属 Gate C 未闭环部分。
+- 实像工况的屏位判据已从 `abs(...) < 1e-9` 的假精确改为「落在屏分辨率 2cm 内」（最小屏间距 4cm 的一半），并与几何交点交叉核对（`beam_geometry_agrees` 在实像下作非决定性证据）。
 - **verdict 保守语义**：没有检查项录得通过时是 `inconclusive` 而非 `passed`——这是防止"空报告放行"的刻意设计。
 - 门禁参数（`SCREENS_CM`/`SHARP_RMS_MAX`/`POWER_FLOOR`）改动 = 改变物理判据，改前先跑 gate4/gate8 相关测试看斜率。
 - `policies.py` 里 `view_edits: list[Any]` 的 `Any` 从未 import，只因 `from __future__ import annotations` 才没炸；一旦有人对这张模块用 `typing.get_type_hints` 就会报错。

@@ -47,8 +47,7 @@ from eduforge.infrastructure.catalog import load_native
 from eduforge.infrastructure.clients.engine_client import EngineClient
 from eduforge.infrastructure.db.migrations import apply_migrations, current_version
 from eduforge.infrastructure.db.repositories import (
-    JOBS_DDL,
-    candidate_id_for,
+        candidate_id_for,
     revision_id_for,
 )
 
@@ -123,14 +122,14 @@ def test_migration_runs_on_old_database_and_is_idempotent(uri):
             await c.execute("drop table if exists schema_migrations")
             for t in TABLES:
                 await c.execute(f"drop table if exists {t} cascade")
-            await c.execute(JOBS_DDL)  # 模拟 Gate A 之前的库
+            await apply_migrations(c)  # 模拟 Gate A 之前的库
             await c.execute("drop table if exists schema_migrations")
             applied = await apply_migrations(c)
-            assert 2 in applied, applied
+            assert 3 in applied, applied
             names = {r["tablename"] for r in await c.fetch(
                 "select tablename from pg_tables where schemaname='public'")}
             assert "experiment_candidates" in names
-            assert await current_version(c) == 2
+            assert await current_version(c) == 3
             assert await apply_migrations(c) == [], "已应用的迁移被重复执行"
         finally:
             await c.close()

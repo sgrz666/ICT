@@ -10,7 +10,8 @@ import pgserver
 import pytest
 
 from eduforge.application.coordinator import STAGES, Coordinator
-from eduforge.infrastructure.db.repositories import JOBS_DDL, JobRepository
+from eduforge.infrastructure.db.migrations import apply_migrations
+from eduforge.infrastructure.db.repositories import JobRepository
 from eduforge.worker.main import SimulatedCrash, Worker
 
 
@@ -28,7 +29,7 @@ def uri():
 
 async def seed(uri):
     c = await asyncpg.connect(uri)
-    await c.execute(JOBS_DDL)
+    await apply_migrations(c)
     await c.execute("delete from job_events")
     await c.execute("delete from jobs")
     job_id = uuid.uuid4()

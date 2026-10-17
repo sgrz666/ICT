@@ -298,17 +298,20 @@ class Chain:
         base = await self._base(job_id)
         service = self._service(base)
         try:
-            val = await service.run_validation(RunValidationInput(
-                experiment_id=str(base["experiment_id"])
-            ))
+            val = await service.run_validation(
+                RunValidationInput(experiment_id=str(base["experiment_id"])), final=True
+            )
         except TerminalError:
             raise
         except Exception as exc:
             raise self._terminal(exc, "validating") from exc
         insp = await service.inspect_scene(InspectSceneInput(experiment_id=str(base["experiment_id"])))
+        # unverifiable_checks 是「测不出来」而不是「测出来不成立」：
+        # 两者都拦得住发布，但混在 failed 里就让人以为物理不成立。
         return {
             "verdict": val.verdict,
-            "failed_checks": [c["id"] for c in val.checks if not c.get("passed")],
+            "failed_checks": [c["id"] for c in val.checks if c.get("status") == "fail"],
+            "unverifiable_checks": [c["id"] for c in val.checks if c.get("status") == "na"],
             "focal_length_cm": insp.parameters.get("focal_length_cm"),
             "object_distance_cm": insp.parameters.get("object_distance_cm"),
         }

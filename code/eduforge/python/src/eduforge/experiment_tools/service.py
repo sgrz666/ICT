@@ -667,14 +667,27 @@ class ExperimentToolService:
             measurement_table=view_configs.get("measurement_table"),
         )
 
-    async def run_validation(self, input_data: RunValidationInput | dict[str, Any]) -> RunValidationOutput:
+    async def run_validation(
+        self,
+        input_data: RunValidationInput | dict[str, Any],
+        *,
+        final: bool = False,
+    ) -> RunValidationOutput:
         """6. run_validation: 物理与规约闭环验证。"""
         if isinstance(input_data, dict):
             req = RunValidationInput.model_validate(input_data)
         else:
             req = input_data
 
+        if final:
+            # 最终验证不吃进程内缓存：把候选从库里重新读回来再验。
+            # 接管者可能根本没跑过 planning，缓存里什么都没有——那时凭缓存放行
+            # 就是「验了一份不存在的工作态」。
+            self._sessions.pop(req.experiment_id, None)
         session = await self._session(req.experiment_id)
+        if final:
+            # 冻结后才允许出最终结论；冻结后又被人改过，这里就会读到新版本
+            session["candidate"] = await self.candidates.freeze()
         template = load_template(session["template_id"])
 
         # 确保有最新 engine_result
@@ -703,6 +716,8 @@ class ExperimentToolService:
             object_distance_cm=u_cm,
             units_per_unit=template.units_per_unit,
             allowed_views=template.views,
+            candidate_id=(session["candidate"].candidate_id if session.get("candidate") else None),
+            content_hash=(session["candidate"].content_hash if session.get("candidate") else None),
         )
         session["validation_report"] = report
         session["validated_digest"] = self._working_digest(session)
