@@ -66,7 +66,7 @@
 ## 当前状态（截至 2026-10-16）
 
 - 切片 1（引擎本地化与协议地基）的主要目标已达成并被实测证明：成熟光学引擎可以在本地被程序化修改，改完的仿真结果与独立薄透镜公式吻合。证据链见 `plan/26.10.15_EduForge_推进计划.md` 的「实况」节。
-- 测试规模：vitest 54 / pytest 114，全绿（1 项真模型用例在无 key 时显式 SKIPPED）；**这个数字只在 `code/eduforge/catalog/engines/ray-optics.yaml` 的 `test_totals` 记一处**，其他文档引用它，不各自重复。
+- 测试规模：vitest 54 / pytest 124，全绿（1 项真模型用例在无 key 时显式 SKIPPED）；**这个数字只在 `code/eduforge/catalog/engines/ray-optics.yaml` 的 `test_totals` 记一处**，其他文档引用它，不各自重复。
 - 教师前端最小闭环已达成：选模板 → 建实验 → 提需求 → 进度查看 → 实时仿真预览与参数调节 → 版本历史与**版本回滚** → 产物下载校验。
 - 教师前端已扩展三视图：AI 定制工坊、内嵌光学仿真模拟器（自由绘制元件）、81 个交互式案例库（细节见 `code/eduforge/apps/teacher-web/README.md`）。
 - 尚未闭环的（不要当成已完成）：DeepSeek 真实模型对照（缺 `DEEPSEEK_API_KEY`，已用桩模型覆盖图结构与策略链）、切片 7 容器沙箱（本机无 Docker Desktop）、Go 离线启动器、单文件 HTML 交付形态（上游运行时 HTTP 取词，`file://` 直开不成立，需 i18n 预注入）。
@@ -76,7 +76,7 @@
 ```powershell
 # 工作区统一入口（推荐）
 .\scripts\eduforge.ps1 doctor        # 环境与端口健康度检查
-.\scripts\eduforge.ps1 test          # 跑全量 pytest (114) 与 vitest (54)
+.\scripts\eduforge.ps1 test          # 跑全量 pytest (124) 与 vitest (54)
 .\scripts\eduforge.ps1 smoke         # 真实 Chromium 端到端金路径测试
 .\scripts\eduforge.ps1 benchmark -Profile screening  # 12 题筛查基准评测
 
@@ -86,7 +86,7 @@ rea analyze-javascript-application ./input/rea-smoke-test
 
 # EduForge Python 侧
 cd code/eduforge
-uv run pytest               # 114 个 pytest 用例
+uv run pytest               # 124 个 pytest 用例
 
 # EduForge TypeScript 侧
 cd code/eduforge

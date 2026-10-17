@@ -8,9 +8,9 @@
 |---|---|---|---|
 | `candidate_service.py` | 381 | **Gate A 的候选业务层**：`CandidateState`（含 `content_hash`/`state_version`/`validation_hash`）、canonical JSON 与内容指纹（场景 + 教学视图，浮点归一）、`native_bytes`/`views_bytes` 这两个唯一的字节写法、`AgentRunRecord`（Agent 执行完成记录），以及 `CandidateService`：open/load/write(CAS)/bind_validation/freeze/rebase/attach_trace。没库或没 job 时显式退化为进程内缓存并如实标注 | `CandidateState`, `AgentRunRecord`, `CandidateService`, `content_fingerprint`, `canonical_json`, `native_bytes`, `views_bytes` |
 | `coordinator.py` | 46 | **阶段机**：按 `STAGES` 顺序推进；依据 `job_events` 的 `stage_done` 事件断点恢复（崩溃后从首个未完成阶段续跑） | `STAGES`, `Step`, `Coordinator` |
-| `experiment_service.py` | 133 | 模板实例化与版本管理：`create_from_template`（克隆基础版本）、`rollback`（回退 head，校验 owner/活跃任务） | `ExperimentService`, `ExperimentLookup`, `ExperimentNotFound`, `TemplateNotFound`, `RevisionNotFound`, `ActiveJobConflict` |
-| `job_service.py` | 54 | 任务生命周期：提交（幂等）、取消（已成功不回滚）、查询（含事件时间线） | `JobService` |
-| `publication.py` | 67 | **发布门禁**：`record_report` 写验证报告；`publish` 在 `verdict≠passed` 时抛 `NotPublishable`，通过才调仓储发布事务 | `Publisher`, `NotPublishable` |
+| `experiment_service.py` | 142 | 模板实例化与版本管理：`create_from_template`（克隆基础版本）、`rollback`（回退 head，校验 owner/活跃任务） | `ExperimentService`, `ExperimentLookup`, `ExperimentNotFound`, `TemplateNotFound`, `RevisionNotFound`, `ActiveJobConflict` |
+| `job_service.py` | 106 | 任务生命周期：提交前**归属与基础版本核对**（实验属于该身份、`base_revision` 属于该实验且等于当前 head）、幂等提交、取消（已成功不回滚）、查询按身份限定 | `JobService`, `assert_submittable`, `ExperimentNotOwned`, `RevisionNotOfExperiment`, `BaseNotHead` |
+| `publication.py` | 72 | **发布门禁**：`record_report` 写验证报告；`publish` 在 `verdict≠passed` 时抛 `NotPublishable`，通过才调仓储发布事务 | `Publisher`, `NotPublishable` |
 | `services.py` | 29 | 聚合导出入口（向后兼容）：把上述服务类从本文件统一再导出 | `ExperimentService`, `JobService` 等 |
 
 ## 与上下层的关系

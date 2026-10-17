@@ -17,8 +17,9 @@ import hashlib
 import json
 import math
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 import uuid
+from datetime import datetime
 from uuid import UUID
 
 import asyncpg
@@ -132,10 +133,14 @@ class ExperimentToolService:
         artifact_dir: Path | None = None,
         templates_dir: Path | None = None,
         job: JobContext | None = None,
+        execution_check: Callable[[], None] | None = None,
     ) -> None:
         self.engine_client = engine_client
         self.conn = conn
         self.job = job
+        # Worker 注入的执行权检查：租约被抢走后，每一次写候选都要先问一次。
+        # 只让「发布」守卫执行权是不够的——场景已经被改到库里了。
+        self.execution_check = execution_check
         self.artifact_dir = artifact_dir or (
             Path(__file__).resolve().parents[4] / "output" / "eduforge" / "artifacts"
         )
@@ -191,11 +196,15 @@ class ExperimentToolService:
         except Exception:
             pass
 
-        # 若有数据库，也可加入已有实验
-        if self.conn is not None:
+        # 若有数据库，也可加入已有实验——但只能是自己名下的实例。
+        # 以前这条不带 owner：模型问一句就能把别人的实验 id 抄出来接着「打开」，
+        # 后面全靠归属校验兜着；检索面本身就应当看不见别人的东西。
+        if self.conn is not None and self.job is not None:
             try:
                 rows = await self.conn.fetch(
-                    "select id, template_id from experiments order by id desc limit 20"
+                    "select id, template_id from experiments where owner_id = $1 "
+                    "order by id desc limit 20",
+                    self.job.owner_id,
                 )
                 for r in rows:
                     items.append(
@@ -298,12 +307,18 @@ class ExperimentToolService:
                     head_rev_str = str(exp_row["head_revision_id"])
                     target_rev_id = UUID(req.revision_id) if req.revision_id else exp_row["head_revision_id"]
                     base_rev_str = str(target_rev_id)
+                    # 版本必须同时满足「是这个 id」且「属于这个实验」：只按 id 查，
+                    # 传进别人的版本就会读到别人的场景（审查文档 P0-6 点名的那条）。
                     rev_row = await self.conn.fetchrow(
-                        "select native_data from experiment_revisions where id = $1",
-                        target_rev_id,
+                        "select native_data from experiment_revisions where id = $1 and experiment_id = $2",
+                        target_rev_id, exp_uuid,
                     )
-                    if rev_row is not None:
-                        native = json.loads(rev_row["native_data"])
+                    if rev_row is None:
+                        raise ConflictError(
+                            f"版本 {target_rev_id} 不存在或不属于实验 {exp_id_str}；"
+                            "不回落到默认模板——那会把别人的实验伪装成一份干净的新场景"
+                        )
+                    native = json.loads(rev_row["native_data"])
 
         # 工作态落在候选行上：同一个 job 反复打开，续用的是同一份未发布成果；
         # 换一个进程（崩溃后接管的 Worker）读回来的是同一行、同一个内容哈希。
@@ -377,6 +392,49 @@ class ExperimentToolService:
         self._sessions[experiment_id] = session
         return session
 
+    async def _assert_execution(self) -> None:
+        """写动作开始前先问执行权（注入的守护器 + 库里的租约状态，两道都要问）。
+
+        放在持久化之前而不是之后：引擎已经改完才发现丢了租约，缓存里就留着
+        一份「改成功但从未落库」的场景，`inspect_scene` 会把它当成工作态报出去——
+        那种缓存比没有缓存更坏，它教模型继续基于一个不存在的状态往下做。
+
+        光靠 Worker 注入的守护器不够：守护器只在有心跳池时存在，而接管场景里
+        恰恰是**没有心跳的那个旧 Worker**还在写。判据必须回到库里那一行——
+        任务还在 `running`、`lease_token` 仍是自己的、租约没到期，三者同时成立才许写。
+        取消也走这里：`status='cancelled'` 直接停止新动作（协作式中止，§B.2）。
+        """
+        if self.execution_check is not None:
+            self.execution_check()
+        if self.job is None or self.conn is None:
+            return
+        row = await self.conn.fetchrow(
+            """select status, lease_token, lease_until from jobs where id = $1""",
+            self.job.job_id,
+        )
+        if row is None:
+            raise ConflictError(f"任务 {self.job.job_id} 不存在，没有归属答案就不写")
+        if row["status"] == "cancelled":
+            raise ConflictError(f"任务 {self.job.job_id} 已被取消，停止后续动作（JOB_CANCELLED）")
+        if row["status"] != "running" or row["lease_token"] != self.job.lease_token \
+                or row["lease_until"] is None or row["lease_until"] <= datetime.now(row["lease_until"].tzinfo):
+            raise ConflictError(
+                f"执行权已不在本 Worker 手上（status={row['status']}, "
+                f"lease_until={row['lease_until']}），停止写入与发布（LEASE_LOST）"
+            )
+
+    def _restore_from_candidate(self, session: dict[str, Any]) -> None:
+        """写失败后把缓存退回最后一次已持久化的内容，不留「假的工作态」。"""
+        state = session.get("candidate")
+        if state is None:
+            return
+        session["native_data"] = json.loads(json.dumps(state.native_data))
+        session["views_config"] = json.loads(json.dumps(state.teaching_views))
+        session["edits"] = [SetParameter.model_validate(e) for e in state.edits]
+        session["engine_result"] = None
+        session["validation_report"] = None
+        session["validated_digest"] = None
+
     async def _persist(self, session: dict[str, Any]) -> CandidateState:
         """把当前缓存内容写穿到候选行；写不进去就不回报成功。"""
         edits = [e.model_dump() for e in session.get("edits", [])]
@@ -387,8 +445,12 @@ class ExperimentToolService:
                 native=session["native_data"], views=session["views_config"],
                 edits=edits, expected_version=expected,
             )
-        except (CandidateScopeConflict, CandidateVersionConflict) as exc:
+        except (CandidateScopeConflict, CandidateVersionConflict, CandidateFrozen) as exc:
+            self._restore_from_candidate(session)
             raise ConflictError(str(exc)) from exc
+        except Exception:
+            self._restore_from_candidate(session)
+            raise
         session["candidate"] = state
         # 内容变了，之前那份验证结论当场失效（库里也清了，双写只为这一条）
         session["validation_report"] = None
@@ -462,6 +524,7 @@ class ExperimentToolService:
             req = input_data
 
         session = await self._session(req.experiment_id)
+        await self._assert_execution()
         raw_edits = req.edits
         edits_list = raw_edits if isinstance(raw_edits, list) else [raw_edits]
 
@@ -533,6 +596,7 @@ class ExperimentToolService:
             req = input_data
 
         session = await self._session(req.experiment_id)
+        await self._assert_execution()
         views = req.views
         view_configs: dict[str, Any] = session["views_config"]
 
@@ -690,6 +754,11 @@ class ExperimentToolService:
         cand_id = self.candidates.revision_id(frozen)
         session["candidate_revision_id"] = str(cand_id)
         session["candidate"] = frozen
+        if self.job is not None and self.conn is not None:
+            # job → 候选指针：发布事务的幂等核对靠它判断「重放的是同一份」
+            await self.conn.execute(
+                "update jobs set candidate_revision_id = $2 where id = $1", self.job.job_id, cand_id
+            )
 
         # 写入候选目录
         cand_dir = self.artifact_dir / "revisions" / str(cand_id)
@@ -831,7 +900,9 @@ class ExperimentToolService:
         base_uuid = UUID(base_rev_str)
 
         publisher = Publisher(self.conn)
-        # 报告已在 run_validation 当场落库；这里只负责把它交给四道闸门事务
+        # 报告已在 run_validation 当场落库；这里只负责把它交给四道闸门事务。
+        # 交付字节哈希一并带上：重放同一个版本 id 时，事务会核对登记的字节是不是这一份。
+        await self._assert_execution()
         await publisher.publish(
             job_id=job.job_id,
             lease_token=job.lease_token,
@@ -843,6 +914,7 @@ class ExperimentToolService:
             artifacts=artifacts,
             lesson={"views": state.teaching_views},
             close_job=close_job,
+            expected_native_sha256=artifacts[0]["sha256"],
         )
 
         # 推进会话版本状态（支持连续编辑链）：候选的基线跟着前进到刚发布的那一版，

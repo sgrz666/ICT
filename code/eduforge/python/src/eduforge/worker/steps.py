@@ -108,6 +108,21 @@ class Chain:
     planner: Any
     lease_token: str = ""
     cache: dict[str, Any] = field(default_factory=dict)
+    guard: Any | None = None
+
+    def _check_execution(self) -> None:
+        """每个阶段开头都问一次执行权（心跳的判定结果在这里生效）。
+
+        丢了租约还继续写，就是两个 Worker 往同一个实验上盖版本——数据库最后
+        那道 `lease_token` 守卫只在发布事务里，改场景与落盘都发生在它之前。
+        """
+        if self.guard is not None:
+            self.guard.check_active()
+
+    async def _check_execution_now(self) -> None:
+        """发布前当场问库，不吃后台心跳的旧结论。"""
+        if self.guard is not None:
+            await self.guard.check_now()
 
     async def _base(self, job_id: UUID) -> dict[str, Any]:
         row = await self.conn.fetchrow(
@@ -155,10 +170,12 @@ class Chain:
 
         每个阶段新建一个实例是有意的——它必须能从库里把候选读回来，
         否则接管者一重启就只剩内存里那份不存在的工作态。
+        执行权检查一并传进去：丢权之后的写动作连引擎都不该碰。
         """
         return ExperimentToolService(
             engine_client=self.engine, conn=self.conn,
             artifact_dir=self.artifact_dir, job=self._job(base),
+            execution_check=self.guard.check_active if self.guard is not None else None,
         )
 
     async def _candidate(self, base: dict[str, Any]) -> CandidateState:
@@ -174,6 +191,10 @@ class Chain:
             text = str(exc)
             if "科学验证" in text:
                 return TerminalError("VALIDATION_NOT_PASSED", text)
+            if "执行权" in text or "LEASE_LOST" in text:
+                return TerminalError("LEASE_LOST", text)
+            if "已被取消" in text:
+                return TerminalError("JOB_CANCELLED", text)
             if "候选" in text:
                 return TerminalError("CANDIDATE_CONFLICT", text)
             return TerminalError("TOOL_CONFLICT", text)
@@ -183,6 +204,12 @@ class Chain:
         return TerminalError(str(code), str(exc))
 
     async def planning(self, job_id: UUID) -> dict[str, Any]:
+        self._check_execution()
+        # 把执行权守护交给端口：模型在循环里每一次写候选都要先过这道闸
+        # （丢租约之后还能继续改场景，是 Gate B §B.1 点名的行为）。
+        for attr, value in (("guard", self.guard), ("lease_token", self.lease_token)):
+            if value is not None and hasattr(self.planner, attr) and getattr(self.planner, attr) is None:
+                setattr(self.planner, attr, value)
         base = await self._base(job_id)
         if not base["prompt"]:
             raise TerminalError("PROMPT_MISSING", str(job_id))
@@ -200,6 +227,7 @@ class Chain:
             runner = ProposalRunner(
                 conn=self.conn, engine=self.engine,
                 artifact_dir=self.artifact_dir, planner=runner,
+                guard=self.guard, lease_token=self.lease_token,
             )
         try:
             record = await runner.run(request)
@@ -217,6 +245,7 @@ class Chain:
         `base_untouched` 的伪结果，`bool(result.get("base_untouched"))` 恒为 False。
         现在引擎观察的就是候选本身，字段由引擎给（`main.ts` 比对入参与产出）。
         """
+        self._check_execution()
         base = await self._base(job_id)
         state = await self._candidate(base)
         eng = await self.engine.apply(state.native_data, [])
@@ -234,6 +263,7 @@ class Chain:
 
     async def building(self, job_id: UUID) -> dict[str, Any]:
         """构建走工具服务那一条实现：冻结候选、落盘、算指纹，不再各写一份。"""
+        self._check_execution()
         base = await self._base(job_id)
         service = self._service(base)
         try:
@@ -264,6 +294,7 @@ class Chain:
 
     async def validating(self, job_id: UUID) -> dict[str, Any]:
         """验证用工具服务同一条实现，对**冻结后的候选**重跑一次真实引擎观测。"""
+        self._check_execution()
         base = await self._base(job_id)
         service = self._service(base)
         try:
@@ -284,6 +315,8 @@ class Chain:
 
     async def packaging(self, job_id: UUID) -> dict[str, Any]:
         """发布事务。verdict、候选字节、产物登记全部取自持久化的事实。"""
+        # 发布是最后一道写动作：当场向库确认执行权还在自己手上，不吃心跳的旧结论
+        await self._check_execution_now()
         base = await self._base(job_id)
         state = await self._candidate(base)
         cand = revision_id_for(job_id, state.content_hash)
@@ -341,6 +374,8 @@ class Chain:
             report_verdict=row["verdict"],
             artifacts=artifacts,
             lesson={"views": state.teaching_views},
+            # 幂等重放时事务会核对：已登记的字节必须是这一份，否则不是重放而是抢同一个 id
+            expected_native_sha256=digest,
         )
         await CandidateService(self.conn, job=self._job(base)).set_status("published")
         return {
@@ -362,18 +397,24 @@ class Chain:
 
 def make_worker(
     conn: asyncpg.Connection, *, engine_url: str, artifact_dir: Path, planner: Any,
-    lease_seconds: int = 90,
+    lease_seconds: int = 90, pool: asyncpg.Pool | None = None, heartbeat_seconds: float = 25.0,
+    max_attempts: int = 5,
 ):
-    """组合根：Worker 拿到租约之后才构造步骤，packaging 要靠 lease_token 证明执行权。"""
+    """组合根：Worker 拿到租约之后才构造步骤，packaging 要靠 lease_token 证明执行权。
+
+    给了 `pool` 才会起心跳守护器（心跳必须用池里的另一条连接，不能与 Agent SQL 抢
+    同一条）。不给就是旧行为：租约到点即失效，长任务会丢执行权——那条路径只该出现在
+    单元测试里，生产入口必须传池。
+    """
     from eduforge.application.coordinator import Coordinator
     from eduforge.worker.main import Worker
 
     repo = JobRepository(conn)
 
-    def factory(lease_token: str) -> dict[str, Any]:
+    def factory(lease_token: str, guard: Any | None = None) -> dict[str, Any]:
         chain = Chain(
             conn=conn, engine=EngineClient(engine_url), artifact_dir=Path(artifact_dir),
-            planner=planner, lease_token=lease_token,
+            planner=planner, lease_token=lease_token, guard=guard,
         )
         return chain.steps()
 
@@ -382,4 +423,7 @@ def make_worker(
         coordinator=Coordinator(repo=repo, steps={}),
         lease_seconds=lease_seconds,
         steps_factory=factory,
+        lease_pool=pool,
+        heartbeat_seconds=heartbeat_seconds,
+        max_attempts=max_attempts,
     )

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 import asyncpg
 
@@ -42,6 +42,9 @@ class ProposalRunner:
     artifact_dir: Path
     planner: ProposalPort
     profile: str = "proposal_baseline"
+    guard: Any | None = None
+    # Worker 领取到的 token；回读 jobs 会把新主人的凭据误认成自己的（见 deepagents_runner 同处注释）
+    lease_token: str | None = None
 
     async def run(self, request: PlannerRequest) -> AgentRunRecord:
         proposal = await self.planner.plan(request)
@@ -57,16 +60,17 @@ class ProposalRunner:
             request.job_id, order.model_dump_json(),
         )
 
-        row = await self.conn.fetchval("select lease_token from jobs where id = $1", request.job_id)
+        owner = await self.conn.fetchval("select owner_id from jobs where id = $1", request.job_id)
+        token = self.lease_token
+        if token is None:
+            token = await self.conn.fetchval("select lease_token from jobs where id = $1", request.job_id) or ""
         service = ExperimentToolService(
             engine_client=self.engine, conn=self.conn, artifact_dir=self.artifact_dir,
             job=JobContext(
-                job_id=request.job_id,
-                owner_id=await self.conn.fetchval("select owner_id from jobs where id = $1", request.job_id),
-                lease_token=row or "",
-                experiment_id=request.experiment_id,
-                base_revision=request.base_revision,
+                job_id=request.job_id, owner_id=owner, lease_token=token,
+                experiment_id=request.experiment_id, base_revision=request.base_revision,
             ),
+            execution_check=self.guard.check_active if self.guard is not None else None,
         )
         baseline_version = await open_candidate_for(service, request)
 

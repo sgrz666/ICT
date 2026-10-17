@@ -69,11 +69,13 @@ def select_planner(args: argparse.Namespace) -> tuple[Any, str]:
     return planner_from_env(template_of=lambda req: req.template_id), "model"
 
 
-async def loop(conn, *, engine_url: str, artifact_dir: Path, planner, args) -> int:
+async def loop(conn, *, engine_url: str, artifact_dir: Path, planner, args, pool=None) -> int:
     await apply_migrations(conn)
     worker = make_worker(
         conn, engine_url=engine_url, artifact_dir=artifact_dir,
         planner=planner, lease_seconds=args.lease_seconds,
+        # 心跳必须走池里的另一条连接：与 Agent SQL 共用一条 asyncpg 连接会互相打断
+        pool=pool,
     )
     processed = 0
     while True:
@@ -111,7 +113,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     async def go() -> int:
-        conn = await asyncpg.connect(args.dsn)
+        # 池而不是单连接：Worker 执行 Agent SQL 期间，心跳守护要用另一条连接
+        pool = await asyncpg.create_pool(args.dsn, min_size=1, max_size=4)
+        conn = await pool.acquire()
         chosen = planner
         if kind == "deep":
             # 生产配置走 Runner：模型直接改持久候选，Worker 不再重放第二遍。
@@ -124,9 +128,11 @@ def main(argv: list[str] | None = None) -> int:
             )
         try:
             return await loop(conn, engine_url=args.engine_url,
-                              artifact_dir=Path(args.artifact_dir), planner=chosen, args=args)
+                              artifact_dir=Path(args.artifact_dir), planner=chosen, args=args,
+                              pool=pool)
         finally:
-            await conn.close()
+            await pool.release(conn)
+            await pool.close()
 
     return asyncio.run(go())
 

@@ -101,6 +101,9 @@ WITH candidate AS (
 UPDATE jobs AS job
 SET
     status = 'running',
+    -- 每次重新领取都递增 attempt：这是「第几次跑」的唯一记账处。
+    -- 不写它，崩溃重跑就没有痕迹，也就无法设定重试上限。
+    attempt = job.attempt + 1,
     lease_token = $1,
     lease_until = now() + make_interval(secs => $2),
     updated_at = now()
@@ -156,6 +159,14 @@ class LeaseLost(Exception):
 
 class RevisionConflict(Exception):
     """教师在任务执行期间产生了其他版本。"""
+
+
+class OwnershipConflict(Exception):
+    """任务身份与资源归属对不上。
+
+    这不是并发问题，是授权问题：拿别人的 job 或别人的实验来发布，
+    哪怕租约有效也必须拒——发布事务是唯一还能拦住它的地方。
+    """
 
 
 class JobRepository:
@@ -226,14 +237,59 @@ class JobRepository:
         return await self.conn.fetchrow(CLAIM_SQL, lease_token, float(lease_seconds))
 
     async def renew_lease(self, job_id: UUID, lease_token: str, lease_seconds: int = 90) -> bool:
-        r = await self.conn.execute(
-            """update jobs set lease_until = now() + make_interval(secs => $3), updated_at = now()
-               where id = $1 and lease_token = $2""",
-            job_id,
-            lease_token,
-            float(lease_seconds),
+        return (await self.renew_and_check(job_id, lease_token, lease_seconds)) == "ok"
+
+    async def renew_and_check(
+        self, job_id: UUID, lease_token: str, lease_seconds: int = 90
+    ) -> str:
+        """续租并回报执行权状态：`ok` / `cancelled` / `stolen` / `expired` / `lost` / `missing`。
+
+        三条硬规矩（Gate B §B.1–B.2）：
+        - 只有 `status='running'` 且 `lease_token` 一致才续，别的状态一律不给执行权；
+        - **已过期不允许续成合法**（`lease_until > now()` 必须在续之前成立），
+          否则「先让租约睡过期、再自己续回来」就绕过了抢占语义；
+        - 取消不是失败：它单独回报，让 Worker 停止新动作而不是报错重试。
+        """
+        async with self.conn.transaction():
+            row = await self.conn.fetchrow(
+                "select status, lease_token, lease_until from jobs where id = $1 for update",
+                job_id,
+            )
+            if row is None:
+                return "missing"
+            if row["status"] == "cancelled":
+                return "cancelled"
+            if row["status"] != "running":
+                return "lost"
+            if row["lease_token"] != lease_token:
+                return "stolen"
+            if row["lease_until"] is None or row["lease_until"] <= datetime.now(row["lease_until"].tzinfo):
+                return "expired"
+            await self.conn.execute(
+                """update jobs set lease_until = now() + make_interval(secs => $2), updated_at = now()
+                   where id = $1""",
+                job_id, float(lease_seconds),
+            )
+            return "ok"
+
+    async def retry_later(
+        self, job_id: UUID, lease_token: str, *, delay_seconds: float, error_code: str
+    ) -> str | None:
+        """可重试失败：回到 `queued` 并推迟 `next_run_at`（有限退避，不是无界重跑）。
+
+        已成功的任务不被改回排队——那等于把发布出去的版本重新变成待办。
+        """
+        row = await self.conn.fetchrow(
+            """update jobs
+                  set status = case when status = 'succeeded' then status else 'queued' end,
+                      next_run_at = now() + make_interval(secs => $3),
+                      error_code = case when status = 'succeeded' then error_code else $4 end,
+                      lease_token = NULL, lease_until = NULL, updated_at = now()
+                where id = $1 and lease_token = $2 and status = 'running'
+                returning status""",
+            job_id, lease_token, float(delay_seconds), error_code,
         )
-        return r.endswith("1")
+        return row["status"] if row else None
 
     async def set_stage(self, job_id: UUID, lease_token: str, stage: str) -> bool:
         r = await self.conn.execute(
@@ -248,15 +304,22 @@ class JobRepository:
     async def append_event(
         self, job_id: UUID, *, stage: str | None, event_type: str, payload: dict | None = None
     ) -> int:
-        """进度事件按 (job_id, sequence) 递增追加。恢复执行靠它判断走到哪一步。"""
-        seq = await self.conn.fetchval(
-            "select coalesce(max(sequence), 0) + 1 from job_events where job_id = $1", job_id
-        )
-        await self.conn.execute(
-            """insert into job_events (job_id, sequence, stage, event_type, payload)
-               values ($1,$2,$3,$4,$5::jsonb)""",
-            job_id, seq, stage, event_type, json.dumps(payload or {}),
-        )
+        """进度事件按 (job_id, sequence) 递增追加。恢复执行靠它判断走到哪一步。
+
+        序号必须在事务里、拿着 job 行锁算：以前 `max(sequence)+1` 与 insert 是两条
+        独立语句，同一个 job 并发追加（心跳、工具事件、阶段事件）会撞出重复序列，
+        主键冲突直接吃掉一条证据。
+        """
+        async with self.conn.transaction():
+            await self.conn.execute("select 1 from jobs where id = $1 for update", job_id)
+            seq = await self.conn.fetchval(
+                "select coalesce(max(sequence), 0) + 1 from job_events where job_id = $1", job_id
+            )
+            await self.conn.execute(
+                """insert into job_events (job_id, sequence, stage, event_type, payload)
+                   values ($1,$2,$3,$4,$5::jsonb)""",
+                job_id, seq, stage, event_type, json.dumps(payload or {}),
+            )
         return seq
 
     async def events(self, job_id: UUID):
@@ -280,6 +343,7 @@ class JobRepository:
         lesson: dict | None = None,
         bindings: dict | None = None,
         close_job: bool = True,
+        expected_native_sha256: str | None = None,
     ) -> None:
         """§3.5 的发布事务：执行权、取消、验证、基础版本四道闸门后写版本。
 
@@ -296,17 +360,44 @@ class JobRepository:
             raise AssertionError("未通过验证不得发布")
 
         async with self.conn.transaction():
-            # 幂等重放：候选版本已存在说明上一次发布事务已经提交过（它和 head 前进、
-            # job 转 succeeded 在同一条事务里）。此时再插会撞主键，直接当成功返回。
-            already = await self.conn.fetchval(
-                "select 1 from experiment_revisions where id = $1", candidate_revision_id
+            # 幂等重放：候选版本已存在说明上一次发布事务已经提交过。
+            # 但「UUID 已存在」本身不构成成功证据——必须核对它确实属于这个 job、
+            # 这个实验、这个基础版本，且登记的字节就是本次要交付的那份，
+            # 否则第二个 Worker 换了内容也能顶着同一个 id 宣布「已发布」。
+            already = await self.conn.fetchrow(
+                "select experiment_id, parent_id from experiment_revisions where id = $1",
+                candidate_revision_id,
             )
-            if already:
+            if already is not None:
+                if str(already["experiment_id"]) != str(experiment_id):
+                    raise OwnershipConflict(
+                        f"版本 {candidate_revision_id} 属于实验 {already['experiment_id']}，不是 {experiment_id}"
+                    )
+                if str(already["parent_id"] or "") != str(base_revision):
+                    raise RevisionConflict(
+                        f"版本 {candidate_revision_id} 的父版本是 {already['parent_id']}，不是 {base_revision}"
+                    )
+                await self._assert_same_publication(
+                    job_id, candidate_revision_id, expected_native_sha256
+                )
                 return
 
-            head = await self.conn.fetchval(
-                "select head_revision_id from experiments where id = $1 FOR UPDATE", experiment_id
+            owner_row = await self.conn.fetchrow(
+                """select e.owner_id as exp_owner, j.owner_id as job_owner,
+                          e.head_revision_id as head
+                   from experiments e
+                   left join jobs j on j.id = $2
+                   where e.id = $1
+                   for update of e""",
+                experiment_id, job_id,
             )
+            if owner_row is None:
+                raise OwnershipConflict(f"实验 {experiment_id} 不存在")
+            if owner_row["job_owner"] is None or str(owner_row["exp_owner"]) != str(owner_row["job_owner"]):
+                raise OwnershipConflict(
+                    f"任务 {job_id} 的身份 {owner_row['job_owner']} 与实验归属 {owner_row['exp_owner']} 不一致"
+                )
+            head = owner_row["head"]
             if head is not None and str(head) != str(base_revision):
                 raise RevisionConflict(f"head={head} base={base_revision}")
 
@@ -342,3 +433,32 @@ class JobRepository:
                     "update jobs set status='succeeded', stage='packaging', updated_at=now() where id = $1",
                     job_id,
                 )
+
+    async def _assert_same_publication(
+        self, job_id: UUID, candidate_revision_id: UUID, expected_native_sha256: str | None
+    ) -> None:
+        """重放已存在的发布时的核对。
+
+        「同一个 UUID 再发一次」只有在**内容也相同**时才是幂等重放；否则它就是
+        两个不同的交付物在抢同一个版本 id，必须报错而不是静默返回成功。
+        """
+        job_cand = await self.conn.fetchval(
+            "select candidate_revision_id from jobs where id = $1", job_id
+        )
+        if job_cand is not None and str(job_cand) != str(candidate_revision_id):
+            raise RevisionConflict(
+                f"任务 {job_id} 登记的候选是 {job_cand}，与要重放的 {candidate_revision_id} 不是同一份"
+            )
+        if expected_native_sha256 is None:
+            return
+        recorded = await self.conn.fetchval(
+            "select sha256 from artifacts where revision_id = $1 "
+            "and storage_key like '%native.json' order by created_at",
+            candidate_revision_id,
+        )
+        if recorded is None:
+            raise RevisionConflict(f"版本 {candidate_revision_id} 没有登记原生场景产物，不能当作发布成功")
+        if recorded != expected_native_sha256:
+            raise RevisionConflict(
+                f"交付字节不一致：已登记 {recorded[:12]}…，本次要发 {expected_native_sha256[:12]}…"
+            )

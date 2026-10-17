@@ -105,6 +105,12 @@ class DeepAgentRunner:
     max_turns: int = 30
     model_factory: Callable[..., Any] = create_model
     profile: str = "deepagents"
+    # Worker 注入的租约守护器：丢失执行权后，模型的下一次写入就被拦住（Gate B §B.1）
+    guard: Any | None = None
+    # 同样是 Worker 注入的：执行权 token 必须来自「我领取到的那一次」，
+    # 不能回读 jobs 行——被抢权之后回读会把新主人的 token 当成自己的，
+    # 旧 Worker 于是拿着别人的凭据继续写（本轮实测抓到的缺陷）。
+    lease_token: str | None = None
 
     async def make_service(self, request: PlannerRequest) -> ExperimentToolService:
         row = await self.conn.fetchrow(
@@ -115,13 +121,14 @@ class DeepAgentRunner:
         job = JobContext(
             job_id=request.job_id,
             owner_id=row["owner_id"],
-            lease_token=row["lease_token"] or "",
+            lease_token=self.lease_token if self.lease_token is not None else (row["lease_token"] or ""),
             experiment_id=request.experiment_id,
             base_revision=request.base_revision,
         )
         return ExperimentToolService(
             engine_client=self.engine, conn=self.conn,
             artifact_dir=self.artifact_dir, job=job,
+            execution_check=self.guard.check_active if self.guard is not None else None,
         )
 
     async def run(self, request: PlannerRequest) -> AgentRunRecord:

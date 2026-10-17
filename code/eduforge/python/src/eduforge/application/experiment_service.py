@@ -114,11 +114,19 @@ class ExperimentLookup:
     def __init__(self, conn: asyncpg.Connection) -> None:
         self.conn = conn
 
-    async def get(self, experiment_id: uuid.UUID) -> dict | None:
-        row = await self.conn.fetchrow(
-            "select id, owner_id, template_id, head_revision_id from experiments where id = $1",
-            experiment_id,
-        )
+    async def get(self, experiment_id: uuid.UUID, *, owner_id: str | None = None) -> dict | None:
+        """`owner_id` 给了就按身份限定：别人的实验与不存在的实验给同一个答案。"""
+        if owner_id is None:
+            row = await self.conn.fetchrow(
+                "select id, owner_id, template_id, head_revision_id from experiments where id = $1",
+                experiment_id,
+            )
+        else:
+            row = await self.conn.fetchrow(
+                "select id, owner_id, template_id, head_revision_id from experiments "
+                "where id = $1 and owner_id = $2",
+                experiment_id, owner_id,
+            )
         if row is None:
             return None
         revs = await self.conn.fetch(

@@ -19,6 +19,7 @@
 | `benchmark-deepseek_direct.json` | `benchmarks/runner.py` | `deepseek_direct` 档位：`status: SKIPPED`——缺 `DEEPSEEK_API_KEY`，显式跳过（不伪充结果） |
 | `benchmark-agent_graph.json` | `benchmarks/runner.py` | `agent_graph` 档位：`status: SKIPPED`——同上，缺 key |
 | `agent-deepagents-real.json` | `tests/python/test_deepagents_real_model.py` | 2026-10-16 真实模型（`deepseek-flash`）自主完成「焦距 15cm + 物距 30cm + 数据记录表」的完整 Tool Trace：7 次调用（含一次自主换查询词重试的 `search_experiments`）、逐项 `observed`/`expected` 判据、最终场景读数与验证结论。**注意**：`profile` 标注的是这一条任务实测通过，不是 12 题基准的模型档位成绩 |
+| `gate-b-execution-rights.txt` | `uv run pytest` / `vitest` / 故障注入 | Gate B 的命令与真实退出码：124 收集 / 123 通过 / 1 SKIPPED（真模型无 key）、vitest 54 全绿、`--timeout` 参数不存在被工具纠正一次、执行权与归属各判据的落点，以及本轮实测新抓到的 `lease_token` 回读缺陷 |
 | `gate-a-candidate-run.txt` | `uv run pytest` / `vitest` / `scripts/eduforge.ps1 doctor` | 2026-10-17 Gate A 的命令与真实退出码：基线 103→113 收集（112 通过 / 1 SKIPPED 真模型无 key）、vitest 54 全绿、doctor 通过（含 `eduforge.ps1` 加 UTF-8 BOM 才能在 PowerShell 5.1 解析这一前置修复）、benchmarks 仍无 `deepagents_e2e` 档位，以及并跑导致 `initdb` 内存不足的那 17 项 ERROR 的如实留痕 |
 
 ## 注意

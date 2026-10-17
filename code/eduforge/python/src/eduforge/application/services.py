@@ -16,7 +16,12 @@ from eduforge.application.experiment_service import (
     RevisionNotFound,
     TemplateNotFound,
 )
-from eduforge.application.job_service import JobService
+from eduforge.application.job_service import (
+    BaseNotHead,
+    ExperimentNotOwned,
+    JobService,
+    RevisionNotOfExperiment,
+)
 
 __all__ = [
     "ExperimentService",
@@ -26,4 +31,8 @@ __all__ = [
     "RevisionNotFound",
     "ActiveJobConflict",
     "JobService",
+    # Gate B §B.5：提交前的归属与基础版本核对，错误类型要在 API 层映射成 HTTP 语义
+    "ExperimentNotOwned",
+    "RevisionNotOfExperiment",
+    "BaseNotHead",
 ]

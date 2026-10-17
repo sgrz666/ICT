@@ -16,7 +16,7 @@ Python 包 `eduforge` 的全部代码，分层原则：**依赖只能从外向�
 | `infrastructure/` | 外部适配与基础设施 | `settings.py`（全局配置）、`catalog.py`（读引擎描述）、`clients/engine_client.py`（调 Engine Host）、`clients/agent_client.py`（调规划智能体）、`db/repositories.py`（任务/版本/产物 + 内容派生 id）/ `db/candidate_repository.py`（未发布候选工作态，CAS）/ `db/migrations/`（版本化 schema 推进）/ `db/session.py` / `db/models.py`（Postgres 仓储与连接池）、`storage/local.py` / `storage/obs.py`（本地与云端 OBS 产物持久化） |
 | `research/` | 逆向研究入口（§6.4） | `rea_runner.py`（调用 REA CLI 分析仿真引擎与生成 Evidence 证据，开发研究专用） |
 | `validation/` | 物理与门禁验证 | `policies.py`、`reports.py`、`scientific/optics.py`（**独立**薄透镜参考式）、`scientific/mechanics.py` / `scientific/circuits.py`（单摆与电路保留计算桩） |
-| `worker/` | 任务执行进程 | `main.py`（主循环：租约 + at-least-once，阶段必须幂等）、`lease.py`（租约心跳守护与执行权校验，**当前未接线**）、`steps.py`（五阶段步骤，Gate A 起全部消费同一行持久候选，不再重放操作清单）、`run.py`（`python -m eduforge.worker.run` 入口，启动即 `apply_migrations`）、`errors.py`（TerminalError） |
+| `worker/` | 任务执行进程 | `main.py`（主循环：租约 + at-least-once + 失败三分类与有限退避）、`lease.py`（租约心跳守护与执行权判定，Gate B 起已接线，心跳走池内独立连接）、`steps.py`（五阶段步骤，Gate A 起全部消费同一行持久候选，不再重放操作清单）、`run.py`（`python -m eduforge.worker.run` 入口，启动即 `apply_migrations`）、`errors.py`（TerminalError） |
 
 ## 逐文件说明（各模块自己的 README）
 
@@ -27,7 +27,7 @@ Python 包 `eduforge` 的全部代码，分层原则：**依赖只能从外向�
 
 ## "定义先行、接线未做"清单（读代码时的防误导项）
 
-以下模块已定义并有测试覆盖，但**不在运行时链路上**：`coding/*` 全目录、`research/rea_runner.py`、`validation/scientific/mechanics.py` 与 `circuits.py`、`agent/retrieval.py`、`agent/model.py`、`infrastructure/clients/agent_client.py`、`infrastructure/storage/*`、`infrastructure/db/session.py`、`infrastructure/db/models.py`、`worker/lease.py` 的 `LeaseManager`。细节与原因见各模块 README 的"已知的坑与纪律"节。
+以下模块已定义并有测试覆盖，但**不在运行时链路上**：`coding/*` 全目录、`research/rea_runner.py`、`validation/scientific/mechanics.py` 与 `circuits.py`、`agent/retrieval.py`、`agent/model.py`、`infrastructure/clients/agent_client.py`、`infrastructure/storage/*`、`infrastructure/db/session.py`、`infrastructure/db/models.py`。（`worker/lease.py` 的 `LeaseManager` 曾在此列——2026-10-17 Gate B 已真正接入运行时：心跳走独立连接、`attempt`/`next_run_at` 有记账，细节见 [`worker/README.md`](eduforge/worker/README.md)。）
 
 ## 崩溃安全模型（一句话版）
 

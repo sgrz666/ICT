@@ -49,6 +49,7 @@ class Publisher:
         lesson: dict | None = None,
         bindings: dict | None = None,
         close_job: bool = True,
+        expected_native_sha256: str | None = None,
     ) -> None:
         if report_verdict != "passed":
             # 失败或没验过的任务，不得发布为成功资源（§7.5 的项目方法比较目标之一）
@@ -66,4 +67,6 @@ class Publisher:
             lesson=lesson,
             bindings=bindings,
             close_job=close_job,
+            # 交付字节的哈希一并交给事务核对：幂等重放只有在「字节也是同一份」时成立
+            expected_native_sha256=expected_native_sha256,
         )

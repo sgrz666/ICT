@@ -1,0 +1,51 @@
+Gate B 执行权、重试、取消、幂等与归属 — 命令与实测结果
+==========================================================
+分支 feature/deepagents-e2e，起点 4e6d10e（= 上一轮 Gate A 的落点）
+时间 北京 2026-10-17 11:27 开工，实测 11:45-11:56（本机 Windows，无 Docker，Postgres 走 pgserver）
+
+1) 新增用例（Gate B §B.1–B.8 的故障注入）
+命令: uv run pytest tests/python/test_gate_b_execution_rights.py -q
+结果: PASS  11 项通过
+      （第一轮跑出来 3 红：事件并发追加撞在单连接上、租约抢占场景暴露 Runner 回读
+        lease_token 的错误、退避后领取顺序；都不是把断言改松，而是改实现与改夹具。）
+
+2) 全量
+命令: uv run pytest -q                （日志 code/eduforge/output/gate-b/run2-full.log）
+结果: PASS  exit 0，124 收集 / 123 通过 / 1 SKIPPED
+      SKIPPED = test_deepagents_real_model.py:63 requires DEEPSEEK key
+命令: uv run pytest --collect-only -q
+结果: collected: 124
+
+3) TypeScript 基线（要求不回退）
+命令: services/engine-host 下 node_modules/.bin/vitest run （output/gate-b/vitest.log）
+结果: PASS  Test Files 9 passed (9) / Tests 54 passed (54)
+备注: 本轮未改 TS 侧；`pnpm -r test` 在本机 Git Bash 仍是 pnpm: command not found（PATH 无 pnpm）。
+
+4) 一次被工具纠正的假设
+命令: uv run pytest -q --timeout=300
+结果: FAIL  unrecognized arguments: --timeout=300（本机未安装 pytest-timeout）
+      按指令 §5「实际 CLI 参数须先 --help 确认，禁止假定参数存在」，去掉该参数重跑。
+
+5) 关键判据落点（供复核）
+- 续租与执行权判定：repositories.renew_and_check —— status='running' ∧ lease_token 是自己
+  ∧ lease_until > now()，过期不给自己续回合法（回报 'expired'），取消单独回报 'cancelled'。
+- 领取即记账：CLAIM_SQL 里 attempt = job.attempt + 1；retry_later 写 next_run_at 与 RETRY_* 码；
+  max_attempts（默认 5）超限由 Worker.run_once 终态化 MAX_ATTEMPTS_EXCEEDED。
+- 事件序号：append_event 在事务里先 `select … for update` 取 job 行锁再 max+1 插入。
+- 发布：事务内新增 `experiments.owner_id == jobs.owner_id` 核对（OwnershipConflict）；
+  重放已存在版本时逐项核对实验/父版本/jobs.candidate_revision_id/artifacts.sha256。
+- 工具层：apply/configure 在**碰引擎之前**判执行权（_assert_execution），写失败把缓存退回
+  最后一次已持久化内容；版本读取 where id=$1 and experiment_id=$2，查不到即拒（不回落模板）；
+  search_experiments 带 owner。
+- API：读接口全部顺着 experiments.owner_id 过滤；提交前 assert_submittable（归属 + 版本属于
+  实验 + base=head）；allow_dev_identity=False 时无凭据一律 401 IDENTITY_REQUIRED。
+
+6) 本轮实测抓到的新缺陷（不是文档里预先列出的）
+Runner 构造 JobContext 时回读 jobs.lease_token —— 被抢权的旧 Worker 因此拿到**新主人的**
+执行凭据，一路跑到 packaging 才被最后一道 SQL 挡下。现改为由 Worker 把领取到的 token
+与守护器一起注入端口（Chain.planning），旧 Worker 在第一次写动作前就 LEASE_LOST。
+证据：test_two_workers_cannot_double_publish（最终只有一个新版本、产物一份、job succeeded）。
+
+7) 仍未做
+真实认证层（现在只是边界）、心跳/租约参数暴露到脚本与环境变量、max_runtime 差异化、
+真模型经 Worker 全链端到端（无 key）、Gate C–F 全部。

@@ -6,7 +6,7 @@
 
 | 文件 | 行数 | 职责 | 关键符号 |
 |---|---|---|---|
-| `repositories.py` | 344 | **持久层核心**：`JOBS_DDL` 建表、`CLAIM_SQL` 领取语义、`derived_id(job_id, kind)` + `ID_NAMESPACE`、`JobRepository`（create_job 幂等 / claim / renew_lease / mark_failed / append_event / publish 发布事务，`publish` 带 `close_job`）。本轮新增三条**内容派生**的 id 规则：`candidate_id_for(job)`（一 job 一候选）、`revision_id_for(job, content_hash)`、`artifact_id_for(job, name, digest)` | `JOBS_DDL`, `CLAIM_SQL`, `request_hash`, `derived_id`, `candidate_id_for`, `revision_id_for`, `artifact_id_for`, `DuplicateIdempotencyKey`, `LeaseLost`, `RevisionConflict`, `JobRepository` |
+| `repositories.py` | 464 | **持久层核心**：`JOBS_DDL` 建表、`CLAIM_SQL` 领取语义、`derived_id(job_id, kind)` + `ID_NAMESPACE`、`JobRepository`（create_job 幂等 / claim **领取即 attempt+1** / renew_and_check 续租与执行权判定 / retry_later 有限退避 / mark_failed / append_event（拿 job 行锁取序号）/ publish 发布事务，带 `close_job` 与 `expected_native_sha256` 字节核对）。本轮新增三条**内容派生**的 id 规则：`candidate_id_for(job)`（一 job 一候选）、`revision_id_for(job, content_hash)`、`artifact_id_for(job, name, digest)` | `JOBS_DDL`, `CLAIM_SQL`, `request_hash`, `derived_id`, `candidate_id_for`, `revision_id_for`, `artifact_id_for`, `DuplicateIdempotencyKey`, `LeaseLost`, `RevisionConflict`, `OwnershipConflict`, `JobRepository` |
 | `candidate_repository.py` | 206 | 未发布候选工作态的仓储：`initialize`（幂等，按 job 唯一）、`load`、`write`（`state_version` CAS，写成功即清空验证绑定）、`bind_validation`（只绑当前 `content_hash`）、`freeze`、`rebase`（发布后推进基线，支持连续编辑）、`attach_trace`（仅审计）。异常：`CandidateNotFound` / `CandidateVersionConflict` / `CandidateScopeConflict` | `CandidateRepository`, `CANDIDATE_COLUMNS` |
 | [`migrations/`](migrations/README.md) | 80 + 1 SQL | schema 版本推进：`schema_migrations` 记账、`apply_migrations(conn)` 按版本执行。0001 引用持久层那份 `JOBS_DDL`（不复制第二份 DDL），0002 建 `experiment_candidates` | `apply_migrations`, `current_version`, `schema_status` |
 | `models.py` | 18 | 表清单与 DDL 重导出；**仅测试引用** | `JOBS_DDL`（重导）, `TABLES` |
@@ -30,5 +30,7 @@
 - 候选行的 `validation_hash` 只与当前 `content_hash` 相等时才算「验过」：内容一变，`write` 当场清空验证绑定。别指望上层「记得清报告」。
 - `agent_trace` 是**审计列**，不参与任何业务判定；把它当状态源读就是回到 `operations_from_trace` 的老路（Gate A 已经拆掉那条路径，见 [`../../worker/README.md`](../../worker/README.md)）。
 - `claim` 的 `FOR UPDATE SKIP LOCKED` 是 at-least-once 的基础：任务可重跑，阶段实现必须幂等（配合本层的 `derived_id` 与内容派生 id）。
-- `JobRepository` **没有** `heartbeat` 方法（端口 `domain/ports.py` 里声明了这个名字，`worker/lease.py` 还在调它）——真实存在的是 `renew_lease`，且它当前零调用者。别把端口当实现读。
+- **端口与实现的差异要当真**：`domain/ports.py` 声明过 `heartbeat`，持久层从来只有 `renew_lease`；Gate B 起真实实现是 `renew_and_check`（回报 `ok/cancelled/stolen/expired/lost/missing`），`renew_lease` 只是它的布尔外壳。别把端口当实现读。
+- **过期不允许续成合法**：`renew_and_check` 在续之前先要求 `lease_until > now()` 成立，否则回报 `expired`。这条判据存在的理由是「先睡过期再自己续回来」会绕过抢占语义；测试的控制组（不给池 → 租约照旧过期被抢）就是钉这一点的。
+- **发布事务现在也核对归属与字节**：除了四道闸门，还要求 `experiments.owner_id == jobs.owner_id`（否则 `OwnershipConflict`），重放同一个版本 id 时逐项比对实验、父版本、`jobs.candidate_revision_id` 与 `artifacts.sha256`——「UUID 已存在」本身不再等于发布成功。
 - `session.py` 与 `models.py` 是"定义先行"的预留件——不要误以为连接管理经 `session.py`。

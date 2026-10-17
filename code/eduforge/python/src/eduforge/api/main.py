@@ -5,20 +5,24 @@ owner_id 由入口注入：本地固定开发身份，云端由认证层注入�
 from __future__ import annotations
 
 import hashlib
+import os
 import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import asyncpg
 from fastapi import FastAPI, Header, HTTPException, Request
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 
 from eduforge.application.services import (
     ActiveJobConflict,
+    BaseNotHead,
     ExperimentLookup,
+    ExperimentNotOwned,
     ExperimentNotFound,
     ExperimentService,
     JobService,
+    RevisionNotOfExperiment,
     RevisionNotFound,
     TemplateNotFound,
 )
@@ -61,16 +65,27 @@ async def lifespan(app: FastAPI):
     await pool.close()
 
 
-def create_app(dsn: str, artifact_dir: Path | str) -> FastAPI:
+def create_app(
+    dsn: str, artifact_dir: Path | str, *, allow_dev_identity: bool | None = None
+) -> FastAPI:
     """artifact_dir 必填：产物字节只有一个可交付来源。
 
     不给默认值是刻意的——数据库里的 native_data 是 jsonb，渲染形式被 Postgres
     规范化过（空格、键序），拿它当下载体会和登记在 artifacts.sha256 的文件字节
     永远对不上，校验成了假校验。字节只能从 artifact_dir / storage_key 取。
+
+    `allow_dev_identity` 控制固定开发身份：默认跟随环境变量
+    `EDUFORGE_ALLOW_DEV_IDENTITY`（未设置时视为允许，本机与测试仍照旧跑）。
+    关掉之后每个请求都必须带 `X-Owner-Id` + `X-Gateway-Token`，且 token 与
+    `EDUFORGE_GATEWAY_TOKEN` 相符——这是「接入真实认证之前的边界」，不是认证本身：
+    它假设前面有网关剥掉并改写这些头，绝不允许把内部身份暴露给浏览器。
     """
     app = FastAPI(title="EduForge", lifespan=lifespan)
     app.state.dsn = dsn
     app.state.artifact_dir = Path(artifact_dir)
+    if allow_dev_identity is None:
+        allow_dev_identity = (os.environ.get("EDUFORGE_ALLOW_DEV_IDENTITY") or "1").strip() != "0"
+    app.state.allow_dev_identity = allow_dev_identity
 
     @app.get("/api/v1/templates", response_model=TemplateList)
     async def templates():
@@ -135,11 +150,18 @@ def create_app(dsn: str, artifact_dir: Path | str) -> FastAPI:
                 return accepted
             except DuplicateIdempotencyKey:
                 raise HTTPException(409, detail={"code": "IDEMPOTENCY_CONFLICT"})
+            except ExperimentNotOwned:
+                # 不存在与不属于同一答案：不给「猜别人的实验 id 是否有效」这种探针
+                raise HTTPException(404, detail={"code": "EXPERIMENT_NOT_FOUND"})
+            except RevisionNotOfExperiment:
+                raise HTTPException(409, detail={"code": "REVISION_NOT_OF_EXPERIMENT"})
+            except BaseNotHead:
+                raise HTTPException(409, detail={"code": "BASE_NOT_HEAD"})
 
     @app.get("/api/v1/jobs/{job_id}", response_model=JobView, responses=NOT_FOUND)
     async def get_job(request: Request, job_id: uuid.UUID):
         async with request.app.state.pool.acquire() as c:
-            out = await JobService(c).get(job_id)
+            out = await JobService(c).get(job_id, owner_id=request.state.owner_id)
         if out is None:
             raise HTTPException(404, detail={"code": "JOB_NOT_FOUND"})
         return out
@@ -150,7 +172,7 @@ def create_app(dsn: str, artifact_dir: Path | str) -> FastAPI:
     )
     async def get_experiment(request: Request, experiment_id: uuid.UUID):
         async with request.app.state.pool.acquire() as c:
-            out = await ExperimentLookup(c).get(experiment_id)
+            out = await ExperimentLookup(c).get(experiment_id, owner_id=request.state.owner_id)
         if out is None:
             raise HTTPException(404, detail={"code": "EXPERIMENT_NOT_FOUND"})
         return out
@@ -201,9 +223,11 @@ def create_app(dsn: str, artifact_dir: Path | str) -> FastAPI:
     async def revisions(request: Request, experiment_id: uuid.UUID):
         async with request.app.state.pool.acquire() as c:
             rows = await c.fetch(
-                "select id as revision_id, parent_id, engine_id, created_at "
-                "from experiment_revisions where experiment_id = $1 order by created_at",
-                experiment_id,
+                "select r.id as revision_id, r.parent_id, r.engine_id, r.created_at "
+                "from experiment_revisions r "
+                "join experiments e on e.id = r.experiment_id "
+                "where r.experiment_id = $1 and e.owner_id = $2 order by r.created_at",
+                experiment_id, request.state.owner_id,
             )
         return {"revisions": [dict(r) for r in rows]}
 
@@ -213,6 +237,16 @@ def create_app(dsn: str, artifact_dir: Path | str) -> FastAPI:
     )
     async def revision_artifacts(request: Request, revision_id: uuid.UUID):
         async with request.app.state.pool.acquire() as c:
+            # 版本历史与产物清单都要顺着 experiments.owner_id 走一遍：
+            # 「知道 UUID」从来不是访问凭据（§B.5 跨用户不可查/下载）
+            allowed = await c.fetchval(
+                """select 1 from experiment_revisions r
+                   join experiments e on e.id = r.experiment_id
+                   where r.id = $1 and e.owner_id = $2""",
+                revision_id, request.state.owner_id,
+            )
+            if allowed is None:
+                raise HTTPException(404, detail={"code": "REVISION_NOT_FOUND"})
             rows = await c.fetch(
                 "select id as artifact_id, media_type, sha256, storage_key from artifacts "
                 "where revision_id = $1 order by created_at",
@@ -241,8 +275,12 @@ def create_app(dsn: str, artifact_dir: Path | str) -> FastAPI:
     async def download(request: Request, artifact_id: uuid.UUID):
         async with request.app.state.pool.acquire() as c:
             row = await c.fetchrow(
-                "select id, storage_key, sha256, media_type from artifacts where id = $1",
-                artifact_id,
+                """select a.id, a.storage_key, a.sha256, a.media_type
+                   from artifacts a
+                   join experiment_revisions r on r.id = a.revision_id
+                   join experiments e on e.id = r.experiment_id
+                   where a.id = $1 and e.owner_id = $2""",
+                artifact_id, request.state.owner_id,
             )
         if row is None:
             raise HTTPException(404, detail={"code": "ARTIFACT_NOT_FOUND"})
@@ -267,9 +305,26 @@ def create_app(dsn: str, artifact_dir: Path | str) -> FastAPI:
             headers={"x-content-sha256": digest},
         )
 
+    PUBLIC_PATHS = ("/openapi.json", "/docs", "/redoc", "/api/v1/templates", "/healthz")
+
     @app.middleware("http")
     async def inject_owner(request: Request, call_next):
-        request.state.owner_id = LOCAL_DEV_OWNER
+        """身份只从入口注入，路由绝不从正文接受它（§6.1）。"""
+        if request.url.path in PUBLIC_PATHS or request.method == "OPTIONS":
+            request.state.owner_id = None
+            return await call_next(request)
+        if request.app.state.allow_dev_identity:
+            request.state.owner_id = request.headers.get("X-Owner-Id") or LOCAL_DEV_OWNER
+            return await call_next(request)
+        owner = request.headers.get("X-Owner-Id")
+        expected = (os.environ.get("EDUFORGE_GATEWAY_TOKEN") or "").strip()
+        given = request.headers.get("X-Gateway-Token")
+        if not owner or not expected or given != expected:
+            return JSONResponse(
+                status_code=401,
+                content={"detail": {"code": "IDENTITY_REQUIRED"}},
+            )
+        request.state.owner_id = owner
         return await call_next(request)
 
     return app

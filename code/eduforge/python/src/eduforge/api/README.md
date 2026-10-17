@@ -6,9 +6,9 @@
 
 | 文件 | 行数 | 职责 | 关键符号 |
 |---|---|---|---|
-| `main.py` | 273 | 应用工厂 `create_app(dsn, artifact_dir)` + 全部路由 + owner 注入中间件 + 下载安全校验 | `create_app`, `LOCAL_DEV_OWNER` |
+| `main.py` | 330 | 应用工厂 `create_app(dsn, artifact_dir, *, allow_dev_identity=None)` + 全部路由 + 身份中间件（开发身份可关）+ **所有读接口按 owner 限定** + 下载安全校验 | `create_app`, `LOCAL_DEV_OWNER`, `PUBLIC_PATHS` |
 | `serve.py` | 19 | uvicorn 进程入口 `python -m uvicorn eduforge.api.serve:app`；**只从环境变量取 DSN/ARTIFACT_DIR，缺则拒绝启动** | `app` |
-| `routes/__init__.py` | 0 | 路由子包标记；**实际未拆分出独立路由文件** | — |
+| [`routes/`](routes/README.md) → `__init__.py` | 0 | 路由子包标记；**实际未拆分出独立路由文件**（占位说明与拆分时的注意事项见 [`routes/README.md`](routes/README.md)） | — |
 
 ## 端点清单（`main.py` 实现）
 
@@ -20,10 +20,10 @@
 | `POST /api/v1/experiments/{id}/rollback` | 版本回滚（校验 owner/活跃任务） |
 | `GET /api/v1/experiments/{id}/revisions` | 版本列表 |
 | `POST /api/v1/jobs` | 提交任务（`Idempotency-Key` 头，幂等） |
-| `GET /api/v1/jobs/{id}` | 任务状态与事件时间线 |
+| `GET /api/v1/jobs/{id}` | 任务状态与事件时间线（按 owner 限定） |
 | `POST /api/v1/jobs/{id}/cancel` | 取消（已成功不回滚） |
 | `GET /api/v1/revisions/{id}/artifacts` | 版本产物列表 |
-| `GET /api/v1/artifacts/{id}/download` | 产物下载（见下） |
+| `GET /api/v1/artifacts/{id}/download` | 产物下载（先按 owner join 到实验，再走三重防护） |
 
 ## 下载安全（本层最需要读的一段）
 
@@ -41,6 +41,7 @@
 ## 已知的坑与纪律
 
 - **改 API 必跑契约导出**：`uv run python tools/export_contracts.py`，否则 TS 契约漂移（见 [`../../../../packages/contracts/README.md`](../../../../packages/contracts/README.md)）。
-- `api/routes/` 目录存在但**没有拆分路由**——别按目录名臆测代码位置。
-- owner 由中间件注入（本地开发用 `LOCAL_DEV_OWNER` 常量），版本回滚等操作按 owner 校验；改鉴权逻辑先看该中间件。
+- [`api/routes/`](routes/README.md) 目录存在但**没有拆分路由**——别按目录名臆测代码位置（全仓无模块 import 它）。
+- **身份有两种姿态**（Gate B §B.5）：默认跟随 `EDUFORGE_ALLOW_DEV_IDENTITY`（未设置视为允许）注入 `LOCAL_DEV_OWNER`，本机与测试照旧跑；`create_app(..., allow_dev_identity=False)` 或环境变量置 `0` 之后，每个非公开请求都必须带 `X-Owner-Id` + `X-Gateway-Token`，且后者要等于 `EDUFORGE_GATEWAY_TOKEN`，否则 401 `IDENTITY_REQUIRED`。这是「接真实认证之前的边界」，不是认证——它假设前面有网关改写这些头，绝不允许把内部身份暴露给浏览器。
+- **所有读接口顺着 `experiments.owner_id` 过滤**：job、实验、版本列表、产物清单、下载，别人的资源一律 404（不给「存在但不可访问」的探针信号）。提交任务还要过 `JobService.assert_submittable`：实验归属、`base_revision` 属于该实验、且等于当前 head，三者任一不成立就在提交时拒（409 `REVISION_NOT_OF_EXPERIMENT` / `BASE_NOT_HEAD`），不等 packaging 撞乐观并发。
 - `serve.py` 缺环境变量宁可拒绝启动，不允许回退默认 DSN——部署侧注意。
