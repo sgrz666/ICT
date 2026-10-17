@@ -17,7 +17,12 @@ from typing import Any
 import pytest
 
 from eduforge.application.candidate_service import CandidateState, native_bytes, views_bytes
-from eduforge.application.package_builder import MANIFEST_NAME, PackageBuilder, package_digest
+from eduforge.application.package_builder import (
+    MANIFEST_NAME,
+    PackageBuilder,
+    package_digest,
+    verify_package_on_disk,
+)
 from eduforge.domain.errors import DeliveryIntegrityError
 
 JOB_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
@@ -217,3 +222,29 @@ def test_engine_client_without_browser_verification_is_not_assumed_ok(tmp_path):
     """客户端不认识实测方法时，宁可拒绝也不能默认通过。"""
     with pytest.raises(DeliveryIntegrityError, match="不支持离线包浏览器实测"):
         asyncio.run(builder(tmp_path, FakeEngine(supports_verify=False)).build(make_state(), include_offline=True))
+
+
+def test_disk_reverification_follows_the_manifest_not_the_manifest_hash(tmp_path):
+    """§C.5b：按清单逐文件重算。改一个 www/ 里的文件必须被查出来。
+
+    只看清单自身那份哈希是查不出篡改的——改完文件再重新生成一张自洽的清单，
+    哈希照样对得上，所以这里比的是"盘上每一块字节 vs 清单记录的哈希"。
+    """
+    built = asyncio.run(builder(tmp_path, FakeEngine()).build(make_state(), include_offline=True))
+    root = Path(built.offline["dir"])
+
+    clean = verify_package_on_disk(root)
+    assert clean["ok"] is True and clean["reason"] == "disk_matches_manifest", clean
+    # \u5047\u5f15\u64ce\u5199\u51fa\u7684\u6574\u5305\uff1a\u9996\u9875 + \u4e0a\u6e38\u90a3\u4efd\u5d4c\u5957\u6e05\u5355 + \u573a\u666f\u6587\u4ef6\uff08\u672c\u8f6e\u6ca1\u5f00\u89c6\u56fe\uff0c\u6545\u65e0 teaching_views\uff09
+    assert clean["checked_files"] == clean["declared_files"] == 3, clean
+
+    target = root / "www" / "index.html"
+    target.write_bytes(b"<html>replaced by tamper</html>")
+    tampered = verify_package_on_disk(root)
+    assert tampered["ok"] is False and tampered["reason"] == "disk_differs_from_manifest"
+    assert tampered["changed"] == ["www/index.html"], tampered
+    assert tampered["package_sha256"] != tampered["declared_package_sha256"]
+
+    (root / "www" / "extra.js").write_bytes(b"// extra file, never declared in the manifest")
+    assert verify_package_on_disk(root)["unexpected"] == ["www/extra.js"]
+    assert verify_package_on_disk(root / "nowhere")["reason"] == "manifest_missing"

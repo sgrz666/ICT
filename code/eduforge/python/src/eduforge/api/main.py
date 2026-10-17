@@ -15,6 +15,7 @@ import asyncpg
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 
+from eduforge.application.package_builder import verify_package_on_disk
 from eduforge.application.services import (
     ActiveJobConflict,
     BaseNotHead,
@@ -36,6 +37,7 @@ from eduforge.domain.contracts import (
     JobAccepted,
     JobCancelled,
     JobView,
+    OfflineVerification,
     RevisionArtifacts,
     RevisionViews,
     RevisionList,
@@ -282,6 +284,45 @@ def create_app(
         else:
             views = raw  # asyncpg 的 jsonb 解码器若已给出对象就直接用
         return {"revision_id": revision_id, "views": views}
+
+    @app.get(
+        "/api/v1/revisions/{revision_id}/offline_verification",
+        response_model=OfflineVerification,
+    )
+    async def revision_offline_verification(request: Request, revision_id: uuid.UUID):
+        """§C.5b 发布后重验：按清单逐文件重算磁盘字节。
+
+        只看清单自身那份哈希是查不出篡改的——改一个 www/ 里的文件再重新生成一张
+        自洽的清单，哈希照样对得上。这里逐文件比，并把发布前那份浏览器实测记录一并带回。
+        代价是每次请求重算整包（当前模板约 2162 个文件），这是审计端点，不是热路径。
+        """
+        async with request.app.state.pool.acquire() as c:
+            row = await c.fetchrow(
+                """select a.storage_key from artifacts a
+                   join experiment_revisions r on r.id = a.revision_id
+                   join experiments e on e.id = r.experiment_id
+                   where a.revision_id = $1 and e.owner_id = $2
+                     and a.storage_key like '%offline_package/manifest.json'""",
+                revision_id, request.state.owner_id,
+            )
+        if row is None:
+            raise HTTPException(404, detail={"code": "OFFLINE_PACKAGE_NOT_FOUND"})
+
+        root = Path(request.app.state.artifact_dir).resolve()
+        manifest_path = (root / row["storage_key"]).resolve()
+        if manifest_path == root or not manifest_path.is_relative_to(root):
+            raise HTTPException(403, detail={"code": "STORAGE_KEY_OUT_OF_ROOT"})
+        if not manifest_path.is_file():
+            raise HTTPException(404, detail={"code": "ARTIFACT_FILE_MISSING"})
+
+        result = verify_package_on_disk(manifest_path.parent)
+        record = manifest_path.parent.parent / "offline_verification.json"
+        browser = json.loads(record.read_text(encoding="utf-8")) if record.is_file() else None
+        return {
+            "revision_id": revision_id,
+            "verified": bool(result["ok"]),
+            "detail": {**result, "browser": browser},
+        }
 
     @app.get(
         "/api/v1/artifacts/{artifact_id}/download",

@@ -115,10 +115,27 @@ def run_chain(uri, art_dir, engine_url, proposal, *, prompt="把凸透镜焦距�
                         uuid.UUID(exp["experiment_id"]))
                     rows["art_count"] = await c.fetchval(
                         "select count(*) from artifacts where revision_id=$1", cand)
+                verification = verification_after_tamper = None
+                if cand:
+                    # §C.5b 发布后重验的出口：先确认它与磁盘一致，再故意改一个 www/ 文件
+                    # 看它报不报——只测"通过"的那一半，等于没测这条闸门。
+                    verification = await client.get(
+                        f"/api/v1/revisions/{cand}/offline_verification")
+                    pkg_root = art_dir / "revisions" / str(cand) / "offline_package"
+                    victim = pkg_root / "www" / "index.html"
+                    if victim.is_file():
+                        original = victim.read_bytes()
+                        victim.write_bytes(b"<html>tampered after publish</html>")
+                        try:
+                            verification_after_tamper = await client.get(
+                                f"/api/v1/revisions/{cand}/offline_verification")
+                        finally:
+                            victim.write_bytes(original)
                 return {
                     "exp": exp, "job_id": job_id, "job": job, "detail": detail,
                     "worker": worker_result, "download": dl, "rows": rows,
                     "listing": listing, "cand": cand,
+                    "verification": verification, "verification_tampered": verification_after_tamper,
                 }
 
     return asyncio.run(outer())
@@ -177,6 +194,15 @@ def test_chain_publishes_and_delivers_exactly_the_hashed_bytes(uri, art_dir, eng
     assert by_media["manifest.json"]["sha256"] == hashlib.sha256(
         (pkg / "manifest.json").read_bytes()
     ).hexdigest()
+
+    # §C.5b：发布后还能按清单重验——改一个 www/ 里的文件，出口必须报 verified=false
+    assert out["verification"].status_code == 200, out["verification"].text
+    good = out["verification"].json()
+    assert good["verified"] is True and good["detail"]["checked_files"] == manifest["file_count"]
+    assert good["detail"]["browser"]["ok"] is True, good["detail"]["browser"]
+    tampered = out["verification_tampered"].json()
+    assert tampered["verified"] is False, tampered
+    assert tampered["detail"]["changed"] == ["www/index.html"], tampered["detail"]
 
     # §C.5：发布前必须真的用浏览器打开过这份包，结论落在包旁边的核对记录里
     record = json.loads(

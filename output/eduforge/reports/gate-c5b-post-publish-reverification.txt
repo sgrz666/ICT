@@ -1,0 +1,45 @@
+Gate C §C.5b 发布后重验：按清单逐文件重算 — 命令与实测结果
+=========================================================
+分支 main（起点 cf02a60）。时间 北京 2026-10-17 17:52–18:20（全量跑完于 18:20）。
+本机 Windows，无 Docker；真 Postgres + 真 Engine Host + 真 Chromium（离线包浏览器实测仍要跑）。
+
+1) 这一节补的是"发布之后"那一半
+§C.5 把浏览器实测接到了发布**前**。但发布之后一直没人再核过一次：
+`artifacts.sha256` 只在下载单个文件时被比对（`api/main.py` 的 download 三重防护），
+而离线包真正的交付物是 2162 个 `www/` 文件——清单记录的恰恰是它们，却没有任何运行时链路
+会再去重算。接管者重跑、磁盘被改、目录被挪走，这些都不会被发现。
+
+2) 做了什么
+- `application/package_builder.py` 新增 `verify_package_on_disk(pkg_dir)`：读清单里那张逐文件表，
+  把盘上每个文件重新哈希，报 `changed / missing / unexpected` 与重算出的 `package_sha256`。
+  为什么不只看清单自己那份哈希：改一个 `www/` 里的文件、再重新生成一张自洽的清单，
+  清单哈希照样对得上——必须逐文件重算才查得出。
+- `Chain.packaging` 在进发布事务**之前**做这道重算，不一致直接 `PACKAGE_DRIFT`
+  （放在事务前是有意的：事务会把 job 收成 succeeded，之后再去"失败"只会留下自相矛盾的状态）。
+- 出口：`GET /api/v1/revisions/{id}/offline_verification`（DTO `OfflineVerification`，契约重生成（22 个具名接口））。owner join 之后才给数据；响应里除了逐文件结论，还把发布前那份浏览器实测记录
+  （`offline_verification.json`）一并带回——"这份包被看过、也被核过"要能一次说清。
+  它是审计端点：每次请求重算整包（约 2162 个文件，实测亚秒级），不在热路径上。
+
+3) 实测（`test_chain_worker.py` 金路径，含反面）
+链路真跑一次发布后：
+  GET .../offline_verification → 200，verified=true，checked_files == manifest.file_count，
+                                 detail.browser.ok == true（浏览器实测结论随附）
+  然后把 `offline_package/www/index.html` 改成别的内容，再 GET 同一个出口：
+                                 verified=false，detail.changed == ["www/index.html"]
+  收尾把文件还原（用例内 try/finally），不留被改坏的现场。
+只测"通过"的那一半等于没测，所以这条闸门带控制组；单元层另有
+`test_disk_reverification_follows_the_manifest_not_the_manifest_hash`（假引擎，钉 changed/
+unexpected/manifest_missing 三种回报）。
+
+4) 命令与退出码
+code/eduforge/python: ../.venv/Scripts/pytest.exe ../tests/python -q
+    → 137 收集 / 136 通过 / 1 SKIPPED（无模型 key）；结果行只有 . 与 1 个 s，无 F
+      全量约 20 分钟：每次发布都要真起一次 Chromium 实测离线包
+code/eduforge: .venv/Scripts/python.exe tools/export_contracts.py → 22 schemas
+README 断链校验：0 broken；测试临时目录清扫已生效（跑完 %TEMP% 只剩被进程抓着的少数，并如实 warn）
+
+5) 仍未闭环
+- 种子版本（没经过链路的基线修订）的可信预览仍没做——它没有离线包，`offline_verification` 会返回
+  `OFFLINE_PACKAGE_NOT_FOUND`；前端此时会退回"从可信模板载入只读预览"，那条路径尚未浏览器实测。
+- C.6 案例库导入、C.7 预览独立 origin 与 postMessage 精确校验未动。
+- 视图导出（把测量记录表存成文件）没做。

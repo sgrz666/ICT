@@ -6,7 +6,7 @@
 
 | 文件 | 行数 | 职责 | 关键符号 |
 |---|---|---|---|
-| `contracts.py` | 210 | **最核心的数据契约**：全部 Pydantic 模型，`extra=forbid`（拒绝多余字段，改协议先动这里） | `SetParameter`, `SetView`, `EditProposal`, `WorkOrder`, `PlannerRequest`, `CreateJobRequest`, `JobAccepted`, `JobView`, `ExperimentDetail`, `RevisionViews`（§C.3 教学视图出口）, `ApiErrorResponse` |
+| `contracts.py` | 222 | **最核心的数据契约**：全部 Pydantic 模型，`extra=forbid`（拒绝多余字段，改协议先动这里） | `SetParameter`, `SetView`, `EditProposal`, `WorkOrder`, `PlannerRequest`, `CreateJobRequest`, `JobAccepted`, `JobView`, `ExperimentDetail`, `RevisionViews`（§C.3 教学视图出口）, `OfflineVerification`（§C.5b 发布后重验）, `ApiErrorResponse` |
 | `errors.py` | 54 | 领域异常体系 | `EduForgeError`, `PolicyViolationError`, `ConflictError`, `NotFoundError`, `LeaseExpiredError`, `ScientificValidationError`, `DeliveryIntegrityError`（交付字节/清单核对不上，与"物理不成立"分开） |
 | `models.py` | 87 | 领域实体 dataclass（Experiment/Job/Artifact/ValidationReport 等）。**当前仅被 `ports.py` 与 `__init__.py` 引用**，持久化层用裸 SQL 未实例化它们 | `Experiment`, `ExperimentRevision`, `Job`, `Artifact`, `ValidationReport`, `JobEvent` |
 | `ports.py` | 101 | 抽象端口协议（仓储/存储/引擎/规划） | `JobRepositoryPort`, `ExperimentRepositoryPort`, `ArtifactStoragePort`, `EngineClientPort`, `AgentPlannerPort` |

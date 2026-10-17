@@ -4,7 +4,7 @@
 
 ## 结构
 
-- `src/generated/api.ts` — 由 `tools/export_contracts.py` 从 FastAPI `/openapi.json` 生成（21 个具名 DTO）。
+- `src/generated/api.ts` — 由 `tools/export_contracts.py` 从 FastAPI `/openapi.json` 生成（22 个具名接口＝21 个 OpenAPI schema + 导出器附带的 `ApiOperations` 操作映射）。
 - `src/generated/openapi.json` — 生成时的 OpenAPI 快照。
 - `src/preview.ts` — 预览桥接的 postMessage 消息类型（宿主页 ↔ 预览 iframe，与后端无关，故手写）。
 - `src/index.ts` — 出口（`export * from "./generated/api"; export * from "./preview";`）。

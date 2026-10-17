@@ -484,6 +484,47 @@
         }
       }
     },
+    "/api/v1/revisions/{revision_id}/offline_verification": {
+      "get": {
+        "summary": "Revision Offline Verification",
+        "description": "§C.5b 发布后重验：按清单逐文件重算磁盘字节。\n\n只看清单自身那份哈希是查不出篡改的——改一个 www/ 里的文件再重新生成一张\n自洽的清单，哈希照样对得上。这里逐文件比，并把发布前那份浏览器实测记录一并带回。\n代价是每次请求重算整包（当前模板约 2162 个文件），这是审计端点，不是热路径。",
+        "operationId": "revision_offline_verification_api_v1_revisions__revision_id__offline_verification_get",
+        "parameters": [
+          {
+            "name": "revision_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Revision Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfflineVerification"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/artifacts/{artifact_id}/download": {
       "get": {
         "summary": "Download",
@@ -940,6 +981,33 @@
           "events"
         ],
         "title": "JobView"
+      },
+      "OfflineVerification": {
+        "properties": {
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "verified": {
+            "type": "boolean",
+            "title": "Verified"
+          },
+          "detail": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_id",
+          "verified",
+          "detail"
+        ],
+        "title": "OfflineVerification",
+        "description": "发布后的重验结论：磁盘上的离线包还是不是清单所写的那一份（§C.5b）。\n\n`detail` 里是逐文件重算的结果（文件数、变了/多了/少了哪些路径、整包摘要），\n外加发布前那份浏览器实测记录——两者一起才说得清\"这份包被看过、也被核过\"。"
       },
       "RevisionArtifacts": {
         "properties": {

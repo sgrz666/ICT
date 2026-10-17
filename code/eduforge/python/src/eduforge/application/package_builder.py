@@ -52,6 +52,46 @@ def package_digest(files: list[dict[str, str]]) -> str:
     return _digest(lines.encode("utf-8"))
 
 
+def verify_package_on_disk(pkg_dir: Path | str) -> dict[str, Any]:
+    """按清单重算磁盘字节：想知道"这份包还是不是发布时那份"就用它（§C.5b）。
+
+    为什么不能只信清单自己那份哈希：改一个 `www/` 里的文件、再重新生成一张自洽的清单，
+    清单哈希照样对得上。所以逐文件重算、并与清单记录的 `package_sha256` 比；
+    多出来/少了/内容变了都要单独列出来，否则"校验失败"这句话没法定位。
+    """
+    root = Path(pkg_dir)
+    manifest_path = root / MANIFEST_NAME
+    if not manifest_path.is_file():
+        return {"ok": False, "reason": "manifest_missing", "checked_files": 0,
+                "missing": [], "unexpected": [], "changed": [],
+                "package_sha256": None, "declared_package_sha256": None}
+    declared = json.loads(manifest_path.read_text(encoding="utf-8"))
+    recorded = {e["path"]: e["sha256"] for e in declared.get("files", []) if isinstance(e, dict)}
+    actual = {
+        rel: _digest(p.read_bytes())
+        for p in sorted(root.rglob("*"), key=lambda x: x.as_posix())
+        if p.is_file() and (rel := _rel(p, root)) != MANIFEST_NAME
+    }
+    changed = sorted(p for p in set(recorded) & set(actual) if recorded[p] != actual[p])
+    recomputed = package_digest([{"path": p, "sha256": s} for p, s in actual.items()])
+    declared_sha = declared.get("package_sha256")
+    return {
+        "ok": not changed and not (set(recorded) ^ set(actual)) and recomputed == declared_sha,
+        "reason": "disk_matches_manifest" if (
+            not changed and not (set(recorded) ^ set(actual)) and recomputed == declared_sha
+        ) else "disk_differs_from_manifest",
+        "checked_files": len(actual),
+        "declared_files": len(recorded),
+        "missing": sorted(set(recorded) - set(actual))[:10],
+        "unexpected": sorted(set(actual) - set(recorded))[:10],
+        "changed": changed[:10],
+        "package_sha256": recomputed,
+        "declared_package_sha256": declared_sha,
+        "entry": declared.get("entry"),
+        "scene_sha256": declared.get("scene_sha256"),
+    }
+
+
 @dataclass(frozen=True)
 class BuiltPackage:
     candidate_revision_id: UUID

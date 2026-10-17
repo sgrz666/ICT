@@ -11,7 +11,7 @@
 | `experiment_service.py` | 142 | 模板实例化与版本管理：`create_from_template`（克隆基础版本）、`rollback`（回退 head，校验 owner/活跃任务） | `ExperimentService`, `ExperimentLookup`, `ExperimentNotFound`, `TemplateNotFound`, `RevisionNotFound`, `ActiveJobConflict` |
 | `job_service.py` | 106 | 任务生命周期：提交前**归属与基础版本核对**（实验属于该身份、`base_revision` 属于该实验且等于当前 head）、幂等提交、取消（已成功不回滚）、查询按身份限定 | `JobService`, `assert_submittable`, `ExperimentNotOwned`, `RevisionNotOfExperiment`, `BaseNotHead` |
 | `publication.py` | 83 | **发布门禁**：`record_report` 写验证报告（含候选绑定列：`candidate_id`/`content_hash`/`engine_version`/`profile`）；`publish` 在 `verdict≠passed` 时抛 `NotPublishable`，通过才调仓储发布事务 | `Publisher`, `NotPublishable` |
-| `package_builder.py` | 249 | **Gate C §C.4/§C.5 的统一交付构建器**：把已冻结候选变成可核对的字节——`native.json`/`teaching_views.json` 落盘并逐字节回读核对；离线包由引擎组装，但**包内场景替换成交付的那一份字节**；最终 `manifest.json` = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要；建完立刻让 Engine Host 用 Chromium **实测这份包**（§C.5），不通过就抛 `DeliveryIntegrityError(code="OFFLINE_NOT_RENDERED")`，包和发布一起拦住。工具层与 Worker 都调这里，产物 id 一律内容派生（重跑幂等） | `PackageBuilder`, `BuiltPackage`, `package_digest`, `ENGINE_METADATA_KEYS`, `MANIFEST_NAME` |
+| `package_builder.py` | 289 | **Gate C §C.4/§C.5 的统一交付构建器**：把已冻结候选变成可核对的字节——`native.json`/`teaching_views.json` 落盘并逐字节回读核对；离线包由引擎组装，但**包内场景替换成交付的那一份字节**；最终 `manifest.json` = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要；建完立刻让 Engine Host 用 Chromium **实测这份包**（§C.5），不通过就抛 `DeliveryIntegrityError(code="OFFLINE_NOT_RENDERED")`，包和发布一起拦住。工具层与 Worker 都调这里，产物 id 一律内容派生（重跑幂等） | `PackageBuilder`, `BuiltPackage`, `package_digest`, `verify_package_on_disk`, `ENGINE_METADATA_KEYS`, `MANIFEST_NAME` |
 | `services.py` | 29 | 聚合导出入口（向后兼容）：把上述服务类从本文件统一再导出 | `ExperimentService`, `JobService` 等 |
 
 ## 与上下层的关系

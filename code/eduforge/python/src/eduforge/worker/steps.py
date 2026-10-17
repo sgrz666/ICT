@@ -44,7 +44,7 @@ from eduforge.infrastructure.db.repositories import (
     derived_id,
     revision_id_for,
 )
-from eduforge.application.package_builder import PackageBuilder
+from eduforge.application.package_builder import PackageBuilder, verify_package_on_disk
 from eduforge.application.publication import Publisher
 from eduforge.worker.errors import TerminalError
 
@@ -335,6 +335,20 @@ class Chain:
         digest = built.native_sha256
         artifacts = built.artifacts
 
+        # 发布前最后一道磁盘核对（§C.5b）：清单说的字节必须就是盘上的字节。
+        # building 与 packaging 之间可能崩过、也可能被接管者在另一时刻重跑，
+        # 只信"我刚刚写过"是不够的。
+        disk_check: dict[str, Any] | None = None
+        if built.offline:
+            disk_check = verify_package_on_disk(Path(built.offline["dir"]))
+            if not disk_check["ok"]:
+                raise TerminalError(
+                    "PACKAGE_DRIFT",
+                    f"离线包磁盘与清单不符：{disk_check['reason']}，"
+                    f"changed={disk_check['changed']} missing={disk_check['missing']} "
+                    f"unexpected={disk_check['unexpected']}",
+                )
+
         await Publisher(self.conn).publish(
             job_id=job_id,
             lease_token=self.lease_token,
@@ -354,8 +368,9 @@ class Chain:
             "artifact_id": artifacts[0]["id"],
             "sha256": digest,
             "content_hash": state.content_hash,
-            # 交付了什么要能在任务记录里看到：离线包文件数与整包摘要（C.5 的浏览器实测核对它）
+            # 交付了什么要能在任务记录里看到：离线包文件数、整包摘要与发布前的磁盘核对结论
             "offline_package": built.offline,
+            "package_disk_check": disk_check,
         }
 
     def steps(self) -> dict[str, Any]:

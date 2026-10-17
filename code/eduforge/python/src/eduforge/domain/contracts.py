@@ -194,6 +194,18 @@ class RevisionViews(Contract):
     views: dict[str, Any]
 
 
+class OfflineVerification(Contract):
+    """发布后的重验结论：磁盘上的离线包还是不是清单所写的那一份（§C.5b）。
+
+    `detail` 里是逐文件重算的结果（文件数、变了/多了/少了哪些路径、整包摘要），
+    外加发布前那份浏览器实测记录——两者一起才说得清"这份包被看过、也被核过"。
+    """
+
+    revision_id: UUID
+    verified: bool
+    detail: dict[str, Any]
+
+
 class JobCancelled(Contract):
     job_id: UUID
     # 202 分支只会返回 cancelled：succeeded 走 409，queued/running 被 CASE 改写。
