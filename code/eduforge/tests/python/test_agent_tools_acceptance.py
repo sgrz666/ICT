@@ -25,6 +25,7 @@ import pgserver
 import pytest
 
 from eduforge.agent.policy import Rejected
+from eduforge.application.package_builder import package_digest
 from eduforge.domain.errors import ConflictError
 from eduforge.experiment_tools.contracts import (
     ApplyScenePatchInput,
@@ -311,12 +312,21 @@ def test_continuous_edit_acceptance_chain(engine_url, uri, artifact_dir):
         saved_views = json.loads((www_dir / "scene" / "teaching_views.json").read_text(encoding="utf-8"))
         assert "measurement_table" in saved_views
         assert len(saved_views["measurement_table"]["records"]) >= 2
-        # manifest 必须逐条对上磁盘字节
+        # 交付清单（§C.4 起是一份合并版）：引擎元数据 + 逐文件哈希 + 整包摘要
         manifest = json.loads((Path(pkg["dir"]) / "manifest.json").read_text(encoding="utf-8"))
-        for entry in manifest:
+        assert manifest["entry"] == "www/index.html" and manifest["engine_id"] == "ray_optics"
+        assert manifest["requires_local_static_server"] is True, "包该怎么打开必须写在清单里"
+        for entry in manifest["files"]:
             f = Path(pkg["dir"]) / entry["path"]
-            assert f.is_file(), f"manifest 里列出的文件不在盘上: {entry['path']}"
+            assert f.is_file(), f"清单里列出的文件不在盘上: {entry['path']}"
             assert hashlib.sha256(f.read_bytes()).hexdigest() == entry["sha256"]
+        assert manifest["package_sha256"] == package_digest(manifest["files"])
+        # 包内场景与教学视图就是交付的那一份字节，不是引擎重新格式化出来的副本
+        scene_entry = next(e for e in manifest["files"] if e["path"] == "www/scene/native.json")
+        assert scene_entry["sha256"] == build2.sha256 == manifest["scene_sha256"]
+        # 上游 dist 里真有一个嵌套的同名文件 www/simulator/manifest/manifest.json：
+        # 旧的"按文件名排除清单"规则会把它漏在哈希表外（实测少一个，2162 vs 2163）
+        assert any(e["path"] == "www/simulator/manifest/manifest.json" for e in manifest["files"]), manifest["file_count"]
 
         await c.close()
 

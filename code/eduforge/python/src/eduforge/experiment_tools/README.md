@@ -21,7 +21,7 @@
 | `apply_scene_patch` | 是 | **写动作开始前先判执行权**（`_assert_execution`：注入的守护器 ∧ 库里 `status='running'` ∧ `lease_token` 是自己 ∧ 租约未到期；被取消则 `JOB_CANCELLED`）；每条 edit 过 `policy.authorize_operation`（未登记 → `PARAMETER_NOT_REGISTERED`，超量程 → `VALUE_OUT_OF_RANGE`）；引擎拒绝抛 `ConflictError`；改完**写穿候选**（`state_version` CAS），旧验证结论当场作废；**写失败会把缓存退回最后一次已持久化的内容**，不留「改成功但从未落库」的假工作态 |
 | `configure_teaching_views` | 是 | 视图必须在模板 `views` 清单内，否则 `VIEW_NOT_REGISTERED`；同样写穿候选、同样令验证作废 |
 | `run_validation` | 是（`final` 只能由后端调）| 强制引擎往返；报告当场写 `validation_reports`（带候选绑定列），并把 `validation_id` + `content_hash` **绑到候选行**上（内容再变即失配，旧绿灯不作数）。`final=True`（Worker 的最终验证）会**先把候选从库里重新读回来并冻结**，不吃进程内缓存 |
-| `build_package` | **否（后端）** | 先 `freeze()` 候选，再按**候选内容哈希**派生版本与产物 id（`revision_id_for` / `artifact_id_for`，重跑幂等、改内容才成新版本）；落盘字节由 `application/candidate_service.py` 的 `native_bytes`/`views_bytes` 唯一决定；离线包整目录出 `manifest.json` 逐文件哈希 |
+| `build_package` | **否（后端）** | 先 `freeze()` 候选，再按**候选内容哈希**派生版本与产物 id（`revision_id_for` / `artifact_id_for`，重跑幂等、改内容才成新版本）；**§C.4 起落盘与登记全部交 [`application/package_builder.py`](../application/README.md)**——本工具不再自己写文件、不再自己拼 artifacts；离线包清单 = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要，包内场景就是交付的那一份字节 |
 | `publish_revision` | **否（后端）** | 必须有 `JobContext` + 库连接；走 `application/publication.py` → `JobRepository.publish`；发布前用库里的候选重算版本 id，与构建时登记的不一致就拒（防「构建一份、发布另一份」）；`close_job=False` 支持同一 job 连续提交多个版本，发布后 `rebase` 候选基线 |
 
 ### 模块文件清单
@@ -36,7 +36,7 @@
 
 - **上层使用者**:
   - [`eduforge.agent.tool_registry`](../agent/tool_registry.py) → [`deepagents_runtime`](../agent/deepagents_runtime.py) / [`deepagents_planner`](../agent/deepagents_planner.py)：只暴露 6 项，`build_package`/`publish_revision` 不在模型可见集；
-  - [`eduforge.worker.steps`](../worker/steps.py)：Gate A 起**改为调用本层**——`Chain.building` 调 `build_package`、`Chain.validating` 调 `run_validation`、`Chain.editing/packaging` 读同一行候选。工具层与 Worker 不再是两份操作语义（`Chain._apply` 的重放路径已删除）；
+  - [`eduforge.worker.steps`](../worker/steps.py)：Gate A 起**改为调用本层**——`Chain.building` 调 `build_package`、`Chain.validating` 调 `run_validation`、`Chain.editing/packaging` 读同一行候选；§C.4 起 `Chain.packaging` 直接调 `application.PackageBuilder` 建交付字节（含离线包），与本层 `build_package` 同一份实现。工具层与 Worker 不再是两份操作语义（`Chain._apply` 的重放路径已删除）；
   - 外部 MCP 客户端（未实测）；Web API 与验收测试。
 - **下层协作者**:
   - [`eduforge.infrastructure.clients.engine_client`](../infrastructure/clients/engine_client.py): HTTP 驱动 Node.js Engine Host 仿真与离线包打包；

@@ -16,6 +16,6 @@
 
 ## 已知的坑与纪律
 
-- **接入本层 = 三处同改**：写入（`worker/steps.py` 的 `artifact_path`）、读取（`api/main.py` 的 download）、校验（两侧的 sha256 计算）——只改一处会造成"存得进、下不动"。
+- **接入本层 = 三处同改**：写入（`application/package_builder.py`，§C.4 起 Worker 与工具层共用它；落盘路径仍由 `worker/steps.py` 的 `artifact_path` 同款规则给出 `revisions/<候选版本>/`）、读取（`api/main.py` 的 download）、校验（两侧的 sha256 计算）——只改一处会造成"存得进、下不动"。
 - `obs.py` 是桩：方法签名在了、实现没有；上云前不要假设它可跑。
 - 本地开发时 `ARTIFACT_DIR` 由环境变量给定，路径越界校验（403）在 `api/main.py`——换存储后端时这条校验的等价物必须保留。

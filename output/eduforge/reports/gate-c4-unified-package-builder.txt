@@ -1,0 +1,50 @@
+Gate C §C.4 统一交付包构建器 — 命令与实测结果
+=============================================
+分支 main（起点 c57f059）。时间 北京 2026-10-17 15:05–15:33。
+本机 Windows，无 Docker；Postgres 走 pgserver；离线包由真实引擎组装（上游 dist 2161 个文件）。
+
+1) 本轮修掉的三个不一致（都在"交付的那份字节"这条线上）
+a. Worker 不建离线包：`Chain.building` 显式传 `export_offline_zip=False`，
+   `Chain.packaging` 自己手写 native + 教学视图的落盘与 artifacts 登记，整条生产链
+   发布出来的版本**从来没有离线运行包**；只有工具层 `build_package` 会建。
+b. 两份写盘与登记代码：工具层用 `candidates.artifact_id(frozen, ...)`，Worker 用
+   `artifact_id_for(job_id, ...)` 各拼一份 artifacts——同一个 id 规则要两处保持同步。
+c. 清单被覆盖：引擎往 `offline_package/manifest.json` 写交付元数据
+   （engine_id / engine_version / native_format_version / entry /
+   requires_local_static_server / license / scene_sha256），
+   Python 随后用"逐文件哈希表"**写同一路径整个覆盖**——最终包里的清单只剩哈希数组，
+   连"这份包该怎么打开"都没了。
+
+2) 新的单一构建入口 `application/package_builder.py`（216 行）
+- 落盘：`revisions/<候选版本>/native.json`、`teaching_views.json`，写前先比、不同则重写、
+  写完回读核对（不一致抛 `DeliveryIntegrityError`，Worker 映射为终态 `DELIVERY_INTEGRITY`）。
+- 离线包：仍由引擎组装，但**包内 `www/scene/native.json` 替换成交付的那一份字节**
+  （引擎写的是 `JSON.stringify(x, null, 2)`，语义相同、字节不同）。
+- 清单：读回引擎元数据 → 合并逐文件 SHA256 + `file_count` + `package_sha256` 后重写同一路径；
+  缺元数据键直接报错，不静默补默认值。
+- 产物 id 一律内容派生（`artifact_id_for(job_id, name, digest)`），工具层与 Worker 同一份实现。
+
+3) 顺手抓到的一个真实漏检
+逐文件表原先按**文件名**排除清单自身（`p.name != "manifest.json"`）。上游 dist 里真有
+一个嵌套同名交付物 `www/simulator/manifest/manifest.json`，于是它一直被排除在哈希表外：
+实测整包文件 2163 个（含顶层清单），旧规则只登记 2161 条，改为按**完整路径**排除后 2162 条。
+新增断言把它钉住（`test_agent_tools_acceptance.py` 与 `test_package_builder.py` 各一条）。
+
+4) 命令与退出码
+code/eduforge/python: ../.venv/Scripts/pytest.exe ../tests/python -q -p no:cacheprovider
+                          → exit 0，132 收集 / 131 通过 / 1 SKIPPED（无模型 key）
+                      ../.venv/Scripts/pytest.exe ../tests/python --collect-only -q
+                          → 逐文件计数合计 132
+services/engine-host: node_modules/.bin/vitest run → 10 files / 70 passed（本轮未改 TS）
+本轮新增 `tests/python/test_package_builder.py`（7 项，假引擎客户端）：
+  清单保留元数据且逐文件表完整 / 包内场景=交付字节 / 篡改后磁盘重算摘要对不上 /
+  缺元数据必须显式拒绝 / 同内容重跑幂等 / include_offline=False 不产出包 /
+  路径上留坏字节时重写而不是把坏字节发出去。
+行为改动（不是回归）：一次发布登记的产物由 1 份变 2 份（native + 离线包清单），
+`test_chain_worker.py` 两处 `art_count == 1` 相应改为 2，并补上包内字节与清单的核对。
+
+5) 仍未闭环（§C.5 及以后，别把本轮读成 Gate C 完成）
+- 发布前**没有浏览器实测**：`offline.index_present` 只证明入口文件在盘上，不证明这份包
+  在 Chromium 里真能跑出光路。`ready` 这个词依然没写进任何结论。
+- 发布后的下载重验（拿清单里的逐文件哈希再核一遍磁盘）只在测试里做，运行时链路没有。
+- 教学视图（C.3）、案例导入（C.6）、预览独立 origin 与 postMessage 校验（C.7）未动。

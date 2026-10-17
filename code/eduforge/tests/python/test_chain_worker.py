@@ -27,7 +27,9 @@ from eduforge.api.main import create_app
 from eduforge.domain.contracts import EditProposal, SetParameter, SetView
 from eduforge.infrastructure.db.migrations import apply_migrations
 from eduforge.worker.main import SimulatedCrash
-from eduforge.worker.steps import StaticPlanner, artifact_path, make_worker, scene_bytes
+from eduforge.application.candidate_service import native_bytes
+from eduforge.application.package_builder import package_digest
+from eduforge.worker.steps import StaticPlanner, artifact_path, make_worker
 
 TABLES = ("artifacts", "validation_reports", "job_events", "jobs", "experiment_revisions", "experiments")
 
@@ -135,7 +137,8 @@ def test_chain_publishes_and_delivers_exactly_the_hashed_bytes(uri, art_dir, eng
     assert out["detail"]["head_revision"] == str(cand), "head 必须前进到本次候选版本"
     assert out["detail"]["revision_count"] == 2, out["detail"]
     assert out["rows"]["rev_count"] == 2
-    assert out["rows"]["art_count"] == 1, "同一候选版本被登记了多份产物"
+    # 一次发布登记的产物 = 交付场景 + 离线包清单（Gate C §C.4 起 Worker 也建离线包）
+    assert out["rows"]["art_count"] == 2, out["rows"]["art_count"]
 
     assert out["download"].status_code == 200, out["download"].text
     body = out["download"].content
@@ -143,7 +146,7 @@ def test_chain_publishes_and_delivers_exactly_the_hashed_bytes(uri, art_dir, eng
     # 交付字节就是 building 算指纹那份
     building_payload = json.loads(out["rows"]["building"]["payload"])
     assert building_payload["sha256"] == out["download"].headers["x-content-sha256"]
-    assert scene_bytes(json.loads(body)) == body, "落盘字节的写法必须与 scene_bytes 一致"
+    assert native_bytes(json.loads(body)) == body, "落盘字节的写法必须与 native_bytes 一致"
     assert (artifact_path(art_dir, cand)).read_bytes() == body
 
     scene = json.loads(body)
@@ -154,8 +157,26 @@ def test_chain_publishes_and_delivers_exactly_the_hashed_bytes(uri, art_dir, eng
     # 产物清单是前端唯一能拿来下载的入口；它给的 sha256 必须与实际交付字节一致
     listed = out["listing"].json()
     assert listed["revision_id"] == str(out["cand"])
-    assert len(listed["artifacts"]) == 1, listed
-    assert listed["artifacts"][0]["sha256"] == out["download"].headers["x-content-sha256"]
+    by_media = {a["storage_key"].split("/")[-1]: a for a in listed["artifacts"]}
+    assert set(by_media) == {"native.json", "manifest.json"}, listed
+    assert by_media["native.json"]["sha256"] == out["download"].headers["x-content-sha256"]
+
+    # §C.4：Worker 这条生产链现在也建离线运行包，包内场景必须与交付字节逐字节相同，
+    # 清单必须同时带引擎交付元数据（怎么打开这份包）与逐文件哈希 + 整包摘要。
+    pkg = artifact_path(art_dir, cand).parent / "offline_package"
+    manifest = json.loads((pkg / "manifest.json").read_bytes())
+    assert (pkg / "www" / "scene" / "native.json").read_bytes() == body, "包内场景不是发布的那一份"
+    assert manifest["scene_sha256"] == out["download"].headers["x-content-sha256"]
+    assert manifest["entry"] == "www/index.html" and manifest["requires_local_static_server"] is True
+    assert manifest["engine_id"] == "ray_optics" and manifest["license"]
+    entries = {f["path"]: f["sha256"] for f in manifest["files"]}
+    assert entries["www/scene/native.json"] == manifest["scene_sha256"]
+    on_disk = [p for p in pkg.rglob("*") if p.is_file()]
+    assert len(entries) == manifest["file_count"] == len(on_disk) - 1, "清单与盘上文件不是一套"
+    assert package_digest(manifest["files"]) == manifest["package_sha256"]
+    assert by_media["manifest.json"]["sha256"] == hashlib.sha256(
+        (pkg / "manifest.json").read_bytes()
+    ).hexdigest()
 
 
 def test_policy_rejection_is_terminal_and_touches_nothing(uri, art_dir, engine_url):
@@ -334,7 +355,8 @@ def test_recovery_rebuilds_context_from_persisted_facts(uri, art_dir, engine_url
     assert out["job"]["status"] == "succeeded", out["job"]
     assert out["detail"]["revision_count"] == 2
     assert out["rev_count"] == 2, "派生 id 失效，恢复时插出了多余版本"
-    assert out["art_count"] == 1, "同一候选被登记成多份产物"
+    # 崩溃重跑 packaging 后仍是同一组产物（native + 离线包清单，§C.4），没有重复登记
+    assert out["art_count"] == 2, "同一候选被登记成多份产物"
     assert out["dl"].status_code == 200
     # planning/editing/building/validating 各只启动一次（已完成的阶段被跳过），
     # packaging 因崩溃重跑：started 两次、done 一次

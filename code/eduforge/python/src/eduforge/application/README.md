@@ -11,12 +11,13 @@
 | `experiment_service.py` | 142 | 模板实例化与版本管理：`create_from_template`（克隆基础版本）、`rollback`（回退 head，校验 owner/活跃任务） | `ExperimentService`, `ExperimentLookup`, `ExperimentNotFound`, `TemplateNotFound`, `RevisionNotFound`, `ActiveJobConflict` |
 | `job_service.py` | 106 | 任务生命周期：提交前**归属与基础版本核对**（实验属于该身份、`base_revision` 属于该实验且等于当前 head）、幂等提交、取消（已成功不回滚）、查询按身份限定 | `JobService`, `assert_submittable`, `ExperimentNotOwned`, `RevisionNotOfExperiment`, `BaseNotHead` |
 | `publication.py` | 83 | **发布门禁**：`record_report` 写验证报告（含候选绑定列：`candidate_id`/`content_hash`/`engine_version`/`profile`）；`publish` 在 `verdict≠passed` 时抛 `NotPublishable`，通过才调仓储发布事务 | `Publisher`, `NotPublishable` |
+| `package_builder.py` | 216 | **Gate C §C.4 的统一交付包构建器**：把已冻结候选变成可核对的字节——`native.json`/`teaching_views.json` 落盘并逐字节回读核对；离线包由引擎组装，但**包内场景替换成交付的那一份字节**；最终 `manifest.json` = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要。工具层与 Worker 都调这里，产物 id 一律内容派生（重跑幂等） | `PackageBuilder`, `BuiltPackage`, `package_digest`, `ENGINE_METADATA_KEYS`, `MANIFEST_NAME` |
 | `services.py` | 29 | 聚合导出入口（向后兼容）：把上述服务类从本文件统一再导出 | `ExperimentService`, `JobService` 等 |
 
 ## 与上下层的关系
 
 - 依赖：[`../domain/contracts.py`](../domain/contracts.py)、[`../domain/errors.py`](../domain/errors.py)、[`../infrastructure/catalog.py`](../infrastructure/catalog.py)、[`../infrastructure/db/repositories.py`](../infrastructure/db/repositories.py)、[`../validation/reports.py`](../validation/reports.py)。
-- 被谁用：[`../api/main.py`](../api/main.py) 经 [`services.py`](services.py) 取服务类；[`../worker/main.py`](../worker/main.py) 用 `Coordinator`；[`../worker/steps.py`](../worker/steps.py) 用 `Publisher`（validating/packaging 阶段）。
+- 被谁用：[`../api/main.py`](../api/main.py) 经 [`services.py`](services.py) 取服务类；[`../worker/main.py`](../worker/main.py) 用 `Coordinator`；[`../worker/steps.py`](../worker/steps.py) 在 packaging 阶段用 `PackageBuilder`（建交付字节）+ `Publisher`（发布事务）；[`../experiment_tools/service.py`](../experiment_tools/README.md) 的 `build_package` 走同一个 `PackageBuilder`。
 - 启动顺序：`Coordinator` 不知道阶段内做什么（`Step` 由 worker 注入），所以本层可被测试单独驱动（见 [`test_gate5_cancel.py`](../../../../tests/python/test_gate5_cancel.py)、[`test_gate5_recovery.py`](../../../../tests/python/test_gate5_recovery.py)）。
 
 ## 已知的坑与纪律
@@ -25,3 +26,6 @@
 - 发布是**四道闸门**共同保证：`verdict=passed` + 有效租约 + 未取消 + 基础版本一致——任何一道在 `repositories.publish` 事务里再校验一次，文档描述与代码不一致时以 SQL 为准。
 - `rollback` 与"活跃任务冲突"（`ActiveJobConflict`）是刻意设计：实验有在跑任务时拒绝回滚，别把它当 bug 修掉。
 - 阶段机依赖 `stage_done` 事件做恢复——新增阶段必须同时改 `STAGES` 与事件写入点，否则恢复逻辑静默失效。
+- **交付清单只有一个写入方**：引擎写的 `manifest.json` 是**输入**，`PackageBuilder` 读出元数据后合并逐文件哈希与整包摘要再落盘（同一路径）。要加交付元数据，得同时改引擎 `export/manifest.ts` 与本模块的 `ENGINE_METADATA_KEYS`——只改一边会在构建时报 `DELIVERY_INTEGRITY`，不会静默丢字段。
+- 逐文件表按**完整路径**排除清单本身，不按文件名：上游 dist 里真有嵌套同名文件 `www/simulator/manifest/manifest.json`，按 `name == manifest.json` 排除会把它漏在哈希表外（实测 2162 vs 2163）。
+- **别在 Worker 或工具层里再手写落盘与产物登记**（§C.4 之前的状态）：两条路径各自写盘时，"验证过的字节 == 发布出去的字节"无法核对，也正是在这里出过离线包根本没进生产链的问题。写盘与登记统一走 `PackageBuilder`。

@@ -9,7 +9,7 @@ EduForge Python 侧的全部测试：**23 个文件（21 个 `test_*.py` + `conf
 | 文件 | 行数 | 覆盖 |
 |---|---|---|
 | `conftest.py` | 70 | 夹具（库、应用、临时环境） |
-| `test_agent_tools_acceptance.py` | 631 | 8 项原子工具的端到端验收与**门禁负向用例**：真实导入、多参数与测量表格生效、连续编辑父子链（先构建核验再原子发布）、离线包 manifest 逐文件对上磁盘、并发 RevisionConflict、超量程请求如实被拒（不得偷换值）、过期验证结论不得授权发布、无执行上下文不得回报「已发布」。边界用例 3（u=f 准直与 u<f 虚像）自 §C.2 起**必须 passed** 并核对实测交点与 `|slope| ≤ 2σ`，不再接受"测不出来所以 inconclusive 也算对" |
+| `test_agent_tools_acceptance.py` | 641 | 8 项原子工具的端到端验收与**门禁负向用例**：真实导入、多参数与测量表格生效、连续编辑父子链（先构建核验再原子发布）、离线包 manifest 逐文件对上磁盘、并发 RevisionConflict、超量程请求如实被拒（不得偷换值）、过期验证结论不得授权发布、无执行上下文不得回报「已发布」。边界用例 3（u=f 准直与 u<f 虚像）自 §C.2 起**必须 passed** 并核对实测交点与 `|slope| ≤ 2σ`，不再接受"测不出来所以 inconclusive 也算对" |
 | `test_gate2_protocol.py` | 126 | 修改协议：pydantic 校验、阈值（清晰 ≥0.8 / 弥散 ≤0.4 / 之间不可判）与控制组 |
 | `test_gate5_api_chain.py` | 242 | §6.1 使用链：选模板→建实验→提交(幂等)→查任务→取消→查实验→下载产物；产物完整性（哈希锁定、缺失 404、不符 500、`storage_key` 越界 403） |
 | `test_gate5_cancel.py` | 143 | 取消语义（已成功不回滚、活跃任务状态一致性） |
@@ -21,9 +21,10 @@ EduForge Python 侧的全部测试：**23 个文件（21 个 `test_*.py` + `conf
 | `test_entrypoints.py` | 116 | §6.3 智能体入口：华为云 AgentArts 运行时契约、本地 HTTP 规划与策略错误码映射 |
 | `test_benchmarks.py` | 43 | §7.4 基准评测回归：区分 screening / direct / agent_graph 三种评测，无 key 显式 SKIPPED 杜绝规则伪充 |
 | `test_plan_architecture_alignment.py` | 205 | 方案全貌架构对齐：验证 domain/models/errors、agent/retrieval、coding/workspace/budget、worker/lease、research/rea_runner、infrastructure 各模块自洽性 |
-| `test_chain_worker.py` | 411 | 生产链路：API 提交→Worker 五阶段→原子发布→产物字节级校验；策略拒绝与验证不过都落 `failed` 且不动 head；支持复合操作（改焦距+设置记录表）。**物理边界两条凭实测发布**（2026-10-17 §C.2 补量具后）：`test_chain_far_virtual_image_publishes_on_measured_divergence`（f=40 虚像，实测交点 −119.6cm 对上参考 −120）与 `test_chain_parallel_beam_publishes_on_measured_parallelism`（u=f，斜率与零不可区分）；`test_validation_failure_blocks_publish`（f=5，交付屏上不成像）仍必须失败。候选版本与产物 id 改为**读 `jobs.candidate_revision_id`**（内容派生 id 由生产计算，用例不自己拼） |
+| `test_chain_worker.py` | 433 | 生产链路：API 提交→Worker 五阶段→原子发布→产物字节级校验；策略拒绝与验证不过都落 `failed` 且不动 head；支持复合操作（改焦距+设置记录表）。**物理边界两条凭实测发布**（2026-10-17 §C.2 补量具后）：`test_chain_far_virtual_image_publishes_on_measured_divergence`（f=40 虚像，实测交点 −119.6cm 对上参考 −120）与 `test_chain_parallel_beam_publishes_on_measured_parallelism`（u=f，斜率与零不可区分）；`test_validation_failure_blocks_publish`（f=5，交付屏上不成像）仍必须失败。候选版本与产物 id 改为**读 `jobs.candidate_revision_id`**（内容派生 id 由生产计算，用例不自己拼）。§C.4 起一次发布登记**两份**产物（`native.json` + 离线包 `manifest.json`），用例同时核对包内场景字节 = 交付字节、清单里引擎交付元数据仍在、`package_sha256` 可由逐文件表重算 |
 | `test_gate_b_execution_rights.py` | 599 | **Gate B 执行权与归属（2026-10-17 新增，11 项）**：心跳续租并带控制组（没池就会被抢走）、租约过期不得自续、丢权后新写入与发布都被拒、取消回报 `JOB_CANCELLED`、`attempt` 递增 + `retry_later` 退避 + `MAX_ATTEMPTS_EXCEEDED`、并发追加事件序号唯一、发布重放核对字节与归属、跨 owner 读改下载一律 404、关闭开发身份后无凭据 401、双 Worker 只产生一份交付 |
 | `test_gate_a_candidate.py` | 491 | **Gate A 统一候选执行链（2026-10-17 新增，10 项）**：旧库能升级到 `experiment_candidates` 且迁移幂等、一个 job 只有一行候选、新建 service 实例读回同一份未发布内容、先改 A 再改 B 只能交付 B（A 的绿灯当场清空）、重复构建/发布不产生第二候选或重复产物、换绑实验被拒、两个 service 并发写后者被 CAS 拒绝、纯视图（只开记录表）任务跑通且基线未被误判改写、脚本模型经 `make_worker` 全链交付且「候选字节 = 落盘字节 = 下载哈希」逐字节成立、纯视图任务走完整五阶段不被误判为基线被改 |
+| `test_package_builder.py` | 165 | **Gate C §C.4 统一交付包构建器（新增，7 项）**：用假引擎客户端把构建器自己的职责钉住——清单保留引擎交付元数据并附逐文件表与整包摘要、包内场景=交付字节（不是引擎的 pretty 副本）、改一个 www/ 文件后磁盘重算的摘要与清单不符（篡改可查）、缺元数据必须 `DELIVERY_INTEGRITY` 而不是静默补默认、同内容重跑幂等、`include_offline=False` 不产出包、路径上留有坏字节时重写而非发出坏字节 |
 | `test_publish_chain.py` | 305 | 发布链（原子性、版本可恢复） |
 | `test_contracts_surface.py` | 132 | §6.2 守卫：每个业务接口 2xx 都必须指向具名 DTO（生成物落后于后端即红） |
 | `test_teacher_web_e2e.py` | 304 | 切片 8 金路径：真浏览器驱动教师前端走完整使用链（含版本回滚、下载文件本地重算哈希校验）；head 与产物 id 断言改为对照 `jobs.candidate_revision_id` 与 `artifact_id_for(job, "native", sha256)` |
@@ -39,6 +40,7 @@ EduForge Python 侧的全部测试：**23 个文件（21 个 `test_*.py` + `conf
 | `test_agent_tools_acceptance` | [`experiment_tools/`](../../python/src/eduforge/experiment_tools/README.md)（8 项工具服务 + 策略清单 + 发布委托） |
 | `test_deepagents_runtime` / `test_deepagents_real_model` | [`agent/`](../../python/src/eduforge/agent/README.md)（`deepagents_runtime`、`tool_registry`、`fake_model`、`model`）、[`experiment_tools/`](../../python/src/eduforge/experiment_tools/README.md) |
 | `test_single_publish_path` | [`infrastructure/db/repositories.py`](../../python/src/eduforge/infrastructure/README.md)、[`application/`](../../python/src/eduforge/application/README.md)、[`experiment_tools/service.py`](../../python/src/eduforge/experiment_tools/README.md) |
+| `test_package_builder` | [`application/package_builder.py`](../../python/src/eduforge/application/README.md)（统一交付构建）、`domain/errors.py`（`DeliveryIntegrityError`） |
 | `test_chain_worker` / `test_publish_chain` | [`worker/`](../../python/src/eduforge/worker/README.md)（五阶段）、[`application/`](../../python/src/eduforge/application/README.md)（发布门禁）、[`infrastructure/db/`](../../python/src/eduforge/infrastructure/README.md) |
 | `test_gate5_*` | [`api/`](../../python/src/eduforge/api/README.md)、[`application/coordinator.py`](../../python/src/eduforge/application/README.md)、`repositories.py` |
 | `test_gate6_planning` / `test_planner_port` | [`agent/`](../../python/src/eduforge/agent/README.md)（图、策略、端口） |

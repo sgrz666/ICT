@@ -30,7 +30,7 @@
 
 ## 当前状态与边界
 
-- 已实测闭环：上游场景程序化修改、仿真结果与独立公式吻合（切片 1–8 主要目标达成；教师端版本回滚与实时改参闭环；单文件 HTML 离线直开通过 i18n 预注入补丁解决；代码定制与沙箱预算模块就绪）；测试规模达 vitest 70 / pytest 125 全绿（其中 1 项真模型用例在无 key 时显式 SKIPPED），计数唯一记在 [`catalog/engines/ray-optics.yaml`](catalog/engines/ray-optics.yaml) 的 `test_totals`。
+- 已实测闭环：上游场景程序化修改、仿真结果与独立公式吻合（切片 1–8 主要目标达成；教师端版本回滚与实时改参闭环；单文件 HTML 离线直开通过 i18n 预注入补丁解决；代码定制与沙箱预算模块就绪）；测试规模达 vitest 70 / pytest 132 全绿（其中 1 项真模型用例在无 key 时显式 SKIPPED），计数唯一记在 [`catalog/engines/ray-optics.yaml`](catalog/engines/ray-optics.yaml) 的 `test_totals`。
 - 2026-10-16 新增：**Deep Agents 执行核心**（`agent/deepagents_runtime.py` + `deepagents_planner.py` + `tool_registry.py`）。真实模型在真实实验上自主完成「焦距 15cm + 物距 30cm + 数据记录表」并留下可核对的 Tool Trace（证据：[`../../output/eduforge/reports/agent-deepagents-real.json`](../../output/eduforge/reports/README.md)）。同时删掉了规则式 `agent/tool_agent.py`（448 行，其「自愈」靠伪造验证记录），并修掉一批让「失败可以说成成功」的缺陷（验证结论不随场景失效、无库连接仍回报已发布、`base_untouched` 恒真、8 项工具不经过策略清单、`owner_id` 可由模型自填等）。详见 [`26.10.16_EduForge_DeepAgents落地核查与实况修正.md`](../../plan/26.10.16_EduForge_DeepAgents落地核查与实况修正.md)。
 - 未闭环：Deep Agents **经 Worker 端到端**跑通（租约从不续期，真模型多轮必然超过默认 90s——本轮实测是直接驱动工具服务）；真实模型 12 题基准档位；容器沙箱运行时（切片 7，无 Docker 环境时优雅降级）；MCP 协议合规（只处理 3 个方法，对 `notifications/initialized` 回 `-32601`）；`experiment_tools` 与 `worker/steps.py` 仍是两份操作实现。
 - 完整排期与逐轮进度在 [`../../plan/26.10.15_EduForge_推进计划.md`](../../plan/26.10.15_EduForge_推进计划.md)；上游事实在 [`../../source/upstream/upstream.lock.json`](../../source/upstream/upstream.lock.json)；验证证据在 [`../../output/eduforge/reports/`](../../output/eduforge/reports/README.md)。

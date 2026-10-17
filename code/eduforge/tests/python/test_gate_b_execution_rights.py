@@ -50,7 +50,7 @@ from eduforge.infrastructure.db.repositories import (
     revision_id_for,
 )
 from eduforge.worker.lease import LeaseManager
-from eduforge.worker.steps import Chain, StaticPlanner, make_worker, scene_bytes
+from eduforge.worker.steps import Chain, StaticPlanner, make_worker
 
 OWNER_A = "teacher-a"
 OWNER_B = "teacher-b"

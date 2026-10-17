@@ -13,7 +13,6 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-import hashlib
 import json
 import math
 from pathlib import Path
@@ -30,8 +29,6 @@ from eduforge.application.candidate_service import (
     CandidateService,
     CandidateState,
     content_fingerprint,
-    native_bytes,
-    views_bytes,
 )
 from eduforge.domain.contracts import SetParameter, SetView
 from eduforge.domain.errors import ConflictError, NotFoundError
@@ -63,6 +60,7 @@ from eduforge.infrastructure.db.candidate_repository import (
 )
 from eduforge.infrastructure.db.repositories import RevisionConflict, derived_id
 from eduforge.application.publication import Publisher
+from eduforge.application.package_builder import PackageBuilder
 from eduforge.validation.policies import build_report
 from eduforge.validation.scientific.optics import thin_lens_reference
 
@@ -775,82 +773,13 @@ class ExperimentToolService:
                 "update jobs set candidate_revision_id = $2 where id = $1", self.job.job_id, cand_id
             )
 
-        # 写入候选目录
-        cand_dir = self.artifact_dir / "revisions" / str(cand_id)
-        cand_dir.mkdir(parents=True, exist_ok=True)
-        native_file = cand_dir / "native.json"
-        native_payload = native_bytes(frozen.native_data)
-        native_file.write_bytes(native_payload)
-        native_digest = hashlib.sha256(native_payload).hexdigest()
-
-        def art_id(name: str, digest: str) -> str:
-            return str(self.candidates.artifact_id(frozen, name, digest))
-
-        artifacts = [{
-            "id": art_id("native", native_digest),
-            "storage_key": str(native_file.relative_to(self.artifact_dir)).replace("\\", "/"),
-            "sha256": native_digest,
-            "media_type": "application/json",
-        }]
-
-        # 教学视图
-        views_config = frozen.teaching_views
-        if views_config:
-            views_file = cand_dir / "teaching_views.json"
-            views_payload = views_bytes(views_config)
-            views_file.write_bytes(views_payload)
-            views_digest = hashlib.sha256(views_payload).hexdigest()
-            artifacts.append({
-                "id": art_id("teaching_views", views_digest),
-                "storage_key": str(views_file.relative_to(self.artifact_dir)).replace("\\", "/"),
-                "sha256": views_digest,
-                "media_type": "application/json",
-            })
-
-        offline_pkg_info = None
-        if req.export_offline_zip:
-            pkg_out_dir = cand_dir / "offline_package"
-            pkg_out_dir.mkdir(parents=True, exist_ok=True)
-            res = await self.engine_client.export_offline_package(
-                frozen.native_data,
-                out_dir=str(pkg_out_dir),
-                options={"title": "EduForge 凸透镜成像实验"},
-            )
-            # 把教学视图也同步放进离线包
-            if views_config:
-                pkg_views = pkg_out_dir / "www" / "scene" / "teaching_views.json"
-                pkg_views.parent.mkdir(parents=True, exist_ok=True)
-                pkg_views.write_bytes(views_payload)
-
-            # 逐文件哈希整包，再落一份 manifest：交付字节必须能被复核，
-            # 只记 native.json 的哈希等于没记——离线包真出事时是 www/ 里的资源。
-            manifest_entries = []
-            for p in sorted(pkg_out_dir.rglob("*")):
-                if p.is_file() and p.name != "manifest.json":
-                    manifest_entries.append({
-                        "path": str(p.relative_to(pkg_out_dir)).replace("\\", "/"),
-                        "sha256": hashlib.sha256(p.read_bytes()).hexdigest(),
-                    })
-            manifest_bytes = (json.dumps(manifest_entries, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-            (pkg_out_dir / "manifest.json").write_bytes(manifest_bytes)
-            manifest_digest = hashlib.sha256(manifest_bytes).hexdigest()
-            artifacts.append({
-                "id": art_id("offline_manifest", manifest_digest),
-                "storage_key": str((pkg_out_dir / "manifest.json").relative_to(self.artifact_dir)).replace("\\", "/"),
-                "sha256": manifest_digest,
-                "media_type": "application/json",
-            })
-
-            index_file = Path(res.get("index_file", str(pkg_out_dir / "www" / "index.html")))
-            offline_pkg_info = {
-                "dir": res.get("dir", str(pkg_out_dir)),
-                "index_file": str(index_file),
-                # 这里只断言「入口文件已在盘上」；离线可运行性要靠浏览器实测，
-                # 本轮没实测就不写 ready。
-                "index_present": index_file.is_file(),
-                "file_count": len(manifest_entries),
-                "manifest_sha256": manifest_digest,
-            }
+        # 交付字节由唯一的构建器产出：工具路径与 Worker 路径拿到同一组内容派生 id，
+        # 不再各写一份 artifacts（见 application/package_builder.py 的 §C.4 说明）。
+        built = await PackageBuilder(
+            engine_client=self.engine_client, artifact_dir=self.artifact_dir
+        ).build(frozen, include_offline=req.export_offline_zip)
+        artifacts = built.artifacts
+        offline_pkg_info = built.offline
 
         session["built_artifacts"] = artifacts
         session["built_package"] = offline_pkg_info
@@ -860,7 +789,7 @@ class ExperimentToolService:
             candidate_revision_id=str(cand_id),
             artifacts=artifacts,
             offline_package=offline_pkg_info,
-            sha256=native_digest,
+            sha256=built.native_sha256,
         )
 
     async def publish_revision(

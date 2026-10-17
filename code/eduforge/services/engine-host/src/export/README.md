@@ -24,3 +24,4 @@
 - **`file://` 直开不成立**（GATE-8 实测结论）——对外交付说明必须写「随包静态服务运行」；i18n 补丁解决的是取词，不改变这个结论。
 - `html.ts` 与 `offline-package.ts` 各自硬编码算出上游 `dist` 路径，**未复用** [`../upstream_paths.ts`](../README.md)——改目录结构要三处同看。
 - GATE-8 的三个验证点（包结构 / manifest 与 sha256 / 零出网）在测试里逐项断言——改组装逻辑先跑它。
+- **本服务写的 `manifest.json` 与 `www/scene/native.json` 都是"半成品"**：Python 侧 `application/package_builder.py`（Gate C §C.4）会读回这里的元数据、合并逐文件哈希与整包摘要后重写清单，并把包内场景换成**交付的那一份字节**（`JSON.stringify(x, null, 2)` 与 `native_bytes` 语义相同、字节不同）。别把这两次重写当重复劳动删掉——删了「验证过的字节 = 发出去的字节」在包内就不成立，清单也会丢掉入口/许可这些只有引擎知道的交付事实。

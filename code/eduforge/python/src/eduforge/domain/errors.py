@@ -42,3 +42,13 @@ class ScientificValidationError(EduForgeError):
     """科学参考计算不一致或仿真数值越界。"""
     def __init__(self, message: str, code: str = "SCIENTIFIC_VALIDATION_FAILED"):
         super().__init__(message, code=code)
+
+
+class DeliveryIntegrityError(EduForgeError):
+    """交付字节、清单或离线包自身核对不上。
+
+    与科学验证失败分开：那不是"物理不成立"，而是"我们发出去的东西核对不了"，
+    两者的处置方式与告知对象完全不同。
+    """
+    def __init__(self, message: str, code: str = "DELIVERY_INTEGRITY"):
+        super().__init__(message, code=code)

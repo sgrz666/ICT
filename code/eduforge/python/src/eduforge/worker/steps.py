@@ -26,14 +26,9 @@ from uuid import UUID
 
 import asyncpg
 
-from eduforge.application.candidate_service import (
-    CandidateService,
-    CandidateState,
-    native_bytes,
-    views_bytes,
-)
+from eduforge.application.candidate_service import CandidateService, CandidateState
 from eduforge.domain.contracts import EditProposal, PlannerRequest, SetParameter, SetView
-from eduforge.domain.errors import ConflictError
+from eduforge.domain.errors import ConflictError, DeliveryIntegrityError
 from eduforge.experiment_tools.contracts import (
     BuildPackageInput,
     InspectSceneInput,
@@ -49,6 +44,7 @@ from eduforge.infrastructure.db.repositories import (
     derived_id,
     revision_id_for,
 )
+from eduforge.application.package_builder import PackageBuilder
 from eduforge.application.publication import Publisher
 from eduforge.worker.errors import TerminalError
 
@@ -66,15 +62,6 @@ class StaticPlanner:
 
     async def plan(self, request: PlannerRequest) -> EditProposal:
         return self.proposal
-
-
-def scene_bytes(native: dict[str, Any]) -> bytes:
-    """交付字节的唯一写法。哈希锁这份字节，下载也交这份字节。
-
-    实现住在 `application/candidate_service.py`：工具路径与 Worker 路径以前各写
-    一种（一种带缩进、一种紧凑），同一份场景算得出两个 sha256。
-    """
-    return native_bytes(native)
 
 
 def artifact_path(artifact_dir: Path, candidate_revision: UUID) -> Path:
@@ -334,38 +321,17 @@ class Chain:
         if row["verdict"] != "passed":
             raise TerminalError("VALIDATION_NOT_PASSED", row["verdict"])
 
-        target = artifact_path(self.artifact_dir, cand)
-        expected = scene_bytes(state.native_data)
+        # 交付字节由统一构建器产出并逐字节回读核对（含离线运行包）：
+        # Worker 与工具层不再是两份写盘代码，publish 登记的 artifacts 就是这一份。
         try:
-            payload = target.read_bytes()
-        except FileNotFoundError:
-            raise TerminalError("ARTIFACT_FILE_MISSING", str(target)) from None
-        if payload != expected:
-            raise TerminalError(
-                "ARTIFACT_CONTENT_MISMATCH",
-                f"落盘字节与候选内容不一致：{hashlib.sha256(payload).hexdigest()[:12]} != "
-                f"{hashlib.sha256(expected).hexdigest()[:12]}",
+            built = await PackageBuilder(engine_client=self.engine, artifact_dir=self.artifact_dir).build(
+                state, include_offline=True
             )
-        digest = hashlib.sha256(payload).hexdigest()
-
-        artifacts = [{
-            "id": str(artifact_id_for(job_id, "native", digest)),
-            "storage_key": str(target.relative_to(self.artifact_dir)).replace("\\", "/"),
-            "sha256": digest,
-            "media_type": "application/json",
-        }]
-        views_file = target.parent / "teaching_views.json"
-        if views_file.exists() and state.teaching_views:
-            views_payload = views_bytes(state.teaching_views)
-            if views_file.read_bytes() != views_payload:
-                raise TerminalError("ARTIFACT_CONTENT_MISMATCH", str(views_file))
-            views_digest = hashlib.sha256(views_payload).hexdigest()
-            artifacts.append({
-                "id": str(artifact_id_for(job_id, "teaching_views", views_digest)),
-                "storage_key": str(views_file.relative_to(self.artifact_dir)).replace("\\", "/"),
-                "sha256": views_digest,
-                "media_type": "application/json",
-            })
+        except DeliveryIntegrityError as exc:
+            # 交付完整性失败要让任务可见地终态，不能像崩溃那样等租约过期再重试一遍
+            raise TerminalError("DELIVERY_INTEGRITY", str(exc)) from exc
+        digest = built.native_sha256
+        artifacts = built.artifacts
 
         await Publisher(self.conn).publish(
             job_id=job_id,
@@ -386,6 +352,8 @@ class Chain:
             "artifact_id": artifacts[0]["id"],
             "sha256": digest,
             "content_hash": state.content_hash,
+            # 交付了什么要能在任务记录里看到：离线包文件数与整包摘要（C.5 的浏览器实测核对它）
+            "offline_package": built.offline,
         }
 
     def steps(self) -> dict[str, Any]:
