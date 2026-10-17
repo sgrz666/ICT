@@ -79,8 +79,8 @@ verification_baseline:
   gate2_probe: code/eduforge/tools/gate2_binding.cjs
   engine_host_tests: code/eduforge/services/engine-host/tests/
   report: output/eduforge/reports/slice1-rayoptics-probe.json
-  measured_at: "2026-10-17T15:32:00+08:00"
-  test_totals: { vitest: 70, pytest: 132 }   # 计数只在这里记一次，别处引用本文件
+  measured_at: "2026-10-17T16:21:00+08:00"
+  test_totals: { vitest: 74, pytest: 135 }   # 计数只在这里记一次，别处引用本文件
   passed:
     - 上游接受我们手写的场景，scene.error 与 scene.warning 均为 null
     - toJSON → loadJSON → toJSON 字符串完全一致

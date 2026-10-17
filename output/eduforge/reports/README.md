@@ -19,6 +19,7 @@
 | `benchmark-deepseek_direct.json` | `benchmarks/runner.py` | `deepseek_direct` 档位：`status: SKIPPED`——缺 `DEEPSEEK_API_KEY`，显式跳过（不伪充结果） |
 | `benchmark-agent_graph.json` | `benchmarks/runner.py` | `agent_graph` 档位：`status: SKIPPED`——同上，缺 key |
 | `agent-deepagents-real.json` | `tests/python/test_deepagents_real_model.py` | 2026-10-16 真实模型（`deepseek-flash`）自主完成「焦距 15cm + 物距 30cm + 数据记录表」的完整 Tool Trace：7 次调用（含一次自主换查询词重试的 `search_experiments`）、逐项 `observed`/`expected` 判据、最终场景读数与验证结论。**注意**：`profile` 标注的是这一条任务实测通过，不是 12 题基准的模型档位成绩 |
+| `gate-c5-browser-verification.txt` | `vitest` 全量 / `pytest` 全量 / 一次真 Chromium 实测记录 | §C.5 发布门禁：离线包由 Engine Host 用真浏览器打开的 7 条判据与实测数字（光强 2.9e8、点亮像素 453202、零出网、9.2–10.2 秒），反面用例（删掉模拟器运行时脚本必须判不过）、`offline_verification.json` 的位置，以及顺手发现的 `gate8_offline.test.ts` 用 `isHidden()` 判"场景已载入"的假绿灯（本轮未修，已登记） |
 | `gate-c4-unified-package-builder.txt` | `pytest` 全量 / `vitest` 全量 / 逐文件计数 | §C.4 统一交付包构建器：Worker 原先不建离线包、两处各写一份盘、引擎交付元数据被哈希表覆盖——这三处不一致的修法与实测；含"按文件名排除清单导致 `www/simulator/manifest/manifest.json` 一直被漏在哈希表外（2161 → 2162 条）"这个顺手抓到的真缺陷，以及一次发布产物由 1 份变 2 份的行为改动 |
 | `gate-c2-wide-aperture-probe.txt` | `pytest` / `vitest` / 引擎逐工况探针（15 组） | §C.2 补量具的实测：vitest 70、pytest 125 收集 / 124 通过 / 1 SKIPPED；宽孔径观测副本 + 透镜面光阑后 15 个工况全部判出并与薄透镜参考对上（最大偏差 0.8cm），含「有光阑 −75.0cm vs 无光阑 −227.3cm」这条控制组，以及虚像/准直从拒绝发布改回凭实测发布的行为变化 |
 | `gate-c-validation-geometry.txt` | `uv run pytest` / `vitest` / 引擎逐焦距探针 | Gate C（C.1+C.2）实测：125 收集 / 124 通过 / 1 SKIPPED、vitest 67、逐焦距光束几何数值表，以及「虚像与准直在当前屏阵列上测不出来 → 一律拒绝发布」这条未闭环缺口（同日第二轮已补，见上一行） |

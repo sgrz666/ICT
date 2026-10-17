@@ -328,8 +328,10 @@ class Chain:
                 state, include_offline=True
             )
         except DeliveryIntegrityError as exc:
-            # 交付完整性失败要让任务可见地终态，不能像崩溃那样等租约过期再重试一遍
-            raise TerminalError("DELIVERY_INTEGRITY", str(exc)) from exc
+            # 交付完整性失败要让任务可见地终态，不能像崩溃那样等租约过期再重试一遍。
+            # code 用异常自己带的那个（DELIVERY_INTEGRITY / OFFLINE_NOT_RENDERED），
+            # 统一压成一个字符串会让"包打不开"和"清单核对不上"在报表里长得一样。
+            raise TerminalError(exc.code or "DELIVERY_INTEGRITY", str(exc)) from exc
         digest = built.native_sha256
         artifacts = built.artifacts
 

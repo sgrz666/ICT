@@ -6,7 +6,7 @@
 
 | 文件 | 行数 | 职责 | 关键符号 |
 |---|---|---|---|
-| `engine_client.py` | 83 | Engine Host HTTP 客户端：`template`/`apply`（`POST /adapters/ray_optics/...`）、`sharpest_screen` 取实测像面 | `EngineClient`, `EditRejected`, `EngineUnavailable`, `sharpest_screen` |
+| `engine_client.py` | 96 | Engine Host HTTP 客户端：`template`/`apply`（`POST /adapters/ray_optics/...`）、`export_offline_package`（`POST /export/offline_package`）、**`verify_offline_package`（`POST /verify/offline_package`，§C.5 浏览器实测；422 也带回逐项判据，超时单独放宽到 180s）**、`sharpest_screen` 取实测像面 | `EngineClient`, `EditRejected`, `EngineUnavailable`, `sharpest_screen` |
 | `agent_client.py` | 45 | Agent 规划客户端：本地直调/HTTP 两种实现（`AgentPlannerPort`） | `LocalAgentClient`, `HttpAgentClient` |
 
 ## 与上下层的关系

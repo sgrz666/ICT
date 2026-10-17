@@ -21,7 +21,7 @@
 | `apply_scene_patch` | 是 | **写动作开始前先判执行权**（`_assert_execution`：注入的守护器 ∧ 库里 `status='running'` ∧ `lease_token` 是自己 ∧ 租约未到期；被取消则 `JOB_CANCELLED`）；每条 edit 过 `policy.authorize_operation`（未登记 → `PARAMETER_NOT_REGISTERED`，超量程 → `VALUE_OUT_OF_RANGE`）；引擎拒绝抛 `ConflictError`；改完**写穿候选**（`state_version` CAS），旧验证结论当场作废；**写失败会把缓存退回最后一次已持久化的内容**，不留「改成功但从未落库」的假工作态 |
 | `configure_teaching_views` | 是 | 视图必须在模板 `views` 清单内，否则 `VIEW_NOT_REGISTERED`；同样写穿候选、同样令验证作废 |
 | `run_validation` | 是（`final` 只能由后端调）| 强制引擎往返；报告当场写 `validation_reports`（带候选绑定列），并把 `validation_id` + `content_hash` **绑到候选行**上（内容再变即失配，旧绿灯不作数）。`final=True`（Worker 的最终验证）会**先把候选从库里重新读回来并冻结**，不吃进程内缓存 |
-| `build_package` | **否（后端）** | 先 `freeze()` 候选，再按**候选内容哈希**派生版本与产物 id（`revision_id_for` / `artifact_id_for`，重跑幂等、改内容才成新版本）；**§C.4 起落盘与登记全部交 [`application/package_builder.py`](../application/README.md)**——本工具不再自己写文件、不再自己拼 artifacts；离线包清单 = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要，包内场景就是交付的那一份字节 |
+| `build_package` | **否（后端）** | 先 `freeze()` 候选，再按**候选内容哈希**派生版本与产物 id（`revision_id_for` / `artifact_id_for`，重跑幂等、改内容才成新版本）；**§C.4 起落盘与登记全部交 [`application/package_builder.py`](../application/README.md)**——本工具不再自己写文件、不再自己拼 artifacts；离线包清单 = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要，包内场景就是交付的那一份字节；§C.5 起建完包还会让 Engine Host 用 Chromium 实测，测不过直接 `OFFLINE_NOT_RENDERED`（`export_offline_zip=True` 的调用因此多了约 10 秒）|
 | `publish_revision` | **否（后端）** | 必须有 `JobContext` + 库连接；走 `application/publication.py` → `JobRepository.publish`；发布前用库里的候选重算版本 id，与构建时登记的不一致就拒（防「构建一份、发布另一份」）；`close_job=False` 支持同一 job 连续提交多个版本，发布后 `rebase` 候选基线 |
 
 ### 模块文件清单

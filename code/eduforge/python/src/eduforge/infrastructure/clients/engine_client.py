@@ -54,6 +54,19 @@ class EngineClient:
                 raise EngineUnavailable(f"apply -> {r.status_code}")
             return r.json()
 
+    async def verify_offline_package(self, package_dir: str, timeout: float = 180.0) -> dict[str, Any]:
+        """让 Engine Host 用 Chromium 真打开一份离线包并回报逐项判据。
+
+        422（实测不通过）也照常把 checks 带回去：调用方要的是"到底哪条不成立"，
+        而不是一个把细节压成传输错误的异常。浏览器一次冷启动就要十几秒，
+        所以这里不走默认的 30s 超时。
+        """
+        async with httpx.AsyncClient(timeout=timeout) as c:
+            r = await c.post(f"{self.base}/verify/offline_package", json={"dir": package_dir})
+            if r.status_code not in (200, 422):
+                raise EngineUnavailable(f"verify_offline_package -> {r.status_code}: {r.text}")
+            return r.json()
+
     async def export_offline_package(
         self, scene: dict, out_dir: str, options: dict | None = None
     ) -> dict[str, Any]:

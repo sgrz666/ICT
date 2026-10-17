@@ -2,6 +2,7 @@ import { createServer, type Server } from "node:http";
 
 import { loadBindings, loadTemplateScene, rayOpticsAdapter } from "./adapters/ray-optics/adapter.js";
 import { buildOfflinePackage } from "./export/offline-package.js";
+import { verifyOfflinePackage } from "./verify/offline-runner.js";
 import { createGateway } from "./gateway/server.js";
 import { createPreviewRoutes } from "./preview/server.js";
 import type { SetParameter } from "./contracts.js";
@@ -76,6 +77,13 @@ export function createEngineHost(): Server {
           dir: pkg.dir,
           index_file: pkg.indexFile,
         });
+      }
+
+      // Gate C §C.5：发布前的浏览器实测。不返回"看起来能打开"，只返回逐项判据与总结论。
+      if (req.method === "POST" && url.pathname === "/verify/offline_package") {
+        const body = JSON.parse(await readBody(req)) as { dir: string; settleMs?: number };
+        const result = await verifyOfflinePackage(body.dir, { settleMs: body.settleMs });
+        return json(res, result.ok ? 200 : 422, result);
       }
 
       return json(res, 404, { code: "NOT_FOUND" });

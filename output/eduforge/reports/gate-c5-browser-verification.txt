@@ -1,0 +1,64 @@
+Gate C §C.5 发布门禁：离线包浏览器实测 — 命令与实测结果
+=====================================================
+分支 main（起点 cba81a1）。时间 北京 2026-10-17 15:36–16:22。
+本机 Windows，无 Docker；Chromium 由 engine-host 的 playwright 提供；引擎为真实上游 dist（2161 个文件）。
+
+1) 为什么"入口文件在盘上"不算交付完成
+上一轮把离线包接进生产链之后，`offline_package.index_present` 只能证明 `www/index.html` 存在。
+真正会出事的是运行时：locale 取词、模块加载、canvas 初始化、光迹渲染——这一段没有任何判据覆盖。
+本轮把这一段变成测量：Engine Host 起一个只绑 127.0.0.1 的随包静态服务，用真 Chromium 打开这份包，
+回报 7 条判据；Python 侧 `PackageBuilder` 在建包最后一步调用它，不过就抛
+`DeliveryIntegrityError(code="OFFLINE_NOT_RENDERED")`——包拿不到，发布链走不到 Publisher。
+
+2) 一份好包的实测（f=15、u=30 的候选）
+  entry_declared        PASS  www/index.html
+  entry_file_present    PASS
+  scene_loaded          PASS  欢迎页已被隐藏（场景真被载入）
+  rays_rendered         PASS  光强 287776335，点亮像素 453202（3 个 frame）
+                              canvas 名录：canvasGrid, canvasBelowLight, canvasLight,
+                              canvasLightWebGL, canvasLightWebGPU, canvasAboveLight
+  zero_egress           PASS  0 个出网请求
+  no_page_errors        PASS
+  screenshot_taken      PASS  sha256=06a6f3c6c972…
+单次耗时 9.2–10.2 秒（Chromium 冷启动 + 8s 稳定等待），结论写在包旁的
+`revisions/<候选版本>/offline_verification.json`。
+（截图哈希的**跨次一致性本轮没有实测**：两次运行都在渲染损坏的包上取过相同哈希，
+ 好包只跑过一次，所以没把它当判据用，也没写进任何断言。）
+
+3) 反面用例（这条闸门真的会咬）
+- 删掉 `www/simulator/main.js`：`scene_loaded` 与 `rays_rendered` 同时不过，`ok=false`。
+  页面仍然"能打开"，所以失败必须落在这两条上，而不是入口在不在——这正是 `index_present` 的盲区。
+- 清单 `entry` 指向不存在的文件：`ok=false`，且不开浏览器（1.9s）。
+- 目录没有清单：`manifest_present` 不过，`ok=false`。
+- 引擎客户端没有 `verify_offline_package` 方法：Python 侧直接拒绝，不默认通过。
+
+4) 顺手抓到的一个既有测试的空洞（未修，如实登记）
+`tests/e2e/gate8_offline.test.ts` 用 `frameLocator("#sim").locator("#welcome").isHidden()` 当"场景已载入"。
+Playwright 的 `isHidden()` 在**元素不存在时同样返回 true**，所以 iframe 文档加载失败（甚至 403）时
+那条断言照样绿。我在同一个位置加 canvas 计数时该用例直接超时（180s），说明这条路径在测试环境下
+并不稳，遂回退改动、只做登记。新的 `package_verify.test.ts` 用的是"遍历 frame 树要求元素存在"
+的写法，覆盖同一件事——但 gate8 自身的假绿灯仍在，属已知弱点。
+
+5) 命令与退出码
+services/engine-host: node_modules/.bin/tsc -p tsconfig.build.json → 无错误
+services/engine-host: node_modules/.bin/vitest run → Test Files 11 passed / Tests 74 passed
+                      （新增 tests/e2e/package_verify.test.ts 4 项，70→74）
+code/eduforge/python: ../.venv/Scripts/pytest.exe ../tests/python -q → exit 0，135 收集 / 134 通过 / 1 SKIPPED
+                      （新增 test_package_builder.py 三条实测闸门，132→135）
+                      --collect-only -q 逐文件计数合计 135
+
+6) 行为与成本变化（如实记账）
+- 发布链每次 packaging 都会启动一次浏览器实测：链上 8 个发布用例合计多花约 80 秒。
+  这是刻意的：交付前没人打开过这份包，以前"发布成功"只代表文件写完了。
+- `Chain.packaging` 的终态码保留异常自带的 code（`DELIVERY_INTEGRITY` vs `OFFLINE_NOT_RENDERED`），
+  不再统一压成一个名字——"包打不开"和"清单核对不上"在报表里必须分开。
+- 交付清单 `artifacts` 仍是两份（native + 离线包清单）；实测记录**不进**逐文件哈希表：
+  它是关于这份包的观测，不是包的内容。
+
+7) 仍未闭环
+- 发布**后**的下载重验（拿清单里的哈希再核一遍磁盘）目前只在测试里做，运行时链路没有。
+- 种子版本（未经过链路的基线修订）的可信预览未做。
+- C.3 教学视图 UI 实测、C.6 案例导入、C.7 预览独立 origin 与 postMessage 精确校验未动。
+- 父层 README 的两处目录登记（`services/engine-host/src/README.md`、`tests/README.md`）本轮没写：
+  这两个文件正被并行会话改着，避免把别人的未提交改动卷进我的提交。新目录 `src/verify/`
+  自带 README，且已在 `services/engine-host/README.md` 登记。

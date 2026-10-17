@@ -46,9 +46,15 @@ def make_state(*, views: dict[str, Any] | None = None) -> CandidateState:
 class FakeEngine:
     """模拟引擎的离线包产出：包里放一个**嵌套的同名 manifest.json**（上游 dist 真有：www/simulator/manifest/manifest.json）。"""
 
-    def __init__(self, *, metadata: bool = True) -> None:
+    def __init__(self, *, metadata: bool = True, verify_ok: bool = True, supports_verify: bool = True) -> None:
         self.metadata = metadata
+        self.verify_ok = verify_ok
         self.calls: list[str] = []
+        self.verified: list[str] = []
+        if not supports_verify:
+            # 模拟一个还不认识"浏览器实测"这件事的引擎客户端（实例属性置空即可，
+            # 删掉它会退回类上的方法，那条负向用例就测不出东西了）
+            self.verify_offline_package = None  # type: ignore[assignment]
 
     async def export_offline_package(self, scene: dict, out_dir: str, options: dict | None = None) -> dict:
         self.calls.append(out_dir)
@@ -72,6 +78,22 @@ class FakeEngine:
                 encoding="utf-8",
             )
         return {"dir": str(root), "index_file": str(root / "www" / "index.html")}
+
+    async def verify_offline_package(self, package_dir: str, timeout: float = 180.0) -> dict[str, Any]:
+        """替身浏览器：只回报判据，真浏览器的行为在 engine-host 侧测（见 vitest）。"""
+        self.verified.append(package_dir)
+        if not self.verify_ok:
+            return {
+                "ok": False, "scene_sha256": None, "screenshot_sha256": None,
+                "checks": [
+                    {"id": "entry_file_present", "passed": True, "observed": "在"},
+                    {"id": "rays_rendered", "passed": False, "observed": "光强 0，点亮像素 0（3 个 frame）"},
+                ],
+            }
+        return {
+            "ok": True, "scene_sha256": "abc", "screenshot_sha256": "f" * 64,
+            "checks": [{"id": "rays_rendered", "passed": True, "observed": "光强 287776335，点亮像素 453202"}],
+        }
 
 
 def builder(tmp_path: Path, engine: FakeEngine) -> PackageBuilder:
@@ -163,3 +185,35 @@ def test_a_stale_file_at_the_content_derived_path_is_rewritten_not_shipped(tmp_p
     assert target.read_bytes() == stale, "坏字节必须被候选内容重写"
     assert again.native_sha256 == built.native_sha256 == hashlib.sha256(stale).hexdigest()
     assert [a["id"] for a in again.artifacts] == [a["id"] for a in built.artifacts]
+
+
+def test_package_that_does_not_render_cannot_be_built_or_published(tmp_path):
+    """§C.5：浏览器实测不通过 ⇒ 这份包根本没建出来，发布链走不到 Publisher。
+
+    以前只有 `index_present`（入口文件在盘上），打开是空白也算"交付完成"。
+    """
+    engine = FakeEngine(verify_ok=False)
+    with pytest.raises(DeliveryIntegrityError, match="浏览器实测未通过"):
+        asyncio.run(builder(tmp_path, engine).build(make_state(), include_offline=True))
+    assert engine.verified, "根本没去实测"
+    # 实测结论没通过时不落 verification.json，避免留下"看起来验过"的现场
+    assert not (tmp_path / "revisions").exists() or not list(
+        (tmp_path / "revisions").rglob("offline_verification.json")
+    )
+
+
+def test_verification_conclusion_is_recorded_next_to_the_package(tmp_path):
+    engine = FakeEngine()
+    built = asyncio.run(builder(tmp_path, engine).build(make_state(), include_offline=True))
+    assert built.offline["verification"]["ok"] is True
+    assert built.offline["verification"]["source"] == "browser:chromium"
+    assert built.offline["verification"]["checks"][0]["id"] == "rays_rendered"
+    record = tmp_path / "revisions" / str(built.candidate_revision_id) / "offline_verification.json"
+    assert json.loads(record.read_text(encoding="utf-8"))["ok"] is True
+    assert engine.verified == [built.offline["dir"]]
+
+
+def test_engine_client_without_browser_verification_is_not_assumed_ok(tmp_path):
+    """客户端不认识实测方法时，宁可拒绝也不能默认通过。"""
+    with pytest.raises(DeliveryIntegrityError, match="不支持离线包浏览器实测"):
+        asyncio.run(builder(tmp_path, FakeEngine(supports_verify=False)).build(make_state(), include_offline=True))

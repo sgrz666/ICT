@@ -178,6 +178,15 @@ def test_chain_publishes_and_delivers_exactly_the_hashed_bytes(uri, art_dir, eng
         (pkg / "manifest.json").read_bytes()
     ).hexdigest()
 
+    # §C.5：发布前必须真的用浏览器打开过这份包，结论落在包旁边的核对记录里
+    record = json.loads(
+        (pkg.parent / "offline_verification.json").read_text(encoding="utf-8")
+    )
+    assert record["source"] == "browser:chromium" and record["ok"] is True
+    rays = next(c for c in record["checks"] if c["id"] == "rays_rendered")
+    assert rays["passed"] is True and "点亮像素" in rays["observed"]
+    assert record["screenshot_sha256"], "没有截图哈希，等于没看过"
+
 
 def test_policy_rejection_is_terminal_and_touches_nothing(uri, art_dir, engine_url):
     """未登记的对象：策略层拒，任务可见地失败，而不是永远转圈。"""

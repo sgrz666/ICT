@@ -150,14 +150,19 @@ class PackageBuilder:
         manifest_digest = _digest(manifest_bytes)
 
         index_file = Path(res.get("index_file") or pkg_dir / "www" / "index.html")
+        # Gate C §C.5：交付前用真浏览器实测这份包。测不过就拿不到包，也就发布不出去。
+        verification = await self._verify_package(pkg_dir)
+        self._write_verifying(
+            pkg_dir.parent / "offline_verification.json",
+            (json.dumps(verification, ensure_ascii=False, indent=2) + "\n").encode("utf-8"),
+        )
         artifacts = [
             self._artifact(job_id, "offline_manifest", manifest_file, manifest_digest)
         ]
         offline = {
             "dir": str(pkg_dir),
             "index_file": str(index_file),
-            # 这里只断言「入口文件已在盘上」；离线可运行性要靠浏览器实测（C.5），
-            # 没实测就不写 ready。
+            # 入口在盘上只是必要条件；能不能跑出光路由浏览器实测说了算（见 verification）
             "index_present": index_file.is_file(),
             "file_count": len(files),
             "manifest_sha256": manifest_digest,
@@ -166,8 +171,36 @@ class PackageBuilder:
             "requires_local_static_server": metadata["requires_local_static_server"],
             "license": metadata["license"],
             "engine_version": metadata["engine_version"],
+            "verification": verification,
         }
         return artifacts, offline, pkg_sha
+
+    async def _verify_package(self, pkg_dir: Path) -> dict[str, Any]:
+        """让引擎宿主用 Chromium 真打开这份包，拿逐项判据回来。
+
+        判据在引擎侧产生：入口存在、欢迎页被隐藏（场景真进去了）、光层画出了像素、
+        零出网、无页面错误。任何一条不成立就抛 `DeliveryIntegrityError`——
+        「发布出去的包打开是空白」和「科学验证不通过」一样，必须是可见的失败。
+        """
+        verify = getattr(self.engine_client, "verify_offline_package", None)
+        if verify is None:
+            raise DeliveryIntegrityError("引擎客户端不支持离线包浏览器实测，不能凭推断放行")
+        result = await verify(str(pkg_dir))
+        checks = result.get("checks", [])
+        if not result.get("ok"):
+            failed = ", ".join(
+                f"{c.get('id')}→{str(c.get('observed'))[:80]}" for c in checks if not c.get("passed")
+            )
+            raise DeliveryIntegrityError(
+                f"离线包浏览器实测未通过：{failed or '引擎未回报判据'}", code="OFFLINE_NOT_RENDERED"
+            )
+        return {
+            "source": "browser:chromium",
+            "ok": True,
+            "checks": checks,
+            "screenshot_sha256": result.get("screenshot_sha256"),
+            "scene_sha256_seen": result.get("scene_sha256"),
+        }
 
     def _engine_metadata(self, manifest_path: Path) -> dict[str, Any]:
         """读回引擎写的交付元数据。缺一个键就说明引擎的交付契约变了，不静默补默认值。"""
