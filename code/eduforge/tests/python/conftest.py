@@ -6,8 +6,11 @@
 from __future__ import annotations
 
 import os
+import shutil
 import socket
 import subprocess
+import tempfile
+import warnings
 import time
 from pathlib import Path
 
@@ -15,6 +18,61 @@ import httpx
 import pytest
 
 ENGINE_DIR = Path(__file__).resolve().parents[2] / "services" / "engine-host"
+
+# 测试专用临时目录前缀。夹具自己 mkdtemp 起 Postgres 与产物目录，
+# 但只 stop 服务器、不删目录——2026-10-17 用户抱怨 %TEMP% 一天之内堆出上千个目录
+# （每个簇几十 MB、每份离线包 2163 个文件）。见下面的会话级清扫夹具。
+_TEST_TMP_PREFIXES = ("eduforge-", "pkg-verify-", "verify-smoke-", "verify-probe-", "race-")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _sweep_own_temp_dirs():
+    """跑之前和之后各扫一遍，把测试临时目录留在 %TEMP% 的数量压到"当前还有进程抓着"的那些。
+
+    各夹具自己 `pgserver.get_server(mkdtemp(), cleanup_mode=None)`，只 stop 服务器不删目录；
+    Windows 上 `stop()` 还常常慢一拍，于是 2026-10-17 一天之内 %TEMP% 堆出上千个
+    `eduforge-*`（每簇几十 MB，每份离线包 2163 个文件）。这里只动**测试前缀**的目录，
+    别人的临时文件一律不碰；删不掉就如实 warn，而不是假装干净。
+    """
+    tmp = Path(tempfile.gettempdir())
+
+    def candidates() -> list[Path]:
+        try:
+            return [p for p in tmp.iterdir() if p.is_dir() and p.name.startswith(_TEST_TMP_PREFIXES)]
+        except OSError:
+            return []
+
+    def sweep(keep: set[str] = frozenset(), older_than: float | None = None) -> list[Path]:
+        now = time.time()
+        left: list[Path] = []
+        for p in candidates():
+            if p.name in keep:
+                continue
+            # 只碰"确定不在别人手里"的：开场那遍要求目录已经闲了 30 分钟以上，
+            # 因为同一台机器上可能有另一个会话正在跑测试，它的前缀和这里一样。
+            if older_than is not None and now - p.stat().st_mtime < older_than:
+                continue
+            shutil.rmtree(p, ignore_errors=True)
+            if p.exists():
+                left.append(p)
+        return left
+
+    # 开场先清历史遗留（30 分钟内的不动，避免误删并行会话正在用的目录）
+    sweep(older_than=1800)
+    before = {p.name for p in candidates()}
+    yield
+    for attempt in range(2):
+        left = [p for p in sweep(before) if p.exists()]
+        if not left:
+            return
+        if attempt == 0:
+            time.sleep(1.5)  # 刚 stop 的 Postgres 可能还要几百毫秒才放开目录
+        warnings.warn(
+            f"仍有 {len(left)} 个测试临时目录删不掉（多半还有进程抓着）："
+            + ", ".join(p.name for p in left[:5]),
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
 
 def free_port() -> int:

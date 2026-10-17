@@ -31,6 +31,8 @@ export function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ path: string; revision: string } | null>(null);
   const [artifact, setArtifact] = useState<{ id: string; sha256: string } | null>(null);
+  // §C.3：教学视图配置随版本一起载入，面板只渲染后端给的那一份
+  const [views, setViews] = useState<Record<string, unknown> | null>(null);
   const [loadErrorCode, setLoadErrorCode] = useState<string | null>(null);
   const [loadErrorDetail, setLoadErrorDetail] = useState<string | null>(null);
   const [rollingBack, setRollingBack] = useState(false);
@@ -52,9 +54,14 @@ export function App() {
     setLoadErrorCode(null);
     setLoadErrorDetail(null);
     try {
-      const listed = await api.artifacts(revisionId);
-      const first = listed.artifacts[0];
-      if (!first) {
+      const [listed, viewData] = await Promise.all([api.artifacts(revisionId), api.views(revisionId)]);
+      setViews(viewData.views);
+      // 按 storage_key 认领交付场景，不靠数组下标：一次发布现在登记 native、
+      // 教学视图与离线包清单三份产物，取 [0] 只是碰巧排前面。
+      const native = listed.artifacts.find(a =>
+        a.storage_key.replace(/\\/g, "/").endsWith("native.json")
+      );
+      if (!native) {
         // 种子版本：若无独立交付产物，从可信模板载入只读预览
         try {
           const tplRes = await fetch("/adapters/ray_optics/template");
@@ -75,14 +82,15 @@ export function App() {
         setArtifact(null);
         return;
       }
-      const got = await downloadVerified(first.artifact_id, first.sha256);
+      const got = await downloadVerified(native.artifact_id, native.sha256);
       const scene = JSON.parse(new TextDecoder().decode(got.bytes)) as unknown;
       const reg = await api.registerPreview(scene);
       setPreview({ path: reg.path, revision: revisionId });
-      setArtifact({ id: first.artifact_id, sha256: got.sha256 });
+      setArtifact({ id: native.artifact_id, sha256: got.sha256 });
     } catch (e) {
       setPreview(null);
       setArtifact(null);
+      setViews(null);
       if (e instanceof ApiError) setLoadErrorCode(e.code);
       else setLoadErrorDetail(String((e as Error).message ?? e));
     }
@@ -325,6 +333,7 @@ export function App() {
               rollingBack={rollingBack}
               preview={preview}
               artifact={artifact}
+              views={views}
               controls={controls}
               onSaveTunedRevision={changes => void handleSaveTunedRevision(changes)}
               savingTuned={savingTuned}

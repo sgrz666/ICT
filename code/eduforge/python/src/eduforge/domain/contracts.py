@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Literal
+from typing import Any, Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -181,6 +181,17 @@ class RevisionArtifacts(Contract):
 
     revision_id: UUID
     artifacts: list[ArtifactSummary]
+
+
+class RevisionViews(Contract):
+    """版本的教学视图配置：发布时写进 `experiment_revisions.lesson` 的那一份。
+
+    §C.3 的出口。前端只有读到它，才知道教师勾了哪些视图、记录表该有哪些列和行——
+    以前这些数据只存在于库和产物文件里，界面一个字都不显示。
+    """
+
+    revision_id: UUID
+    views: dict[str, Any]
 
 
 class JobCancelled(Contract):

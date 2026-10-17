@@ -1,0 +1,61 @@
+Gate C §C.3 教学视图上屏 + 测试临时目录治理 — 命令与实测结果
+===========================================================
+分支 main（起点 f2cef09）。时间 北京 2026-10-17 16:30–17:50。
+本机 Windows，无 Docker；真 Postgres(pgserver) + 真 Engine Host + 真网关 + 真 Worker 子进程 + 真 Chromium。
+
+1) §C.3 的缺口是"三段全缺"，不是"差一点"
+调查结论（全仓 grep）：`teaching_views.json` 只出现在 `python/` 与 `tests/`，
+`apps/teacher-web` 与 `services/engine-host` 的前端**零读取**；后端 HTTP 面也没有任何视图出口
+（`revisions` 查询只取 id/parent/engine/created_at，`lesson` 列从不进响应）。
+也就是说：教师勾了什么视图、记录表有哪些列与行，全部只存在于数据库与产物文件里，界面一个字都不显示。
+
+2) 补的三段
+- 出口：`GET /api/v1/revisions/{id}/views`（`api/main.py`），读 `lesson->'views'`；
+  归属仍顺着 `experiments.owner_id` join（知道 UUID 不是凭据）。DTO `RevisionViews` 加在
+  `domain/contracts.py`，TS 类型由 `tools/export_contracts.py` 重新生成（21 个具名 DTO），
+  `test_contracts_surface.py` 守着"生成物落后于后端即红"。
+- 界面：`components/TeachingViews.tsx`（94 行）渲染列定义与记录行；**在边界上做运行时校验**，
+  结构读不出来就明说读不出来，不猜一份表头凑数。`ExperimentWorkspace` 挂进工作区。
+- 顺带修掉一个隐患：`App.tsx` 以前取 `artifacts[0]` 当交付场景。§C.4 之后一次发布登记三份产物，
+  靠下标认会悄悄预览错东西；改为按 `storage_key` 结尾认领 `native.json`。
+
+3) Chromium 实测（`test_teacher_web_e2e.py` 金路径，两条用例全绿）
+Worker 需要注入视图才有数据可显示，因此给生产入口加了 `--planner-static-view`（与既有
+`--planner-static-focal` 同一类链路验证开关，不动模型路径）。屏上断言：
+  表头五列 = 物距 u（cm）/ 焦距 f（cm）/ 像距 v（cm）/ 像的性质 / 放大率
+  第一行   = 30, 15, 30, 倒立等大实像 (real), -1     ← u=30、f=15 的独立参考就是 v=30、放大率 −1、实像
+再与磁盘上交付的那份 `teaching_views.json` 逐值比对（列 key、记录数、每个数值），
+证明"界面显示的就是交付的"，不是前端另算了一份好看的。
+一处自我纠正：我先按 `cells[3] == "实像"` 断言，实测那一格是后端给的描述串"倒立等大实像 (real)"——
+改成"含实像"再与交付产物逐字比对，不为了变绿而迁就字面量。
+版本表行数选择器限定到 `#revision-history`：页面上多了记录表之后，整页 `table tbody tr` 会把记录行数进去。
+
+4) 测试临时目录治理（用户当场指出"硬盘爆炸"）
+- 事实核对：`%TEMP%` 里 `eduforge-*` 等前缀共 1018 个目录，但取样 400 个合计 1.4MB——**基本是空壳**；
+  C 盘剩余 51.2GB，真正的字节大户是 npm 缓存 4.8GB 与 pip 缓存 2.6GB（未动，等用户决定）。
+- 根因在仓库测试代码：13 处 `pgserver.get_server(mkdtemp(...), cleanup_mode=None)` 只 `stop()` 不删目录，
+  `art_dir` 等夹具同样只建不删；我今天为验证跑了 5 次全量，于是目录数滚到上千。
+- 修法：`tests/python/conftest.py` 加会话级 autouse 清扫——开场删除 30 分钟以上的历史遗留测试前缀目录
+  （30 分钟是为了不误伤同一台机器上并行会话正在用的目录），收尾删除本轮新建的，删不动就 `warnings.warn`
+  而不是假装干净。实测：全量跑过程中一度出现 355 个目录，收尾后剩 11 个（进程还抓着），
+  下一轮开场清扫会带走；本轮我已手工清空至 0，并杀掉我自己的探针遗留的一次性 Postgres。
+
+5) 顺手抓到并修掉的执行权竞态
+全量第三次跑时 `test_gate_b_execution_rights.py` 失败：
+`asyncpg InterfaceError: cannot perform operation: another operation is in progress`。
+原因不是丢了租约，而是后台心跳与发布前的 `check_now()` 走**同一条**池内守护连接，并发叠了事务。
+修：`LeaseManager.beat()` 加 `_beat_lock` 串行。控制证明：绕开锁直接并发 20 次 `renew_and_check`
+当场复现同一异常（一次性脚本实测后已删除），走 `beat()` 的 20 次并发则 20 次全 `ok`。
+新增回归用例 `test_concurrent_renewals_share_one_guard_connection_and_must_serialise`。
+
+6) 命令与退出码
+code/eduforge/python: ../.venv/Scripts/pytest.exe ../tests/python -q → 136 收集 / 135 通过 / 1 SKIPPED，结果行无 F
+                      （SKIPPED = 真模型用例无 key；两条清扫 RuntimeWarning 属"删不动的目录"如实回报）
+apps/teacher-web: npm run typecheck → 无错误；npm run build → 产物 195.26 kB JS
+code/eduforge: .venv/Scripts/python.exe tools/export_contracts.py → 21 schemas
+services/engine-host: node_modules/.bin/vitest run → 11 files / 74 passed（本轮未改 TS 生产码）
+
+7) §C.3 仍未做的部分（别读成已完成）
+- 视图的**导出**（把记录表存成文件）没做；切换版本时是"整份重取"，没有增量实时刷新。
+- `scene` / `controls` 两类视图仍由预览与控件承载，面板只如实说明这一点。
+- 案例库导入（C.6）、预览独立 origin 与 postMessage 精确校验（C.7）、发布后下载重验与种子预览（C.5b）未动。

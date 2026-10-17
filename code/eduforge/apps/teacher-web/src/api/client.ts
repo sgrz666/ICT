@@ -6,6 +6,7 @@ import type {
   JobView,
   RevisionArtifacts,
   RevisionList,
+  RevisionViews,
   TemplateList,
 } from "@eduforge/contracts";
 
@@ -64,6 +65,10 @@ export const api = {
 
   artifacts: (revisionId: string) =>
     call<RevisionArtifacts>(`/api/v1/revisions/${revisionId}/artifacts`),
+
+  /** §C.3：教学视图配置只能从后端读，前端不自己拼一份"看起来一样"的表。 */
+  views: (revisionId: string) =>
+    call<RevisionViews>(`/api/v1/revisions/${revisionId}/views`),
 
   cancelJob: (jobId: string) => call<{ job_id: string; status: string }>(`/api/v1/jobs/${jobId}/cancel`, { method: "POST" }),
 

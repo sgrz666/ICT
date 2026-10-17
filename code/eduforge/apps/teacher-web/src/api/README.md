@@ -6,7 +6,7 @@
 
 | 文件 | 行数 | 职责 | 关键符号 |
 |---|---|---|---|
-| `client.ts` | 119 | 封装全部业务调用；下载产物后**自己重算 sha256**（字节 / 响应头 / 清单三方校验） | `ApiError`, `api`, `sha256Hex()`, `downloadVerified()`, `VerifiedArtifact` |
+| `client.ts` | 124 | 封装全部业务调用（含 §C.3 的 `views()`）；下载产物后**自己重算 sha256**（字节 / 响应头 / 清单三方校验） | `ApiError`, `api`, `sha256Hex()`, `downloadVerified()`, `VerifiedArtifact` |
 
 ## `api` 对象的调用面
 

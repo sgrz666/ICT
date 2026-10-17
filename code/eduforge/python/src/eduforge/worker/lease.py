@@ -58,6 +58,8 @@ class LeaseManager:
         self._started_monotonic: float | None = None
         self._pool: asyncpg.Pool | None = None
         self._own_conn: asyncpg.Connection | None = None
+        # 续租串行锁：见 beat() 的说明
+        self._beat_lock = asyncio.Lock()
 
     @classmethod
     async def from_pool(
@@ -94,16 +96,23 @@ class LeaseManager:
             self._task = None
 
     async def beat(self) -> str:
-        """一次续租 + 状态判定。测试用它把时间推进变成可观察的事件。"""
-        self.state = await self.repository.renew_and_check(
-            self.job_id, self.lease_token, self.lease_duration
-        )
-        if self.state != OK:
-            self._expired = True
-            self._running = False
-        else:
-            self.renewals += 1
-        return self.state
+        """一次续租 + 状态判定。测试用它把时间推进变成可观察的事件。
+
+        必须串行：后台心跳循环和 packaging 的 `check_now()` 走的是**同一条**守护连接，
+        而 asyncpg 一条连接同时只允许一个操作。并发时抛的是
+        `InterfaceError: cannot perform operation: another operation is in progress`
+        ——那是连接用法错了，不是丢了执行权，绝不能让它冒充成租约结论。
+        """
+        async with self._beat_lock:
+            self.state = await self.repository.renew_and_check(
+                self.job_id, self.lease_token, self.lease_duration
+            )
+            if self.state != OK:
+                self._expired = True
+                self._running = False
+            else:
+                self.renewals += 1
+            return self.state
 
     def check_active(self) -> None:
         """新动作前的一闸门：丢权/取消/超时都必须立刻停下。"""

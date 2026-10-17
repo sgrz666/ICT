@@ -443,6 +443,47 @@
         }
       }
     },
+    "/api/v1/revisions/{revision_id}/views": {
+      "get": {
+        "summary": "Revision Views",
+        "description": "§C.3 教学视图的出口：读发布时冻结在 `lesson` 里的那一份。\n\n界面不自己拼视图配置——教师勾了什么、记录表有哪些列与行，都以上线版本为准。\n归属照样顺着 experiments.owner_id 走一遍：知道 UUID 从来不是访问凭据。",
+        "operationId": "revision_views_api_v1_revisions__revision_id__views_get",
+        "parameters": [
+          {
+            "name": "revision_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Revision Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionViews"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/artifacts/{artifact_id}/download": {
       "get": {
         "summary": "Download",
@@ -979,6 +1020,28 @@
           "created_at"
         ],
         "title": "RevisionSummary"
+      },
+      "RevisionViews": {
+        "properties": {
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "views": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Views"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_id",
+          "views"
+        ],
+        "title": "RevisionViews",
+        "description": "版本的教学视图配置：发布时写进 `experiment_revisions.lesson` 的那一份。\n\n§C.3 的出口。前端只有读到它，才知道教师勾了哪些视图、记录表该有哪些列和行——\n以前这些数据只存在于库和产物文件里，界面一个字都不显示。"
       },
       "RollbackRequest": {
         "properties": {

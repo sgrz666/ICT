@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
 import os
 import subprocess
 import sys
@@ -120,13 +121,17 @@ def stack():
             stop()
 
 
-def _worker(stack, *, entity: str = "lens_1", focal: str = "15"):
+def _worker(stack, *, entity: str = "lens_1", focal: str = "15", views: tuple[str, ...] = ()):
     """按测试启停 Worker：两个 Worker 同时在跑会抢任务，抢不到的一方就变成随机失败。"""
+    argv = [sys.executable, "-m", "eduforge.worker.run",
+            "--planner-static-focal", focal, "--planner-static-entity", entity,
+            "--dsn", stack["uri"], "--engine-url", stack["engine"],
+            "--artifact-dir", str(stack["art"]), "--lease-seconds", "20", "--idle-seconds", "0.5"]
+    # §C.3 需要链路上真的有视图数据：只注入焦距的提案不会开启任何教学视图
+    for v in views:
+        argv += ["--planner-static-view", v]
     proc = subprocess.Popen(
-        [sys.executable, "-m", "eduforge.worker.run",
-         "--planner-static-focal", focal, "--planner-static-entity", entity,
-         "--dsn", stack["uri"], "--engine-url", stack["engine"],
-         "--artifact-dir", str(stack["art"]), "--lease-seconds", "20", "--idle-seconds", "0.5"],
+        argv,
         env={**os.environ, "DEEPSEEK_API_KEY": "", "PYTHONIOENCODING": "utf-8"},
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -180,7 +185,7 @@ def _latest_experiment(uri: str) -> dict:
 
 
 def test_golden_path_selects_submits_previews_and_downloads(stack):
-    worker = _worker(stack)
+    worker = _worker(stack, views=("measurement_table",))
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch()
@@ -207,9 +212,11 @@ def test_golden_path_selects_submits_previews_and_downloads(stack):
             assert sim.evaluate(LIT_PIXELS) > 0
 
             # 版本区：种子 + 新发布的这一个，head 指向新的
+            # 选择器要限定在版本历史里：§C.3 之后页面上还有教学视图的表，
+            # 数着"整页表格行数"会把记录行也算进版本数。
             body = page.inner_text("body")
             assert "· head" in body
-            assert page.locator("table tbody tr").count() == 2
+            assert page.locator("#revision-history table tbody tr").count() == 2
 
             # 下载：浏览器存盘后由测试本地重算，与产物清单登记值比对
             with page.expect_download(timeout=30000) as info:
@@ -225,6 +232,19 @@ def test_golden_path_selects_submits_previews_and_downloads(stack):
             assert hashlib.sha256(bytes_).hexdigest() == latest["artifact"]["sha256"], \
                 "界面提示已校验，但落盘字节和登记哈希不一致"
 
+            # §C.3：教学视图必须真的上屏——数据来自后端 lesson，不是前端自己拼的表头
+            panel = page.locator("#teaching-views")
+            panel.wait_for()
+            assert "测量记录表" in panel.inner_text(), panel.inner_text()
+            headers = [t.strip() for t in panel.locator("thead th").all_inner_texts()]
+            assert headers == ["物距 u（cm）", "焦距 f（cm）", "像距 v（cm）", "像的性质", "放大率"], headers
+            cells = [c.strip() for c in panel.locator("tbody tr").first.locator("td").all_inner_texts()]
+            # u=30、f=15 的独立参考是 v=30、放大率 −1、成实像：界面上显示的就是这几个数。
+            # 「像的性质」那一格是后端给的中文描述串，这里只断言它说的是实像，
+            # 逐字比对放到下面与交付产物同源的那一步。
+            assert cells[:3] == ["30", "15", "30"], cells
+            assert "实像" in cells[3], cells
+            assert cells[4] == "-1", cells
             # head 与产物指向必须与那次任务对得上：证明页面上那个版本确实是这条链发出来的
             job_row = _job_for(stack["uri"], _u(latest["experiment_id"]))
             assert job_row and job_row["status"] == "succeeded", job_row
@@ -236,12 +256,26 @@ def test_golden_path_selects_submits_previews_and_downloads(stack):
             assert _u(latest["artifact"]["artifact_id"]) == artifact_id_for(
                 job_id, "native", latest["artifact"]["sha256"])
 
+            # 屏上那一行必须与**交付产物里的**同一份数据同源：直接读磁盘上那份 teaching_views.json。
+            # 只看界面会漏掉一类错误——前端从别的接口拿来一份新数据，屏上好看但交付的不是它。
+            delivered = json.loads(
+                (stack["art"] / "revisions" / str(cand) / "teaching_views.json").read_bytes()
+            )
+            records = delivered["measurement_table"]["records"]
+            assert len(records) == panel.locator("tbody tr").count(), (records, cells)
+            assert delivered["measurement_table"]["columns"][0]["key"] == "object_distance_cm"
+            rec = records[0]
+            assert [cells[0], cells[1], cells[2]] == [
+                str(int(rec["object_distance_cm"])), str(int(rec["focal_length_cm"])),
+                str(int(rec["image_distance_cm"]))]
+            assert cells[3] == rec["image_kind"] and cells[4] == str(int(rec["magnification"]))
+
             # 验证版本回滚（§6.1/§6.2 闭环）：点击回滚到种子版本
             rollback_btn = page.get_by_role("button", name="回滚到此版本")
             assert rollback_btn.count() == 1
             rollback_btn.click()
             page.wait_for_function(
-                "() => { const rows = document.querySelectorAll('table tbody tr'); "
+                "() => { const rows = document.querySelectorAll('#revision-history table tbody tr'); "
                 "return rows.length === 2 && rows[0].innerText.includes('head'); }",
                 timeout=15000,
             )

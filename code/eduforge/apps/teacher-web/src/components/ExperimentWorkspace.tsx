@@ -6,6 +6,7 @@ import { JobProgress } from "./JobProgress";
 import { PreviewFrame } from "./PreviewFrame";
 import { PromptEditor } from "./PromptEditor";
 import { RevisionHistory } from "./RevisionHistory";
+import { TeachingViews } from "./TeachingViews";
 
 /** 工作区：把输入、进度、预览、版本与下载组合在一屏里（§6.2 的组合职责）。 */
 export function ExperimentWorkspace(props: {
@@ -25,6 +26,7 @@ export function ExperimentWorkspace(props: {
   rollingBack?: boolean;
   preview: { path: string; revision: string } | null;
   artifact: { id: string; sha256: string } | null;
+  views: Record<string, unknown> | null;
   controls?: ControlSummary[];
   onSaveTunedRevision?: (changes: Array<{ entityId: string; parameter: string; value: number }>) => void;
   savingTuned?: boolean;
@@ -65,6 +67,7 @@ export function ExperimentWorkspace(props: {
         onSaveTunedRevision={props.onSaveTunedRevision}
         savingTuned={props.savingTuned}
       />
+      <TeachingViews views={props.views} />
       <section>
         <h2>交付</h2>
         <DownloadButton

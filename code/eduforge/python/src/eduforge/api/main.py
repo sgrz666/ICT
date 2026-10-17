@@ -5,6 +5,7 @@ owner_id 由入口注入：本地固定开发身份，云端由认证层注入�
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import uuid
 from contextlib import asynccontextmanager
@@ -36,6 +37,7 @@ from eduforge.domain.contracts import (
     JobCancelled,
     JobView,
     RevisionArtifacts,
+    RevisionViews,
     RevisionList,
     RollbackRequest,
     TemplateList,
@@ -253,6 +255,33 @@ def create_app(
                 revision_id,
             )
         return {"revision_id": revision_id, "artifacts": [dict(r) for r in rows]}
+
+    @app.get(
+        "/api/v1/revisions/{revision_id}/views",
+        response_model=RevisionViews,
+    )
+    async def revision_views(request: Request, revision_id: uuid.UUID):
+        """§C.3 教学视图的出口：读发布时冻结在 `lesson` 里的那一份。
+
+        界面不自己拼视图配置——教师勾了什么、记录表有哪些列与行，都以上线版本为准。
+        归属照样顺着 experiments.owner_id 走一遍：知道 UUID 从来不是访问凭据。
+        """
+        async with request.app.state.pool.acquire() as c:
+            row = await c.fetchrow(
+                """select r.lesson -> 'views' as views
+                   from experiment_revisions r
+                   join experiments e on e.id = r.experiment_id
+                   where r.id = $1 and e.owner_id = $2""",
+                revision_id, request.state.owner_id,
+            )
+        if row is None:
+            raise HTTPException(404, detail={"code": "REVISION_NOT_FOUND"})
+        raw = row["views"]
+        if isinstance(raw, str) or raw is None:
+            views = json.loads(raw) if raw else {}
+        else:
+            views = raw  # asyncpg 的 jsonb 解码器若已给出对象就直接用
+        return {"revision_id": revision_id, "views": views}
 
     @app.get(
         "/api/v1/artifacts/{artifact_id}/download",

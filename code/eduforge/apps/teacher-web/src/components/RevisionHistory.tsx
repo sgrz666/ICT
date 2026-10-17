@@ -23,7 +23,7 @@ export function RevisionHistory({
   rollingBack?: boolean;
 }) {
   return (
-    <section>
+    <section id="revision-history">
       <h2>版本历史</h2>
       {revisions.length === 0 ? <p className="muted">还没有版本。</p> : null}
       <table>

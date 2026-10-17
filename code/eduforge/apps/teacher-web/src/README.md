@@ -6,7 +6,7 @@
 
 | 文件 | 行数 | 职责 | 关键符号 |
 |---|---|---|---|
-| `App.tsx` | 319 | **顶层状态编排 + 三视图导航**：AI 定制工坊（选模板 → 建实验 → 轮询任务 → 刷版本 → 回滚 → 实时调参转提交）/ 光学仿真模拟器 / 81 案例库 | `App` |
+| `App.tsx` | 348 | **顶层状态编排 + 三视图导航**：AI 定制工坊（选模板 → 建实验 → 轮询任务 → 刷版本 → 回滚 → 实时调参转提交）/ 光学仿真模拟器 / 81 案例库 | `App` |
 | `main.tsx` | 11 | 入口：挂载 `<App/>` 并引入样式 | — |
 | `styles.css` | 614 | 深色主题样式（顶栏三视图、模拟器工具栏、案例库网格、实验流程等） | — |
 
@@ -15,7 +15,7 @@
 | 子目录 | 职责 | 细节 |
 |---|---|---|
 | [`api/`](api/README.md) | 业务取数、错误转换、下载校验 | `client.ts` |
-| [`components/`](components/README.md) | 10 个组件（三视图 + 工坊流程） | `SimulatorView.tsx` / `GalleryView.tsx` / `PreviewFrame.tsx` |
+| [`components/`](components/README.md) | 11 个组件（三视图 + 工坊流程 + 教学视图面板） | `SimulatorView.tsx` / `GalleryView.tsx` / `PreviewFrame.tsx` |
 | [`data/`](data/README.md) | 81 案例库数据（`galleryData.json`） | 模拟器与案例库两视图的共同数据源 |
 | [`hooks/`](hooks/README.md) | 任务轮询钩子 | `useJob.ts` |
 

@@ -23,6 +23,7 @@
 | `GET /api/v1/jobs/{id}` | 任务状态与事件时间线（按 owner 限定） |
 | `POST /api/v1/jobs/{id}/cancel` | 取消（已成功不回滚） |
 | `GET /api/v1/revisions/{id}/artifacts` | 版本产物列表 |
+| `GET /api/v1/revisions/{id}/views` | **§C.3 教学视图出口**：读发布时冻结在 `lesson->'views'` 的那一份配置（owner join 后才给，别的路径一律 404） |
 | `GET /api/v1/artifacts/{id}/download` | 产物下载（先按 owner join 到实验，再走三重防护） |
 
 ## 下载安全（本层最需要读的一段）

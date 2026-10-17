@@ -177,6 +177,38 @@ def test_heartbeat_keeps_lease_and_control_group_proves_it(uri, art_dir, engine_
     assert without["attempt"] >= 2, without
 
 
+def test_concurrent_renewals_share_one_guard_connection_and_must_serialise(uri):
+    """心跳循环与发布前的 `check_now()` 用同一条守护连接，必须串行。
+
+    2026-10-17 全量跑抓到过一次：packaging 的 `check_now()` 正好撞上后台心跳的
+    `renew_and_check`，asyncpg 当场抛 `InterfaceError: cannot perform operation:
+    another operation is in progress`。那不是丢了执行权，是一条连接上叠了两个操作——
+    把它读成租约结论就会误判成"合法 Worker 自己把权睡丢了"。
+    这里故意把 20 次续租并发打出去：没有串行锁就当场复现。
+    """
+
+    async def go():
+        c = await asyncpg.connect(uri)
+        try:
+            await _schema(c)
+            _, _, job_id = await _seed(c)
+            token = uuid.uuid4().hex
+            await c.execute(
+                """update jobs set status='running', lease_token=$2,
+                          lease_until = now() + interval '300 seconds' where id=$1""",
+                job_id, token,
+            )
+            guard = LeaseManager(JobRepository(c), job_id, token)
+            states = await asyncio.gather(*(guard.beat() for _ in range(20)))
+            return guard.renewals, states
+        finally:
+            await c.close()
+
+    renewals, states = asyncio.run(go())
+    assert set(states) == {"ok"}, states
+    assert renewals == 20, renewals
+
+
 def test_stolen_lease_blocks_writes_and_publish(uri, art_dir, engine_url):
     """执行权被抢走后：新的工具动作写不进去，发布当场被拒。"""
 

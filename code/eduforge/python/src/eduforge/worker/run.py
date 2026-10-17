@@ -20,7 +20,7 @@ from typing import Any
 import asyncpg
 
 from eduforge.agent.planners import MissingApiKey, planner_from_env
-from eduforge.domain.contracts import EditProposal, PlannerRequest, SetParameter
+from eduforge.domain.contracts import EditProposal, PlannerRequest, SetParameter, SetView
 from eduforge.infrastructure.db.migrations import apply_migrations
 from eduforge.worker.steps import StaticPlanner, make_worker
 
@@ -43,6 +43,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--planner-static-focal", type=float, default=None,
                    help="注入焦距提案（厘米）。仅用于链路验证")
     p.add_argument("--planner-static-entity", default="lens_1")
+    p.add_argument("--planner-static-view", action="append", default=None, metavar="VIEW",
+                   help="随焦距提案一起注入教学视图（如 measurement_table）。仅用于链路验证")
     return p
 
 
@@ -53,12 +55,15 @@ def select_planner(args: argparse.Namespace) -> tuple[Any, str]:
     但它是一次**显式**选择，脚本不会再替用户做这个决定。
     """
     if args.planner_static_focal is not None:
-        proposal = EditProposal(route="config", operations=[SetParameter(
+        operations = [SetParameter(
             entity_id=args.planner_static_entity,
             parameter="focal_length_cm",
             value=args.planner_static_focal,
-        )])
-        return StaticPlanner(proposal), "static"
+        )]
+        # 视图也要能注入：§C.3 要在浏览器里证明"教学视图真的上了屏"，
+        # 只有焦距提案的链路上根本没有视图数据可显示。
+        operations += [SetView(view_id=v, visible=True) for v in args.planner_static_view or []]
+        return StaticPlanner(EditProposal(route="config", operations=operations)), "static"
     if args.planner == "deep":
         # Deep Agents 需要活的数据库连接，真正构造放在连上库之后
         from eduforge.agent.planners import api_key
