@@ -26,9 +26,14 @@ import pgserver
 import pytest
 
 from eduforge.application.candidate_service import (
+    CandidateFrozen,
     content_fingerprint,
     native_bytes,
     views_bytes,
+)
+from eduforge.infrastructure.db.candidate_repository import (
+    CandidateRepository,
+    CandidateVersionConflict,
 )
 from eduforge.domain.contracts import EditProposal, SetParameter, SetView
 from eduforge.domain.errors import ConflictError
@@ -489,3 +494,198 @@ def test_view_only_task_runs_through_the_worker_chain(uri, art_dir, engine_url):
             await c.close()
 
     asyncio.run(go())
+
+
+def test_two_connections_freeze_and_write_race_rejected(uri):
+    """Gate C.0: 双独立连接交错测试。
+    Writer 已读到版本 0，另一个事务完成 freeze 后，旧 Writer 再写必须失败，
+    且候选状态在库中保持 frozen，绝不可被重新写回 editing 或静默覆盖。
+    """
+
+    async def go():
+        c1 = await asyncpg.connect(uri)
+        c2 = await asyncpg.connect(uri)
+        try:
+            await _schema(c1)
+            exp_id, base_rev = await _seed_experiment(c1)
+            job_id, token = await _seed_job(c1, exp_id=exp_id, base_rev=base_rev)
+
+            repo1 = CandidateRepository(c1)
+            repo2 = CandidateRepository(c2)
+
+            native = load_native("optics.convex_lens")
+            views = {}
+            content_hash = content_fingerprint(native, views)
+
+            # 1. 初始化候选（version=0, status='editing'）
+            cand = await repo1.initialize(
+                job_id=job_id,
+                experiment_id=exp_id,
+                base_revision=base_rev,
+                owner_id=OWNER,
+                template_id="optics.convex_lens",
+                native_data=native,
+                teaching_views=views,
+                content_hash=content_hash,
+            )
+            assert cand["status"] == "editing"
+            assert cand["state_version"] == 0
+
+            # 2. Connection 1 (Writer) 已经读到 expected_version = 0
+            expected_ver = cand["state_version"]
+
+            # 3. Connection 2 (Worker / Build 阶段) 冻结候选
+            frozen = await repo2.freeze(job_id, content_hash=content_hash)
+            assert frozen["status"] == "frozen"
+
+            in_db_after_freeze = await repo2.load(job_id)
+            assert in_db_after_freeze["status"] == "frozen"
+
+            # 4. Connection 1 (旧 Writer) 执行迟滞的写入 (expected_version = 0)
+            new_native = dict(native)
+            new_native["title"] = "tampered_by_stale_writer"
+            new_hash = content_fingerprint(new_native, views)
+
+            # 这里必须抛出 CandidateFrozen，绝不能让已冻结候选被重新写开！
+            with pytest.raises(CandidateFrozen):
+                await repo1.write(
+                    job_id,
+                    native_data=new_native,
+                    teaching_views=views,
+                    content_hash=new_hash,
+                    expected_version=expected_ver,
+                )
+
+            # 5. 校验库中候选仍为 frozen，内容未被篡改
+            final_cand = await repo2.load(job_id)
+            assert final_cand["status"] == "frozen"
+            assert final_cand["content_hash"] == content_hash
+            assert final_cand["native_data"].get("title") != "tampered_by_stale_writer"
+        finally:
+            await c1.close()
+            await c2.close()
+
+    asyncio.run(go())
+
+
+def test_freeze_is_idempotent_and_rejects_content_tampering(uri):
+    """Gate C.0: freeze 幂等性与内容哈希校验。"""
+
+    async def go():
+        c = await asyncpg.connect(uri)
+        try:
+            await _schema(c)
+            exp_id, base_rev = await _seed_experiment(c)
+            job_id, token = await _seed_job(c, exp_id=exp_id, base_rev=base_rev)
+            repo = CandidateRepository(c)
+
+            native = load_native("optics.convex_lens")
+            views = {}
+            content_hash = content_fingerprint(native, views)
+
+            await repo.initialize(
+                job_id=job_id, experiment_id=exp_id, base_revision=base_rev,
+                owner_id=OWNER, template_id="optics.convex_lens",
+                native_data=native, teaching_views=views, content_hash=content_hash,
+            )
+
+            # 第一次 freeze 成功
+            f1 = await repo.freeze(job_id, content_hash=content_hash)
+            assert f1["status"] == "frozen"
+
+            # 相同 hash 重复 freeze 必须幂等成功
+            f2 = await repo.freeze(job_id, content_hash=content_hash)
+            assert f2["status"] == "frozen"
+
+            # 错误 hash 试图 freeze 必须被拒
+            with pytest.raises(CandidateVersionConflict):
+                await repo.freeze(job_id, content_hash="bad_hash_hex")
+        finally:
+            await c.close()
+
+    asyncio.run(go())
+
+
+def test_bind_validation_respects_status_and_content_hash(uri):
+    """Gate C.0: bind_validation 仅允许在 editing/frozen 态且内容哈希匹配时绑定。"""
+
+    async def go():
+        c = await asyncpg.connect(uri)
+        try:
+            await _schema(c)
+            exp_id, base_rev = await _seed_experiment(c)
+            job_id, token = await _seed_job(c, exp_id=exp_id, base_rev=base_rev)
+            repo = CandidateRepository(c)
+
+            native = load_native("optics.convex_lens")
+            views = {}
+            content_hash = content_fingerprint(native, views)
+
+            await repo.initialize(
+                job_id=job_id, experiment_id=exp_id, base_revision=base_rev,
+                owner_id=OWNER, template_id="optics.convex_lens",
+                native_data=native, teaching_views=views, content_hash=content_hash,
+            )
+
+            # editing 态绑定相同 hash: 成功
+            v_id1 = uuid.uuid4()
+            b1 = await repo.bind_validation(job_id, validation_id=v_id1, content_hash=content_hash)
+            assert b1["validation_id"] == v_id1
+
+            # 冻结后绑定相同 hash: 成功（支持 run_validation final=True 的先冻结再绑报告）
+            await repo.freeze(job_id, content_hash=content_hash)
+            v_id2 = uuid.uuid4()
+            b2 = await repo.bind_validation(job_id, validation_id=v_id2, content_hash=content_hash)
+            assert b2["validation_id"] == v_id2
+
+            # 篡改 hash 试图绑定: 拒绝
+            with pytest.raises(CandidateVersionConflict):
+                await repo.bind_validation(job_id, validation_id=uuid.uuid4(), content_hash="mismatched_hash")
+
+            # 已发布状态拒绝篡改绑定
+            await repo.set_status(job_id, status="published")
+            with pytest.raises(CandidateFrozen):
+                await repo.bind_validation(job_id, validation_id=uuid.uuid4(), content_hash=content_hash)
+        finally:
+            await c.close()
+
+    asyncio.run(go())
+
+
+def test_rebase_requires_frozen_or_published_status(uri):
+    """Gate C.0: rebase 必须在已冻结或已发布状态下才允许执行，未冻结的编辑态禁止 rebase。"""
+
+    async def go():
+        c = await asyncpg.connect(uri)
+        try:
+            await _schema(c)
+            exp_id, base_rev = await _seed_experiment(c)
+            job_id, token = await _seed_job(c, exp_id=exp_id, base_rev=base_rev)
+            repo = CandidateRepository(c)
+
+            native = load_native("optics.convex_lens")
+            views = {}
+            content_hash = content_fingerprint(native, views)
+
+            await repo.initialize(
+                job_id=job_id, experiment_id=exp_id, base_revision=base_rev,
+                owner_id=OWNER, template_id="optics.convex_lens",
+                native_data=native, teaching_views=views, content_hash=content_hash,
+            )
+
+            new_rev = uuid.uuid4()
+            # 此时 status 为 'editing'，禁止 rebase
+            with pytest.raises(CandidateVersionConflict):
+                await repo.rebase(job_id, revision_id=new_rev)
+
+            # 冻结后 rebase 成功，并将状态重置为 editing
+            await repo.freeze(job_id, content_hash=content_hash)
+            await repo.rebase(job_id, revision_id=new_rev)
+            row = await repo.load(job_id)
+            assert row["base_revision"] == new_rev
+            assert row["status"] == "editing"
+        finally:
+            await c.close()
+
+    asyncio.run(go())
+

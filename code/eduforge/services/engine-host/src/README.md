@@ -1,6 +1,6 @@
 # src — Engine Host 源码头
 
-**职责**：Node 侧「引擎宿主」服务的全部源码。对外是一个进程（`main.ts`）；内部四块：仿真适配（[`adapters/ray-optics/`](adapters/ray-optics/README.md)）、离线导出（[`export/`](export/README.md)）、浏览器网关（[`gateway/`](gateway/README.md)）、预览桥接（[`preview/`](preview/README.md)）。
+**职责**：Node 侧「引擎宿主」服务的全部源码。对外是一个进程（`main.ts`）；内部四块：仿真适配（[`adapters/`](adapters/README.md) → [`adapters/ray-optics/`](adapters/ray-optics/README.md)）、离线导出（[`export/`](export/README.md)）、浏览器网关（[`gateway/`](gateway/README.md)）、预览桥接（[`preview/`](preview/README.md)）。
 
 ## 内容（根层逐文件）
 
@@ -14,10 +14,11 @@
 
 | 子目录 | 职责 | 细节 |
 |---|---|---|
-| [`adapters/ray-optics/`](adapters/ray-optics/README.md) | 上游适配器：改参 / 校验 / 真实仿真 / 导出 | `upstream.ts` 是真实仿真入口 |
+| [`adapters/`](adapters/README.md) → [`adapters/ray-optics/`](adapters/ray-optics/README.md) | 按引擎分组的适配器层（当前只有 ray-optics）：改参 / 校验 / 真实仿真 / 导出 | `upstream.ts` 是真实仿真入口 |
 | [`export/`](export/README.md) | 离线网页包组装（i18n 预注入 + manifest 锁） | html / manifest / offline-package |
 | [`gateway/`](gateway/README.md) | 浏览器网关：静态 + `/api` 反代 + 预览合成单一源 | 反代只放行回环 |
 | [`preview/`](preview/README.md) | §5.3 预览桥接（postMessage 改参换图） | /scene /param /p/ /host/ |
+| [`security/`](security/README.md) | 路径沙箱白名单校验器（防越权穿越与软链逃逸） | assertWithinSandbox / getAllowedRoots |
 
 ## 与上下层的关系
 

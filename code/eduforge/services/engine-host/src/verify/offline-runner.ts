@@ -6,6 +6,8 @@ import { extname, join, resolve, sep } from "node:path";
 
 import { chromium, type Browser, type Page } from "playwright";
 
+import { assertWithinSandbox } from "../security/path-sandbox.js";
+
 /**
  * 发布前的浏览器实测（Gate C §C.5）。
  *
@@ -119,6 +121,7 @@ export async function verifyOfflinePackage(
   pkgDir: string,
   options: { settleMs?: number } = {}
 ): Promise<PackageVerification> {
+  assertWithinSandbox(pkgDir);
   const settleMs = options.settleMs ?? 8000;
   const checks: VerifyCheck[] = [];
   const out: PackageVerification = {
@@ -138,26 +141,46 @@ export async function verifyOfflinePackage(
     checks.push({ id: "manifest_parseable", passed: false, observed: String(e) });
     return out;
   }
-  const entry = typeof manifest.entry === "string" ? manifest.entry : null;
-  out.entry = entry;
-  out.scene_sha256 = typeof manifest.scene_sha256 === "string" ? manifest.scene_sha256 : null;
-  checks.push({ id: "entry_declared", passed: entry !== null, observed: entry ?? "无" });
-  if (!entry) return out;
+  const rawEntry = manifest.entry;
+  if (typeof rawEntry !== "string" || !rawEntry.trim()) {
+    checks.push({ id: "entry_declared", passed: false, observed: "entry 缺失或非字符串" });
+    return out;
+  }
 
-  // 清单里的 entry 是相对包根的路径（"www/index.html"）
-  const target = resolve(pkgDir, entry);
+  // 严格检查 entry：必须是相对路径，禁止以 / 或盘符开头，禁止含空字节
+  if (rawEntry.includes("\0") || rawEntry.startsWith("/") || /^[a-zA-Z]:/.test(rawEntry)) {
+    checks.push({ id: "entry_declared", passed: false, observed: `非法 entry: ${rawEntry}` });
+    return out;
+  }
+
+  // 清单里的 entry 必须严格落在 www/ 目录下，禁止路径逃逸（如 ../ 或 www/../../）
+  const root = resolve(pkgDir, "www");
+  const target = resolve(pkgDir, rawEntry);
+  if (target !== root && !target.startsWith(root + sep)) {
+    checks.push({ id: "entry_declared", passed: false, observed: `entry 越权逃逸出 www: ${rawEntry}` });
+    return out;
+  }
+
+  out.entry = rawEntry;
+  out.scene_sha256 = typeof manifest.scene_sha256 === "string" ? manifest.scene_sha256 : null;
+  checks.push({ id: "entry_declared", passed: true, observed: rawEntry });
+
   checks.push({ id: "entry_file_present", passed: existsSync(target), observed: target });
   if (!existsSync(target)) return out;
 
-  const root = resolve(pkgDir, "www");
-  const urlPath = "/" + entry.replace(/^www\/?/, "");
+  const urlPath = "/" + rawEntry.replace(/^www\/?/, "");
   const { server, origin } = await serveStatic(root);
   let browser: Browser | null = null;
   try {
     browser = await chromium.launch();
     const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
     page.on("request", req => {
-      if (!req.url().startsWith(origin)) out.off_origin.push(req.url());
+      try {
+        const reqOrigin = new URL(req.url()).origin;
+        if (reqOrigin !== origin) out.off_origin.push(req.url());
+      } catch {
+        out.off_origin.push(req.url());
+      }
     });
     page.on("pageerror", e => out.errors.push(String(e)));
     await page.goto(origin + urlPath, { waitUntil: "load" });

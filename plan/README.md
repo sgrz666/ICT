@@ -15,6 +15,7 @@
 | [26.10.17_EduForge_GateC_验证几何与候选绑定.md](26.10.17_EduForge_GateC_验证几何与候选绑定.md) | Gate C 开工（**未闭环**） | C.1 报告绑候选与来源三态化、C.2 虚像/无穷远改判引擎实测光束几何并删掉两条公式恒真判据；逐焦距实测表 + 「孔径截断」量具极限与补齐路径；C.3–C.7 明确未做 |
 | [26.10.17_EduForge_GateB_执行权与归属.md](26.10.17_EduForge_GateB_执行权与归属.md) | Gate B 实施与实况 | 心跳接 `renew_and_check`（独立连接）、租约过期不得自续、`attempt`/`next_run_at`/重试上限记账、`job_events` 序号行锁、发布加归属与字节核对、API 与工具层的 owner 过滤与身份边界；含指令 §2 Gate B 八条的逐条落点表，以及本轮实测新抓到的「Runner 回读 lease_token」缺陷 |
 | [26.10.17_EduForge_GateA_统一候选执行链.md](26.10.17_EduForge_GateA_统一候选执行链.md) | Gate A 实施与实况 | 按《Deep Agents 实施指令（执行版）》第一轮只做 Gate A：删掉 `operations_from_trace` → `Chain._apply` 的重放语义、候选落 `experiment_candidates`（含迁移与 CAS）、`DeepAgentRunner` 交回候选完成记录；含 §6 模板汇报、对审查文档 P0-1～P0-6 的逐条核对、顺带修掉的 4 项缺陷（含 `eduforge.ps1` 在 PowerShell 5.1 下的 BOM 问题）与 Gate B–F 的 pending 清单 |
+| [26.10.17_EduForge_GateC.0_并发冻结竞态与路径安全实测.md](26.10.17_EduForge_GateC.0_并发冻结竞态与路径安全实测.md) | Gate C.0 实施与实况（R1） | 修复候选 freeze 竞态（SQL `WHERE status='editing'` 谓词原子 CAS 防重新写开，双连接交错测试先红后绿）、Engine Host 内部接口路径白名单沙箱、manifest entry 限制在 www/ 内、URL origin 严格比对与 10MB 请求限额 |
 
 ## 阅读顺序
 

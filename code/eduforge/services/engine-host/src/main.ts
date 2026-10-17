@@ -5,6 +5,7 @@ import { buildOfflinePackage } from "./export/offline-package.js";
 import { verifyOfflinePackage } from "./verify/offline-runner.js";
 import { createGateway } from "./gateway/server.js";
 import { createPreviewRoutes } from "./preview/server.js";
+import { assertWithinSandbox, PathTraversalError } from "./security/path-sandbox.js";
 import type { SetParameter } from "./contracts.js";
 
 const json = (res: import("node:http").ServerResponse, status: number, body: unknown) => {
@@ -13,9 +14,17 @@ const json = (res: import("node:http").ServerResponse, status: number, body: unk
   res.end(text);
 };
 
-async function readBody(req: import("node:http").IncomingMessage): Promise<string> {
+async function readBody(req: import("node:http").IncomingMessage, maxBytes = 10 * 1024 * 1024): Promise<string> {
   const chunks: Buffer[] = [];
-  for await (const c of req) chunks.push(c as Buffer);
+  let total = 0;
+  for await (const c of req) {
+    const buf = c as Buffer;
+    total += buf.length;
+    if (total > maxBytes) {
+      throw new Error(`PAYLOAD_TOO_LARGE: Request body exceeds maximum allowed size of ${maxBytes} bytes`);
+    }
+    chunks.push(buf);
+  }
   return Buffer.concat(chunks).toString("utf8");
 }
 
@@ -71,7 +80,8 @@ export function createEngineHost(): Server {
           outDir: string;
           options?: { title?: string };
         };
-        const pkg = await buildOfflinePackage(body.scene, body.outDir, body.options);
+        const safeOutDir = assertWithinSandbox(body.outDir);
+        const pkg = await buildOfflinePackage(body.scene, safeOutDir, body.options);
         return json(res, 200, {
           ok: true,
           dir: pkg.dir,
@@ -82,12 +92,19 @@ export function createEngineHost(): Server {
       // Gate C §C.5：发布前的浏览器实测。不返回"看起来能打开"，只返回逐项判据与总结论。
       if (req.method === "POST" && url.pathname === "/verify/offline_package") {
         const body = JSON.parse(await readBody(req)) as { dir: string; settleMs?: number };
-        const result = await verifyOfflinePackage(body.dir, { settleMs: body.settleMs });
+        const safeDir = assertWithinSandbox(body.dir);
+        const result = await verifyOfflinePackage(safeDir, { settleMs: body.settleMs });
         return json(res, result.ok ? 200 : 422, result);
       }
 
       return json(res, 404, { code: "NOT_FOUND" });
-    } catch (e) {
+    } catch (e: any) {
+      if (e instanceof PathTraversalError || String(e?.message ?? "").includes("PATH_TRAVERSAL_REJECTED")) {
+        return json(res, 403, { code: "FORBIDDEN", detail: String(e?.message ?? e) });
+      }
+      if (String(e?.message ?? "").includes("PAYLOAD_TOO_LARGE")) {
+        return json(res, 413, { code: "PAYLOAD_TOO_LARGE", detail: String(e?.message ?? e) });
+      }
       return json(res, 400, { code: "BAD_REQUEST", detail: String(e) });
     }
   });

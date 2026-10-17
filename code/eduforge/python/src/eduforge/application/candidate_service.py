@@ -26,6 +26,7 @@ from pydantic import Field
 
 from eduforge.domain.contracts import Contract
 from eduforge.infrastructure.db.candidate_repository import (
+    CandidateFrozen,
     CandidateRepository,
     CandidateVersionConflict,
 )
@@ -49,10 +50,6 @@ class JobScope(Protocol):
 
     @property
     def owner_id(self) -> str: ...
-
-
-class CandidateFrozen(Exception):
-    """候选已冻结，不能再写——冻结后又要改就必须开新版本，不能偷偷改交付物。"""
 
 
 class AgentRunRecord(Contract):

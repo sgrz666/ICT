@@ -37,6 +37,11 @@ class CandidateScopeConflict(Exception):
     """候选行已经绑到了别的实验或别的基线版本——串写，必须拒。"""
 
 
+class CandidateFrozen(Exception):
+    """候选已冻结或处于非可写状态，不能再写——冻结后又要改就必须开新版本，不能偷偷改交付物。"""
+
+
+
 def _parse(row: asyncpg.Record | None) -> dict[str, Any] | None:
     if row is None:
         return None
@@ -115,7 +120,7 @@ class CandidateRepository:
                       state_version = state_version + 1,
                       status = 'editing', validation_id = NULL, validation_hash = NULL,
                       updated_at = now()
-                where job_id = $1 and state_version = $6
+                where job_id = $1 and state_version = $6 and status = 'editing'
                 returning """ + CANDIDATE_COLUMNS,
             job_id,
             json.dumps(native_data, ensure_ascii=False),
@@ -131,11 +136,11 @@ class CandidateRepository:
     async def bind_validation(
         self, job_id: UUID, *, validation_id: UUID, content_hash: str
     ) -> dict[str, Any]:
-        """把验证结论钉在**当前这份内容**上；内容已变则拒绑，不产生过期绿灯。"""
+        """把验证结论钉在**当前这份内容**上；内容已变或非编辑/冻结态则拒绑，不产生过期绿灯。"""
         row = await self.conn.fetchrow(
             """update experiment_candidates
                   set validation_id = $2, validation_hash = $3, updated_at = now()
-                where job_id = $1 and content_hash = $3
+                where job_id = $1 and content_hash = $3 and status in ('editing', 'frozen')
                 returning """ + CANDIDATE_COLUMNS,
             job_id, validation_id, content_hash,
         )
@@ -143,17 +148,21 @@ class CandidateRepository:
             current = await self.load(job_id)
             if current is None:
                 raise CandidateNotFound(str(job_id))
+            if current["status"] not in ("editing", "frozen"):
+                raise CandidateFrozen(
+                    f"候选已处于 {current['status']} 状态，拒绝绑定验证"
+                )
             raise CandidateVersionConflict(
                 f"候选内容已改变（hash={current['content_hash'][:12]}…），这次验证不绑定"
             )
         return _parse(row)  # type: ignore[arg-type]
 
     async def freeze(self, job_id: UUID, *, content_hash: str) -> dict[str, Any]:
-        """冻结：之后的构建、验证、发布只认这一版内容。"""
+        """冻结：之后的构建、验证、发布只认这一版内容（幂等支持重复冻结）。"""
         row = await self.conn.fetchrow(
             """update experiment_candidates
                   set status = 'frozen', updated_at = now()
-                where job_id = $1 and content_hash = $2
+                where job_id = $1 and content_hash = $2 and status in ('editing', 'frozen')
                 returning """ + CANDIDATE_COLUMNS,
             job_id, content_hash,
         )
@@ -161,6 +170,8 @@ class CandidateRepository:
             current = await self.load(job_id)
             if current is None:
                 raise CandidateNotFound(str(job_id))
+            if current["status"] not in ("editing", "frozen"):
+                raise CandidateFrozen(f"候选已处于 {current['status']} 状态，不能重复冻结")
             raise CandidateVersionConflict("候选在冻结前又被改了")
         return _parse(row)  # type: ignore[arg-type]
 
@@ -184,23 +195,31 @@ class CandidateRepository:
     async def rebase(self, job_id: UUID, *, revision_id: UUID) -> None:
         """发布成功后把候选的基线推进到刚发布的那一版。
 
-        内容一个字节都不改，只是让「继续编辑」有一个诚实的基础版本——
-        连续编辑链里第二次发布不能还拿最初的 base 去撞乐观并发。
+        必须在已冻结或已发布状态下才允许 rebase 回 editing；未冻结的编辑态禁止 rebase。
         """
         r = await self.conn.execute(
             """update experiment_candidates
                   set base_revision = $2, status = 'editing', updated_at = now()
-                where job_id = $1""",
+                where job_id = $1 and status in ('frozen', 'published')""",
             job_id, revision_id,
         )
         if not r.endswith("1"):
-            raise CandidateNotFound(str(job_id))
+            current = await self.load(job_id)
+            if current is None:
+                raise CandidateNotFound(str(job_id))
+            raise CandidateVersionConflict(
+                f"候选当前状态为 {current['status']}，未冻结或未发布的候选不能 rebase"
+            )
 
     async def _explain_failure(self, job_id: UUID, expected_version: int) -> None:
-        """CAS 失败要说清是「没有这一行」还是「被人改过」，否则排查只能猜。"""
+        """CAS 失败要说清是「没有这一行」、「已被冻结」还是「被人改过」，否则排查只能猜。"""
         current = await self.load(job_id)
         if current is None:
             raise CandidateNotFound(str(job_id))
+        if current.get("status") != "editing":
+            raise CandidateFrozen(
+                f"候选已被冻结或已发布（status={current.get('status')}），拒绝写入"
+            )
         raise CandidateVersionConflict(
             f"state_version 期望 {expected_version}，实际 {current['state_version']}"
         )

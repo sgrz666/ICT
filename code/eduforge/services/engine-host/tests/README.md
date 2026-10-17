@@ -6,10 +6,11 @@
 
 | 子目录 | 文件数 | 覆盖 | 细节 |
 |---|---|---|---|
-| [`adapters/ray-optics/`](adapters/ray-optics/README.md) | 1 | 改参语义单测 | `patch.test.ts` |
+| [`adapters/`](adapters/README.md) → [`adapters/ray-optics/`](adapters/ray-optics/README.md) | 1 | 改参语义单测（不加载上游 bundle，与 `engines/` 分界） | `patch.test.ts` |
 | [`e2e/`](e2e/README.md) | 5 | GATE-3 桥接/交互、GATE-8 离线、预览可判性 | 含共享夹具 `render_harness.ts` |
 | [`engines/`](engines/README.md) | 3 | GATE-3 宿主验收、GATE-4 科学对照、像面判据回归 | 真跑仿真断言读数 |
 | [`gateway/`](gateway/README.md) | 1 | 网关路由归属与安全 | `gateway.test.ts` |
+| [`security/`](security/README.md) | 1 | Gate C.0 内部路径沙箱、manifest 越权防逃逸与 Body 限额负向测试 | `sandbox.test.ts` |
 
 ## 跑法
 

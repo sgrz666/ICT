@@ -1,0 +1,80 @@
+================================================================================
+EduForge 实施证据报告：R1 / Gate C.0 候选冻结并发竞态与内部路径安全
+================================================================================
+时间: 2026-10-17T18:35:00+08:00
+基线 Git HEAD: 262be376858e7744f55022fcc43c6b533fcde5cf
+工作区根目录: D:\codeplus\ICT
+
+--------------------------------------------------------------------------------
+一、问题定位与根因
+--------------------------------------------------------------------------------
+1. CandidateRepository.write() 冻结竞态 (P0):
+   - 原 SQL: UPDATE experiment_candidates SET ..., status='editing', state_version=state_version+1 WHERE job_id=$1 AND state_version=$6
+   - 缺陷: WHERE 谓词中未约束 status='editing'，而 freeze() 不自增 state_version。
+   - 复现时序:
+     Writer A 读到 state_version=0；
+     Worker/Build 阶段调用 freeze()，status 变为 frozen，但 state_version 仍为 0；
+     迟滞的 Writer A 执行 write(expected_version=0)，由于 state_version 匹配，SQL 更新成功；
+     已冻结候选被静默写开并篡改，status 被重新置为 editing，旧验证结论失效。
+   - 修复:
+     在 write() 的 WHERE 谓词中增加 status = 'editing'；
+     失败时 _explain_failure 严格区分：若已冻结或已发布，抛出 CandidateFrozen；
+     freeze() 约束 status in ('editing', 'frozen') 并支持幂等重复冻结；
+     bind_validation() 约束 status in ('editing', 'frozen') 且哈希一致；
+     rebase() 约束 status in ('frozen', 'published') 才允许推进基线并重置为 editing。
+
+2. Engine Host 内部接口路径与资源安全 (P0):
+   - 缺陷: POST /export/offline_package 的 outDir 与 POST /verify/offline_package 的 dir 直接接受未校验的文件系统路径，存在 .. 穿越和绝对路径跳出风险；manifest.entry 未限定在 www/ 内；URL origin 比对使用 startsWith 前缀判断容易被伪造前缀绕过；请求 Body 缺乏大小限制。
+   - 修复:
+     新增 services/engine-host/src/security/path-sandbox.ts，实现 assertWithinSandbox() 白名单路径校验（防 ..、绝对系统路径跳出、符号链接逃逸）；
+     /export 与 /verify 端点接入路径沙箱，越权直接拒回 HTTP 403 FORBIDDEN；
+     readBody() 增加 10MB 大包限制，超限直接拒回 HTTP 413 PAYLOAD_TOO_LARGE；
+     verifyOfflinePackage() 校验 manifest.entry 必须为相对路径且规范化后严格落在 www/ 目录下；
+     请求监听器改用 new URL(req.url()).origin 进行严格全等比对。
+
+--------------------------------------------------------------------------------
+二、测试命令与实测证据
+--------------------------------------------------------------------------------
+1. 并发负向测试复现（先红后绿）：
+   - 执行: pytest tests/python/test_gate_a_candidate.py -k test_two_connections_freeze_and_write_race_rejected
+   - 修复前: FAILED (Failed: DID NOT RAISE CandidateFrozen，旧写入成功将 frozen 覆盖回 editing)
+   - 修复后: PASSED (捕获 CandidateFrozen，数据库中 status 保持 frozen，内容未被篡改)
+
+2. Engine Host 安全负向测试套件:
+   - 命令: vitest run tests/security/sandbox.test.ts
+   - 结果: 10 passed (10 tests, 6.72s)
+   - 覆盖:
+     * assertWithinSandbox 允许 tmpdir 内合法路径
+     * 跨目录相对逃逸（..）抛出 PathTraversalError
+     * 系统绝对路径（Windows System32 / UNIX /etc）抛出 PathTraversalError
+     * 包含空字节（\0）路径抛出 PathTraversalError
+     * 空字符串路径抛出 PathTraversalError
+     * POST /export/offline_package 越权路径返回 403 FORBIDDEN
+     * POST /verify/offline_package 越权路径返回 403 FORBIDDEN
+     * 超限 Body 请求（>10MB）返回 413 PAYLOAD_TOO_LARGE
+     * 清单 entry 越权逃逸出 www/ 目录被拦截，且不开浏览器
+     * 清单 entry 为绝对路径时被拦截
+
+3. Python 全量 pytest 套件:
+   - 命令: & "d:\codeplus\ICT\code\eduforge\.venv\Scripts\pytest.exe" -q
+   - 结果: 140 passed, 1 skipped (test_deepagents_real_model 缺 key 跳过，无假充通过)
+   - 收集用例数: 141
+   - 退出码: 0
+
+4. Engine Host 全量 Vitest 套件:
+   - 命令: & "D:\codeplus\ICT\code\eduforge\services\engine-host\node_modules\.bin\vitest.CMD" run
+   - 结果: 12 passed (12 test files), 84 passed (84 tests, 140.60s)
+   - 退出码: 0
+
+5. 前端静态检查与构建:
+   - 命令: cd apps/teacher-web && npm run typecheck; npm run build
+   - 结果: tsc 通过，vite build 产物生成正常（dist/assets/index-*.js）
+   - 退出码: 0
+
+--------------------------------------------------------------------------------
+三、测试规模计数（唯一事实位置：ray-optics.yaml）
+--------------------------------------------------------------------------------
+test_totals:
+  vitest: 84 (原有 74 + 新增 security/sandbox.test.ts 10)
+  pytest: 141 (原有 137 + 新增 test_gate_a_candidate.py 4 条并发/不变量用例)
+================================================================================
