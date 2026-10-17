@@ -25,14 +25,16 @@
 | `GET /api/v1/revisions/{id}/artifacts` | 版本产物列表 |
 | `GET /api/v1/revisions/{id}/offline_verification` | **§C.5b 发布后重验**：按清单逐文件重算磁盘字节（约 2162 个文件），并把发布前那份浏览器实测记录一并带回；审计端点，不是热路径 |
 | `GET /api/v1/revisions/{id}/views` | **§C.3 教学视图出口**：读发布时冻结在 `lesson->'views'` 的那一份配置（owner join 后才给，别的路径一律 404） |
-| `GET /api/v1/artifacts/{id}/download` | 产物下载（先按 owner join 到实验，再走三重防护） |
+| `GET /api/v1/artifacts/{id}/download` | 产物下载（流式 64KB 传输，支持 RFC 7233 Range 206/416 分段，先按 owner 或活跃任务租约 token 鉴权，再走多重防护） |
 
 ## 下载安全（本层最需要读的一段）
 
-`download` 依 `storage_key` 从 `artifact_dir` 读文件并做三重防护：
-1. **path 越界**：解析后不在 `artifact_dir` 内 → 403；
-2. **重算 sha256** 与数据库登记比对，不一致 → 500（"字节只认磁盘"的哈希锁）；
-3. 响应携带 `x-content-sha256` 头，前端还会独立复算（三方校验：字节 / 响应头 / 清单）。
+`download` 依 `storage_key` 从 `artifact_dir` 读文件并做流式防护与分段支持：
+1. **属主与租约鉴权**：按 `experiments.owner_id` 限定（别人的实验一律 404 防止信息泄漏）；持有该实验当前正在执行 job 的活跃租约 token（`X-Lease-Token`）亦可授权下载；
+2. **path 越界**：解析后不在 `artifact_dir` 内 → 403；
+3. **盘上哈希锁**：读取前计算盘上文件 sha256 并与数据库登记比对，不一致 → 500 `CONTENT_HASH_MISMATCH`；盘上文件缺失 → 404 `ARTIFACT_FILE_MISSING`；
+4. **RFC 7233 HTTP Range 分段**：支持 `bytes=start-end`、`bytes=start-`、`bytes=-suffix` 返回 206 Partial Content，越界返回 416 `RANGE_NOT_SATISFIABLE`，避免大文件一次性爆内存；
+5. **流式传输与三方校验**：采用 `StreamingResponse` 64KB 分块推流，响应携带 `x-content-sha256` 与 `accept-ranges: bytes` 头，前端还会独立复算（三方校验：字节 / 响应头 / 清单）。
 
 ## 与上下层的关系
 

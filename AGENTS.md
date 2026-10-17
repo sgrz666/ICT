@@ -56,9 +56,27 @@
 - 上游源码内部：`source/upstream/ray-optics/` 的各级 README 是上游资产，保持原样；项目侧说明降级写在 [`source/upstream/README.md`](source/upstream/README.md)。
 - 数据叶子：`output/eduforge/candidates/offline-package/www/`（当前实测 2162 个静态资源文件，随构建内容变化）——模式写在父层 README，不逐叶撰写。模板实例目录（如 `catalog/templates/optics/convex-lens/`）**各配一份短 README**（状态、文件、关系），模板模式说明仍以 `catalog/templates/README.md` 为准。
 
+**反向纪律：入库目录 100% 要有 README，包括只做分组的中间层。** 分组层（`catalog/templates/optics/`、`services/engine-host/src/adapters/`、`tests/adapters/` 这类「只装下一层目录」的目录）最容易被跳过——一旦漏掉，下一层 README 就成了没有父亲的孩子，读者无法判断层级关系。当前实测基线：项目侧 86 份 README 覆盖 85 个目录 + 仓库根，无缺失（2026-10-16）。
+
+不写 README 的目录只有以下 8 类（磁盘实测目录数，截至 2026-10-16；每类都必须由「谁说明它」那份 README 兜住，兜不住就是文档缺陷）：
+
+| 类别 | 目录数 | 谁说明它 |
+|---|---|---|
+| `source/upstream/ray-optics/` 内部 | 205 | `source/upstream/README.md` |
+| `candidates/offline-package/www/` | 89 | `output/eduforge/candidates/README.md` |
+| `output/eduforge/pgdata/` | 26 | `output/eduforge/README.md` |
+| 各类 `dist/` 构建产物 | 8 | `apps/teacher-web/README.md`、`services/engine-host/README.md` |
+| `artifacts/revisions/<uuid>/` | 5 | `output/eduforge/artifacts/README.md` |
+| `code/eduforge/output/` | 3 | `code/eduforge/README.md` 目录地图 |
+| `.workbuddy/` | 2 | 根 `README.md` 版本控制节 |
+| `candidates/offline-package/` | 1 | `output/eduforge/candidates/README.md` |
+
+被 `.gitignore` 整目录挡住的类别（candidates、artifacts），若要给它或它的子目录写 README，`.gitignore` 必须写成 `dir/*` + `!dir/README.md` 两行——只写 `dir/` 会让 README 无法入库，README 体系在克隆出来之后就残缺了。
+
 ## 5. 完成定义（收尾前自查）
 
 - [ ] 改动涉及的每个目录，其 README 已同步；新增目录已按同一风格写好新 README；
+- [ ] **入库目录 100% 有 README**：`git ls-files` 涉及的每个目录都存在 `README.md`（缺失数必须为 0），新增的分组层目录也算；
 - [ ] 被删除 / 重命名的文件，在所有 README 里无残留引用；
 - [ ] 相对链接全部可解析（下面命令跑过，`broken = 0`）；
 - [ ] 数字与磁盘实测一致（计数、版本、字节数以实测为准）；

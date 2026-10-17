@@ -550,11 +550,70 @@
                   "type": "object",
                   "additionalProperties": true
                 }
+              },
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             },
             "headers": {
               "x-content-sha256": {
                 "description": "响应字节的 SHA-256",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "accept-ranges": {
+                "description": "支持的范围请求单位",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "content-length": {
+                "description": "响应正文字节数",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "content-disposition": {
+                "description": "指示附件下载文件名",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "部分内容（Range 范围请求）",
+            "headers": {
+              "x-content-sha256": {
+                "description": "整份文件的 SHA-256",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "accept-ranges": {
+                "description": "支持的范围请求单位",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "content-range": {
+                "description": "Content-Range 响应头",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "content-length": {
+                "description": "本范围片段字节数",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "content-disposition": {
+                "description": "指示附件下载文件名",
                 "schema": {
                   "type": "string"
                 }
@@ -570,6 +629,16 @@
               }
             },
             "description": "Forbidden"
+          },
+          "416": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Requested Range Not Satisfiable"
           },
           "500": {
             "content": {

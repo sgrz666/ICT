@@ -31,6 +31,7 @@ export function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ path: string; revision: string } | null>(null);
   const [artifact, setArtifact] = useState<{ id: string; sha256: string } | null>(null);
+  const [zipArtifact, setZipArtifact] = useState<{ id: string; sha256: string } | null>(null);
   // §C.3：教学视图配置随版本一起载入，面板只渲染后端给的那一份
   const [views, setViews] = useState<Record<string, unknown> | null>(null);
   const [loadErrorCode, setLoadErrorCode] = useState<string | null>(null);
@@ -57,10 +58,14 @@ export function App() {
       const [listed, viewData] = await Promise.all([api.artifacts(revisionId), api.views(revisionId)]);
       setViews(viewData.views);
       // 按 storage_key 认领交付场景，不靠数组下标：一次发布现在登记 native、
-      // 教学视图与离线包清单三份产物，取 [0] 只是碰巧排前面。
+      // 教学视图、离线包清单与离线运行包 ZIP。
       const native = listed.artifacts.find(a =>
         a.storage_key.replace(/\\/g, "/").endsWith("native.json")
       );
+      const zip = listed.artifacts.find(a =>
+        a.media_type === "application/zip" || a.storage_key.replace(/\\/g, "/").endsWith(".zip")
+      );
+      setZipArtifact(zip ? { id: zip.artifact_id, sha256: zip.sha256 } : null);
       if (!native) {
         // 种子版本：若无独立交付产物，从可信模板载入只读预览
         try {
@@ -71,6 +76,7 @@ export function App() {
               const reg = await api.registerPreview(tplJson.native);
               setPreview({ path: reg.path, revision: revisionId });
               setArtifact(null);
+              setZipArtifact(null);
               return;
             }
           }
@@ -80,6 +86,7 @@ export function App() {
         setLoadErrorCode("ARTIFACT_NOT_FOUND");
         setPreview(null);
         setArtifact(null);
+        setZipArtifact(null);
         return;
       }
       const got = await downloadVerified(native.artifact_id, native.sha256);
@@ -90,6 +97,7 @@ export function App() {
     } catch (e) {
       setPreview(null);
       setArtifact(null);
+      setZipArtifact(null);
       setViews(null);
       if (e instanceof ApiError) setLoadErrorCode(e.code);
       else setLoadErrorDetail(String((e as Error).message ?? e));
@@ -127,6 +135,7 @@ export function App() {
       setJobId(null);
       setPreview(null);
       setArtifact(null);
+      setZipArtifact(null);
       setSelected(null);
       await refreshExperiment(created.experiment_id);
     } catch (e) {
@@ -333,6 +342,7 @@ export function App() {
               rollingBack={rollingBack}
               preview={preview}
               artifact={artifact}
+              zipArtifact={zipArtifact}
               views={views}
               controls={controls}
               onSaveTunedRevision={changes => void handleSaveTunedRevision(changes)}

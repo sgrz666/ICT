@@ -12,10 +12,12 @@ export function DownloadButton({
   artifactId,
   expectedSha,
   fileName,
+  label = "下载原生场景",
 }: {
   artifactId: string | null;
   expectedSha: string | null;
   fileName: string;
+  label?: string;
 }) {
   const [state, setState] = useState<{ busy: boolean; message: string | null; ok: boolean }>({
     busy: false,
@@ -45,9 +47,9 @@ export function DownloadButton({
   };
 
   return (
-    <div className="row">
+    <div className="row" style={{ alignItems: "center", gap: "0.5rem" }}>
       <button type="button" onClick={() => void save()} disabled={!artifactId || state.busy}>
-        {state.busy ? "校验中…" : "下载原生场景"}
+        {state.busy ? "校验中…" : label}
       </button>
       {state.message ? (
         <span className={state.ok ? "notice ok" : "notice"} style={{ padding: ".2rem .6rem" }}>

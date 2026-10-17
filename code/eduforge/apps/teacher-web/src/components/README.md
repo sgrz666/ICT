@@ -11,11 +11,11 @@
 | `TemplateLibrary.tsx` | 43 | 模板库展示与选择 | `TemplateLibrary` |
 | `PromptEditor.tsx` | 68 | 需求输入与提交；**幂等键在此生成并持有** | `PromptEditor` |
 | `JobProgress.tsx` | 47 | 阶段进度展示 | `JobProgress` |
-| `ExperimentWorkspace.tsx` | 81 | 工坊工作区组合（输入 / 进度 / 预览 / **教学视图** / 版本 / 下载） | `ExperimentWorkspace` |
+| `ExperimentWorkspace.tsx` | 88 | 工坊工作区组合（输入 / 进度 / 预览 / **教学视图** / 版本 / 原生与离线包双下载） | `ExperimentWorkspace` |
 | `RevisionHistory.tsx` | 75 | 版本历史与回滚入口（**head 由服务端标记，前端不推断**） | `RevisionHistory` |
 | `PreviewFrame.tsx` | 178 | 预览 iframe + §5.3 桥接消息处理 + 实时参数调节滑块 | `PreviewFrame` |
 | `TeachingViews.tsx` | 94 | **§C.3 教学视图面板**：渲染后端 `GET /revisions/{id}/views` 给的记录表列与行；结构读不出来就如实报错，不猜表头凑数 | `TeachingViews` |
-| `DownloadButton.tsx` | 59 | 下载前先校验再存盘（调 `downloadVerified`） | `DownloadButton` |
+| `DownloadButton.tsx` | 61 | 下载前先校验再存盘（调 `downloadVerified`，支持自定义 label 文本） | `DownloadButton` |
 | `ErrorNotice.tsx` | 42 | 错误码 → 教师可读文案映射 | `explain()`, `ErrorNotice` |
 
 ## 组合关系

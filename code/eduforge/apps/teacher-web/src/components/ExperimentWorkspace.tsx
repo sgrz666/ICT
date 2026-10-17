@@ -26,6 +26,7 @@ export function ExperimentWorkspace(props: {
   rollingBack?: boolean;
   preview: { path: string; revision: string } | null;
   artifact: { id: string; sha256: string } | null;
+  zipArtifact?: { id: string; sha256: string } | null;
   views: Record<string, unknown> | null;
   controls?: ControlSummary[];
   onSaveTunedRevision?: (changes: Array<{ entityId: string; parameter: string; value: number }>) => void;
@@ -70,11 +71,20 @@ export function ExperimentWorkspace(props: {
       <TeachingViews views={props.views} />
       <section>
         <h2>交付</h2>
-        <DownloadButton
-          artifactId={props.artifact?.id ?? null}
-          expectedSha={props.artifact?.sha256 ?? null}
-          fileName={props.selectedRevision ? `native-${props.selectedRevision.slice(0, 8)}.json` : "native.json"}
-        />
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          <DownloadButton
+            artifactId={props.artifact?.id ?? null}
+            expectedSha={props.artifact?.sha256 ?? null}
+            fileName={props.selectedRevision ? `native-${props.selectedRevision.slice(0, 8)}.json` : "native.json"}
+            label="下载原生场景"
+          />
+          <DownloadButton
+            artifactId={props.zipArtifact?.id ?? null}
+            expectedSha={props.zipArtifact?.sha256 ?? null}
+            fileName={props.selectedRevision ? `offline-package-${props.selectedRevision.slice(0, 8)}.zip` : "offline-package.zip"}
+            label="下载完整离线实验包 (.zip)"
+          />
+        </div>
       </section>
     </div>
   );

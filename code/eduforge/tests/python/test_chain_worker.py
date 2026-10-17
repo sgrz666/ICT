@@ -154,8 +154,8 @@ def test_chain_publishes_and_delivers_exactly_the_hashed_bytes(uri, art_dir, eng
     assert out["detail"]["head_revision"] == str(cand), "head 必须前进到本次候选版本"
     assert out["detail"]["revision_count"] == 2, out["detail"]
     assert out["rows"]["rev_count"] == 2
-    # 一次发布登记的产物 = 交付场景 + 离线包清单（Gate C §C.4 起 Worker 也建离线包）
-    assert out["rows"]["art_count"] == 2, out["rows"]["art_count"]
+    # 一次发布登记的产物 = 交付场景 + 离线包清单 + 离线包 ZIP（Gate C §C.5b R2）
+    assert out["rows"]["art_count"] == 3, out["rows"]["art_count"]
 
     assert out["download"].status_code == 200, out["download"].text
     body = out["download"].content
@@ -175,8 +175,9 @@ def test_chain_publishes_and_delivers_exactly_the_hashed_bytes(uri, art_dir, eng
     listed = out["listing"].json()
     assert listed["revision_id"] == str(out["cand"])
     by_media = {a["storage_key"].split("/")[-1]: a for a in listed["artifacts"]}
-    assert set(by_media) == {"native.json", "manifest.json"}, listed
+    assert set(by_media) == {"native.json", "manifest.json", "offline_package.zip"}, listed
     assert by_media["native.json"]["sha256"] == out["download"].headers["x-content-sha256"]
+    assert by_media["offline_package.zip"]["media_type"] == "application/zip"
 
     # §C.4：Worker 这条生产链现在也建离线运行包，包内场景必须与交付字节逐字节相同，
     # 清单必须同时带引擎交付元数据（怎么打开这份包）与逐文件哈希 + 整包摘要。
@@ -390,8 +391,8 @@ def test_recovery_rebuilds_context_from_persisted_facts(uri, art_dir, engine_url
     assert out["job"]["status"] == "succeeded", out["job"]
     assert out["detail"]["revision_count"] == 2
     assert out["rev_count"] == 2, "派生 id 失效，恢复时插出了多余版本"
-    # 崩溃重跑 packaging 后仍是同一组产物（native + 离线包清单，§C.4），没有重复登记
-    assert out["art_count"] == 2, "同一候选被登记成多份产物"
+    # 崩溃重跑 packaging 后仍是同一组产物（native + 离线包清单 + 离线包 ZIP，§C.5b R2），没有重复登记
+    assert out["art_count"] == 3, "同一候选被登记成多份产物"
     assert out["dl"].status_code == 200
     # planning/editing/building/validating 各只启动一次（已完成的阶段被跳过），
     # packaging 因崩溃重跑：started 两次、done 一次

@@ -7,7 +7,7 @@ EduForge 的**数据层**：这里没有可执行代码，只有「引擎是什�
 | 目录 | 内容 | 说明 |
 |---|---|---|
 | [`engines/`](engines/README.md) | 引擎描述文件 | 目前 `engines/ray-optics.yaml`：上游事实、无头调用方式、能力清单、验证基线 |
-| [`templates/`](templates/README.md) | 教学模板 | 目前 `templates/optics/convex-lens/`：凸透镜成像实验（manifest + 原生场景 + 课文草稿） |
+| [`templates/`](templates/README.md) | 教学模板，按 `学科/实验` 两级存放 | [`templates/optics/`](templates/optics/README.md) → `convex-lens/`（已接通：manifest + 原生场景 + 课文草稿）；[`templates/mechanics/`](templates/mechanics/README.md) → `pendulum/`、[`templates/circuits/`](templates/circuits/README.md) → `ohms-law/`（均 `pending_slice_9`，只有 manifest） |
 
 ## 消费方
 

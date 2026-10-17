@@ -11,7 +11,7 @@
 | `experiment_service.py` | 142 | 模板实例化与版本管理：`create_from_template`（克隆基础版本）、`rollback`（回退 head，校验 owner/活跃任务） | `ExperimentService`, `ExperimentLookup`, `ExperimentNotFound`, `TemplateNotFound`, `RevisionNotFound`, `ActiveJobConflict` |
 | `job_service.py` | 106 | 任务生命周期：提交前**归属与基础版本核对**（实验属于该身份、`base_revision` 属于该实验且等于当前 head）、幂等提交、取消（已成功不回滚）、查询按身份限定 | `JobService`, `assert_submittable`, `ExperimentNotOwned`, `RevisionNotOfExperiment`, `BaseNotHead` |
 | `publication.py` | 83 | **发布门禁**：`record_report` 写验证报告（含候选绑定列：`candidate_id`/`content_hash`/`engine_version`/`profile`）；`publish` 在 `verdict≠passed` 时抛 `NotPublishable`，通过才调仓储发布事务 | `Publisher`, `NotPublishable` |
-| `package_builder.py` | 289 | **Gate C §C.4/§C.5 的统一交付构建器**：把已冻结候选变成可核对的字节——`native.json`/`teaching_views.json` 落盘并逐字节回读核对；离线包由引擎组装，但**包内场景替换成交付的那一份字节**；最终 `manifest.json` = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要；建完立刻让 Engine Host 用 Chromium **实测这份包**（§C.5），不通过就抛 `DeliveryIntegrityError(code="OFFLINE_NOT_RENDERED")`，包和发布一起拦住。工具层与 Worker 都调这里，产物 id 一律内容派生（重跑幂等） | `PackageBuilder`, `BuiltPackage`, `package_digest`, `verify_package_on_disk`, `ENGINE_METADATA_KEYS`, `MANIFEST_NAME` |
+| `package_builder.py` | 493 | **Gate C §C.4/§C.5/§C.5b R2 统一交付构建器**：把已冻结候选变成可核对的字节——`native.json`/`teaching_views.json` 落盘并逐字节回读核对；离线包由引擎组装，但**包内场景替换成交付的那一份字节**；最终 `manifest.json` = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要；建完立刻让 Engine Host 用 Chromium **实测这份包**（§C.5），不通过就抛 `DeliveryIntegrityError(code="OFFLINE_NOT_RENDERED")`；**§C.5b R2 确定性离线 ZIP 构建与校验**：构建确定性 ZIP（`build_deterministic_zip` 走 `asyncio.to_thread` 调度防卡租约心跳，固定 2026-01-01 时间戳、0o100644 权限、文件字典序、防 Zip Slip、集成 LICENSE 与离线 README.md），记录 ZIP SHA256 与大小，登记 `offline_zip` 产物（`media_type="application/zip"`），提供 `verify_offline_zip` 完整性核对。工具层与 Worker 都调这里，产物 id 一律内容派生（重跑幂等） | `PackageBuilder`, `BuiltPackage`, `package_digest`, `verify_package_on_disk`, `build_deterministic_zip`, `verify_offline_zip`, `file_sha256`, `ENGINE_METADATA_KEYS`, `MANIFEST_NAME` |
 | `services.py` | 29 | 聚合导出入口（向后兼容）：把上述服务类从本文件统一再导出 | `ExperimentService`, `JobService` 等 |
 
 ## 与上下层的关系
@@ -30,3 +30,4 @@
 - 逐文件表按**完整路径**排除清单本身，不按文件名：上游 dist 里真有嵌套同名文件 `www/simulator/manifest/manifest.json`，按 `name == manifest.json` 排除会把它漏在哈希表外（实测 2162 vs 2163）。
 - **别在 Worker 或工具层里再手写落盘与产物登记**（§C.4 之前的状态）：两条路径各自写盘时，"验证过的字节 == 发布出去的字节"无法核对，也正是在这里出过离线包根本没进生产链的问题。写盘与登记统一走 `PackageBuilder`。
 - **离线包必须实测，测不了就拒绝**：`_verify_package` 在引擎客户端没有 `verify_offline_package` 方法时直接抛错，而不是默认通过——新引擎实现忘了接这个方法时，绿灯不会悄悄出现。实测结论（逐项判据 + 截图哈希）写在包目录旁的 `offline_verification.json`，不进哈希表：它是**关于**这份包的观测记录，不是包的交付内容。
+- **确定性 ZIP 构建必须线程池异步化**：离线包内有 2162 个文件，压缩计算密集；若在 asyncio 事件循环中同步执行，会阻塞主线程 3 秒以上导致租约心跳（Heartbeat）饿死超时触发 `LEASE_LOST`。必须使用 `await asyncio.to_thread(build_deterministic_zip, ...)`。

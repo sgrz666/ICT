@@ -10,9 +10,11 @@ __pycache__/
 # 构建产物与本地数据
 dist-node/
 dist/
-output/eduforge/candidates/
+output/eduforge/candidates/*
+!output/eduforge/candidates/README.md
 output/eduforge/pgdata/
-output/eduforge/artifacts/
+output/eduforge/artifacts/*
+!output/eduforge/artifacts/README.md
 output/eduforge/pg_uri.txt
 output/eduforge/eduforge.pids
 

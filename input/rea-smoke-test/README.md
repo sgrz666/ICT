@@ -5,8 +5,9 @@
 ## 内容
 
 - `package.json` — `name: rea-smoke-test`，ESM（`type: module`），入口 `src/index.js`。
-- `src/index.js` — `report(scores)`：算平均分并定级，导出给 REA 做调用图分析。
-- `src/grading.js` — `grade(score)`（A/B/C/F 分段）与 `average(values)`（空数组返回 0）。
+- [`src/`](src/README.md) — 源码目录，逐文件说明与「改这里会废掉分析产物哈希」的纪律见 [`src/README.md`](src/README.md)：
+  - `src/index.js` — `report(scores)`：算平均分并定级，导出给 REA 做调用图分析。
+  - `src/grading.js` — `grade(score)`（A/B/C/F 分段）与 `average(values)`（空数组返回 0）。
 
 ## 验证结果（2026-10-15 实测）
 

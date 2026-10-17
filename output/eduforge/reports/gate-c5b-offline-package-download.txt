@@ -1,0 +1,96 @@
+EduForge Gate C §C.5b R2 离线实验包确定性 ZIP 构建与端到端下载闭环验收报告
+========================================================================================
+测试时间: 2026-10-17 19:45:00 CST
+测试环境: Windows 11 / Python 3.12 (uv venv) / Node v20 / asyncpg / Playwright Chromium
+执行阶段: Gate C §C.5b R2 (用户真正下载完整离线实验包 P0)
+
+一、改动概述与交付物架构
+----------------------------------------------------------------------------------------
+1. application/package_builder.py:
+   - 确定性 ZIP 打包 (build_deterministic_zip):
+     * 固定文件入包字典序 (sorted lexicographical order)
+     * 固定时间戳 (2026-01-01 00:00:00)
+     * 固定 POSIX 权限属性 (0o100644 << 16)
+     * 强力路径安全防御: 拦截含 '..'、绝对路径、驱动器号、符号链接 (Symlink)
+     * 标配交付清单与文档: 打包 www/ 静态资源 (2162 文件) + manifest.json + README.md (离线运行指引与 SimpleHTTPServer 命令) + LICENSE (Apache-2.0)
+     * 异步防阻塞事件循环: 使用 await asyncio.to_thread(build_deterministic_zip, ...) 调度至线程池，彻底杜绝 CPU/IO 压缩阻塞 asyncio 主事件循环，保护租约守护协程 (Heartbeat / Lease Guard) 正常续约。
+   - 离线包校验器 (verify_offline_zip):
+     * 校验 ZIP 自身 SHA256 摘要
+     * 逐条审查 ZipEntry 路径安全性 (防 Zip Slip)
+     * 必选文件存在性检查 (manifest.json, README.md, LICENSE)
+     * 逐文件解压计算 SHA256 与清单 files[] 比对
+   - 产物登记 (PackageBuilder._offline):
+     * 登记 offline_zip 产物，media_type="application/zip"，存储键为 offline_package.zip
+     * 产物 ID 同样走 artifact_id_for 内容哈希派生，保证幂等。
+
+2. api/main.py (HTTP 下载与流式传输):
+   - 端点 GET /api/v1/artifacts/{id}/download:
+     * 鉴权增强: 校验 X-Owner-Id 归属实验，或持有该实验当前正在执行的活跃 job 租约 token (X-Lease-Token)。
+     * 传输方式升级: 从全文件一次性读入内存重构为 StreamingResponse (64KB 块流式传输)。
+     * RFC 7233 HTTP Range 支持:
+       - bytes=start-end (标准前闭后闭分段，返回 206 Partial Content + Content-Range + Content-Length)
+       - bytes=start- (从指定偏移到文件结尾)
+       - bytes=-suffix (文件末尾 suffix 字节)
+       - 越界请求返回 416 Range Not Satisfiable + Content-Range: bytes */total_size
+     * 盘上哈希锁: 流式读取前对盘上目标文件进行异步流式 SHA256 计算 (asyncio.to_thread)，与数据库 artifacts.sha256 严格核对，不匹配立即返回 500 CONTENT_HASH_MISMATCH，文件不存在返回 404 ARTIFACT_FILE_MISSING。
+     * 响应头返回 X-Content-SHA256、Accept-Ranges: bytes、Content-Length、Content-Disposition (指示附件下载文件名)。
+
+3. apps/teacher-web (前端界面与下载落地):
+   - components/DownloadButton.tsx: 新增可选 label 属性 (默认保持 "下载原生场景")。
+   - components/ExperimentWorkspace.tsx: 接收 zipArtifact，在交付区域并列展示 "下载原生场景" 与 "下载完整离线实验包 (.zip)" 两个独立按钮。
+   - App.tsx: 从 api.artifacts 列表提取 media_type="application/zip" 的产物作为 zipArtifact 传递给工作区。
+   - 浏览器端下载采用 client.downloadVerified，流式拉取并在浏览器内存自主计算 SHA256 与登记值核对后触发落盘。
+
+二、实测证据记录
+----------------------------------------------------------------------------------------
+1. 单元与微基准测试 (test_package_builder.py):
+   - test_deterministic_zip_generates_identical_bytes_and_records_metadata:
+     两次独立打包不同目录但相同内容的静态包，产生逐字节完全相同的 ZIP (SHA256 一致)。
+   - test_deterministic_zip_contains_all_deliverables_and_passes_verification:
+     验证 ZIP 内包含 manifest.json、README.md、LICENSE 与全部资源，verify_offline_zip 返回 ok=True。
+   - test_verify_offline_zip_detects_tampered_payload_or_missing_file:
+     测试篡改 ZIP 内某文件字节，verify_offline_zip 准确返回 ok=False (zip_sha256_mismatch / corrupted_zip)。
+   - test_build_deterministic_zip_rejects_symlinks:
+     测试构建过程遭遇符号链接立即抛出 DeliveryIntegrityError（无符号链接特权环境通过 mock 兜底保证真测不跳过）。
+   - test_verify_offline_zip_rejects_unexpected_injected_files:
+     测试向 ZIP 注入未在清单中声明的额外意外文件（如 backdoor.py），准确拦截并返回 ok=False, reason="zip_unexpected_files"。
+   - test_verify_offline_zip_rejects_tampered_package_sha256_or_empty_readme:
+     测试篡改清单中的 package_sha256 整包摘要，或 README.md 为空，准确拦截（zip_package_sha256_mismatch / readme_empty）。
+   结果: 17 passed in 1.71s。
+
+2. 端到端闭环与安全用例 (test_gate_c5b_offline_package.py):
+   - test_e2e_publish_downloads_deterministic_zip_and_chromium_renders:
+     * 提交真实任务 -> Worker 执行五阶段 -> 完成 Packaging 并原子发布
+     * 从 API GET /api/v1/artifacts/{id}/download 下载完整 ZIP
+     * 检验 Content-Type: application/zip, Accept-Ranges: bytes, X-Content-SHA256, Content-Disposition: attachment; filename="offline_package.zip"
+     * 解压至独立临时目录，逐文件校验 manifest.json 及 package_sha256 整包摘要
+     * 启动独立本地 HTTP 服务 (http.server.HTTPServer)
+     * 拉起无头 Chromium (Playwright)，打开 /www/index.html
+     * 定位 iframe #sim 内的模拟器，实测 #canvasLight 光路渲染，点亮像素 lit_pixels > 0
+     * 检查欢迎层已隐藏，零控制台脚本错误 (page_errors == [])
+   - test_download_range_requests:
+     * Range: bytes=0-15 -> 206, Content-Range: bytes 0-15/{total}, 16 字节匹配
+     * Range: bytes=-32 -> 206, Content-Range: bytes {total-32}-{total-1}/{total}, 32 字节匹配
+     * Range: bytes=100- -> 206, Content-Range: bytes 100-{total-1}/{total}
+     * Range: bytes=0-{total+9999} -> 206, RFC 7233 §2.1 钳位至 end=total-1
+     * Range: bytes={total+1000}- -> 416, Content-Range: bytes */{total}, RANGE_NOT_SATISFIABLE
+   - test_download_security_and_negative_paths:
+     * 跨用户 X-Owner-Id: teacher-intruder -> 404 ARTIFACT_NOT_FOUND (严格租户隔离)
+     * 持有有效活跃租约 X-Lease-Token -> 200 OK (执行权临时访问)
+     * 篡改磁盘 ZIP 文件内容 -> 500 CONTENT_HASH_MISMATCH
+     * 磁盘 ZIP 文件缺失 -> 404 ARTIFACT_FILE_MISSING
+   结果: 3 passed in 86.09s。
+
+3. 全量回归测试:
+   - tests/python/test_gate_b_execution_rights.py: 12 passed in 68.40s (包含高并发续租与心跳控制组，消除 CPU/IO 密集导致的 LEASE_LOST 饿死竞态)。
+   - tests/python/test_chain_worker.py: 9 passed in 194.81s (验证 3 份产物发布登记与内容派生 ID)。
+   - tests/python/test_teacher_web_e2e.py: 2 passed in 23.43s (包含教学视图上屏与原生场景下载)。
+   - tests/python/test_gate5_api_chain.py: 2 passed in 3.69s。
+   - services/engine-host: vitest 12 文件 84 tests 全部 passed in 141.49s。
+   - apps/teacher-web: npm run build (tsc + vite) 成功通过，0 类型错误。
+
+三、指标与测试计数统计 (全仓唯一计数源: ray-optics.yaml)
+----------------------------------------------------------------------------------------
+- vitest: 84
+- pytest: 150 (收集 150, 149 passed, 1 skipped: test_deepagents_real_model 无环境变量 key)
+- 覆盖率与健康度: 无回归，无破坏既有用例。

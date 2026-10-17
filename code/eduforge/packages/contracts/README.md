@@ -12,7 +12,7 @@
 
 ## 纪律
 
-- 改了任何业务路由（`python/src/eduforge/api/`），必须重跑 `uv run python tools/export_contracts.py`；`tests/python/test_contracts_surface.py` 会在生成物落后于后端时直接红。
+- 改了任何业务路由（`python/src/eduforge/api/`），必须重跑 `uv run python tools/export_contracts.py`；`tests/python/test_contracts_surface.py` 会在生成物落后于后端时直接红（Gate C §C.5b R2 新增 `application/zip` 二进制下载、206 Range 分段传输、416 越界与 `content-disposition` 响应头已同步）。
 - `src/generated/` 是生成目录，不手改；要改类型改后端。
 
 ## 关系

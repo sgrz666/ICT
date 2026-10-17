@@ -20,7 +20,9 @@ from eduforge.application.candidate_service import CandidateState, native_bytes,
 from eduforge.application.package_builder import (
     MANIFEST_NAME,
     PackageBuilder,
+    build_deterministic_zip,
     package_digest,
+    verify_offline_zip,
     verify_package_on_disk,
 )
 from eduforge.domain.errors import DeliveryIntegrityError
@@ -248,3 +250,165 @@ def test_disk_reverification_follows_the_manifest_not_the_manifest_hash(tmp_path
     (root / "www" / "extra.js").write_bytes(b"// extra file, never declared in the manifest")
     assert verify_package_on_disk(root)["unexpected"] == ["www/extra.js"]
     assert verify_package_on_disk(root / "nowhere")["reason"] == "manifest_missing"
+
+
+def test_deterministic_zip_generates_identical_bytes_and_records_metadata(tmp_path):
+    """Gate C §C.5b R2：同一候选构建的 ZIP 包必须字节级确定性，且登记产物元数据。"""
+    state = make_state()
+    engine1 = FakeEngine()
+    engine2 = FakeEngine()
+    b1 = builder(tmp_path / "run1", engine1)
+    b2 = builder(tmp_path / "run2", engine2)
+
+    res1 = asyncio.run(b1.build(state, include_offline=True))
+    res2 = asyncio.run(b2.build(state, include_offline=True))
+
+    zip1 = Path(res1.offline["zip_file"])
+    zip2 = Path(res2.offline["zip_file"])
+    assert zip1.is_file() and zip2.is_file()
+    bytes1 = zip1.read_bytes()
+    bytes2 = zip2.read_bytes()
+
+    assert bytes1 == bytes2, "相同候选场景两次构建产生的 ZIP 文件字节必须逐位全等（确定性构建）"
+    assert res1.offline["zip_sha256"] == hashlib.sha256(bytes1).hexdigest()
+    assert res1.offline["zip_size"] == len(bytes1)
+    assert res1.offline["zip_sha256"] == res2.offline["zip_sha256"]
+
+    # 产物登记
+    zip_art = [a for a in res1.artifacts if a["storage_key"].endswith("offline_package.zip")]
+    assert len(zip_art) == 1
+    assert zip_art[0]["media_type"] == "application/zip"
+    assert zip_art[0]["sha256"] == res1.offline["zip_sha256"]
+
+
+def test_deterministic_zip_contains_all_deliverables_and_passes_verification(tmp_path):
+    """ZIP 必须包含 www/、manifest.json、离线启动说明 README.md 及许可文件 LICENSE。"""
+    import zipfile
+    state = make_state()
+    built = asyncio.run(builder(tmp_path, FakeEngine()).build(state, include_offline=True))
+    zip_path = Path(built.offline["zip_file"])
+
+    res = verify_offline_zip(zip_path, built.offline["zip_sha256"])
+    assert res["ok"] is True, res
+    assert res["reason"] == "zip_matches_manifest"
+    assert res["checked_files"] == 3
+
+    extract_dir = tmp_path / "extracted"
+    extract_dir.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        zf.extractall(extract_dir)
+
+    assert (extract_dir / "manifest.json").is_file()
+    assert (extract_dir / "README.md").is_file()
+    assert (extract_dir / "LICENSE").is_file()
+    assert (extract_dir / "www" / "index.html").is_file()
+
+    readme_text = (extract_dir / "README.md").read_text(encoding="utf-8")
+    assert "http.server" in readme_text
+    license_text = (extract_dir / "LICENSE").read_text(encoding="utf-8")
+    assert "Apache License" in license_text
+
+
+def test_verify_offline_zip_detects_tampered_payload_or_missing_file(tmp_path):
+    """负向测试：损坏的 ZIP 或摘要对不上必须被拦截。"""
+    state = make_state()
+    built = asyncio.run(builder(tmp_path, FakeEngine()).build(state, include_offline=True))
+    zip_path = Path(built.offline["zip_file"])
+
+    # 摘要不匹配拦截
+    wrong_sha = "0" * 64
+    mismatch = verify_offline_zip(zip_path, expected_sha=wrong_sha)
+    assert mismatch["ok"] is False and mismatch["reason"] == "zip_sha256_mismatch"
+
+    # 文件损坏拦截
+    corrupt_zip = tmp_path / "corrupt.zip"
+    corrupt_zip.write_bytes(b"not a valid zip file content")
+    corrupt_res = verify_offline_zip(corrupt_zip)
+    assert corrupt_res["ok"] is False and "corrupted_zip" in corrupt_res["reason"]
+
+
+def test_build_deterministic_zip_rejects_symlinks(tmp_path):
+    """安全审查：禁止向交付包注入符号链接。即使在无符号链接特权的平台也能实测校验。"""
+    import os
+    from unittest.mock import patch
+
+    pkg = tmp_path / "unsafe_pkg"
+    pkg.mkdir()
+    (pkg / "manifest.json").write_text("{}", encoding="utf-8")
+    target = tmp_path / "target.txt"
+    target.write_text("secret", encoding="utf-8")
+    sym = pkg / "symlink_file"
+    try:
+        os.symlink(target, sym)
+        with pytest.raises(DeliveryIntegrityError, match="符号链接"):
+            build_deterministic_zip(pkg, tmp_path / "out.zip")
+    except (OSError, NotImplementedError):
+        # 普通权限 Windows 不允许创建符号链接，通过 mock 注入 is_symlink=True，确保安全防线真被实测
+        fake_sym = pkg / "fake_symlink"
+        fake_sym.write_text("fake_sym_content", encoding="utf-8")
+        orig_is_symlink = Path.is_symlink
+
+        def mocked_is_symlink(self):
+            if self.name == "fake_symlink":
+                return True
+            return orig_is_symlink(self)
+
+        with patch.object(Path, "is_symlink", mocked_is_symlink):
+            with pytest.raises(DeliveryIntegrityError, match="符号链接"):
+                build_deterministic_zip(pkg, tmp_path / "out.zip")
+
+
+def test_verify_offline_zip_rejects_unexpected_injected_files(tmp_path):
+    """安全负向：ZIP 内塞入未在清单中声明的额外意外文件（如木马/后门）必须被拦截。"""
+    import zipfile
+    state = make_state()
+    built = asyncio.run(builder(tmp_path, FakeEngine()).build(state, include_offline=True))
+    orig_zip = Path(built.offline["zip_file"])
+
+    tampered_zip = tmp_path / "injected.zip"
+    with zipfile.ZipFile(orig_zip, "r") as zf_in, zipfile.ZipFile(tampered_zip, "w") as zf_out:
+        for item in zf_in.infolist():
+            zf_out.writestr(item, zf_in.read(item.filename))
+        zf_out.writestr("backdoor.py", b"import os; os.system('bad')")
+
+    res = verify_offline_zip(tampered_zip)
+    assert res["ok"] is False
+    assert res["reason"] == "zip_unexpected_files"
+    assert "backdoor.py" in res["unexpected"]
+
+
+def test_verify_offline_zip_rejects_tampered_package_sha256_or_empty_readme(tmp_path):
+    """安全负向：清单中 package_sha256 被篡改，或 README.md 为空必须被拦截。"""
+    import zipfile
+    state = make_state()
+    built = asyncio.run(builder(tmp_path, FakeEngine()).build(state, include_offline=True))
+    orig_zip = Path(built.offline["zip_file"])
+
+    # 1. 篡改清单中的 package_sha256
+    tampered_manifest_zip = tmp_path / "tampered_manifest.zip"
+    with zipfile.ZipFile(orig_zip, "r") as zf_in, zipfile.ZipFile(tampered_manifest_zip, "w") as zf_out:
+        for item in zf_in.infolist():
+            content = zf_in.read(item.filename)
+            if item.filename == "manifest.json":
+                data = json.loads(content.decode("utf-8"))
+                data["package_sha256"] = "f" * 64
+                content = json.dumps(data).encode("utf-8")
+            zf_out.writestr(item, content)
+
+    res_manifest = verify_offline_zip(tampered_manifest_zip)
+    assert res_manifest["ok"] is False
+    assert res_manifest["reason"] == "zip_package_sha256_mismatch"
+
+    # 2. 空 README 拦截
+    empty_readme_zip = tmp_path / "empty_readme.zip"
+    with zipfile.ZipFile(orig_zip, "r") as zf_in, zipfile.ZipFile(empty_readme_zip, "w") as zf_out:
+        for item in zf_in.infolist():
+            content = zf_in.read(item.filename)
+            if item.filename == "README.md":
+                content = b"   \n"
+            zf_out.writestr(item, content)
+
+    res_readme = verify_offline_zip(empty_readme_zip)
+    assert res_readme["ok"] is False
+    assert res_readme["reason"] == "readme_empty"
+

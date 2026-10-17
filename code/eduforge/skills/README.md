@@ -8,13 +8,13 @@
 
 ## 2. 内容
 
-三个子目录各只含一份 `SKILL.md`（该技能的唯一文件；不含其它附件）：
+三个子目录各只含一份 `SKILL.md`（该技能的唯一文件；不含其它附件），每个子目录另配一份 README 说明其启用状态与读取路径：
 
 | 技能目录 | 行数 | 状态 | 内容 |
 |---|---|---|---|
-| [`ray-optics-customization/`](ray-optics-customization/SKILL.md) | 27 | **已启用** | Ray Optics 几何光学实验定制规范：限定交付 `src/lesson.ts` 与 `src/controls.ts`，强制 `name` 绑定对象身份、禁止非法 key 注入、严格按 `units_per_unit: 10` 换算教学单位 |
-| [`mechanics-customization/`](mechanics-customization/SKILL.md) | 13 | 保留位（切片 9） | myPhysicsLab 经典力学实验定制规范 |
-| [`circuit-customization/`](circuit-customization/SKILL.md) | 13 | 保留位（切片 9） | CircuitJS 电路实验定制规范 |
+| [`ray-optics-customization/`](ray-optics-customization/README.md) | 27 | **已启用** | Ray Optics 几何光学实验定制规范：限定交付 `src/lesson.ts` 与 `src/controls.ts`，强制 `name` 绑定对象身份、禁止非法 key 注入、严格按 `units_per_unit: 10` 换算教学单位 |
+| [`mechanics-customization/`](mechanics-customization/README.md) | 13 | 保留位（切片 9） | myPhysicsLab 经典力学实验定制规范 |
+| [`circuit-customization/`](circuit-customization/README.md) | 13 | 保留位（切片 9） | CircuitJS 电路实验定制规范（目录名是**单数** `circuit-`，与同级的复数命名不一致） |
 
 ## 3. 与上下层的关系
 

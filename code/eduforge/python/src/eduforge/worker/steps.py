@@ -17,6 +17,7 @@
 """
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 from dataclasses import dataclass, field
@@ -340,7 +341,7 @@ class Chain:
         # 只信"我刚刚写过"是不够的。
         disk_check: dict[str, Any] | None = None
         if built.offline:
-            disk_check = verify_package_on_disk(Path(built.offline["dir"]))
+            disk_check = await asyncio.to_thread(verify_package_on_disk, Path(built.offline["dir"]))
             if not disk_check["ok"]:
                 raise TerminalError(
                     "PACKAGE_DRIFT",

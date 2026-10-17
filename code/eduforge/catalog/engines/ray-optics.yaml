@@ -79,9 +79,10 @@ verification_baseline:
   gate2_probe: code/eduforge/tools/gate2_binding.cjs
   engine_host_tests: code/eduforge/services/engine-host/tests/
   report: output/eduforge/reports/slice1-rayoptics-probe.json
-  measured_at: "2026-10-17T18:20:00+08:00"
-  test_totals: { vitest: 84, pytest: 141 }   # 计数只在这里记一次，别处引用本文件
+  measured_at: "2026-10-17T20:25:00+08:00"
+  test_totals: { vitest: 84, pytest: 150 }   # 计数只在这里记一次，别处引用本文件
   passed:
+    - 离线包下载端到端闭环（Gate C §C.5b R2）：确定性 ZIP 构建（固定时间戳/权限/字典序/防 Zip-Slip/内含 www、manifest、README.md、LICENSE）→ 登记 application/zip 产物 → HTTP API 分段与流式下载（RFC 7233 206/416）与租约/属主鉴权 → 落地解压校验整包摘要与逐文件摘要 → 随包本地 HTTP 服务启动独立 Chromium 实测光路渲染（canvasLight 像素 > 0，零页面错误）
     - 上游接受我们手写的场景，scene.error 与 scene.warning 均为 null
     - toJSON → loadJSON → toJSON 字符串完全一致
     - 焦距按教学单位映射修改（15cm → focalLength 150）且源数据未被就地改写

@@ -6,8 +6,8 @@
 
 | 目录 | 状态 | 说明 |
 |---|---|---|
-| [`rea-smoke-test/`](rea-smoke-test/README.md) | 冒烟样本，3 个文件 | 为验证 `rea analyze-javascript-application` 全链路而造的最小 JS 应用 |
-| [`research-targets/`](research-targets/README.md) | 预留，当前为空 | 计划放后续要逆向研究的真实目标（如上游引擎的发布产物） |
+| [`rea-smoke-test/`](rea-smoke-test/README.md) | 冒烟样本，3 个文件（`package.json` + `src/` 两份 js） | 为验证 `rea analyze-javascript-application` 全链路而造的最小 JS 应用；源码目录另有 [`src/README.md`](rea-smoke-test/src/README.md) |
+| [`research-targets/`](research-targets/README.md) | 预留，当前只有一份 README | 计划放后续要逆向研究的真实目标（如上游引擎的发布产物） |
 
 ## 与上层的关系
 

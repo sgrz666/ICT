@@ -4,18 +4,20 @@ owner_id 由入口注入：本地固定开发身份，云端由认证层注入�
 """
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import os
+import re
 import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import asyncpg
 from fastapi import FastAPI, Header, HTTPException, Request
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 
-from eduforge.application.package_builder import verify_package_on_disk
+from eduforge.application.package_builder import file_sha256, verify_package_on_disk
 from eduforge.application.services import (
     ActiveJobConflict,
     BaseNotHead,
@@ -331,26 +333,44 @@ def create_app(
                 "description": "交付的文件原文，不是业务 DTO；x-content-sha256 是这份字节的哈希，"
                 "客户端必须先校验再用。",
                 "content": {
-                    "application/json": {"schema": {"type": "object", "additionalProperties": True}}
+                    "application/json": {"schema": {"type": "object", "additionalProperties": True}},
+                    "application/zip": {"schema": {"type": "string", "format": "binary"}},
                 },
                 "headers": {
-                    "x-content-sha256": {"description": "响应字节的 SHA-256", "schema": {"type": "string"}}
+                    "x-content-sha256": {"description": "响应字节的 SHA-256", "schema": {"type": "string"}},
+                    "accept-ranges": {"description": "支持的范围请求单位", "schema": {"type": "string"}},
+                    "content-length": {"description": "响应正文字节数", "schema": {"type": "string"}},
+                    "content-disposition": {"description": "指示附件下载文件名", "schema": {"type": "string"}},
+                },
+            },
+            206: {
+                "description": "部分内容（Range 范围请求）",
+                "headers": {
+                    "x-content-sha256": {"description": "整份文件的 SHA-256", "schema": {"type": "string"}},
+                    "accept-ranges": {"description": "支持的范围请求单位", "schema": {"type": "string"}},
+                    "content-range": {"description": "Content-Range 响应头", "schema": {"type": "string"}},
+                    "content-length": {"description": "本范围片段字节数", "schema": {"type": "string"}},
+                    "content-disposition": {"description": "指示附件下载文件名", "schema": {"type": "string"}},
                 },
             },
             403: {"model": ApiErrorResponse},
+            416: {"model": ApiErrorResponse},
             500: {"model": ApiErrorResponse},
             **NOT_FOUND,
         },
     )
     async def download(request: Request, artifact_id: uuid.UUID):
+        lease_token = request.headers.get("X-Lease-Token")
         async with request.app.state.pool.acquire() as c:
             row = await c.fetchrow(
                 """select a.id, a.storage_key, a.sha256, a.media_type
                    from artifacts a
                    join experiment_revisions r on r.id = a.revision_id
                    join experiments e on e.id = r.experiment_id
-                   where a.id = $1 and e.owner_id = $2""",
-                artifact_id, request.state.owner_id,
+                   left join jobs j on j.experiment_id = e.id and j.lease_token = $3
+                                   and j.status = 'running' and j.lease_until > now()
+                   where a.id = $1 and (e.owner_id = $2 or j.id is not null)""",
+                artifact_id, request.state.owner_id, lease_token,
             )
         if row is None:
             raise HTTPException(404, detail={"code": "ARTIFACT_NOT_FOUND"})
@@ -360,19 +380,96 @@ def create_app(
         # storage_key 来自数据库，照样可能是 ../ 或另一个盘的绝对路径
         if target == root or not target.is_relative_to(root):
             raise HTTPException(403, detail={"code": "STORAGE_KEY_OUT_OF_ROOT"})
-        try:
-            body = target.read_bytes()
-        except (FileNotFoundError, IsADirectoryError):
+        if not target.is_file():
             # 绝不退回 native_data::text：那是另一种序列化，哈希必然不相等
             raise HTTPException(404, detail={"code": "ARTIFACT_FILE_MISSING"})
 
-        digest = hashlib.sha256(body).hexdigest()
+        # 流式校验哈希，使用线程池异步调度避免大文件阻塞 asyncio 事件循环与 Worker 租约心跳
+        digest = await asyncio.to_thread(file_sha256, target)
         if digest != row["sha256"]:
             raise HTTPException(500, detail={"code": "CONTENT_HASH_MISMATCH"})
 
-        return Response(
-            content=body, media_type=row["media_type"],
-            headers={"x-content-sha256": digest},
+        file_size = target.stat().st_size
+        range_header = request.headers.get("range")
+
+        def iter_file(start: int, length: int, chunk_size: int = 65536):
+            with open(target, "rb") as f:
+                f.seek(start)
+                remaining = length
+                while remaining > 0:
+                    n = min(remaining, chunk_size)
+                    chunk = f.read(n)
+                    if not chunk:
+                        break
+                    remaining -= len(chunk)
+                    yield chunk
+
+        if range_header:
+            m = re.match(r"^bytes=(\d*)-(\d*)$", range_header.strip())
+            if not m:
+                raise HTTPException(
+                    416,
+                    headers={"Content-Range": f"bytes */{file_size}"},
+                    detail={"code": "RANGE_NOT_SATISFIABLE"},
+                )
+            s_str, e_str = m.groups()
+            if not s_str and not e_str:
+                raise HTTPException(
+                    416,
+                    headers={"Content-Range": f"bytes */{file_size}"},
+                    detail={"code": "RANGE_NOT_SATISFIABLE"},
+                )
+            if not s_str:
+                suffix = int(e_str)
+                if suffix == 0 or file_size == 0:
+                    raise HTTPException(
+                        416,
+                        headers={"Content-Range": f"bytes */{file_size}"},
+                        detail={"code": "RANGE_NOT_SATISFIABLE"},
+                    )
+                start = max(0, file_size - suffix)
+                end = file_size - 1
+            elif not e_str:
+                start = int(s_str)
+                end = file_size - 1
+            else:
+                start = int(s_str)
+                end = int(e_str)
+                # RFC 7233 §2.1：若 end 超过文件当前大小，钳位至末尾字节而非拒绝
+                if end >= file_size:
+                    end = file_size - 1
+
+            if file_size == 0 or start < 0 or start >= file_size or end < start:
+                raise HTTPException(
+                    416,
+                    headers={"Content-Range": f"bytes */{file_size}"},
+                    detail={"code": "RANGE_NOT_SATISFIABLE"},
+                )
+
+            range_len = end - start + 1
+            return StreamingResponse(
+                iter_file(start, range_len),
+                status_code=206,
+                media_type=row["media_type"],
+                headers={
+                    "x-content-sha256": digest,
+                    "accept-ranges": "bytes",
+                    "content-range": f"bytes {start}-{end}/{file_size}",
+                    "content-length": str(range_len),
+                    "content-disposition": f'attachment; filename="{target.name}"',
+                },
+            )
+
+        return StreamingResponse(
+            iter_file(0, file_size),
+            status_code=200,
+            media_type=row["media_type"],
+            headers={
+                "x-content-sha256": digest,
+                "accept-ranges": "bytes",
+                "content-length": str(file_size),
+                "content-disposition": f'attachment; filename="{target.name}"',
+            },
         )
 
     PUBLIC_PATHS = ("/openapi.json", "/docs", "/redoc", "/api/v1/templates", "/healthz")

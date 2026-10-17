@@ -10,7 +10,7 @@ React 18 + Vite 5 + TypeScript 的单页应用（包名 `@eduforge/teacher-web`�
 - `src/components/` — 界面组件：
   - `SimulatorView.tsx`（光学仿真模拟器：内嵌原生 Ray Optics 二维几何光学模拟器，支持自由绘制元件、全屏模式与快速场景切换）。
   - `GalleryView.tsx`（81 个交互式演示案例库：分类过滤、全文检索、一键载入模拟器仿真与一键导入 AI 定制）。
-  - `TemplateLibrary.tsx`（模板库）、`PromptEditor.tsx`（需求输入）、`ExperimentWorkspace.tsx`（实验工作区）、`JobProgress.tsx`（任务进度）、`PreviewFrame.tsx`（预览 iframe + postMessage 桥接）、`TeachingViews.tsx`（**§C.3 教学视图面板**：渲染 `GET /revisions/{id}/views` 给的记录表列与行；结构读不出来就如实说读不出来，不猜表头）、`RevisionHistory.tsx`（版本历史，容器 `id=revision-history`）、`DownloadButton.tsx`（产物下载）、`ErrorNotice.tsx`（错误展示）。
+  - `TemplateLibrary.tsx`（模板库）、`PromptEditor.tsx`（需求输入）、`ExperimentWorkspace.tsx`（实验工作区，交付区提供原生场景与离线 ZIP 双下载按钮）、`JobProgress.tsx`（任务进度）、`PreviewFrame.tsx`（预览 iframe + postMessage 桥接）、`TeachingViews.tsx`（**§C.3 教学视图面板**：渲染 `GET /revisions/{id}/views` 给的记录表列与行；结构读不出来就如实说读不出来，不猜表头）、`RevisionHistory.tsx`（版本历史，容器 `id=revision-history`）、`DownloadButton.tsx`（产物下载，支持自定义 label 文本与自主 SHA256 校验）、`ErrorNotice.tsx`（错误展示）。
 - `src/data/` — 数据集：
   - `galleryData.json`（81 个案例场景元数据，包含中文分类、原理说明、贡献者与场景链接）。
 - `dist/` — `vite build` 产物（`index.html` + `assets/`），由教师端 e2e 测试直接起真服务验证。
@@ -25,6 +25,7 @@ React 18 + Vite 5 + TypeScript 的单页应用（包名 `@eduforge/teacher-web`�
 - **预览内实时改参**：已通过模板 `controls` 属性渲染交互控件，通过 postMessage 经包装页桥接请求服务端 `/param` 驱动上游实时仿真重新计算。
 - **教学视图已上屏（§C.3，2026-10-17 Chromium 实测）**：`TeachingViews.tsx` 渲染后端 `GET /api/v1/revisions/{id}/views` 给的记录表列与行；数据源是发布时冻结在 `lesson` 里的那一份，界面上那一行与磁盘上的 `teaching_views.json` 逐值比对（用例 `test_teacher_web_e2e.py` 同时断言 u=30 / f=15 / v=30 / 实像 / 放大率 −1）。**仍未做**：视图的导出（下载成表格文件）与切换版本时的实时增量刷新只做到"选版本即重取"。
 - **交付场景按 `storage_key` 认领**：一次发布现在登记 native、教学视图、离线包清单三份产物，`App.tsx` 不再取 `artifacts[0]`——靠下标认交付物会在多产物版本上悄悄预览错东西。
+- **完整离线实验包一键下载与校验（Gate C §C.5b R2）**：交付区域显式并列「下载原生场景」与「下载完整离线实验包 (.zip)」，通过 `client.downloadVerified` 调用后端流式下载 API，并在浏览器内存自主比对 SHA256 摘要，校验无误后直接落盘保存。
 
 ## 关系
 
