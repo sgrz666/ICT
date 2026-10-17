@@ -4,10 +4,13 @@
 换成 SphericalLens 必须显式判不可对照，而不是放宽容差。
 
 **Gate C §C.2 的分界线**：像的性质必须由光线的可观测行为决定，不由公式决定。
-Engine Host 每次仿真都会交出 `measurement.geometry`（由屏阵列上的实测光斑宽度拟合：
-收敛交点=实像、发散且反向延长交于入射侧=虚像、宽度全程不变=高平行度），
+Engine Host 每次仿真都会交出 `measurement.geometry`——观测副本把屏加宽（binSize 不变，
+只加 bin 数）并在透镜面加一块与口径同宽的光阑，挡掉「根本没经过透镜」的直光扇，
+再由各屏实测光斑宽度拟合：收敛交点=实像、发散且反向延长交于入射侧=虚像、
+斜率与 0 不可区分=高平行度。交付给教师的那 7 块屏一字不改。
 这里把它当**观测**，把薄透镜公式当**独立参考**，两者对不上就失败，
 观测不出来就 `na` → 整份报告压成 `inconclusive`，发布被挡在门外。
+容差来自量具自己报出的不确定度（屏定位分辨率、外推交点标准误），不是挑的常数。
 旧实现里 `virtual_image_valid: u < f` 与 `focal_parallel_beams: abs(f-u)<1e-4`
 是恒真的公式自证，已删除。
 """
@@ -26,8 +29,16 @@ POWER_FLOOR = 0.2
 # 相邻屏的最小间距 4cm → 像面定位分辨率 2cm；「对上」的定义是落在分辨率内，
 # 不是旧代码那个 `abs(observed - expected) < 1e-9` 的假精确。
 SCREEN_RESOLUTION_CM = 2.0
-# 高平行度的可观测定义：宽度在整段阵列上的相对变化上限（与引擎侧一致）
-PARALLEL_REL_CHANGE = 0.15
+# 「与独立参考对上」的容差不是挑的常数：由量具自己报出的两个不确定度取大者
+#   2×屏定位分辨率（像点落在两屏之间时的下限）
+#   3×外推交点的标准误（像点在阵列之外时，宽度拟合斜率的误差被放大成交点误差）
+VERTEX_SIGMA_FACTOR = 3.0
+
+
+def _agreement_tolerance_cm(geo: dict) -> float:
+    resolution = float(geo.get("resolution_cm") or SCREEN_RESOLUTION_CM)
+    vertex_stderr = float(geo.get("vertex_stderr_cm") or 0.0)
+    return max(2.0 * resolution, VERTEX_SIGMA_FACTOR * vertex_stderr)
 
 
 def nearest_screen(v_cm: float) -> float:
@@ -194,7 +205,7 @@ def build_report(
             min_rms = min_probe.get("rms_units", 999.0)
             geo = _geometry(engine_result)
 
-            _add_geometry_check(r, kind=kind, v_pred=v_pred, u_cm=u_eval, geo=geo, min_rms=min_rms)
+            _add_geometry_check(r, kind=kind, v_pred=v_pred, geo=geo, min_rms=min_rms)
 
             if kind == "real":
                 # 实像工况：屏阵列上有可核对的聚焦点。像面「落在哪块屏」的判据
@@ -225,14 +236,17 @@ def build_report(
 
 
 def _add_geometry_check(r: ValidationReport, *, kind: str, v_pred: float | None,
-                        u_cm: float, geo: dict, min_rms: float) -> None:
+                        geo: dict, min_rms: float) -> None:
     """把引擎实测的光束几何与独立参考对照。观测不到就叫观测不到。"""
     observed_kind = geo.get("kind", "inconclusive")
-    resolution = geo.get("resolution_cm") or SCREEN_RESOLUTION_CM
     apex = geo.get("apex_x_cm")
     dist = geo.get("image_distance_cm")
     reason = geo.get("reason", "引擎未返回光束几何（旧版 dist？）")
-    tol_note = f"外推交点与参考像距的容差 = 屏分辨率 {resolution:.1f}cm 的 2 倍"
+    tolerance = _agreement_tolerance_cm(geo)
+    tol_note = (
+        f"容差 = max(2×屏定位分辨率 {geo.get('resolution_cm') or SCREEN_RESOLUTION_CM:.1f}cm, "
+        f"{VERTEX_SIGMA_FACTOR:.0f}×外推交点标准误 {geo.get('vertex_stderr_cm') or 0.0:.3f}cm) = {tolerance:.2f}cm"
+    )
 
     if observed_kind == "inconclusive":
         r.add(Check(
@@ -266,10 +280,11 @@ def _add_geometry_check(r: ValidationReport, *, kind: str, v_pred: float | None,
         delta = abs(float(dist) - float(v_pred)) if dist is not None else None
         r.add(Check(
             id="beam_geometry_agrees",
-            passed=delta is not None and delta <= 2 * resolution,
+            passed=delta is not None and delta <= tolerance,
             expected=v_pred,
-            observed={"apex_x_cm": apex, "image_distance_cm": dist, "fit_r2": geo.get("fit_r2")},
-            detail=f"两侧光束宽度收敛于 {apex:.2f}cm，与独立参考 v={v_pred:.2f}cm 的偏差 {delta:.2f}cm",
+            observed={"apex_x_cm": apex, "image_distance_cm": dist, "fit_r2": geo.get("fit_r2"),
+                      "measured_on": geo.get("measured_on"), "usable": geo.get("usable")},
+            detail=f"实测宽度外推交点在 {apex:.2f}cm，与独立参考 v={v_pred:.2f}cm 的偏差 {delta:.2f}cm（{reason}）",
             source="engine:beam_width_fit",
             decisive=False,
             tolerance=tol_note,
@@ -283,9 +298,9 @@ def _add_geometry_check(r: ValidationReport, *, kind: str, v_pred: float | None,
                 id="beam_geometry_agrees",
                 passed=False,
                 expected="virtual",
-                observed={"kind": observed_kind, "reason": reason,
-                          "relative_width_change": "低于阵列分辨力"},
-                detail=f"参考预测虚像，但本屏阵列测不出可分辨的发散（{reason}）——"
+                observed={"kind": observed_kind, "reason": reason, "usable": geo.get("usable"),
+                          "measured_on": geo.get("measured_on")},
+                detail=f"参考预测虚像，但观测副本测不出可分辨的发散（{reason}）——"
                        "远处虚像与准直在该分辨率上不可区分，不判通过",
                 source="engine:beam_width_fit",
                 status="na",
@@ -293,36 +308,50 @@ def _add_geometry_check(r: ValidationReport, *, kind: str, v_pred: float | None,
             ))
             return
         delta = abs(float(dist) - float(v_pred)) if dist is not None else None
-        # 外推 100cm 量级的交点对阵列几何极其敏感，容差按分辨率的 10 倍给，
-        # 并要求符号正确（交点必须在入射侧），否则就是拿噪声当证据
+        # 符号必须对（交点在入射侧），偏差必须落在量具自己报出的不确定度内
         r.add(Check(
             id="beam_geometry_agrees",
-            passed=delta is not None and delta <= 10 * resolution and float(dist) < 0,
+            passed=delta is not None and delta <= tolerance and float(dist) < 0,
             expected=v_pred,
-            observed={"apex_x_cm": apex, "image_distance_cm": dist, "fit_r2": geo.get("fit_r2")},
+            observed={"apex_x_cm": apex, "image_distance_cm": dist, "fit_r2": geo.get("fit_r2"),
+                      "vertex_stderr_cm": geo.get("vertex_stderr_cm"),
+                      "slope_stderr_units_per_cm": geo.get("slope_stderr_units_per_cm"),
+                      "measured_on": geo.get("measured_on")},
             detail=f"出射光束发散，反向延长交点在 {apex:.1f}cm（像距 {dist:.1f}cm），"
-                   f"独立参考 v={v_pred:.1f}cm",
+                   f"独立参考 v={v_pred:.1f}cm，偏差 {delta:.2f}cm",
             source="engine:beam_width_fit",
-            tolerance=f"外推像距：符号必须在入射侧，且偏差 ≤ 10×分辨率（{10 * resolution:.0f}cm）",
+            tolerance=tol_note,
         ))
         return
 
     # 无穷远（u = f）：可观测量是平行度本身，不是"公式说 f==u"
     slope = geo.get("width_slope_units_per_cm")
+    slope_stderr = geo.get("slope_stderr_units_per_cm")
     span = geo.get("array_span_cm")
+    parallel_note = (
+        f"平行度判据：|实测斜率| ≤ 2×斜率标准误（{slope!r} vs σ={slope_stderr!r} 单位/cm），"
+        "σ 由各屏读数的拟合残差算出"
+    )
     if observed_kind == "collimated":
+        # Python 侧不采信引擎给的 kind，自己按同一不等式复核一遍 —— 换引擎也照样拦得住
+        measured_parallel = (
+            slope is not None and slope_stderr is not None and span is not None
+            and abs(float(slope)) <= 2 * float(slope_stderr)
+        )
         r.add(Check(
             id="beam_parallelism_observed",
-            passed=slope is not None and span is not None,
-            expected="宽度沿轴向变化率 ≈ 0",
-            observed={"width_slope_units_per_cm": slope, "array_span_cm": span,
-                      "resolvable_max_abs_distance_cm": geo.get("resolvable_max_abs_distance_cm")},
-            detail=f"实测光束宽度在 {span:.0f}cm 跨度内变化率 {slope:.4g} 单位/cm，"
-                   f"判为高平行度；本阵列可分辨像距上限 {geo.get('resolvable_max_abs_distance_cm')}cm，"
-                   "更远处的虚像与准直不可区分",
+            passed=measured_parallel,
+            expected="宽度沿轴向变化率与 0 不可区分",
+            observed={"width_slope_units_per_cm": slope, "slope_stderr_units_per_cm": slope_stderr,
+                      "array_span_cm": span, "usable": geo.get("usable"),
+                      "resolvable_max_abs_distance_cm": geo.get("resolvable_max_abs_distance_cm"),
+                      "clipped_screens": geo.get("clipped_screens")},
+            detail=f"实测光束宽度在 {span:.0f}cm 跨度内变化率 {slope:.4g}±{slope_stderr:.4g} 单位/cm；"
+                   f"本阵列可分辨像距上限 {geo.get('resolvable_max_abs_distance_cm')}cm，"
+                   "更远处的虚像与准直在测量上不可区分",
             source="engine:beam_width_fit",
             profile="collimated_beam",
-            tolerance=f"平行度阈值：相对变化 < {PARALLEL_REL_CHANGE:.0%}",
+            tolerance=parallel_note,
         ))
     else:
         r.add(Check(
@@ -333,5 +362,5 @@ def _add_geometry_check(r: ValidationReport, *, kind: str, v_pred: float | None,
             detail=f"参考预测像在无穷远，但实测光束不平行（{reason}）",
             source="engine:beam_width_fit",
             profile="collimated_beam",
-            tolerance=f"平行度阈值：相对变化 < {PARALLEL_REL_CHANGE:.0%}",
+            tolerance=parallel_note,
         ))

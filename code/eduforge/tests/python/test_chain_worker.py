@@ -361,33 +361,34 @@ def test_chain_composite_operations_publish(uri, art_dir, engine_url):
     assert out["detail"]["revision_count"] == 2
 
 
-def test_chain_far_virtual_image_is_refused_with_stated_instrument_limit(uri, art_dir, engine_url):
-    """f=40、u=30 ⇒ v=−120cm 的虚像：本屏阵列读不出发散，必须拒而不是假通过。
+def test_chain_far_virtual_image_publishes_on_measured_divergence(uri, art_dir, engine_url):
+    """f=40、u=30 ⇒ v=−120cm 的虚像：现在是真的量出来的，不是公式自证。
 
-    旧实现凭 `u < f` 判 passed —— 公式在给自己作证。Gate C §C.2 要求「没有独立
-    观测就标不可判」：屏上光斑已铺满探测器（孔径截断），发散度测不出来，
-    于是任务可见地失败、head 不动。这不是回退，是把一个假绿灯换成一个真拒绝。
+    历史三轮：
+      1) 旧实现凭 `u < f` 判 passed —— 公式在给自己作证；
+      2) 换成屏上光束几何后，交付屏只有 ±12cm 半高，光斑被孔径截断，
+         发散度测不出来，于是这条工况诚实地判 inconclusive 并拒发布；
+      3) Gate C §C.2 补了量具：观测副本加宽屏（binSize 不变）并在透镜面开一块
+         与口径同宽的光阑挡掉直光扇。实测交点 −119.6cm 对上独立参考 −120cm，
+         偏差落在量具自己报出的外推标准误内 ⇒ 有证据，允许发布。
+    判据仍不写在 Python 里：Python 只复核「符号在入射侧 + 偏差 ≤ 容差」。
     """
     out = run_chain(uri, art_dir, engine_url, focal_proposal(40), prompt="把焦距改成 40cm，成放大虚像")
-    assert out["job"]["status"] == "failed", out["job"]
-    assert out["job"]["error_code"] == "VALIDATION_NOT_PASSED"
-    assert out["detail"]["revision_count"] == 1, "测不出来的东西不得发布"
-    assert out["download"] is None
+    assert out["job"]["status"] == "succeeded", out["job"]
+    assert out["detail"]["revision_count"] == 2
+    assert out["download"] is not None
 
 
-def test_chain_parallel_beam_must_be_measured_not_assumed(uri, art_dir, engine_url):
-    """u=f 的准直工况：判据必须是实测的宽度变化率，拿不出证据就拒。
+def test_chain_parallel_beam_publishes_on_measured_parallelism(uri, art_dir, engine_url):
+    """u=f 的准直工况：判据是实测的宽度变化率与零不可区分，不是 `abs(f-u)<1e-4`。
 
-    这条钉住的是旧 `abs(f-u)<1e-4` 那条恒真式不回来：如果这套屏阵列读得出
-    未截断的平行光（将来加宽探测器后），它会发布成功；读不出就失败 —— 两种
-    结果都不允许「凭公式通过」。
+    这条钉住的是旧恒真式不回来：Python 侧用引擎报出的斜率与斜率标准误**重算**
+    |slope| ≤ 2σ，σ 来自各屏读数的拟合残差。量具拿不出证据时（旧版截断读数）
+    它会失败；现在实测各屏宽度完全一致 ⇒ 通过。
     """
     out = run_chain(uri, art_dir, engine_url, focal_proposal(30), prompt="把焦距改成 30cm，物点正好在焦点上")
-    if out["job"]["status"] == "succeeded":
-        assert out["detail"]["revision_count"] == 2, out["job"]
-    else:
-        assert out["job"]["error_code"] == "VALIDATION_NOT_PASSED", out["job"]
-        assert out["detail"]["revision_count"] == 1, "被拒的任务不得推进 head"
+    assert out["job"]["status"] == "succeeded", out["job"]
+    assert out["detail"]["revision_count"] == 2, out["job"]
 
 
 def test_chain_multiple_parameter_edits_validating(uri, art_dir, engine_url):

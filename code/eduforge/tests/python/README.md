@@ -9,7 +9,7 @@ EduForge Python 侧的全部测试：**23 个文件（21 个 `test_*.py` + `conf
 | 文件 | 行数 | 覆盖 |
 |---|---|---|
 | `conftest.py` | 70 | 夹具（库、应用、临时环境） |
-| `test_agent_tools_acceptance.py` | 628 | 8 项原子工具的端到端验收与**门禁负向用例**：真实导入、多参数与测量表格生效、连续编辑父子链（先构建核验再原子发布）、离线包 manifest 逐文件对上磁盘、并发 RevisionConflict、超量程请求如实被拒（不得偷换值）、过期验证结论不得授权发布、无执行上下文不得回报「已发布」 |
+| `test_agent_tools_acceptance.py` | 631 | 8 项原子工具的端到端验收与**门禁负向用例**：真实导入、多参数与测量表格生效、连续编辑父子链（先构建核验再原子发布）、离线包 manifest 逐文件对上磁盘、并发 RevisionConflict、超量程请求如实被拒（不得偷换值）、过期验证结论不得授权发布、无执行上下文不得回报「已发布」。边界用例 3（u=f 准直与 u<f 虚像）自 §C.2 起**必须 passed** 并核对实测交点与 `|slope| ≤ 2σ`，不再接受"测不出来所以 inconclusive 也算对" |
 | `test_gate2_protocol.py` | 126 | 修改协议：pydantic 校验、阈值（清晰 ≥0.8 / 弥散 ≤0.4 / 之间不可判）与控制组 |
 | `test_gate5_api_chain.py` | 242 | §6.1 使用链：选模板→建实验→提交(幂等)→查任务→取消→查实验→下载产物；产物完整性（哈希锁定、缺失 404、不符 500、`storage_key` 越界 403） |
 | `test_gate5_cancel.py` | 143 | 取消语义（已成功不回滚、活跃任务状态一致性） |
@@ -21,7 +21,7 @@ EduForge Python 侧的全部测试：**23 个文件（21 个 `test_*.py` + `conf
 | `test_entrypoints.py` | 116 | §6.3 智能体入口：华为云 AgentArts 运行时契约、本地 HTTP 规划与策略错误码映射 |
 | `test_benchmarks.py` | 43 | §7.4 基准评测回归：区分 screening / direct / agent_graph 三种评测，无 key 显式 SKIPPED 杜绝规则伪充 |
 | `test_plan_architecture_alignment.py` | 205 | 方案全貌架构对齐：验证 domain/models/errors、agent/retrieval、coding/workspace/budget、worker/lease、research/rea_runner、infrastructure 各模块自洽性 |
-| `test_chain_worker.py` | 410 | 生产链路：API 提交→Worker 五阶段→原子发布→产物字节级校验；策略拒绝与验证不过都落 `failed` 且不动 head；支持复合操作（改焦距+设置记录表）、焦点平行光束与虚像成像物理边界验证。候选版本与产物 id 改为**读 `jobs.candidate_revision_id`**（内容派生 id 由生产计算，用例不自己拼） |
+| `test_chain_worker.py` | 411 | 生产链路：API 提交→Worker 五阶段→原子发布→产物字节级校验；策略拒绝与验证不过都落 `failed` 且不动 head；支持复合操作（改焦距+设置记录表）。**物理边界两条凭实测发布**（2026-10-17 §C.2 补量具后）：`test_chain_far_virtual_image_publishes_on_measured_divergence`（f=40 虚像，实测交点 −119.6cm 对上参考 −120）与 `test_chain_parallel_beam_publishes_on_measured_parallelism`（u=f，斜率与零不可区分）；`test_validation_failure_blocks_publish`（f=5，交付屏上不成像）仍必须失败。候选版本与产物 id 改为**读 `jobs.candidate_revision_id`**（内容派生 id 由生产计算，用例不自己拼） |
 | `test_gate_b_execution_rights.py` | 599 | **Gate B 执行权与归属（2026-10-17 新增，11 项）**：心跳续租并带控制组（没池就会被抢走）、租约过期不得自续、丢权后新写入与发布都被拒、取消回报 `JOB_CANCELLED`、`attempt` 递增 + `retry_later` 退避 + `MAX_ATTEMPTS_EXCEEDED`、并发追加事件序号唯一、发布重放核对字节与归属、跨 owner 读改下载一律 404、关闭开发身份后无凭据 401、双 Worker 只产生一份交付 |
 | `test_gate_a_candidate.py` | 491 | **Gate A 统一候选执行链（2026-10-17 新增，10 项）**：旧库能升级到 `experiment_candidates` 且迁移幂等、一个 job 只有一行候选、新建 service 实例读回同一份未发布内容、先改 A 再改 B 只能交付 B（A 的绿灯当场清空）、重复构建/发布不产生第二候选或重复产物、换绑实验被拒、两个 service 并发写后者被 CAS 拒绝、纯视图（只开记录表）任务跑通且基线未被误判改写、脚本模型经 `make_worker` 全链交付且「候选字节 = 落盘字节 = 下载哈希」逐字节成立、纯视图任务走完整五阶段不被误判为基线被改 |
 | `test_publish_chain.py` | 305 | 发布链（原子性、版本可恢复） |

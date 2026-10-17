@@ -1,0 +1,74 @@
+Gate C §C.2 补量具：宽孔径观测副本 + 透镜面光阑 — 命令与实测结果
+==================================================================
+分支 main（起点 32b1883）。时间 北京 2026-10-17 14:20–14:48。
+本机 Windows，无 Docker；Postgres 走 pgserver；引擎为真实上游无头 bundle（5.5.0）。
+上一轮（gate-c-validation-geometry.txt）留下的缺口：交付屏只有 ±12cm 半高，
+虚像/准直工况下光斑铺满探测器（读数 rms 达均匀照明上限的 98%），发散度测不出来，
+于是那两类工况诚实但一律判 inconclusive ⇒ 发布被挡。本轮补的是**量具**，不是判据。
+
+1) 命令与退出码
+code/eduforge/python: ../.venv/Scripts/pytest.exe ../tests/python -q
+                          → exit 0，125 收集 / 124 通过 / 1 SKIPPED
+                          （SKIPPED = test_deepagents_real_model.py 无模型 key）
+services/engine-host: node_modules/.bin/vitest run            → Test Files 10 passed / Tests 70 passed
+services/engine-host: node_modules/.bin/tsc -p tsconfig.build.json → 无错误
+
+2) 量具怎么补的（三点，每点都有对照实验）
+a. 探测器半高 120 → 1200 场景单位（±12cm → ±120cm），**binSize 保持 2 不变**，
+   于是只增加 bin 数（120 → 1200），宽度分辨率仍是 0.2cm。
+   反例：同比放大 binSize 会把像面附近的读数量化掉，实测把 f=15 的实像判成准直。
+b. 在透镜面加一块 `Aperture`，透光孔与透镜口径重合（p3/p4 = ±25cm）。
+   动机是实测发现：只加宽屏时各屏 rms 全都 ~450–520 且几乎不随位置变化
+   ——二矩被「根本没经过透镜」的直光扇主导。对照（f=50、u=30，独立参考 v=−75.0cm）：
+     有光阑 → apex=−75.0cm  R²=1.000  斜率 1.786±0.002  交点标准误 0.023cm
+     无光阑 → apex=−227.3cm R²=0.933  斜率 1.995±0.238  交点标准误 2.850cm
+   两者都"判出了虚像"，但只有带光阑那份与自己的不确定度自洽 ⇒ 判据不能只看 kind。
+c. 交付场景一字不改，探针仿真只作量具；`geometry.measured_on` 写明证据出自哪套屏。
+
+3) 引擎实测光束几何（逐工况，独立参考 = 薄透镜公式，仅作对照不作判据）
+f    u    ref_v    kind         apex_cm  dist_cm  交点SE   斜率±斜率SE      R²    可用屏 截断剔除
+15   30     30.0   real            30.0     30.0     -     4.446±0.923   1.000     7     0
+12   30     20.0   real            20.0     20.0     -     6.690±1.534   1.000     7     0
+10   30     15.0   real            15.8     15.8     -     8.924±1.409   0.964     7     0
+20   30     60.0   real            60.0     60.0   0.024  -2.233±0.002   1.000     7     0
+25   30    150.0   real           149.4    149.4   0.066  -0.897±0.002   1.000     7     0
+40   30   -120.0   virtual       -119.6   -119.6   0.033   1.119±0.002   1.000     7     0
+50   30    -75.0   virtual        -75.0    -75.0   0.023   1.786±0.002   1.000     7     0
+45   30    -90.0   virtual        -90.0    -90.0   0.046   1.488±0.003   1.000     7     0
+50   10    -12.5   virtual        -12.5    -12.5   0.005   8.397±0.002   1.000     7     0
+30   20    -60.0   virtual        -60.1    -60.1   0.019   2.091±0.002   1.000     7     0
+30   30    无穷远   collimated       -        -      -     0.000±0.000   1.000     7     0
+10   10    无穷远   collimated       -        -      -    -0.000±0.000   1.000     7     0
+ 5   30      6.0   real             6.0      6.0   0.002  22.317±0.002  1.000     6     1
+ 6   30      7.5   real             7.5      7.5   0.002  17.851±0.001   1.000     7     0
+50   60    300.0   real           300.6    300.6   0.192  -0.467±0.004   1.000     7     0
+
+- 15 个工况全部判出，与独立参考的最大偏差 0.8cm（f=10，像点落在 12cm 与 16cm 屏之间，
+  由 V 形交点给出，容差走屏定位分辨率 2cm×2）；外推工况（像面在阵列之外）最大偏差 0.6cm。
+- f=5 那一行有 1 块屏因读数贴到满幅上限而被剔除（`clipped_screens=1`），
+  这是"截断的读数不进拟合"那条判据在真实工况上生效，不是拟合前的手工筛。
+- 上一轮"宽度只变 5.2% 因此测不出来"的近虚像工况（f=50、u=10）现在给出 −12.5cm，
+  与参考 −12.5cm 一致，交点标准误 0.005cm。
+
+4) 判据侧同步收紧（Python 不采信引擎给的 kind）
+- `beam_parallelism_observed` 改为 Python 自己复核 |slope| ≤ 2×slope_stderr（σ 由拟合残差算出），
+  不再写 `passed = slope is not None`。
+- 容差统一由 `max(2×屏定位分辨率, 3×外推交点标准误)` 给出，删掉 `PARALLEL_REL_CHANGE=0.15`
+  这条挑出来的相对变化阈值与虚像工况的「10×分辨率」。
+- 保留的决定性关系不变：虚像/无穷远没有第二件量具 ⇒ 那里的 `na` 决定整份报告为 inconclusive。
+
+5) 行为变化：两类工况从「拒绝发布」变成「凭实测发布」
+- `test_chain_far_virtual_image_is_refused_with_stated_instrument_limit`
+  → `test_chain_far_virtual_image_publishes_on_measured_divergence`（f=40：succeeded，revision 前进 1，有产物）
+- `test_chain_parallel_beam_must_be_measured_not_assumed`
+  → `test_chain_parallel_beam_publishes_on_measured_parallelism`（f=30=u=f：succeeded）
+- `test_physics_boundary_infinite_and_virtual_image` 的"passed 或 inconclusive 都接受"
+  改为必须 passed，并核对实测交点（v=−60.1 vs 参考 −60.0）与 |slope| ≤ 2σ。
+- `test_validation_failure_blocks_publish`（f=5，像面在阵列外、交付屏上不成像）仍失败：
+  `spot_is_actually_focused` 用**交付屏**读数反驳（最窄 rms 44.6 > 15）。
+  这条特意保留：几何证据来自观测副本，但教师实际看到的屏上不成像，就不该发布。
+
+6) 仍未闭环（别把本轮读成 Gate C 完成）
+- 观测副本是给**验证**用的量具，教师前端看到的仍是 ±12cm 的 7 块屏；
+  把这套观测量以「像点位置/发散度」的形式暴露到教学视图里还没做（属 C.3）。
+- C.4 统一 PackageBuilder、C.5 发布前浏览器实测与下载重验、C.6 案例导入、C.7 预览 origin 未动。

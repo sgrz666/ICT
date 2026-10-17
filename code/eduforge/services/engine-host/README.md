@@ -11,7 +11,7 @@
 | `adapters/ray-optics/adapter.ts` | Ray Optics 适配器：读模板 manifest + native.json，校验绑定，支持单项及批量参数修改与光线抽样 |
 | `adapters/ray-optics/patch.ts` | 纯函数式场景修改：支持焦距（`focal_length_cm`）与物距（`object_distance_cm`）修改，源数据不被就地改写 |
 
-| `adapters/ray-optics/upstream.ts` | 上游仿真封装（load / validate / simulate） |
+| `adapters/ray-optics/upstream.ts` | 上游仿真封装（load / validate / simulate）。`simulate()` 每次跑**两遍**：交付屏读数给教师视图，**观测副本**（屏加宽、`binSize` 不变 + 透镜面同口径光阑）的实测光斑宽度喂 `beamGeometry()`，产出实像/虚像/准直/不可判四态与不确定度 |
 | `upstream_paths.ts` | 定位工作区根与上游目录——**靠向上查找，不手数 `../`**（本工程在 parents 层数上错过四次，代价高） |
 | `preview/server.ts` | 预览服务：把候选场景经上游自己的分享 URL 机制（json-url lzma + `#hash`）塞进上游模拟器 iframe，渲染完全由上游产生；桥接改参数走 `POST /param`，复用同一个适配器，上游不接受就 422 |
 | `preview/messages.ts` | 桥接消息类型（宿主页 ↔ iframe，`eduforge.ready` / `parameter_changed` 等） |
@@ -27,7 +27,7 @@
 ## 测试结构（tests/）
 
 - `adapters/ray-optics/patch.test.ts` — 补丁纯函数（含控制组：改回原值必须逐位一致）。
-- `engines/` — `gate3_engine_host.test.ts`（起真 HTTP 服务走完整链路）、`gate4_science_profile.test.ts`（科学剖面）、`measure_separation.test.ts`（像面定位：7 屏 + RMS，八档 argmax 全对）、`beam_geometry.test.ts`（光束几何：实像交点/虚像反向延长/准直/不可判四态）。
+- `engines/` — `gate3_engine_host.test.ts`（起真 HTTP 服务走完整链路）、`gate4_science_profile.test.ts`（科学剖面）、`measure_separation.test.ts`（像面定位：7 屏 + RMS，八档 argmax 全对）、`beam_geometry.test.ts`（光束几何 16 项：四态分类 + 观测副本构造 + 「有光阑/无光阑」对照）。
 - `e2e/` — `gate3_interaction.test.ts`（浏览器交互：复位、新增对象）、`gate3_bridge.test.ts`（§5.3 桥接消息时序）、`gate8_offline.test.ts`（离线包断网检查）、`preview_render.test.ts` + `render_harness.ts`（渲染可复现性：同场景两次 sum/lit/截图哈希全等）。
 - `gateway/gateway.test.ts` — 7 条网关用例（静态挂载、反代保真、501/502、回环限制）。
 
@@ -37,4 +37,7 @@
 
 - 上游资产在 `../../../../source/upstream/ray-optics`（构建产物 `dist-node/rayOptics.js` 是无头仿真入口）；本服务**不改上游一行**，差异全在 adapters 层。
 - 观测只用上游仿真；独立参考公式只在 Python 侧 `validation/scientific/optics.py`，两边不共用。
+- **观测副本是量具，不是产物**：加宽屏与透镜面光阑只存在于探针仿真里，交付场景一字不改；
+  几何判据必须带自己的不确定度（`slope_stderr`、`vertex_stderr`、`clipped_screens`）交出去，
+  Python 侧据此复核而不采信 `kind` 一个字。为什么必须有光阑，见 `src/adapters/ray-optics/README.md` 的坑节。
 - `json-url` 复用上游自带那份（npm 版未声明 `@babel/runtime` 依赖，自装会运行期挂，见 `upstream.lock.json` 的 known_pits）。
