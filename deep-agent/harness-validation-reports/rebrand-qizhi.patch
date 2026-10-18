@@ -146,10 +146,10 @@ index 11ff789b8a..283a2e3324 100644
    'none': '无',
 diff --git a/packages/client/ui-brand-qizhi/README.md b/packages/client/ui-brand-qizhi/README.md
 new file mode 100644
-index 0000000000..dab0346433
+index 0000000000..02b9913c7b
 --- /dev/null
 +++ b/packages/client/ui-brand-qizhi/README.md
-@@ -0,0 +1,148 @@
+@@ -0,0 +1,158 @@
 +---
 +description: "启智AGENT brand occupants for the Web client's sidebar and conversation hero slots, replacing the official DeepSeek marks."
 +kind: "package-reference"
@@ -238,7 +238,14 @@ index 0000000000..dab0346433
 +`bg-layer-*`, overlay, platform module, skeleton), the four `border-l*`
 +hairlines — which `--dsw-elevation-stroke-color` follows, so elevated surfaces
 +pick up the brand hairline without a hand-made shadow — and the brand/link and
-+interactive hover accents. It never touches text tokens. Three upstream rules
++interactive hover accents. It never touches text tokens.
++
++Opacity is not uniform, and the reason is a real defect: only the two surfaces
++that sit directly on the ambient backdrop — the app canvas (`bg-base`) and the
++sidebar column — are see-through. Every token a panel, card or drawer paints
++*over app content* stays near-opaque (α ≥ 0.94), because a translucent fill
++there smears the transcript behind it. `tests/glass.spec.ts` pins that split so
++a future sweep cannot re-open it. Three upstream rules
 +were treated as binding while choosing those: modal backdrops keep
 +`--dsw-mask-blur: none` (no blur through a settings dialog), menu material
 +(`--dsw-menu-surface-fill`, `--dsw-menu-backdrop-filter`) is not redefined and
@@ -279,10 +286,13 @@ index 0000000000..dab0346433
 +- **The frost needs a nameable surface, and CSS modules hide it.** Fill colours
 +  reach every component through tokens, but `backdrop-filter` has no token, so
 +  it is applied through selectors that survive hashing only by convention:
-+  semantic elements (`nav`, `header`, `aside`, `footer`) plus the readable
-+  local-name suffixes `_composer`, `_sidebar`, `_panel`. An upstream rename
-+  quietly drops the blur on that one surface — the panel still gets its
-+  translucent fill, and nothing shifts or breaks.
++  `aside` and the readable local-name suffix `_sidebarCol` — one surface, the
++  sidebar column, chosen because it is the only large element that paints its
++  own translucent fill. The list is short on purpose: blurring a *transparent*
++  layout wrapper (`nav`, `header`, `[class*='_panel']`, the composer seat)
++  frosts whatever content sits under it, which is how an earlier, broader
++  version of this rule ate half the page. An upstream rename drops the frost on
++  that surface; the fill and the layout are unaffected.
 +- **Capability is read once, at activation.** `ctx.theme.overrideTokens` is a
 +  stored layer, so a mid-session OS switch of `prefers-reduced-transparency`
 +  does not re-pick opaque fills; a reload does. Engine blur support cannot
@@ -300,10 +310,10 @@ index 0000000000..dab0346433
 +  `verify-translation-pairing` gate owns the canonical form.
 diff --git a/packages/client/ui-brand-qizhi/README.zh.md b/packages/client/ui-brand-qizhi/README.zh.md
 new file mode 100644
-index 0000000000..53b0f6a4bb
+index 0000000000..61d32c1c1e
 --- /dev/null
 +++ b/packages/client/ui-brand-qizhi/README.zh.md
-@@ -0,0 +1,111 @@
+@@ -0,0 +1,118 @@
 +---
 +description: "为 Web 客户端侧栏与会话首屏品牌槽位填充 启智AGENT 标识的部署品牌包，取代官方 DeepSeek 品牌。"
 +kind: "package-reference"
@@ -375,7 +385,12 @@ index 0000000000..53b0f6a4bb
 +这层改动搬的是表面填充（`--dsw-alias-bg-base`、`--dsw-specific-sidebar-fill`、
 +`--dsw-specific-input-major`、三层 `bg-layer-*`、overlay、平台模块底、骨架屏）、四条 `border-l*` 细线
 +（`--dsw-elevation-stroke-color` 跟着它走，所以抬升面板自然换上品牌描边，不需要手搓阴影），以及品牌/链接与
-+hover 交互强调色；文字类 token 一个都没动。挑选时把三条上游规矩当作硬约束：模态遮罩保持
++hover 交互强调色；文字类 token 一个都没动。
++
++透明度不是一刀切，原因是一次真实缺陷：只有直接坐在氛围底上的两个表面——应用画布
++（`bg-base`）与侧栏列——是透的；所有「盖在应用内容之上」的面板、卡片、抽屉的填充都保持
++接近不透明（α ≥ 0.94），因为半透明填在那里会把底下的会话流糊穿。`tests/glass.spec.ts`
++把这条分界钉住，防止下一轮统一主题时再把它打开。挑选时把三条上游规矩当作硬约束：模态遮罩保持
 +`--dsw-mask-blur: none`（设置对话框后面不糊）、菜单材质（`--dsw-menu-surface-fill` 与
 +`--dsw-menu-backdrop-filter`）不重定义并沿用出厂的 40px 玻璃、任何表面都不把 `border-l*` 描边和抬升阴影叠在一起。
 +
@@ -404,9 +419,11 @@ index 0000000000..53b0f6a4bb
 +- **`ui-brand-official` 仍被安装但不挂载。** 保留 `web-app/package.json` 里的依赖行
 +  是为了不破坏官方构建路径，改的只是组合。
 +- **磨砂要能点名表面，而 CSS module 把名字藏起来了。** 填充色靠 token 能到达所有组件，
-+  `backdrop-filter` 却没有对应 token，只能用「哈希后仍能存活」的选择器：语义元素
-+  （`nav`、`header`、`aside`、`footer`）加上可读的局部名后缀 `_composer`、`_sidebar`、`_panel`。
-+  上游改名只会让那一处的模糊悄悄失效——面板半透明填充仍在，布局不会错也不会跳。
++  `backdrop-filter` 却没有对应 token，只能用「哈希后仍能存活」的选择器，最终只留两个：
++  `aside` 与可读局部名后缀 `_sidebarCol`——也就是侧栏列，选它是因为它是唯一「自己画半透明填充」
++  的大表面。列表刻意很短：给*透明*的布局容器加模糊（`nav`、`header`、`[class*='_panel']`、
++  composerSeat）等于把它下面的内容一起磨掉，本层更早一版就是因为范围太宽糊掉了半张页面。
++  上游改名只会让那一处的磨砂悄悄失效——填充与布局不受影响。
 +- **能力只在激活时读一次。** `ctx.theme.overrideTokens` 是常驻层，系统中途切换
 +  `prefers-reduced-transparency` 不会重新换成不填充值，刷新才会；引擎是否支持模糊在一次会话里不会变。
 +- **实机只观测到一套配色。** 运行中的浏览器把 `system` 解析成浅色，所以浅色路径是 DOM 实测的；
@@ -914,10 +931,10 @@ index 0000000000..1de70d90c9
 +}
 diff --git a/packages/client/ui-brand-qizhi/src/client/glass.ts b/packages/client/ui-brand-qizhi/src/client/glass.ts
 new file mode 100644
-index 0000000000..ae7518d2db
+index 0000000000..f76c4e6d36
 --- /dev/null
 +++ b/packages/client/ui-brand-qizhi/src/client/glass.ts
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,87 @@
 +/**
 + * 启智AGENT glass layer: alias-token overrides registered through the theme
 + * service, the repo's sanctioned third-party theme channel.
@@ -926,6 +943,11 @@ index 0000000000..ae7518d2db
 + * whichever base palette is active and no stylesheet has to out-specify the
 + * vendor sheet. Each token carries both palette modes, and only surface fills,
 + * hairlines and brand accents move — text tokens keep upstream contrast.
++ *
++ * See-through is limited to the two surfaces that sit directly on the ambient
++ * backdrop: the app canvas (`bg-base`) and the sidebar column. Every token a
++ * panel, card or drawer paints *over app content* stays near-opaque — a
++ * translucent fill there smears the transcript behind it.
 + */
 +import type { Context as ClientContext } from '@deepseek-ai/cordis'
 +import type { ThemeTokenOverrides } from '@deepseek-ai/dsh-client-ui-theme/client'
@@ -958,22 +980,22 @@ index 0000000000..ae7518d2db
 +      ? { light: 'rgba(255, 255, 255, 0.68)', dark: 'rgba(16, 19, 28, 0.62)' }
 +      : { light: '#ffffff', dark: '#14171f' },
 +    '--dsw-specific-input-major': glass
-+      ? { light: 'rgba(255, 255, 255, 0.74)', dark: 'rgba(31, 36, 54, 0.60)' }
++      ? { light: 'rgba(255, 255, 255, 0.97)', dark: 'rgba(31, 36, 54, 0.96)' }
 +      : { light: '#ffffff', dark: '#232324' },
 +    '--dsw-alias-bg-layer-1': glass
-+      ? { light: 'rgba(255, 255, 255, 0.66)', dark: 'rgba(19, 22, 33, 0.58)' }
++      ? { light: 'rgba(255, 255, 255, 0.94)', dark: 'rgba(19, 22, 33, 0.94)' }
 +      : { light: '#ffffff', dark: '#14171f' },
 +    '--dsw-alias-bg-layer-2': glass
-+      ? { light: 'rgba(255, 255, 255, 0.74)', dark: 'rgba(24, 28, 42, 0.66)' }
++      ? { light: 'rgba(255, 255, 255, 0.96)', dark: 'rgba(24, 28, 42, 0.95)' }
 +      : { light: '#f7f8fc', dark: '#191d29' },
 +    '--dsw-alias-bg-layer-3': glass
-+      ? { light: 'rgba(255, 255, 255, 0.84)', dark: 'rgba(31, 36, 54, 0.74)' }
++      ? { light: 'rgba(255, 255, 255, 0.97)', dark: 'rgba(31, 36, 54, 0.96)' }
 +      : { light: '#eef1f8', dark: '#212637' },
 +    '--dsw-alias-bg-overlay': glass
-+      ? { light: 'rgba(255, 255, 255, 0.80)', dark: 'rgba(13, 16, 26, 0.72)' }
++      ? { light: 'rgba(255, 255, 255, 0.97)', dark: 'rgba(13, 16, 26, 0.96)' }
 +      : { light: '#ffffff', dark: '#10131d' },
 +    '--dsw-alias-bg-module-platform': glass
-+      ? { light: 'rgba(255, 255, 255, 0.62)', dark: 'rgba(24, 28, 42, 0.60)' }
++      ? { light: 'rgba(255, 255, 255, 0.95)', dark: 'rgba(24, 28, 42, 0.95)' }
 +      : { light: '#f4f6fb', dark: '#171a25' },
 +    '--dsw-alias-bg-skeleton': glass
 +      ? { light: 'rgba(12, 18, 34, 0.05)', dark: 'rgba(255, 255, 255, 0.06)' }
@@ -1066,10 +1088,10 @@ index 0000000000..3b0886e5e8
 +export function apply(): void {}
 diff --git a/packages/client/ui-brand-qizhi/src/styles/qizhi-theme.css b/packages/client/ui-brand-qizhi/src/styles/qizhi-theme.css
 new file mode 100644
-index 0000000000..6e60680087
+index 0000000000..54be0244dd
 --- /dev/null
 +++ b/packages/client/ui-brand-qizhi/src/styles/qizhi-theme.css
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,89 @@
 +/*
 + * 启智AGENT glass layer, stylesheet half (v2).
 + *
@@ -1085,9 +1107,16 @@ index 0000000000..6e60680087
 + * already glass), and no hand-made inset strokes — elevation hairlines come
 + * from `--dsw-elevation-stroke-color`, which follows `border-l4`.
 + *
-+ * Bundled CSS module class names are hashed, so the selectors below anchor on
-+ * the readable local-name suffix that css-modules preserves (`_composer`) plus
-+ * semantic elements. A rename upstream drops the effect, never the layout.
++ * Blur is safe only where the element paints its own translucent fill: a
++ * `backdrop-filter` on a *transparent* layout wrapper smears everything behind
++ * it inside its box, which is how an early `[class*='_panel']` selector ate the
++ * right half of the page (the drawer has no fill of its own). The list is
++ * therefore short: the sidebar column alone, which paints
++ * `--dsw-specific-sidebar-fill` over the mesh. Semantic landmarks turned out to
++ * be traps — the left rail's panel list is a `<nav>` with no fill of its own,
++ * so `nav` reproduced the same smear at 36x84. CSS module names are hashed, so
++ * this anchors on the readable local-name suffix that css-modules preserves; a
++ * rename drops the frost, never the layout.
 + */
 +
 +/* ---- the canvas the panels refract ---- */
@@ -1128,7 +1157,7 @@ index 0000000000..6e60680087
 +
 +/* ---- the frost itself ---- */
 +
-+:where(nav, header, aside, footer, [class*='_composer'], [class*='_sidebar'], [class*='_panel']) {
++:where(aside, [class*='_sidebarCol']) {
 +  -webkit-backdrop-filter: blur(var(--qizhi-glass-blur)) saturate(var(--qizhi-glass-saturate));
 +  backdrop-filter: blur(var(--qizhi-glass-blur)) saturate(var(--qizhi-glass-saturate));
 +}
@@ -1147,19 +1176,31 @@ index 0000000000..6e60680087
 +    display: none;
 +  }
 +
-+  :where(nav, header, aside, footer, [class*='_composer'], [class*='_sidebar'], [class*='_panel']) {
++  :where(aside, [class*='_sidebarCol']) {
 +    backdrop-filter: none;
 +    -webkit-backdrop-filter: none;
 +  }
 +}
 diff --git a/packages/client/ui-brand-qizhi/tests/glass.spec.ts b/packages/client/ui-brand-qizhi/tests/glass.spec.ts
 new file mode 100644
-index 0000000000..8b902633bf
+index 0000000000..0308e90c5d
 --- /dev/null
 +++ b/packages/client/ui-brand-qizhi/tests/glass.spec.ts
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,68 @@
 +import { describe, expect, it } from 'vitest'
 +import { buildGlassTokens } from '../src/client/glass.ts'
++
++/** Tokens that must stay readable because they paint over app content. */
++const OVER_CONTENT = ['--dsw-alias-bg-layer-1', '--dsw-alias-bg-layer-2', '--dsw-alias-bg-layer-3',
++  '--dsw-alias-bg-overlay', '--dsw-alias-bg-module-platform', '--dsw-specific-input-major']
++
++/** The two surfaces allowed to show the ambient mesh through them. */
++const ON_BACKDROP = ['--dsw-alias-bg-base', '--dsw-specific-sidebar-fill']
++
++const value = (glass: boolean, name: string, mode: 'light' | 'dark'): string =>
++  buildGlassTokens(glass)[name]?.[mode] ?? ''
++
++const alphaOf = (rgba: string): number => Number(/([\d.]+)\)$/.exec(rgba)?.[1] ?? Number.NaN)
 +
 +/**
 + * The theme service rejects a bare string per token, so completeness of the
@@ -1173,7 +1214,7 @@ index 0000000000..8b902633bf
 +      expect(Object.keys(tokens).length).toBeGreaterThan(10)
 +      for (const [name, modes] of Object.entries(tokens)) {
 +        expect(modes.light, name).toMatch(/^(#[0-9a-f]{3,8}|rgba?\(|color-mix\()/i)
-+        expect(modes.dark, name).toMatch(/^(#[0-9a-f]{3,8}|rgba?\(|color-mix\()/i)
++        expect(modes.dark, name).toMatch(/^(#[0-9a-f]{3,8}|rgba?\()/i)
 +      }
 +    })
 +  }
@@ -1187,15 +1228,31 @@ index 0000000000..8b902633bf
 +    }
 +  })
 +
++  /**
++   * The regression this guards: a translucent panel over the transcript smears
++   * the text behind it, which is what broke the first cut of the glass page.
++   */
++  it('keeps surfaces that paint over app content near-opaque', () => {
++    for (const name of OVER_CONTENT) {
++      for (const mode of ['light', 'dark'] as const) {
++        const fill = value(true, name, mode)
++        expect(fill, `${name} ${mode}`).toMatch(/^rgba\(/)
++        expect(alphaOf(fill), `${name} ${mode}`).toBeGreaterThanOrEqual(0.94)
++      }
++    }
++    for (const name of ON_BACKDROP) {
++      expect(alphaOf(value(true, name, 'light')), name).toBeLessThanOrEqual(0.7)
++    }
++  })
++
 +  it('goes opaque when the browser cannot composite a blur', () => {
-+    const flat = buildGlassTokens(false)
-+    for (const [name, modes] of Object.entries(flat)) {
++    for (const [name, modes] of Object.entries(buildGlassTokens(false))) {
 +      if (!name.startsWith('--dsw-alias-bg-') && !name.startsWith('--dsw-specific-')) continue
 +      if (name.includes('skeleton')) continue
 +      expect(modes.light, name).not.toContain('rgba')
 +      expect(modes.dark, name).not.toContain('rgba')
 +    }
-+    expect(buildGlassTokens(true)['--dsw-alias-bg-base'].light).toContain('rgba')
++    expect(value(true, '--dsw-alias-bg-base', 'light')).toContain('rgba')
 +  })
 +})
 diff --git a/packages/client/ui-brand-qizhi/tsconfig.json b/packages/client/ui-brand-qizhi/tsconfig.json
