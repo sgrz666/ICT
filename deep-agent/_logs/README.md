@@ -1,4 +1,4 @@
-# _logs/ — 原始证据（46 个文件）
+# _logs/ — 原始证据（53 个文件）
 
 ## 职责
 
@@ -19,6 +19,17 @@
 | `09_web_picker.log`、`10_web_picker.log` | 带官方 `--patch …/pin-browse-picker.overlay.yml` 的启动尝试：`09` 记录 `error: unknown option '--patch'`（参数位置坑），`10` 是成功形态与 URL |
 | `06_smoke_ok.json` / `.err`、`07_smoke_cwdtest.json` / `.err` | 两条最小 API 冒烟：`06` 从仓库根启动（暴露 `cwd` 会落到仓库根），`07` 加 `TSX_TSCONFIG_PATH` 从工作区启动（`cwd` 正确、4s、cacheRead 5,760） |
 
+### 前端品牌重构（阶段 G）
+
+| 文件 | 内容 |
+|---|---|
+| `11_rebrand_install_build.log` | 新增 `ui-brand-qizhi` 后的 `pnpm install`（`INSTALL_EXIT=0`）+ `build`：`client-src` 首次失败于 `Cannot resolve entry module lib/types/index.js`（未登记进 Client 聚合） |
+| `12_rebrand_build2.log` | 登记聚合后重跑：失败于 `TS6306 Referenced project 'ui-conversation' must have setting "composite": true`（split 包必须点名 `tsconfig.client.json` 叶子） |
+| `13_rebrand_build3.log` | 修正引用后：暴露 38 条严格模式错误（`noUncheckedIndexedAccess` 索引可空、闭包内丢失非空收窄、槽位注册 `No overload matches this call`、缺 `*.module.css` 环境声明） |
+| `14_rebrand_build4.log` | 改用声明处即非空的 `host`/`surface` 局部量后，剩余 6 条同类错误 |
+| `15_rebrand_build5.log` | **通过**：`client compiler`、`Client bundle`、`Web build`、`host aggregate check` 全 PASS，`BUILD_EXIT=0` |
+| `16_qizhi_web.log` | 改造后 `dsh --profile web --no-open` 的启动行与 URL（token 已脱敏）；浏览器实测见 [../harness-validation-reports/rebrand-qizhi-report.md](../harness-validation-reports/rebrand-qizhi-report.md) 第 4 节 |
+
 ### Agent 循环运行（阶段 E，`<stem>.jsonl` + `.err` + `.meta`）
 
 `.jsonl` 是官方 `--json` 事件流（`session`/`status`/`thinking`/`text`/`tool_call`/`tool_result`/`final`），`.meta` 是 `exit` 与 `elapsed_seconds`。
@@ -37,6 +48,7 @@
 | `probe_shell` | workspace-write（工作区在 `D:\dsh-smoke`） | exit 0 / 47s / 8 调用 / 2 失败 | 换路径复现同一 `Win32 5` → 证明与路径无关，是宿主权限 |
 | `probe_after` | workspace-write | exit 0 / 8s / 1 调用 / 0 失败 | 官方脚本置备权限后，confined `pwsh` 立刻真跑出 2 个 FAIL |
 | `t3_agent_fixed_cart.py` | — | — | `t3` 那一轮模型改出的 `cart.py` 快照，留存于我还原基线**之前** |
+| `vitest-v2.log` | — | RC=0 | 第二版毛玻璃改动的受影响包全量前端测试：56 文件 / 849 测试全绿。第一次同命令运行有 1 项失败，但输出被我接了 `tail -18` 截掉详情，完整重跑才可信——留这一行是为了记「截断输出会吞掉失败详情」这个教训 |
 
 ## 与上下层的关系
 
@@ -48,6 +60,8 @@
 ## 已知的坑与纪律
 
 1. **落盘即脱敏**：`dsh web` 启动行带本地 UI token（等价于本机免登录访问凭据）。提交前必须跑 `grep -rlE 'token=[A-Za-z0-9_.-]{20,}' _logs` 并确认无输出（本目录已处理）。
+
+   实况补记（2026-10-18）：这条规矩被 `16_qizhi_web.log` 破过一次——第一版品牌改造落盘时没跑扫描，文件里留着明文 token，本轮收尾扫描才抓出来，已就地替换为 `token=[REDACTED-local-ui-access-credential]`（其余内容未改）。教训是扫描必须排在提交前，而不是「目录里应该有处理过」。
 2. 永不写入明文 API key；`sk-` 扫描必须为空。
 3. `.err` 里 stderr 的 `dsh: reasoning:` 段可能很长，属正常，不要截断成「看起来干净」的版本。
 4. 只追加不改写：一次运行一个 stem，重跑就换新 stem（`_fixed`、`_wsw` 这种后缀承载「同 prompt、不同环境」的含义）。

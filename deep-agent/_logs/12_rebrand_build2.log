@@ -1,0 +1,45 @@
+START 2026-10-18T10:43:54+08:00
+$ tsx scripts/build.ts
+run-gates: build running 9 gate(s) with 9 worker(s) from 12 local default worker(s) of 18 CPU(s).
+run-gates: start native addon
+run-gates: PASS native addon (1.71s)
+run-gates: start host compiler
+run-gates: PASS host compiler (2.40s)
+run-gates: start Host bundle
+run-gates: start host aggregate check
+run-gates: PASS host aggregate check (42.29s)
+run-gates: PASS Host bundle (47.52s)
+run-gates: start Desktop bundle
+run-gates: PASS Desktop bundle (4.65s)
+run-gates: start client compiler
+
+== FAILED client compiler (4.58s) ==
+command: tsc -b <tsconfig.client.json references>
+outcome: exit 1
+packages/client/ui-brand-qizhi/tsconfig.json(20,5): error TS6306: Referenced project 'D:/codeplus/ICT/deep-agent/deepseek-harness/packages/client/ui-conversation' must have setting "composite": true.
+
+== SKIPPED Client bundle (0.00s) ==
+command: pnpm exec tsdown --config-loader native --env.DSH_BUILD_FACE client
+outcome: dependency failed or skipped: client-src
+
+== SKIPPED Web build (0.00s) ==
+command: pnpm run build:web
+outcome: dependency failed or skipped: client-bundle
+
+== SKIPPED client aggregate check (0.00s) ==
+command: tsc -p tsconfig.client.json
+outcome: dependency failed or skipped: client-src
+
+run-gates: 5 passed, 1 failed, 3 skipped in 60.86s.
+run-gates: unsuccessful gates:
+  - FAILED client compiler (4.58s, exit 1)
+    tsc -b <tsconfig.client.json references>
+  - SKIPPED Client bundle (0.00s, dependency failed or skipped: client-src)
+    pnpm exec tsdown --config-loader native --env.DSH_BUILD_FACE client
+  - SKIPPED Web build (0.00s, dependency failed or skipped: client-bundle)
+    pnpm run build:web
+  - SKIPPED client aggregate check (0.00s, dependency failed or skipped: client-src)
+    tsc -p tsconfig.client.json
+[ELIFECYCLE] Command failed with exit code 1.
+BUILD_EXIT=1
+END 2026-10-18T10:45:02+08:00

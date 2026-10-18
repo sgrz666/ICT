@@ -13,6 +13,9 @@
 | [agent-loop-test-report.md](agent-loop-test-report.md) | E | 五项测试逐条证据：调用顺序表、每次 `tool_result` 的原文摘录、失败与重试计数、耗时；第 6 节权限与审批观察；第 7 节汇总表；第 8 节验收判定；**第 9 节是修复后复跑**（根因 `WRITE_OWNER` 缺失、官方脚本修法、测试 2/3/4 在默认 `workspace-write` 下重跑通过） |
 | [architecture-notes.md](architecture-notes.md) | 源码阅读 | 按实际源码总结：Cordis「一切皆插件」、profile/bundle 分层与 `--dump-config`、一次 turn 的事件序列、会话日志即模型可见面（Model-visible ⟺ logged）、capability seam 三角色、工具目录（win32 用 `pwsh` 而非 `bash`）、沙箱与三档权限预置、`llm-deepseek` 错误码族、`DSH_HOME` 路径解析、值得学的工程门 |
 | [next-integration-assessment.md](next-integration-assessment.md) | F | 只评估不实现：值得重点复用的模块按性价比排序（agent-loop/tools/session、执行世界 provider 组、llm-deepseek、session 持久化与查询、subagent/goal、plan/todo、skill、sandbox、MCP、Python SDK），不建议动的部分，接入前置条件，以及「官方已有但本轮未验证」清单 |
+| [rebrand-qizhi-report.md](rebrand-qizhi-report.md) | G（前端品牌重构） | 启智AGENT 第一版改造：9 处品牌注入点清单（含 `conversation.hero.brand.mark` 这个首屏槽位）、新增 `ui-brand-qizhi` 包占三个槽位的做法、设计与粒子实现说明、构建与浏览器实测（标题/标志/首屏/ favicon 已换，`/DeepSeek/` 匹配为 false，33 项前端单测全过）、前后对比表、5 条后续建议 |
+| [rebrand-qizhi-v2-glass-report.md](rebrand-qizhi-v2-glass-report.md) | G（第二版毛玻璃） | v2 全记录：为什么「token 生效但页面仍不透明」逼出逐元素反查（不透明责任集中在 `bg-base`/`specific-sidebar-fill`/`specific-input-major` 三个变量）、改走 `ctx.theme.overrideTokens()` 官方通道而删掉选择器权重对抗、三条被当作硬约束的上游规矩（模态不模糊、菜单材质不重定义、描边不与抬升阴影叠用）、能力降级只能在注册前决定的原因、实测数字（不透明面板 6→0、6 个模糊表面、20 个行内 token）、849+4 测试与两次运行的差异、5 条诚实限制 |
+| [rebrand-qizhi.patch](rebrand-qizhi.patch) | G + G(v2) | 上述改动的可重放补丁，**已随第二版重生成**：29 个文件、+1,083 行、65,920 字节（v1 版是 24 个文件 / 49,436 字节）。上游克隆目录被 ICT 的 `.gitignore` 排除，改动只以补丁形式留档 |
 
 ## 与上下层的关系
 

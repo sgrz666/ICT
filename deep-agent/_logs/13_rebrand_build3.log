@@ -1,0 +1,97 @@
+START 2026-10-18T10:46:52+08:00
+$ tsx scripts/build.ts
+run-gates: build running 9 gate(s) with 9 worker(s) from 12 local default worker(s) of 18 CPU(s).
+run-gates: start native addon
+run-gates: PASS native addon (1.49s)
+run-gates: start host compiler
+run-gates: PASS host compiler (2.24s)
+run-gates: start Host bundle
+run-gates: start host aggregate check
+run-gates: PASS Host bundle (45.06s)
+run-gates: start Desktop bundle
+run-gates: PASS host aggregate check (49.18s)
+run-gates: PASS Desktop bundle (4.90s)
+run-gates: start client compiler
+
+== FAILED client compiler (4.92s) ==
+command: tsc -b <tsconfig.client.json references>
+outcome: exit 1
+packages/client/ui-brand-qizhi/src/client/Brand.tsx(1,17): error TS2307: Cannot find module './brand.module.css' or its corresponding type declarations.
+packages/client/ui-brand-qizhi/src/client/index.ts(28,25): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(options: { name: "conversation.hero.brand.mark"; children?: Record<never, never>; store?: undefined; locale?: undefined; registrant?: string; } & { priority?: number; } & { inject?: undefined; }, component: (({ size, className }: HeroEmblemProps) => Element) & SlotComponent<...>): () => void', gave the following error.
+    Argument of type '({ size, className }: HeroEmblemProps) => Element' is not assignable to parameter of type '(({ size, className }: HeroEmblemProps) => Element) & SlotComponent<ComposedProps<"conversation.hero.brand.mark", string, never, undefined, object, never, undefined>>'.
+      Type '({ size, className }: HeroEmblemProps) => Element' is not assignable to type 'SlotComponent<ComposedProps<"conversation.hero.brand.mark", string, never, undefined, object, never, undefined>>'.
+        Types of parameters '__0' and 'props' are incompatible.
+          Type 'ComposedProps<"conversation.hero.brand.mark", string, never, undefined, object, never, undefined>' is not assignable to type 'HeroEmblemProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+            Types of property 'className' are incompatible.
+              Type 'string | undefined' is not assignable to type 'string'.
+                Type 'undefined' is not assignable to type 'string'.
+  Overload 2 of 2, '(options: { name: "conversation.hero.brand.mark"; children?: Record<never, never>; store?: undefined; locale?: undefined; registrant?: string; } & { priority?: number; } & { inject: () => HeroEmblemProps; }, component: (({ size, className }: HeroEmblemProps) => Element) & SlotComponent<...>): () => void', gave the following error.
+    Argument of type '{ name: "conversation.hero.brand.mark"; }' is not assignable to parameter of type '{ name: "conversation.hero.brand.mark"; children?: Record<never, never>; store?: undefined; locale?: undefined; registrant?: string; } & { priority?: number; } & { inject: () => HeroEmblemProps; }'.
+      Property 'inject' is missing in type '{ name: "conversation.hero.brand.mark"; }' but required in type '{ inject: () => HeroEmblemProps; }'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(3,17): error TS2307: Cannot find module './brand.module.css' or its corresponding type declarations.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(62,36): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(63,36): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(65,9): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(66,9): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(67,9): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(79,7): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(83,22): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(83,30): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(84,22): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(84,30): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(87,11): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(87,47): error TS2538: Type 'undefined' cannot be used as an index type.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(88,11): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(89,11): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(90,11): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(90,26): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(91,11): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(91,26): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(92,11): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(96,9): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(96,43): error TS2538: Type 'undefined' cannot be used as an index type.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(97,9): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(98,9): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(98,21): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(99,9): error TS18047: 'context' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(107,9): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(107,18): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(108,9): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(108,18): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(109,13): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(110,18): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(111,13): error TS2532: Object is possibly 'undefined'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(112,18): error TS2532: Object is possibly 'undefined'.
+
+== SKIPPED Client bundle (0.00s) ==
+command: pnpm exec tsdown --config-loader native --env.DSH_BUILD_FACE client
+outcome: dependency failed or skipped: client-src
+
+== SKIPPED Web build (0.00s) ==
+command: pnpm run build:web
+outcome: dependency failed or skipped: client-bundle
+
+== SKIPPED client aggregate check (0.00s) ==
+command: tsc -p tsconfig.client.json
+outcome: dependency failed or skipped: client-src
+
+run-gates: 5 passed, 1 failed, 3 skipped in 58.61s.
+run-gates: unsuccessful gates:
+  - FAILED client compiler (4.92s, exit 1)
+    tsc -b <tsconfig.client.json references>
+  - SKIPPED Client bundle (0.00s, dependency failed or skipped: client-src)
+    pnpm exec tsdown --config-loader native --env.DSH_BUILD_FACE client
+  - SKIPPED Web build (0.00s, dependency failed or skipped: client-bundle)
+    pnpm run build:web
+  - SKIPPED client aggregate check (0.00s, dependency failed or skipped: client-src)
+    tsc -p tsconfig.client.json
+[ELIFECYCLE] Command failed with exit code 1.
+BUILD_EXIT=1
+END 2026-10-18T10:47:58+08:00

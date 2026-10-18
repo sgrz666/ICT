@@ -1,0 +1,1370 @@
+diff --git a/apps/web/index.html b/apps/web/index.html
+index f5c2ffac06..0729ea2131 100644
+--- a/apps/web/index.html
++++ b/apps/web/index.html
+@@ -6,7 +6,7 @@
+     <link rel="manifest" href="/manifest.webmanifest" />
+     <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)" />
+     <link rel="icon" type="image/svg+xml" href="/favicon.svg" media="(prefers-color-scheme: light)" />
+-    <title>DSH Local Build</title>
++    <title>启智AGENT</title>
+   </head>
+   <body>
+     <div id="root"></div>
+diff --git a/apps/web/package.json b/apps/web/package.json
+index 6e90bc5d2c..2188d361bc 100644
+--- a/apps/web/package.json
++++ b/apps/web/package.json
+@@ -61,6 +61,7 @@
+     "vitest": "^4.1.11",
+     "ws": "8.21.3",
+     "@deepseek-ai/dsh-client-ui-theme": "workspace:*",
++    "@deepseek-ai/dsh-client-ui-brand-qizhi": "workspace:*",
+     "@deepseek-ai/dsh-launch-environment": "workspace:*",
+     "@deepseek-ai/dsh-workspace-changes": "workspace:*",
+     "@deepseek-ai/dsh-subprocess-local": "workspace:*",
+diff --git a/apps/web/public/favicon-dark.svg b/apps/web/public/favicon-dark.svg
+index 648fe4f2b9..1c589c1988 100644
+--- a/apps/web/public/favicon-dark.svg
++++ b/apps/web/public/favicon-dark.svg
+@@ -1,3 +1,15 @@
+-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50.000000" height="50.000000" viewBox="0 0 50 50" fill="none">
+-	<path id="path" d="M48.8354 10.0479C48.3232 9.79199 48.1025 10.2798 47.8032 10.5278C47.7007 10.6079 47.6143 10.7119 47.5273 10.8076C46.7793 11.624 45.9048 12.1597 44.7622 12.0957C43.0923 12 41.666 12.5356 40.4058 13.8398C40.1377 12.2319 39.2476 11.272 37.8926 10.6558C37.1836 10.3359 36.4668 10.0156 35.9702 9.31982C35.6235 8.82373 35.5293 8.27197 35.356 7.72754C35.2456 7.3999 35.1353 7.06396 34.7651 7.00781C34.3633 6.94385 34.2056 7.2876 34.0479 7.57568C33.418 8.75195 33.1733 10.0479 33.1973 11.3599C33.2524 14.312 34.4736 16.6641 36.8999 18.3359C37.1758 18.5278 37.2466 18.7197 37.1597 19C36.9946 19.5757 36.7974 20.1357 36.624 20.7119C36.5137 21.0801 36.3486 21.1597 35.9624 21C34.6309 20.4321 33.481 19.5918 32.4644 18.5757C30.7393 16.8721 29.1792 14.9917 27.2334 13.52C26.7764 13.1758 26.3193 12.856 25.8467 12.5518C23.8618 10.584 26.1069 8.96777 26.627 8.77588C27.1704 8.57568 26.8159 7.8877 25.0591 7.896C23.3022 7.90381 21.6953 8.50391 19.647 9.30371C19.3477 9.42383 19.0322 9.51172 18.7095 9.58398C16.8501 9.22363 14.9199 9.14355 12.9033 9.37598C9.10596 9.80762 6.07275 11.6396 3.84326 14.7681C1.16455 18.5278 0.53418 22.7998 1.30664 27.2559C2.11768 31.9521 4.46582 35.8398 8.07373 38.8799C11.8159 42.0322 16.1255 43.5762 21.041 43.2803C24.0269 43.104 27.3516 42.6963 31.1016 39.4561C32.0469 39.936 33.0396 40.1279 34.686 40.272C35.9546 40.3921 37.1758 40.208 38.1211 40.0078C39.6021 39.688 39.4995 38.2881 38.9639 38.0322C34.623 35.9678 35.5762 36.8081 34.71 36.1279C36.9155 33.4639 40.2402 30.6958 41.54 21.728C41.6426 21.0161 41.5557 20.5679 41.54 19.9917C41.5322 19.6396 41.6108 19.5039 42.0049 19.4639C43.0923 19.3359 44.1479 19.0317 45.1167 18.4878C47.9292 16.9199 49.064 14.3438 49.3315 11.2559C49.3711 10.7837 49.3237 10.2959 48.8354 10.0479ZM24.3262 37.8398C20.1196 34.4639 18.0791 33.3521 17.2358 33.3999C16.4482 33.4482 16.5898 34.3682 16.7632 34.9678C16.9443 35.5601 17.1812 35.9683 17.5117 36.4878C17.7402 36.832 17.8979 37.3442 17.2832 37.728C15.9282 38.584 13.5728 37.4399 13.4624 37.3838C10.7207 35.7358 8.42822 33.5601 6.81348 30.584C5.25342 27.7197 4.34766 24.6479 4.19775 21.3677C4.1582 20.5757 4.38672 20.2959 5.15869 20.1519C6.17529 19.96 7.22314 19.9199 8.23926 20.0718C12.5327 20.7119 16.1885 22.6719 19.2529 25.7759C21.002 27.5439 22.3252 29.6558 23.6885 31.7202C25.1377 33.9121 26.6978 36 28.6831 37.7119C29.3843 38.312 29.9434 38.7681 30.479 39.104C28.8643 39.2881 26.1699 39.3281 24.3262 37.8398ZM26.3433 24.6001C26.3433 24.248 26.6191 23.9678 26.9658 23.9678C27.0444 23.9678 27.1152 23.9839 27.1782 24.0078C27.2651 24.04 27.3438 24.0879 27.4067 24.1602C27.5171 24.272 27.5801 24.4321 27.5801 24.6001C27.5801 24.9521 27.3042 25.2319 26.9575 25.2319C26.6108 25.2319 26.3433 24.9521 26.3433 24.6001ZM32.6064 27.8799C32.2046 28.0479 31.8027 28.1919 31.4165 28.208C30.8179 28.2397 30.1641 27.9922 29.8096 27.688C29.2583 27.2158 28.8643 26.9521 28.6987 26.1279C28.6279 25.7759 28.6675 25.2319 28.7305 24.9199C28.8721 24.248 28.7144 23.8159 28.2495 23.4238C27.8716 23.104 27.3911 23.0161 26.8633 23.0161C26.666 23.0161 26.4849 22.9277 26.3511 22.856C26.1304 22.7441 25.9492 22.4639 26.1226 22.1201C26.1777 22.0078 26.4458 21.7358 26.5088 21.688C27.2256 21.272 28.0527 21.4077 28.8169 21.7197C29.5259 22.0161 30.0615 22.5601 30.834 23.3281C31.6216 24.2559 31.7632 24.5117 32.2124 25.208C32.5669 25.752 32.8901 26.312 33.1104 26.9521C33.2446 27.3521 33.0713 27.6802 32.6064 27.8799Z" fill="#fff" fill-opacity="1.000000" fill-rule="nonzero"/>
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
++  <title>启智AGENT</title>
++  <defs>
++    <linearGradient id="qizhi" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
++      <stop offset="0" stop-color="#38e1ff" />
++      <stop offset="0.55" stop-color="#7c5cff" />
++      <stop offset="1" stop-color="#4ef0b0" />
++    </linearGradient>
++  </defs>
++  <path d="M12 2.4 20.4 7.2v9.6L12 21.6 3.6 16.8V7.2z" stroke="url(#qizhi)" stroke-width="1.6" stroke-linejoin="round" />
++  <path d="M12 6.6 13.35 10.65 17.4 12 13.35 13.35 12 17.4 10.65 13.35 6.6 12 10.65 10.65z" fill="url(#qizhi)" />
++  <circle cx="12" cy="2.4" r="1.4" fill="url(#qizhi)" />
++  <circle cx="20.4" cy="16.8" r="1.4" fill="url(#qizhi)" />
++  <circle cx="3.6" cy="16.8" r="1.4" fill="url(#qizhi)" />
+ </svg>
+diff --git a/apps/web/public/favicon.svg b/apps/web/public/favicon.svg
+index 754615a37a..c8bd6a45e8 100644
+--- a/apps/web/public/favicon.svg
++++ b/apps/web/public/favicon.svg
+@@ -1,3 +1,8 @@
+-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50.000000" height="50.000000" viewBox="0 0 50 50" fill="none">
+-	<path id="path" d="M48.8354 10.0479C48.3232 9.79199 48.1025 10.2798 47.8032 10.5278C47.7007 10.6079 47.6143 10.7119 47.5273 10.8076C46.7793 11.624 45.9048 12.1597 44.7622 12.0957C43.0923 12 41.666 12.5356 40.4058 13.8398C40.1377 12.2319 39.2476 11.272 37.8926 10.6558C37.1836 10.3359 36.4668 10.0156 35.9702 9.31982C35.6235 8.82373 35.5293 8.27197 35.356 7.72754C35.2456 7.3999 35.1353 7.06396 34.7651 7.00781C34.3633 6.94385 34.2056 7.2876 34.0479 7.57568C33.418 8.75195 33.1733 10.0479 33.1973 11.3599C33.2524 14.312 34.4736 16.6641 36.8999 18.3359C37.1758 18.5278 37.2466 18.7197 37.1597 19C36.9946 19.5757 36.7974 20.1357 36.624 20.7119C36.5137 21.0801 36.3486 21.1597 35.9624 21C34.6309 20.4321 33.481 19.5918 32.4644 18.5757C30.7393 16.8721 29.1792 14.9917 27.2334 13.52C26.7764 13.1758 26.3193 12.856 25.8467 12.5518C23.8618 10.584 26.1069 8.96777 26.627 8.77588C27.1704 8.57568 26.8159 7.8877 25.0591 7.896C23.3022 7.90381 21.6953 8.50391 19.647 9.30371C19.3477 9.42383 19.0322 9.51172 18.7095 9.58398C16.8501 9.22363 14.9199 9.14355 12.9033 9.37598C9.10596 9.80762 6.07275 11.6396 3.84326 14.7681C1.16455 18.5278 0.53418 22.7998 1.30664 27.2559C2.11768 31.9521 4.46582 35.8398 8.07373 38.8799C11.8159 42.0322 16.1255 43.5762 21.041 43.2803C24.0269 43.104 27.3516 42.6963 31.1016 39.4561C32.0469 39.936 33.0396 40.1279 34.686 40.272C35.9546 40.3921 37.1758 40.208 38.1211 40.0078C39.6021 39.688 39.4995 38.2881 38.9639 38.0322C34.623 35.9678 35.5762 36.8081 34.71 36.1279C36.9155 33.4639 40.2402 30.6958 41.54 21.728C41.6426 21.0161 41.5557 20.5679 41.54 19.9917C41.5322 19.6396 41.6108 19.5039 42.0049 19.4639C43.0923 19.3359 44.1479 19.0317 45.1167 18.4878C47.9292 16.9199 49.064 14.3438 49.3315 11.2559C49.3711 10.7837 49.3237 10.2959 48.8354 10.0479ZM24.3262 37.8398C20.1196 34.4639 18.0791 33.3521 17.2358 33.3999C16.4482 33.4482 16.5898 34.3682 16.7632 34.9678C16.9443 35.5601 17.1812 35.9683 17.5117 36.4878C17.7402 36.832 17.8979 37.3442 17.2832 37.728C15.9282 38.584 13.5728 37.4399 13.4624 37.3838C10.7207 35.7358 8.42822 33.5601 6.81348 30.584C5.25342 27.7197 4.34766 24.6479 4.19775 21.3677C4.1582 20.5757 4.38672 20.2959 5.15869 20.1519C6.17529 19.96 7.22314 19.9199 8.23926 20.0718C12.5327 20.7119 16.1885 22.6719 19.2529 25.7759C21.002 27.5439 22.3252 29.6558 23.6885 31.7202C25.1377 33.9121 26.6978 36 28.6831 37.7119C29.3843 38.312 29.9434 38.7681 30.479 39.104C28.8643 39.2881 26.1699 39.3281 24.3262 37.8398ZM26.3433 24.6001C26.3433 24.248 26.6191 23.9678 26.9658 23.9678C27.0444 23.9678 27.1152 23.9839 27.1782 24.0078C27.2651 24.04 27.3438 24.0879 27.4067 24.1602C27.5171 24.272 27.5801 24.4321 27.5801 24.6001C27.5801 24.9521 27.3042 25.2319 26.9575 25.2319C26.6108 25.2319 26.3433 24.9521 26.3433 24.6001ZM32.6064 27.8799C32.2046 28.0479 31.8027 28.1919 31.4165 28.208C30.8179 28.2397 30.1641 27.9922 29.8096 27.688C29.2583 27.2158 28.8643 26.9521 28.6987 26.1279C28.6279 25.7759 28.6675 25.2319 28.7305 24.9199C28.8721 24.248 28.7144 23.8159 28.2495 23.4238C27.8716 23.104 27.3911 23.0161 26.8633 23.0161C26.666 23.0161 26.4849 22.9277 26.3511 22.856C26.1304 22.7441 25.9492 22.4639 26.1226 22.1201C26.1777 22.0078 26.4458 21.7358 26.5088 21.688C27.2256 21.272 28.0527 21.4077 28.8169 21.7197C29.5259 22.0161 30.0615 22.5601 30.834 23.3281C31.6216 24.2559 31.7632 24.5117 32.2124 25.208C32.5669 25.752 32.8901 26.312 33.1104 26.9521C33.2446 27.3521 33.0713 27.6802 32.6064 27.8799Z" fill="#000" fill-opacity="1.000000" fill-rule="nonzero"/>
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
++  <title>启智AGENT</title>
++  <path d="M12 2.4 20.4 7.2v9.6L12 21.6 3.6 16.8V7.2z" stroke="#12203a" stroke-width="1.6" stroke-linejoin="round" />
++  <path d="M12 6.6 13.35 10.65 17.4 12 13.35 13.35 12 17.4 10.65 13.35 6.6 12 10.65 10.65z" fill="#12203a" />
++  <circle cx="12" cy="2.4" r="1.4" fill="#12203a" />
++  <circle cx="20.4" cy="16.8" r="1.4" fill="#12203a" />
++  <circle cx="3.6" cy="16.8" r="1.4" fill="#12203a" />
+ </svg>
+diff --git a/apps/web/public/manifest.webmanifest b/apps/web/public/manifest.webmanifest
+index 6592d6a700..53d78d9e2e 100644
+--- a/apps/web/public/manifest.webmanifest
++++ b/apps/web/public/manifest.webmanifest
+@@ -1,6 +1,6 @@
+ {
+-  "name": "DeepSeek Harness",
+-  "short_name": "DSH",
++  "name": "启智AGENT",
++  "short_name": "启智AGENT",
+   "start_url": "./",
+   "scope": "./",
+   "display": "fullscreen",
+diff --git a/apps/web/src/main.ts b/apps/web/src/main.ts
+index 5f4786acb7..787f43db65 100644
+--- a/apps/web/src/main.ts
++++ b/apps/web/src/main.ts
+@@ -1,6 +1,10 @@
+ /** Browser entry for the Web client. */
+ import '@deepseek-ai/dsh-client-ui-theme/brand-font.css'
+ import { AppWebEntry, applyIndexInjections } from '@deepseek-ai/dsh-client-web'
++// Last so the deployment theme layer wins the cascade against the bundles the
++// client packages contribute; the upstream palette sheet declares the same
++// `--dsw-alias-*` properties on `body` at equal specificity.
++import '@deepseek-ai/dsh-client-ui-brand-qizhi/qizhi-theme.css'
+ 
+ interface DesktopBootGlobal {
+   dshDesktopBoot?: {
+diff --git a/packages/bundle/web-app/cordis.patch.yml b/packages/bundle/web-app/cordis.patch.yml
+index a56cda5e3a..cff7f949e3 100644
+--- a/packages/bundle/web-app/cordis.patch.yml
++++ b/packages/bundle/web-app/cordis.patch.yml
+@@ -332,9 +332,10 @@
+     - id: ui-chat
+       name: '@deepseek-ai/dsh-client-ui-chat'
+ 
+-    # Official occupants for the generic sidebar and conversation brand slots.
+-    - id: ui-brand-official
+-      name: '@deepseek-ai/dsh-client-ui-brand-official'
++    # 启智AGENT occupants for the generic sidebar and conversation brand slots.
++    # The official package stays installed but unmounted; see ui-brand-qizhi/README.md.
++    - id: ui-brand-qizhi
++      name: '@deepseek-ai/dsh-client-ui-brand-qizhi'
+ 
+     - id: ui-attachment
+       name: '@deepseek-ai/dsh-client-ui-attachment'
+diff --git a/packages/bundle/web-app/package.json b/packages/bundle/web-app/package.json
+index b466b32fc3..bc3157f4c6 100644
+--- a/packages/bundle/web-app/package.json
++++ b/packages/bundle/web-app/package.json
+@@ -77,6 +77,7 @@
+     "@deepseek-ai/dsh-client-ui-approval": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-attachment": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-brand-official": "workspace:*",
++    "@deepseek-ai/dsh-client-ui-brand-qizhi": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-chat": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-commands": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-conversation": "workspace:*",
+diff --git a/packages/client/locale/src/locales/en.ts b/packages/client/locale/src/locales/en.ts
+index b649bbc3dc..d9df4e75ab 100644
+--- a/packages/client/locale/src/locales/en.ts
++++ b/packages/client/locale/src/locales/en.ts
+@@ -33,7 +33,7 @@ export const en = {
+   'collapse': 'Collapse',
+   'expand': 'Expand',
+   'back': 'Back',
+-  'brand.localBuild': 'DSH Local Build',
++  'brand.localBuild': 'QIZHI AGENT',
+   'workspace.defaultName': 'Default workspace',
+   'unknown': 'Unknown',
+   'none': 'None',
+diff --git a/packages/client/locale/src/locales/zh.ts b/packages/client/locale/src/locales/zh.ts
+index 11ff789b8a..283a2e3324 100644
+--- a/packages/client/locale/src/locales/zh.ts
++++ b/packages/client/locale/src/locales/zh.ts
+@@ -31,7 +31,7 @@ export const zh = {
+   'collapse': '收起',
+   'expand': '展开',
+   'back': '返回',
+-  'brand.localBuild': 'DSH 本地构建',
++  'brand.localBuild': '启智AGENT',
+   'workspace.defaultName': '默认工作区',
+   'unknown': '未知',
+   'none': '无',
+diff --git a/packages/client/ui-brand-qizhi/README.md b/packages/client/ui-brand-qizhi/README.md
+new file mode 100644
+index 0000000000..dab0346433
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/README.md
+@@ -0,0 +1,148 @@
++---
++description: "启智AGENT brand occupants for the Web client's sidebar and conversation hero slots, replacing the official DeepSeek marks."
++kind: "package-reference"
++---
++
++# @deepseek-ai/dsh-client-ui-brand-qizhi
++
++A deployment brand package that fills the generic browser-brand slots with the
++**启智AGENT** identity: the sidebar mark, the sidebar name, and the empty-session
++hero emblem with its ambient particle layer. It is the alternative-brand package
++that [`dsh-client-ui-brand-official`](../ui-brand-official/README.md) points to
++when it says a differently-branded deployment should supply its own package.
++
++## Table of Contents
++
++- [Use this package](#use-this-package)
++- [Understand the implementation](#understand-the-implementation)
++- [Model Experience](#model-experience)
++- [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
++
++-----
++
++<a id="use-this-package"></a>
++## Use this package
++
++Mount it in place of the official brand row. The web-app bundle does exactly
++that in `packages/bundle/web-app/cordis.patch.yml`:
++
++```yaml
++- id: ui-brand-qizhi
++  name: '@deepseek-ai/dsh-client-ui-brand-qizhi'
++```
++
++Three slots change hands, and nothing else:
++
++| Slot | Owner surface | Shipped fallback | This package |
++|---|---|---|---|
++| `sidebar.brand.mark` | `ui-sidebar` (`SidebarRoot.tsx`) | `FishLogo` | `QizhiBrandMark` — hexagonal core, four-point spark, three circuit nodes |
++| `sidebar.brand.name` | `ui-sidebar` | `brand.localBuild` text | `QizhiBrandName` — 启智 in a gradient, `AGENT` in tracked capitals |
++| `conversation.hero.brand.mark` | `ui-conversation` (`EmptyHero.tsx`) | animated hero fish | `QizhiHeroEmblem` — glowing core with a slow orbit ring, plus the particle layer |
++
++The `official` build-profile gate is deliberately absent: this brand is not an
++overlay applied to a signed build, it is the deployment's own brand, so it
++occupies its slots whenever it is mounted.
++
++<a id="understand-the-implementation"></a>
++## Understand the implementation
++
++`src/index.ts` keeps an empty host `apply` so the Loader has a host-side row;
++all presentation ships through `exports["./client"]`. `src/client/index.ts`
++declares `inject = ['slots', 'theme']`, publishes the glass token layer, and
++registers the three occupants inside nested
++`ctx.slots.inject` calls, mirroring the official package's shape: each
++`register` returns a disposer, so unloading this plugin returns every slot to
++its shell fallback.
++
++`src/client/Brand.tsx` draws the mark as one `currentColor` SVG shape set, so
++the host's own label color keeps it legible at 24 px in the collapsed rail and
++at hero size. The wordmark is text, not an image: it localizes, stays
++selectable, and inherits the interface font.
++
++`src/client/ParticleField.tsx` is the only animated piece. One Canvas 2D context
++portalled to `document.body`: nodes drift at 11 px/s, wrap at the viewport edge,
++and stroke links inside 132 px. Budget scales with area
++(`width*height / 26_000`, clamped to 24–90 nodes), device-pixel ratio is capped
++at 2, the loop pauses on `document.hidden`, `prefers-reduced-motion` renders a
++single static frame, and resize re-seeds proportionally instead of restarting.
++The layer is `pointer-events: none` with `mix-blend-mode: screen`, so it adds
++glow on dark chrome without covering headline or composer text and cannot
++intercept a click.
++
++`src/client/glass.ts` carries the theme half, and it goes through the channel
++`ui-theme` reserves for third-party themes: `ctx.theme.overrideTokens(source,
++tokens)` stacks a partial alias layer over whichever base palette is active, and
++`ui-layout`'s presenter writes each value as an inline variable on `body`. That
++is why no stylesheet here fights the vendor sheet for specificity — inline
++tokens simply are the active palette. Every token ships a `{ light, dark }`
++pair, because a single value would go illegible the moment the user switches
++scheme. `src/styles/qizhi-theme.css` therefore keeps only what a token cannot
++express: the fixed ambient radial mesh behind `#root`, the document canvas
++colour, and the `backdrop-filter` that turns the now-translucent fills into
++frosted panels.
++
++The layer moves surface fills (`--dsw-alias-bg-base`,
++`--dsw-specific-sidebar-fill`, `--dsw-specific-input-major`, the three
++`bg-layer-*`, overlay, platform module, skeleton), the four `border-l*`
++hairlines — which `--dsw-elevation-stroke-color` follows, so elevated surfaces
++pick up the brand hairline without a hand-made shadow — and the brand/link and
++interactive hover accents. It never touches text tokens. Three upstream rules
++were treated as binding while choosing those: modal backdrops keep
++`--dsw-mask-blur: none` (no blur through a settings dialog), menu material
++(`--dsw-menu-surface-fill`, `--dsw-menu-backdrop-filter`) is not redefined and
++stays the shipped 40 px glass, and no surface pairs a `border-l*` outline with
++an elevation shadow.
++
++`buildGlassTokens(glass)` takes one capability flag: when the engine cannot
++composite a blur, or the OS asks for reduced transparency, the same keys are
++published with opaque values so a panel never shows other people's text through
++it.
++
++<a id="model-experience"></a>
++## Model Experience
++
++#### What the model sees
++
++Nothing. This package contributes browser presentation only: no prompt section,
++no tool schema, no session event, and no request field. The system prompt,
++tool list, and message history are byte-identical with it mounted or unmounted.
++
++#### KV-cache and token effect
++
++Zero. It changes no model-visible text, so it neither extends nor invalidates a
++cached request prefix.
++
++<a id="known-limitations-and-deferred-work"></a>
++## Known Limitations and Deferred Work
++
++- **Copy that lives outside the slots is still edited in place.** The hero
++  headline and its subtitle are plain locale keys in `ui-conversation`
++  (`hero.headline`, `hero.subheading`) and the document title comes from
++  `brand.localBuild` in `packages/client/locale`; a brand package cannot reach
++  them, so those strings were changed at their source. A future brand slot for
++  the hero copy would let this package own them entirely.
++- **`ui-brand-official` stays installed but unmounted.** Keeping the dependency
++  row in `web-app/package.json` preserves the official build path; only the
++  composition changed.
++- **The frost needs a nameable surface, and CSS modules hide it.** Fill colours
++  reach every component through tokens, but `backdrop-filter` has no token, so
++  it is applied through selectors that survive hashing only by convention:
++  semantic elements (`nav`, `header`, `aside`, `footer`) plus the readable
++  local-name suffixes `_composer`, `_sidebar`, `_panel`. An upstream rename
++  quietly drops the blur on that one surface — the panel still gets its
++  translucent fill, and nothing shifts or breaks.
++- **Capability is read once, at activation.** `ctx.theme.overrideTokens` is a
++  stored layer, so a mid-session OS switch of `prefers-reduced-transparency`
++  does not re-pick opaque fills; a reload does. Engine blur support cannot
++  change within a session.
++- **Only one palette was observable live.** The running browser resolved
++  `system` to light, so the light path is measured in the DOM; the dark values
++  are pinned by `tests/glass.spec.ts` (every token carries both modes) rather
++  than by a screenshot.
++- **Chat-area chrome follows the palette, not a separate design.** Message
++  bubbles and tool cards inherit the rebinded `bg-layer-*` and hairlines; the
++  conversation typography is untouched.
++- **The orbit ring and particles are decorative** and hidden from the
++  accessibility tree, so assistive tech sees the same hero as before.
++- **Bilingual README pairing** is maintained by hand here; the repository's
++  `verify-translation-pairing` gate owns the canonical form.
+diff --git a/packages/client/ui-brand-qizhi/README.zh.md b/packages/client/ui-brand-qizhi/README.zh.md
+new file mode 100644
+index 0000000000..53b0f6a4bb
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/README.zh.md
+@@ -0,0 +1,111 @@
++---
++description: "为 Web 客户端侧栏与会话首屏品牌槽位填充 启智AGENT 标识的部署品牌包，取代官方 DeepSeek 品牌。"
++kind: "package-reference"
++---
++
++# @deepseek-ai/dsh-client-ui-brand-qizhi
++
++一个部署品牌包，把通用的浏览器品牌槽位换成 **启智AGENT**：侧栏标志、侧栏名称，
++以及空会话首屏徽标与它的氛围粒子层。官方
++[`dsh-client-ui-brand-official`](../ui-brand-official/README.zh.md) 明确说「使用其他品牌的部署应提供替代品牌包」，
++本包就是那个替代包。
++
++## 目录
++
++- [使用本包](#use-this-package)
++- [实现说明](#understand-the-implementation)
++- [模型视角](#model-experience)
++- [已知限制与后续工作](#known-limitations-and-deferred-work)
++
++-----
++
++<a id="use-this-package"></a>
++## 使用本包
++
++用它替换官方品牌行。`packages/bundle/web-app/cordis.patch.yml` 就是这么做的：
++
++```yaml
++- id: ui-brand-qizhi
++  name: '@deepseek-ai/dsh-client-ui-brand-qizhi'
++```
++
++只有三个槽位换了主人：
++
++| 槽位 | 所属界面 | 出厂回退 | 本包 |
++|---|---|---|---|
++| `sidebar.brand.mark` | `ui-sidebar`（`SidebarRoot.tsx`） | `FishLogo` | `QizhiBrandMark` —— 六边形核心 + 四芒星 + 三个电路节点 |
++| `sidebar.brand.name` | `ui-sidebar` | `brand.localBuild` 文本 | `QizhiBrandName` —— 「启智」渐变 + 大字距 `AGENT` |
++| `conversation.hero.brand.mark` | `ui-conversation`（`EmptyHero.tsx`） | 动画鱼 | `QizhiHeroEmblem` —— 辉光核心 + 缓慢轨道环 + 粒子层 |
++
++本包刻意**不加** `official` 构建 profile 门控：它不是叠加在签名构建上的皮肤，
++而是这个部署自己的品牌，挂载即生效。
++
++<a id="understand-the-implementation"></a>
++## 实现说明
++
++`src/index.ts` 的主机侧 `apply` 为空，只为让 Loader 有一行主机配置；全部表现走
++`exports["./client"]`。`src/client/index.ts` 声明 `inject = ['slots', 'theme']`，先发布毛玻璃 token 层，再在与官方包
++相同的嵌套 `ctx.slots.inject` 结构里注册三个占用者；每个 `register` 都返回释放器，
++卸载本插件即把三个槽位交回外壳回退。
++
++`src/client/Brand.tsx` 用单一 `currentColor` 的 SVG 形状组绘制标志，因此沿用宿主
++自身标签色，折叠栏 24 px 与首屏尺寸都清晰。名称是文本而非图片：可本地化、可选中、
++继承界面字体。
++
++`src/client/ParticleField.tsx` 是唯一的动画件。一个 Canvas 2D，portal 到
++`document.body`：节点以 11 px/s 漂移、出屏回绕、距离小于 132 px 时连线。数量随面积
++取值（`width*height / 26_000`，夹在 24–90），设备像素比封顶 2，页面隐藏时停循环，
++`prefers-reduced-motion` 只画一帧静态，resize 按比例重播种而非重启。该层
++`pointer-events: none` 且 `mix-blend-mode: screen`，在深色底上只加辉光、不遮挡标题与
++输入框，也无法截获点击。
++
++主题这一半走 `ui-theme` 为第三方主题预留的通道：`src/client/glass.ts` 调用
++`ctx.theme.overrideTokens(source, tokens)`，把一层局部 alias 覆盖叠在用户当前选中的基础调色板之上，
++`ui-layout` 的呈现器再把每个值写成 `body` 上的行内变量——所以本包的样式表不必和厂商样式表比选择器权重，
++行内 token 就是生效中的调色板。每个 token 都必须给 `{ light, dark }` 两个值，只给一个值会在用户切换深浅色时变得不可读。
++`src/styles/qizhi-theme.css` 因此只保留 token 表达不了的东西：`#root` 之后那层固定的径向氛围底、文档画布底色，
++以及把已经半透明的面板真正磨成毛玻璃的 `backdrop-filter`。
++
++这层改动搬的是表面填充（`--dsw-alias-bg-base`、`--dsw-specific-sidebar-fill`、
++`--dsw-specific-input-major`、三层 `bg-layer-*`、overlay、平台模块底、骨架屏）、四条 `border-l*` 细线
++（`--dsw-elevation-stroke-color` 跟着它走，所以抬升面板自然换上品牌描边，不需要手搓阴影），以及品牌/链接与
++hover 交互强调色；文字类 token 一个都没动。挑选时把三条上游规矩当作硬约束：模态遮罩保持
++`--dsw-mask-blur: none`（设置对话框后面不糊）、菜单材质（`--dsw-menu-surface-fill` 与
++`--dsw-menu-backdrop-filter`）不重定义并沿用出厂的 40px 玻璃、任何表面都不把 `border-l*` 描边和抬升阴影叠在一起。
++
++`buildGlassTokens(glass)` 只接一个能力开关：浏览器不支持合成模糊、或系统要求减少透明度时，同样的键改用不填充值发布，
++面板不会把别人的文字透出来。
++
++<a id="model-experience"></a>
++## 模型视角
++
++#### 模型看到什么
++
++什么都看不到。本包只做浏览器端表现：不添加提示词分节、不添加工具 schema、不产生
++会话事件、不改请求字段。挂载与不挂载时，系统提示词、工具列表与消息历史逐字节一致。
++
++#### 对 KV cache 与 token 的影响
++
++为零。不改变任何模型可见文本，因此既不会延长也不会使已缓存的请求前缀失效。
++
++<a id="known-limitations-and-deferred-work"></a>
++## 已知限制与后续工作
++
++- **槽位之外的文案仍在源头就地修改。** 首屏主标题与副标题是 `ui-conversation` 的
++  locale 键（`hero.headline`、`hero.subheading`），文档标题取自
++  `packages/client/locale` 的 `brand.localBuild`；品牌包够不着它们，所以这些字符串
++  是在原处改的。若上游将来为文案开一个首屏品牌槽位，本包就能完全接管。
++- **`ui-brand-official` 仍被安装但不挂载。** 保留 `web-app/package.json` 里的依赖行
++  是为了不破坏官方构建路径，改的只是组合。
++- **磨砂要能点名表面，而 CSS module 把名字藏起来了。** 填充色靠 token 能到达所有组件，
++  `backdrop-filter` 却没有对应 token，只能用「哈希后仍能存活」的选择器：语义元素
++  （`nav`、`header`、`aside`、`footer`）加上可读的局部名后缀 `_composer`、`_sidebar`、`_panel`。
++  上游改名只会让那一处的模糊悄悄失效——面板半透明填充仍在，布局不会错也不会跳。
++- **能力只在激活时读一次。** `ctx.theme.overrideTokens` 是常驻层，系统中途切换
++  `prefers-reduced-transparency` 不会重新换成不填充值，刷新才会；引擎是否支持模糊在一次会话里不会变。
++- **实机只观测到一套配色。** 运行中的浏览器把 `system` 解析成浅色，所以浅色路径是 DOM 实测的；
++  深色取值由 `tests/glass.spec.ts` 钉住（每个 token 都必须带两套模式），不是截图证明的。
++- **会话区跟的是调色板，不是另一套设计。** 气泡与工具卡继承被重绑的 `bg-layer-*` 与细线，
++  会话排版字号未动。
++- **轨道环与粒子都是装饰**，已对无障碍树隐藏，辅助技术看到的结构与之前一致。
++- **双语 README 配对**此处手工维护，仓库的 `verify-translation-pairing` 门才是权威形式。
+diff --git a/packages/client/ui-brand-qizhi/package.json b/packages/client/ui-brand-qizhi/package.json
+new file mode 100644
+index 0000000000..6e18932109
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/package.json
+@@ -0,0 +1,56 @@
++{
++  "name": "@deepseek-ai/dsh-client-ui-brand-qizhi",
++  "description": "启智AGENT brand occupants for the Web client's sidebar and conversation hero slots",
++  "version": "0.2.1-rc.2",
++  "private": true,
++  "type": "module",
++  "main": "lib/index.js",
++  "types": "lib/types/index.d.ts",
++  "exports": {
++    ".": {
++      "types": "./lib/types/index.d.ts",
++      "default": "./lib/index.js"
++    },
++    "./client": {
++      "types": "./lib/types/client/index.d.ts",
++      "default": "./lib/client.js"
++    },
++    "./src/*": "./src/*",
++    "./qizhi-theme.css": "./src/styles/qizhi-theme.css",
++    "./package.json": "./package.json"
++  },
++  "dsh": {
++    "client": {
++      "inject": [
++        "@deepseek-ai/dsh-client-ui-renderer",
++        "@deepseek-ai/dsh-client-ui-sidebar",
++        "@deepseek-ai/dsh-client-ui-conversation",
++        "@deepseek-ai/dsh-client-ui-theme"
++      ],
++      "platform": "web"
++    }
++  },
++  "scripts": {
++    "bundle": "tsdown",
++    "watch": "tsdown --watch"
++  },
++  "license": "MIT",
++  "peerDependencies": {
++    "@deepseek-ai/cordis": "workspace:~"
++  },
++  "devDependencies": {
++    "@deepseek-ai/dsh-client-ui-conversation": "workspace:*",
++    "@deepseek-ai/dsh-client-ui-renderer": "workspace:*",
++    "@deepseek-ai/dsh-client-ui-sidebar": "workspace:*",
++    "@deepseek-ai/dsh-client-ui-slots": "workspace:*",
++    "@deepseek-ai/cordis": "workspace:~",
++    "react": "^18.2.0",
++    "react-dom": "^18.2.0",
++    "@deepseek-ai/dsh-client-ui-theme": "workspace:*"
++  },
++  "files": [
++    "lib/index.js",
++    "lib/client.js",
++    "lib/types/**/*.d.ts"
++  ]
++}
+diff --git a/packages/client/ui-brand-qizhi/src/client/Brand.tsx b/packages/client/ui-brand-qizhi/src/client/Brand.tsx
+new file mode 100644
+index 0000000000..9e67f20947
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/src/client/Brand.tsx
+@@ -0,0 +1,108 @@
++import type { HeroBrandMarkOwnerProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
++import type { SidebarBrandMarkOwnerProps } from '@deepseek-ai/dsh-client-ui-sidebar/client'
++import css from './brand.module.css'
++import { ParticleField } from './ParticleField.tsx'
++
++/** Hero emblem presentation, taken from its declaring surface. */
++type HeroEmblemProps = HeroBrandMarkOwnerProps
++
++/**
++ * 启智AGENT core glyph: a hexagonal agent core carrying a four-point spark and
++ * three circuit nodes on its vertices. One `currentColor` shape set keeps it
++ * legible at 24 px in the sidebar rail and at hero size.
++ * @param props - host-supplied mark presentation.
++ * @returns the brand mark element.
++ */
++export function QizhiBrandMark({ size }: SidebarBrandMarkOwnerProps) {
++  return (
++    <svg
++      className={css.mark}
++      width={size}
++      height={size}
++      viewBox="0 0 24 24"
++      fill="none"
++      aria-hidden="true"
++    >
++      <path
++        className={css.core}
++        d="M12 2.4 20.4 7.2v9.6L12 21.6 3.6 16.8V7.2z"
++        stroke="currentColor"
++        strokeWidth={1.4}
++        strokeLinejoin="round"
++      />
++      <path
++        d="M12 6.6 13.35 10.65 17.4 12 13.35 13.35 12 17.4 10.65 13.35 6.6 12 10.65 10.65z"
++        fill="currentColor"
++      />
++      <circle cx="12" cy="2.4" r="1.3" fill="currentColor" />
++      <circle cx="20.4" cy="16.8" r="1.3" fill="currentColor" />
++      <circle cx="3.6" cy="16.8" r="1.3" fill="currentColor" />
++    </svg>
++  )
++}
++
++/**
++ * The product name artwork: 启智 keeps the Chinese reading, `AGENT` is spaced
++ * capitals for platform weight. Text, not an image, so it localizes and stays
++ * selectable.
++ * @returns the brand name element.
++ */
++export function QizhiBrandName() {
++  return (
++    <span className={css.name}>
++      <span className={css.nameZh}>启智</span>
++      <span className={css.nameEn}>AGENT</span>
++    </span>
++  )
++}
++
++/**
++ * The empty-session emblem. It replaces the shipped animated-fish fallback by
++ * occupying the same `conversation.hero.brand.mark` slot: a larger core with a
++ * slow orbit ring, plus the ambient particle layer behind the hero stack. The
++ * layer is `pointer-events: none` and unmounts with the hero, so it never
++ * intercepts the composer or the workspace chip.
++ * @param props - host-supplied hero presentation.
++ * @returns the hero emblem element.
++ */
++export function QizhiHeroEmblem({ size, className }: HeroEmblemProps) {
++  const edge = Math.max(size, 44)
++  return (
++    <>
++      <span className={[css.hero, className ?? ''].filter(Boolean).join(' ')}>
++        <svg
++          className={css.heroGlyph}
++          width={edge}
++          height={edge}
++          viewBox="0 0 24 24"
++          fill="none"
++          aria-hidden="true"
++        >
++          <circle
++            className={css.orbit}
++            cx="12"
++            cy="12"
++            r="11"
++            stroke="currentColor"
++            strokeWidth={0.6}
++            strokeDasharray="2 4"
++            strokeLinecap="round"
++            opacity={0.55}
++          />
++          <path
++            className={css.core}
++            d="M12 2.4 20.4 7.2v9.6L12 21.6 3.6 16.8V7.2z"
++            stroke="currentColor"
++            strokeWidth={1.4}
++            strokeLinejoin="round"
++          />
++          <path
++            d="M12 6.6 13.35 10.65 17.4 12 13.35 13.35 12 17.4 10.65 13.35 6.6 12 10.65 10.65z"
++            fill="currentColor"
++          />
++        </svg>
++      </span>
++      <ParticleField />
++    </>
++  )
++}
+diff --git a/packages/client/ui-brand-qizhi/src/client/ParticleField.tsx b/packages/client/ui-brand-qizhi/src/client/ParticleField.tsx
+new file mode 100644
+index 0000000000..1d85113be2
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/src/client/ParticleField.tsx
+@@ -0,0 +1,217 @@
++import { useEffect, useRef } from 'react'
++import { createPortal } from 'react-dom'
++import css from './brand.module.css'
++
++/** Particle budget per viewport area, so a 4K screen does not get 4K nodes. */
++const PIXELS_PER_PARTICLE = 26_000
++const MIN_PARTICLES = 24
++const MAX_PARTICLES = 90
++/** Link two nodes when closer than this many pixels. */
++const LINK_DISTANCE = 132
++/** Drift speed in pixels per second; deliberately slow for an ambient layer. */
++const SPEED = 11
++/** Node colors, stored by index in `Nodes.tints`. */
++const TINTS = ['56, 226, 255', '124, 92, 255', '78, 240, 176'] as const
++const FALLBACK_TINT = '56, 226, 255'
++
++/** One parallel array per node attribute; all share `count` entries. */
++interface Nodes {
++  /** Nodes held. */
++  count: number
++  /** Viewport width the positions were laid out against. */
++  width: number
++  /** Viewport height the positions were laid out against. */
++  height: number
++  xs: Float32Array
++  ys: Float32Array
++  vx: Float32Array
++  vy: Float32Array
++  tints: Uint8Array
++}
++
++/** The state before the first layout: no nodes, no viewport to scale from. */
++const EMPTY_NODES: Nodes = {
++  count: 0,
++  width: 0,
++  height: 0,
++  xs: new Float32Array(0),
++  ys: new Float32Array(0),
++  vx: new Float32Array(0),
++  vy: new Float32Array(0),
++  tints: new Uint8Array(0),
++}
++
++/**
++ * Read a node array slot with the absent value expressed as zero, so
++ * `noUncheckedIndexedAccess` stays satisfied at every call site.
++ * @param values - the attribute array.
++ * @param index - node index.
++ * @returns the stored value, or 0 when the index is out of range.
++ */
++function at(values: Float32Array | Uint8Array, index: number): number {
++  return values[index] ?? 0
++}
++
++/**
++ * Allocate a node set, carrying existing positions and velocities forward
++ * proportionally when the viewport size changes.
++ * @param count - nodes to hold.
++ * @param previous - the outgoing set.
++ * @param width - current viewport width in CSS pixels.
++ * @param height - current viewport height in CSS pixels.
++ * @returns the node set to draw.
++ */
++function seedNodes(count: number, previous: Nodes, width: number, height: number): Nodes {
++  const nodes: Nodes = {
++    count,
++    width,
++    height,
++    xs: new Float32Array(count),
++    ys: new Float32Array(count),
++    vx: new Float32Array(count),
++    vy: new Float32Array(count),
++    tints: new Uint8Array(count),
++  }
++  const reuse = previous.count > 0 && previous.width > 0 && previous.height > 0
++  for (let i = 0; i < count; i += 1) {
++    const carried = reuse && i < previous.count
++    nodes.xs[i] = carried ? at(previous.xs, i) * (width / previous.width) : Math.random() * width
++    nodes.ys[i] = carried ? at(previous.ys, i) * (height / previous.height) : Math.random() * height
++    const angle = Math.random() * Math.PI * 2
++    nodes.vx[i] = carried ? at(previous.vx, i) : Math.cos(angle) * SPEED
++    nodes.vy[i] = carried ? at(previous.vy, i) : Math.sin(angle) * SPEED
++    nodes.tints[i] = carried ? at(previous.tints, i) : Math.floor(Math.random() * TINTS.length)
++  }
++  return nodes
++}
++
++/**
++ * Ambient node-network layer behind the empty-session hero.
++ *
++ * A single Canvas 2D pass: no animation library, no WebGL, no worker. Each
++ * frame moves every node, wraps it at the viewport edge, and strokes the links
++ * that fall inside {@link LINK_DISTANCE}. It stops while the document is
++ * hidden, renders one static frame under `prefers-reduced-motion`, and removes
++ * its resize and visibility listeners on unmount, so leaving the hero ends all
++ * work. The element is `pointer-events: none`, so it cannot intercept the
++ * composer, the workspace chip, or any menu.
++ * @returns the particle canvas element.
++ */
++export function ParticleField() {
++  const canvas = useRef<HTMLCanvasElement>(null)
++
++  useEffect(() => {
++    const host = canvas.current
++    if (host === null) return
++    const graphics = host.getContext('2d')
++    if (graphics === null) return
++    // The guards above narrow both values; these bindings carry the non-null
++    // types into the helpers below, which are reachable from the listeners.
++    const surface: CanvasRenderingContext2D = graphics
++
++    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
++    let viewport = { width: 0, height: 0 }
++    let nodes = EMPTY_NODES
++    let frame = 0
++
++    /**
++     * Paint one frame: links first, then nodes on top.
++     * @param set - the nodes to render.
++     */
++    const draw = (set: Nodes): void => {
++      surface.clearRect(0, 0, viewport.width, viewport.height)
++      for (let i = 0; i < set.count; i += 1) {
++        for (let j = i + 1; j < set.count; j += 1) {
++          const dx = at(set.xs, i) - at(set.xs, j)
++          const dy = at(set.ys, i) - at(set.ys, j)
++          const distance = Math.hypot(dx, dy)
++          if (distance > LINK_DISTANCE) continue
++          const alpha = 0.16 * (1 - distance / LINK_DISTANCE)
++          surface.strokeStyle = `rgba(${TINTS[at(set.tints, i)] ?? FALLBACK_TINT}, ${alpha})`
++          surface.lineWidth = 0.6
++          surface.beginPath()
++          surface.moveTo(at(set.xs, i), at(set.ys, i))
++          surface.lineTo(at(set.xs, j), at(set.ys, j))
++          surface.stroke()
++        }
++      }
++      for (let i = 0; i < set.count; i += 1) {
++        surface.fillStyle = `rgba(${TINTS[at(set.tints, i)] ?? FALLBACK_TINT}, 0.5)`
++        surface.beginPath()
++        surface.arc(at(set.xs, i), at(set.ys, i), i % 7 === 0 ? 1.7 : 1.1, 0, Math.PI * 2)
++        surface.fill()
++      }
++    }
++
++    /**
++     * Advance every node by one frame interval and wrap it at the edges.
++     * @param set - the nodes to move.
++     * @param seconds - elapsed frame time, already clamped.
++     */
++    const step = (set: Nodes, seconds: number): void => {
++      for (let i = 0; i < set.count; i += 1) {
++        let x = at(set.xs, i) + at(set.vx, i) * seconds
++        let y = at(set.ys, i) + at(set.vy, i) * seconds
++        if (x < -8) x = viewport.width + 8
++        else if (x > viewport.width + 8) x = -8
++        if (y < -8) y = viewport.height + 8
++        else if (y > viewport.height + 8) y = -8
++        set.xs[i] = x
++        set.ys[i] = y
++      }
++    }
++
++    /** Resize to the viewport and reseed nodes proportionally to its area. */
++    const layout = (): void => {
++      const ratio = Math.min(window.devicePixelRatio || 1, 2)
++      viewport = { width: window.innerWidth, height: window.innerHeight }
++      host.width = Math.floor(viewport.width * ratio)
++      host.height = Math.floor(viewport.height * ratio)
++      surface.setTransform(ratio, 0, 0, ratio, 0, 0)
++      const count = Math.max(
++        MIN_PARTICLES,
++        Math.min(MAX_PARTICLES, Math.round((viewport.width * viewport.height) / PIXELS_PER_PARTICLE)),
++      )
++      nodes = seedNodes(count, nodes, viewport.width, viewport.height)
++      draw(nodes)
++    }
++
++    let previous = performance.now()
++    /** Animation driver; suppressed entirely under reduced motion. */
++    const loop = (now: number): void => {
++      step(nodes, Math.min(now - previous, 64) / 1000)
++      previous = now
++      draw(nodes)
++      frame = requestAnimationFrame(loop)
++    }
++
++    /** Start or stop the loop for the current visibility and preference. */
++    const sync = (): void => {
++      if (frame !== 0) {
++        cancelAnimationFrame(frame)
++        frame = 0
++      }
++      if (reduced.matches || document.hidden) {
++        draw(nodes)
++        return
++      }
++      previous = performance.now()
++      frame = requestAnimationFrame(loop)
++    }
++
++    layout()
++    sync()
++    window.addEventListener('resize', layout)
++    document.addEventListener('visibilitychange', sync)
++    reduced.addEventListener('change', sync)
++
++    return () => {
++      if (frame !== 0) cancelAnimationFrame(frame)
++      window.removeEventListener('resize', layout)
++      document.removeEventListener('visibilitychange', sync)
++      reduced.removeEventListener('change', sync)
++    }
++  }, [])
++
++  return createPortal(<canvas ref={canvas} className={css.particles} aria-hidden="true" />, document.body)
++}
+diff --git a/packages/client/ui-brand-qizhi/src/client/brand.module.css b/packages/client/ui-brand-qizhi/src/client/brand.module.css
+new file mode 100644
+index 0000000000..1de70d90c9
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/src/client/brand.module.css
+@@ -0,0 +1,92 @@
++/* 启智AGENT brand artwork: sidebar mark/name, hero emblem, ambient particle layer. */
++
++.mark {
++  display: block;
++  flex: none;
++  color: var(--qizhi-accent, currentColor);
++}
++
++.core {
++  transform-box: fill-box;
++  transform-origin: center;
++}
++
++/* Sidebar name: 启智 in the interface face, AGENT as tracked capitals. */
++.name {
++  display: inline-flex;
++  align-items: baseline;
++  gap: 4px;
++  font-weight: 600;
++  letter-spacing: 0.01em;
++  white-space: nowrap;
++}
++
++.nameZh {
++  background: linear-gradient(96deg, #38e1ff 0%, #7c5cff 52%, #4ef0b0 100%);
++  -webkit-background-clip: text;
++  background-clip: text;
++  color: transparent;
++}
++
++.nameEn {
++  font-size: 0.82em;
++  letter-spacing: 0.14em;
++  opacity: 0.86;
++}
++
++/* Hero emblem container. Positioned so the orbit ring can rotate about it. */
++.hero {
++  position: relative;
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  color: #38e1ff;
++}
++
++.heroGlyph {
++  display: block;
++  overflow: visible;
++  filter: drop-shadow(0 0 10px rgba(56, 225, 255, 0.35));
++}
++
++/* Slow orbit; suppressed under reduced motion together with the particles. */
++.orbit {
++  transform-box: fill-box;
++  transform-origin: center;
++  animation: qizhi-orbit 26s linear infinite;
++}
++
++@keyframes qizhi-orbit {
++  to {
++    transform: rotate(360deg);
++  }
++}
++
++/*
++ * Ambient particle layer. Portalled to document.body, viewport-fixed, and
++ * screen-blended so dark pixels are untouched: it adds glow over the dark
++ * workspace without washing out headline or composer text. It never takes
++ * pointer events, so the composer, workspace chip and menus stay interactive.
++ */
++.particles {
++  position: fixed;
++  inset: 0;
++  width: 100%;
++  height: 100%;
++  z-index: 0;
++  pointer-events: none;
++  opacity: 0.55;
++  mix-blend-mode: screen;
++}
++
++@media (prefers-reduced-motion: reduce) {
++  .orbit {
++    animation: none;
++  }
++}
++
++@media (max-width: 720px) {
++  .particles {
++    opacity: 0.4;
++  }
++}
+diff --git a/packages/client/ui-brand-qizhi/src/client/glass.ts b/packages/client/ui-brand-qizhi/src/client/glass.ts
+new file mode 100644
+index 0000000000..ae7518d2db
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/src/client/glass.ts
+@@ -0,0 +1,82 @@
++/**
++ * 启智AGENT glass layer: alias-token overrides registered through the theme
++ * service, the repo's sanctioned third-party theme channel.
++ *
++ * The presenter writes these as inline variables on `body`, so they apply over
++ * whichever base palette is active and no stylesheet has to out-specify the
++ * vendor sheet. Each token carries both palette modes, and only surface fills,
++ * hairlines and brand accents move — text tokens keep upstream contrast.
++ */
++import type { Context as ClientContext } from '@deepseek-ai/cordis'
++import type { ThemeTokenOverrides } from '@deepseek-ai/dsh-client-ui-theme/client'
++
++/** Ownership name for this layer in the theme service's override stack. */
++const SOURCE = 'dsh-client-ui-brand-qizhi'
++
++/** Translucent surface fills need compositing to stay readable. */
++function hasCompositing(): boolean {
++  return CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)')
++}
++
++/** Users who ask the OS for flat surfaces get opaque fills. */
++function prefersFlat(): boolean {
++  return matchMedia('(prefers-reduced-transparency: reduce)').matches
++}
++
++/**
++ * Build the token layer for the current capability.
++ * @param glass - Whether translucent panels are safe on this browser.
++ * @returns Override dictionary keyed by CSS custom property name.
++ */
++export function buildGlassTokens(glass: boolean): ThemeTokenOverrides {
++  const base = glass
++    ? { light: 'rgba(255, 255, 255, 0.60)', dark: 'rgba(11, 13, 22, 0.58)' }
++    : { light: '#ffffff', dark: '#0f1115' }
++  return {
++    '--dsw-alias-bg-base': base,
++    '--dsw-specific-sidebar-fill': glass
++      ? { light: 'rgba(255, 255, 255, 0.68)', dark: 'rgba(16, 19, 28, 0.62)' }
++      : { light: '#ffffff', dark: '#14171f' },
++    '--dsw-specific-input-major': glass
++      ? { light: 'rgba(255, 255, 255, 0.74)', dark: 'rgba(31, 36, 54, 0.60)' }
++      : { light: '#ffffff', dark: '#232324' },
++    '--dsw-alias-bg-layer-1': glass
++      ? { light: 'rgba(255, 255, 255, 0.66)', dark: 'rgba(19, 22, 33, 0.58)' }
++      : { light: '#ffffff', dark: '#14171f' },
++    '--dsw-alias-bg-layer-2': glass
++      ? { light: 'rgba(255, 255, 255, 0.74)', dark: 'rgba(24, 28, 42, 0.66)' }
++      : { light: '#f7f8fc', dark: '#191d29' },
++    '--dsw-alias-bg-layer-3': glass
++      ? { light: 'rgba(255, 255, 255, 0.84)', dark: 'rgba(31, 36, 54, 0.74)' }
++      : { light: '#eef1f8', dark: '#212637' },
++    '--dsw-alias-bg-overlay': glass
++      ? { light: 'rgba(255, 255, 255, 0.80)', dark: 'rgba(13, 16, 26, 0.72)' }
++      : { light: '#ffffff', dark: '#10131d' },
++    '--dsw-alias-bg-module-platform': glass
++      ? { light: 'rgba(255, 255, 255, 0.62)', dark: 'rgba(24, 28, 42, 0.60)' }
++      : { light: '#f4f6fb', dark: '#171a25' },
++    '--dsw-alias-bg-skeleton': glass
++      ? { light: 'rgba(12, 18, 34, 0.05)', dark: 'rgba(255, 255, 255, 0.06)' }
++      : { light: '#0000000a', dark: '#ffffff0f' },
++    '--dsw-alias-border-l1': { light: 'rgba(12, 18, 34, 0.04)', dark: 'rgba(255, 255, 255, 0.07)' },
++    '--dsw-alias-border-l2': { light: 'rgba(12, 18, 34, 0.08)', dark: 'rgba(255, 255, 255, 0.10)' },
++    '--dsw-alias-border-l3': { light: 'rgba(12, 18, 34, 0.12)', dark: 'rgba(255, 255, 255, 0.14)' },
++    '--dsw-alias-border-l4': { light: 'rgba(124, 92, 255, 0.28)', dark: 'rgba(56, 225, 255, 0.26)' },
++    '--dsw-alias-brand-primary': { light: '#0e9cc0', dark: '#38e1ff' },
++    '--dsw-alias-brand-primary-invert': { light: '#ffffff', dark: '#06131c' },
++    '--dsw-alias-brand-text': { light: '#0e7f9e', dark: '#56e6ff' },
++    '--dsw-alias-link': { light: '#0e7f9e', dark: '#56e6ff' },
++    '--dsw-alias-interactive-bg-hover': { light: 'rgba(14, 156, 192, 0.14)', dark: 'rgba(56, 225, 255, 0.22)' },
++    '--dsw-alias-interactive-bg-active': { light: 'rgba(124, 92, 255, 0.20)', dark: 'rgba(124, 92, 255, 0.30)' },
++    '--dsw-alias-interactive-bg-hover-solid': { light: '#6b4ae6', dark: '#7c5cff' },
++  }
++}
++
++/**
++ * Publish the glass layer through the theme service.
++ * @param ctx - Client root context.
++ */
++export function applyGlassTheme(ctx: ClientContext): void {
++  const glass = hasCompositing() && !prefersFlat()
++  ctx.effect(() => ctx.theme.overrideTokens(SOURCE, buildGlassTokens(glass)), 'ui-brand-qizhi: glass token layer')
++}
+diff --git a/packages/client/ui-brand-qizhi/src/client/index.ts b/packages/client/ui-brand-qizhi/src/client/index.ts
+new file mode 100644
+index 0000000000..51edb4f11c
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/src/client/index.ts
+@@ -0,0 +1,35 @@
++/** 启智AGENT occupants for the generic browser-brand slots. */
++import type { Context as ClientContext } from '@deepseek-ai/cordis'
++import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
++import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
++import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
++import type {} from '@deepseek-ai/dsh-client-ui-theme/client'
++import { QizhiBrandMark, QizhiBrandName, QizhiHeroEmblem } from './Brand.tsx'
++import { applyGlassTheme } from './glass.ts'
++
++/** Required services: the UI slot registry and the theme registry. */
++export const inject = ['slots', 'theme']
++
++/**
++ * Fill the two sidebar brand slots and the conversation hero mark slot, and
++ * publish the deployment's glass token layer.
++ *
++ * Unlike the official package, registration is not gated on
++ * `DSH_CLIENT_BUILD_PROFILE`: this brand ships as the deployment's own brand,
++ * so it occupies every slot the shell asks a brand plugin for — including
++ * `conversation.hero.brand.mark`, which the official build deliberately leaves
++ * to its animated-fish fallback. Registrations are effects, so unloading this
++ * plugin returns all three slots to their shell defaults and drops the token
++ * layer with them.
++ * @param ctx - Client root context.
++ */
++export function apply(ctx: ClientContext): void {
++  applyGlassTheme(ctx)
++  ctx.slots.inject('sidebar.brand.mark', () =>
++    ctx.slots.inject('sidebar.brand.name', () =>
++      ctx.slots.inject('conversation.hero.brand.mark', function* () {
++        yield ctx.slots.register({ name: 'sidebar.brand.mark' }, QizhiBrandMark)
++        yield ctx.slots.register({ name: 'sidebar.brand.name' }, QizhiBrandName)
++        yield ctx.slots.register({ name: 'conversation.hero.brand.mark' }, QizhiHeroEmblem)
++      })))
++}
+diff --git a/packages/client/ui-brand-qizhi/src/css-modules.d.ts b/packages/client/ui-brand-qizhi/src/css-modules.d.ts
+new file mode 100644
+index 0000000000..8811db1264
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/src/css-modules.d.ts
+@@ -0,0 +1,4 @@
++declare module '*.module.css' {
++  const classes: Record<string, string>
++  export default classes
++}
+diff --git a/packages/client/ui-brand-qizhi/src/index.ts b/packages/client/ui-brand-qizhi/src/index.ts
+new file mode 100644
+index 0000000000..3b0886e5e8
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/src/index.ts
+@@ -0,0 +1,7 @@
++/**
++ * 启智AGENT browser-brand plugin, node half. The empty apply gives the Loader a
++ * host-side row while the browser half ships through `exports["./client"]`.
++ */
++
++/** Host plugin body — this package contributes browser presentation only. */
++export function apply(): void {}
+diff --git a/packages/client/ui-brand-qizhi/src/styles/qizhi-theme.css b/packages/client/ui-brand-qizhi/src/styles/qizhi-theme.css
+new file mode 100644
+index 0000000000..6e60680087
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/src/styles/qizhi-theme.css
+@@ -0,0 +1,82 @@
++/*
++ * 启智AGENT glass layer, stylesheet half (v2).
++ *
++ * Surface fills, hairlines and accents are NOT here: they are alias-token
++ * overrides registered through `ctx.theme` (see `client/glass.ts`), which the
++ * theme presenter writes as inline variables on `body`. This file keeps only
++ * what a token cannot express — the fixed ambient backdrop and the compositing
++ * filter that makes a translucent panel read as frosted glass.
++ *
++ * Deliberate limits, all from docs/web-styling.md: modal backdrops stay
++ * unblurred (`--dsw-mask-blur: none`), menu material stays untouched
++ * (`--dsw-menu-surface-fill` / `--dsw-menu-backdrop-filter` are theme-owned and
++ * already glass), and no hand-made inset strokes — elevation hairlines come
++ * from `--dsw-elevation-stroke-color`, which follows `border-l4`.
++ *
++ * Bundled CSS module class names are hashed, so the selectors below anchor on
++ * the readable local-name suffix that css-modules preserves (`_composer`) plus
++ * semantic elements. A rename upstream drops the effect, never the layout.
++ */
++
++/* ---- the canvas the panels refract ---- */
++
++:root {
++  --qizhi-glass-blur: 20px;
++  --qizhi-glass-saturate: 150%;
++}
++
++:root body {
++  background-color: #eef1f8;
++}
++
++:root body[data-ds-dark-theme] {
++  background-color: #080a12;
++}
++
++#root {
++  position: relative;
++  isolation: isolate;
++}
++
++#root::before {
++  content: '';
++  position: fixed;
++  inset: 0;
++  z-index: -1;
++  pointer-events: none;
++  background:
++    radial-gradient(52rem 52rem at 12% -10%, rgba(124, 92, 255, 0.30), transparent 60%),
++    radial-gradient(46rem 46rem at 92% 6%, rgba(56, 225, 255, 0.24), transparent 62%),
++    radial-gradient(60rem 40rem at 50% 112%, rgba(78, 240, 176, 0.16), transparent 66%);
++}
++
++:root body:not([data-ds-dark-theme]) #root::before {
++  opacity: 0.45;
++}
++
++/* ---- the frost itself ---- */
++
++:where(nav, header, aside, footer, [class*='_composer'], [class*='_sidebar'], [class*='_panel']) {
++  -webkit-backdrop-filter: blur(var(--qizhi-glass-blur)) saturate(var(--qizhi-glass-saturate));
++  backdrop-filter: blur(var(--qizhi-glass-blur)) saturate(var(--qizhi-glass-saturate));
++}
++
++@media (max-width: 720px) {
++  :root {
++    --qizhi-glass-blur: 12px;
++  }
++}
++
++/* Reduced transparency: the mesh costs a full-screen paint and the blur costs
++ * compositing on every frame a surface moves. The token layer already went
++ * opaque for these users, so both decorative layers come off. */
++@media (prefers-reduced-transparency: reduce) {
++  #root::before {
++    display: none;
++  }
++
++  :where(nav, header, aside, footer, [class*='_composer'], [class*='_sidebar'], [class*='_panel']) {
++    backdrop-filter: none;
++    -webkit-backdrop-filter: none;
++  }
++}
+diff --git a/packages/client/ui-brand-qizhi/tests/glass.spec.ts b/packages/client/ui-brand-qizhi/tests/glass.spec.ts
+new file mode 100644
+index 0000000000..8b902633bf
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/tests/glass.spec.ts
+@@ -0,0 +1,40 @@
++import { describe, expect, it } from 'vitest'
++import { buildGlassTokens } from '../src/client/glass.ts'
++
++/**
++ * The theme service rejects a bare string per token, so completeness of the
++ * { light, dark } pair is this layer's contract: a missing mode would ship an
++ * illegible palette. The live browser can only prove the scheme it is in.
++ */
++describe('qizhi glass token layer', () => {
++  for (const glass of [true, false]) {
++    it(`every token carries both palettes (glass=${String(glass)})`, () => {
++      const tokens = buildGlassTokens(glass)
++      expect(Object.keys(tokens).length).toBeGreaterThan(10)
++      for (const [name, modes] of Object.entries(tokens)) {
++        expect(modes.light, name).toMatch(/^(#[0-9a-f]{3,8}|rgba?\(|color-mix\()/i)
++        expect(modes.dark, name).toMatch(/^(#[0-9a-f]{3,8}|rgba?\(|color-mix\()/i)
++      }
++    })
++  }
++
++  it('moves only surfaces, hairlines and accents — never text tokens', () => {
++    for (const glass of [true, false]) {
++      for (const name of Object.keys(buildGlassTokens(glass))) {
++        expect(name, name).toMatch(/bg-|border-|brand-|link|interactive|sidebar-fill|input-major/)
++        expect(name, name).not.toMatch(/text-color|fg-|foreground/)
++      }
++    }
++  })
++
++  it('goes opaque when the browser cannot composite a blur', () => {
++    const flat = buildGlassTokens(false)
++    for (const [name, modes] of Object.entries(flat)) {
++      if (!name.startsWith('--dsw-alias-bg-') && !name.startsWith('--dsw-specific-')) continue
++      if (name.includes('skeleton')) continue
++      expect(modes.light, name).not.toContain('rgba')
++      expect(modes.dark, name).not.toContain('rgba')
++    }
++    expect(buildGlassTokens(true)['--dsw-alias-bg-base'].light).toContain('rgba')
++  })
++})
+diff --git a/packages/client/ui-brand-qizhi/tsconfig.json b/packages/client/ui-brand-qizhi/tsconfig.json
+new file mode 100644
+index 0000000000..e3e955878e
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/tsconfig.json
+@@ -0,0 +1,30 @@
++{
++  "extends": "../../../tsconfig.base.client.json",
++  "compilerOptions": {
++    "rootDir": "src",
++    "outDir": "lib/types"
++  },
++  "include": [
++    "src"
++  ],
++  "references": [
++    {
++      "path": "../../../vendor/cordis"
++    },
++    {
++      "path": "../ui-renderer"
++    },
++    {
++      "path": "../ui-sidebar"
++    },
++    {
++      "path": "../ui-conversation/tsconfig.client.json"
++    },
++    {
++      "path": "../ui-theme/tsconfig.client.json"
++    },
++    {
++      "path": "../ui-slots"
++    }
++  ]
++}
+diff --git a/packages/client/ui-brand-qizhi/tsdown.config.ts b/packages/client/ui-brand-qizhi/tsdown.config.ts
+new file mode 100644
+index 0000000000..7aa03cebc1
+--- /dev/null
++++ b/packages/client/ui-brand-qizhi/tsdown.config.ts
+@@ -0,0 +1,3 @@
++import { clientBundle } from '../tsdown.client.ts'
++
++export default clientBundle(import.meta.dirname, ['lib/types/index.js'])
+diff --git a/packages/client/ui-conversation/src/client/locales.ts b/packages/client/ui-conversation/src/client/locales.ts
+index f1f708073b..f2c9b0ceb4 100644
+--- a/packages/client/ui-conversation/src/client/locales.ts
++++ b/packages/client/ui-conversation/src/client/locales.ts
+@@ -74,7 +74,8 @@ export const zh = {
+   'settings.enter.description': '智能体运行时 Enter 键和发送按钮的行为；Cmd/Ctrl+Enter 使用另一行为',
+   'settings.enter.queue': '排队发送',
+   'settings.enter.steer': '插话发送',
+-  'hero.headline': '探索未至之境',
++  'hero.headline': '启智AGENT',
++  'hero.subheading': '面向复杂任务的多工具智能体工作台',
+   'hero.preview': '预览版',
+   'hero.chooseWorkspace': '选择工作区',
+   'session.hierarchy': '会话层级',
+@@ -454,7 +455,8 @@ export const en = {
+   'settings.enter.description': 'What Enter and the Send button do while the agent is running; Cmd/Ctrl+Enter uses the other behavior',
+   'settings.enter.queue': 'Queue',
+   'settings.enter.steer': 'Steer',
+-  'hero.headline': 'Into the Unknown',
++  'hero.headline': '启智AGENT',
++  'hero.subheading': 'A multi-tool agent workspace for complex work',
+   'hero.preview': 'Preview',
+   'hero.chooseWorkspace': 'Choose workspace',
+   'session.hierarchy': 'Session hierarchy',
+diff --git a/packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx b/packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx
+index 40df87269b..0724337419 100644
+--- a/packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx
++++ b/packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx
+@@ -151,10 +151,11 @@ export function HeroShell({ t, renderSlot, children }: HeroShellProps) {
+           </span>
+           <span className={css.titleGroup}>
+             {/* Own element: keeps the headline text addressable apart from the badge. */}
+-            <span>{t('hero.headline')}</span>
++            <span className={css.heroTitle}>{t('hero.headline')}</span>
+             <span className={css.previewBadge}>{t('hero.preview')}</span>
+           </span>
+         </div>
++        <div className={css.subtitle}>{t('hero.subheading')}</div>
+         <div className={css.body}>
+           {/* The composer remains mounted outside this component. */}
+         </div>
+diff --git a/packages/client/ui-conversation/src/client/skeleton/HeroShell.module.css b/packages/client/ui-conversation/src/client/skeleton/HeroShell.module.css
+index aac6a5cf61..a7b0b8aa5a 100644
+--- a/packages/client/ui-conversation/src/client/skeleton/HeroShell.module.css
++++ b/packages/client/ui-conversation/src/client/skeleton/HeroShell.module.css
+@@ -77,6 +77,27 @@
+ 
+ /* Keep hover detection on a stationary box while the mark moves within it;
+    hover rules target the hitbox so a slot-occupant mark swims too. */
++/* 启智AGENT hero main visual: oversized gradient title and its subtitle line.
++   Appended after the shipped headline rules so the cascade overrides cleanly. */
++.heroTitle {
++  font-size: clamp(28px, 4.4vw, 44px);
++  font-weight: 700;
++  letter-spacing: 0.01em;
++  background: linear-gradient(96deg, #38e1ff 0%, #7c5cff 48%, #4ef0b0 100%);
++  -webkit-background-clip: text;
++  background-clip: text;
++  color: transparent;
++  filter: drop-shadow(0 0 18px rgba(56, 225, 255, 0.18));
++}
++
++.subtitle {
++  margin-top: -4px;
++  text-align: center;
++  font-size: 13px;
++  letter-spacing: 0.06em;
++  opacity: 0.62;
++}
++
+ .fishHitbox {
+   display: inline-flex;
+   flex: none;
+diff --git a/packages/client/ui-conversation/tests/skeleton.client.spec.tsx b/packages/client/ui-conversation/tests/skeleton.client.spec.tsx
+index bcd1005a30..007326feb2 100644
+--- a/packages/client/ui-conversation/tests/skeleton.client.spec.tsx
++++ b/packages/client/ui-conversation/tests/skeleton.client.spec.tsx
+@@ -389,7 +389,7 @@ describe('Hero chrome', () => {
+   it('renders the English preview badge through the hero locale seat', () => {
+     const renderSlot = vi.fn<HeroShellProps['renderSlot']>(() => null)
+     const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={renderSlot} />)
+-    expect(view.getByText('Into the Unknown')).toBeTruthy()
++    expect(view.getByText('启智AGENT')).toBeTruthy()
+     expect(view.getByText('Preview')).toBeTruthy()
+     expect(renderSlot).toHaveBeenCalledOnce()
+     expect(renderSlot.mock.calls[0]?.[0]).toBe('conversation.hero.brand.mark')
+@@ -553,7 +553,7 @@ describe('ConversationRoot resident composer', () => {
+     expect(b.view.queryByRole('tablist')).toBeNull()
+     expect(b.slotCalls).not.toContain('conversation.session.header.utilities')
+     expect(b.slotCalls).not.toContain('conversation.session.header.actions')
+-    expect(b.view.getByText('探索未至之境')).toBeTruthy()
++    expect(b.view.getByText('启智AGENT')).toBeTruthy()
+     expect(b.view.getByText('预览版')).toBeTruthy()
+     expect(b.view.queryByTestId('view-chat')).toBeNull()
+     // The same machine-backed textarea is live in the hero, and the
+@@ -587,7 +587,7 @@ describe('ConversationRoot resident composer', () => {
+     expect(conversationPhase(failed, EMPTY_CONVERSATION_SNAPSHOT)).toBe('engaging')
+     const b = mount(failed, undefined, undefined, { summaryBlank: true })
+     expect(b.view.container.querySelector('[data-phase]')?.getAttribute('data-phase')).toBe('active')
+-    expect(b.view.queryByText('探索未至之境')).toBeNull()
++    expect(b.view.queryByText('启智AGENT')).toBeNull()
+   })
+ 
+   it('settling phase: a summary that does not prove the session blank hides the composer while it opens', () => {
+@@ -619,7 +619,7 @@ describe('ConversationRoot resident composer', () => {
+     // blank the column for the history round-trip.
+     const root = b.view.container.querySelector('[data-phase]')
+     expect(root?.getAttribute('data-phase')).toBe('hero')
+-    expect(b.view.getByText('探索未至之境')).toBeTruthy()
++    expect(b.view.getByText('启智AGENT')).toBeTruthy()
+     expect(b.view.getByRole('textbox')).toBeTruthy()
+   })
+ 
+diff --git a/tsconfig.client.json b/tsconfig.client.json
+index b2f0423c7c..8e25481218 100644
+--- a/tsconfig.client.json
++++ b/tsconfig.client.json
+@@ -98,6 +98,7 @@
+     { "path": "./packages/client/ui-layout" },
+     { "path": "./packages/client/ui-sidebar" },
+     { "path": "./packages/client/ui-brand-official" },
++    { "path": "./packages/client/ui-brand-qizhi" },
+     { "path": "./packages/client/ui-approval" },
+     { "path": "./packages/client/ui-chat/tsconfig.client.json" },
+     { "path": "./packages/client/ui-conversation/tsconfig.client.json" },

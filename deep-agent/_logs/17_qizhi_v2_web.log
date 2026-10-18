@@ -1,0 +1,24 @@
+START 2026-10-18T11:22:02+08:00
+$ node --import tsx/esm apps/cli/src/bin.ts --profile web --no-open
+dsh: startup failed: 2 required plugins did not activate
+
+Failed plugins (1):
+  webserver (required)
+    Package: @deepseek-ai/dsh-host-webserver
+    Error: listen EADDRINUSE: address already in use 127.0.0.1:3080
+        at Server.setupListenHandle [as _listen2] (node:net:1948:16)
+        at listenInCluster (node:net:2005:12)
+        at node:net:2214:7
+        at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+
+Plugins waiting for services (5):
+  Plugin                  Missing services
+  web-runtime (required)  webServer
+  open-in-app             webServer
+  directory-picker        webServer
+  harness-dev-context     webApp
+  client-hmr              webServer
+
+Full diagnostics: D:\codeplus\ICT\deep-agent\.dsh-home\logs\startup-2026-10-18T03-22-20.427Z-e80b59b1-009c-44ed-ac98-624999b72d20.log
+[ELIFECYCLE] Command failed with exit code 1.
+WEB_EXIT=1

@@ -1,0 +1,53 @@
+START 2026-10-18T10:51:49+08:00
+$ tsx scripts/build.ts
+run-gates: build running 9 gate(s) with 9 worker(s) from 12 local default worker(s) of 18 CPU(s).
+run-gates: start native addon
+run-gates: PASS native addon (1.52s)
+run-gates: start host compiler
+run-gates: PASS host compiler (2.21s)
+run-gates: start Host bundle
+run-gates: start host aggregate check
+run-gates: PASS host aggregate check (42.20s)
+run-gates: PASS Host bundle (44.82s)
+run-gates: start Desktop bundle
+run-gates: PASS Desktop bundle (4.37s)
+run-gates: start client compiler
+
+== FAILED client compiler (4.21s) ==
+command: tsc -b <tsconfig.client.json references>
+outcome: exit 1
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(154,7): error TS18047: 'element' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(155,7): error TS18047: 'element' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(156,7): error TS18047: 'graphics' is possibly 'null'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(162,12): error TS2345: Argument of type 'CanvasRenderingContext2D | null' is not assignable to parameter of type 'CanvasRenderingContext2D'.
+  Type 'null' is not assignable to type 'CanvasRenderingContext2D'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(170,12): error TS2345: Argument of type 'CanvasRenderingContext2D | null' is not assignable to parameter of type 'CanvasRenderingContext2D'.
+  Type 'null' is not assignable to type 'CanvasRenderingContext2D'.
+packages/client/ui-brand-qizhi/src/client/ParticleField.tsx(181,14): error TS2345: Argument of type 'CanvasRenderingContext2D | null' is not assignable to parameter of type 'CanvasRenderingContext2D'.
+  Type 'null' is not assignable to type 'CanvasRenderingContext2D'.
+
+== SKIPPED Client bundle (0.00s) ==
+command: pnpm exec tsdown --config-loader native --env.DSH_BUILD_FACE client
+outcome: dependency failed or skipped: client-src
+
+== SKIPPED Web build (0.00s) ==
+command: pnpm run build:web
+outcome: dependency failed or skipped: client-bundle
+
+== SKIPPED client aggregate check (0.00s) ==
+command: tsc -p tsconfig.client.json
+outcome: dependency failed or skipped: client-src
+
+run-gates: 5 passed, 1 failed, 3 skipped in 57.14s.
+run-gates: unsuccessful gates:
+  - FAILED client compiler (4.21s, exit 1)
+    tsc -b <tsconfig.client.json references>
+  - SKIPPED Client bundle (0.00s, dependency failed or skipped: client-src)
+    pnpm exec tsdown --config-loader native --env.DSH_BUILD_FACE client
+  - SKIPPED Web build (0.00s, dependency failed or skipped: client-bundle)
+    pnpm run build:web
+  - SKIPPED client aggregate check (0.00s, dependency failed or skipped: client-src)
+    tsc -p tsconfig.client.json
+[ELIFECYCLE] Command failed with exit code 1.
+BUILD_EXIT=1
+END 2026-10-18T10:52:53+08:00

@@ -42,7 +42,7 @@
 
 1. **密钥**：唯一允许的位置是 `deepseek-harness/.env`（被上游 `.gitignore` 覆盖）。任何报告、日志、README、提交信息都不得出现明文 key；提交前必须跑第 6 节的扫描。本地 UI token 属同类，落盘即脱敏。
 2. **不要给 Agent 真实业务目录**。工作区必须是一次性目录，并把 `sandbox-policy` 的可写根钉在它身上；`workspace-write` 是默认档，**不要**为了让演示通过而全局切 `danger-full-access`——真要用，就在报告里标注哪些结论是在该模式下取得的。
-3. **不改上游**：`deepseek-harness/` 里除 `.env` 外不得有任何 tracked 文件被修改，收尾前用第 6 节命令验证。
+3. **上游改动只允许走「前端品牌重构」这一条已登记的口子**：`deepseek-harness/` 默认按未改动处理，收尾必须跑第 6 节的 `git status --porcelain` 并核对每一项都落在品牌白名单内 —— `apps/web/**`、`packages/bundle/web-app/**`、`packages/client/{locale,ui-conversation,ui-brand-qizhi}/**`、`packages/client/ui-sidebar` 之外的表现层、`tsconfig.client.json`、`pnpm-lock.yaml`。落进 `apps/cli`、`packages/{core,api,host,session,llm,tools,shell,subprocess,sandbox,mcp}` 的改动一律视为越界，必须回退；需要后端配合的需求写成「后续建议」，不在本轮实施。除此之外的 tracked 文件不得改动（`.env` 是唯一允许的未跟踪新增）。
 4. **遥测**：默认「使用官方模型 API 时上传 Session Log」为开启。涉及真实项目时先关。
 5. 需要改系统权限（ACL、注册表、全局配置）时，只用官方脚本、范围严格等于工作区根、保留备份与回滚命令，**并向用户确认后再动手**。
 
@@ -72,8 +72,8 @@ python _tools/check_docs.py
 grep -rn "sk-[A-Za-z0-9]\{16,\}" . --exclude-dir=deepseek-harness --exclude-dir=_corepack --exclude-dir=.dsh-home --exclude-dir=harness-smoke-workspace
 grep -rlE 'token=[A-Za-z0-9_.-]{20,}' . --exclude-dir=deepseek-harness --exclude-dir=harness-smoke-workspace
 
-# 上游零改动
-git -C deepseek-harness status --porcelain --untracked-files=no   # 必须为空
+# 上游改动必须逐项落在品牌白名单内（第 4.3 节）；输出非空时，每一行都要能在白名单里找到
+git -C deepseek-harness status --porcelain --untracked-files=no
 
 # 提交前只看自己动过的路径：仓库里有并行会话同时在改 EduForge 生产文件，禁止 git add -A
 git -C /d/codeplus/ICT status --short -- deep-agent .gitignore

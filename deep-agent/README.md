@@ -11,6 +11,9 @@
 
 官方源码在 Windows 原生可构建可运行，真实 DeepSeek API 可调用，**自主「执行失败 → 读错误 → 改代码 → 再执行」的多轮工具循环真实发生且可审计**；五项测试全部通过，但其中三项是在排掉一个宿主 NTFS 权限坑之后才通过的。细节见 [harness-validation-reports/](harness-validation-reports/README.md)。
 
+- 后续追加（阶段 G）：把 Web 前端品牌层从 DeepSeek 官方壳改成 **启智AGENT** —— 新增 `packages/client/ui-brand-qizhi` 占掉 `sidebar.brand.mark`、`sidebar.brand.name`、`conversation.hero.brand.mark` 三个槽位（鲸鱼标志与动画鱼由此彻底退出 UI），换掉标题、favicon、PWA manifest 与首屏文案，并加了一层零依赖 Canvas 粒子。后端、Agent Loop、工具与会话链路零改动，改动清单与验证见 [rebrand-qizhi-report.md](harness-validation-reports/rebrand-qizhi-report.md)，可重放补丁是 [rebrand-qizhi.patch](harness-validation-reports/rebrand-qizhi.patch)。改的是被忽略的 `deepseek-harness/` 工作树，所以本目录只留报告与补丁。
+- 后续追加（阶段 G 第二版）：页面做成**毛玻璃**——品牌强调色与所有面板材质统一，做法是从 `ui-brand-qizhi` 调 `ctx.theme.overrideTokens()` 把 alias token 覆盖层注册进官方主题服务（呈现器写成 `body` 行内变量，因此不需要和上游样式表比选择器权重），样式表只留氛围底、画布色与 `backdrop-filter`；实测大于 2% 视口的不透明面板从 6 个降到 0 个，客户端类型检查/打包与 849+4 项前端测试全绿，模态遮罩与菜单材质按上游规矩保持不碰。详见 [rebrand-qizhi-v2-glass-report.md](harness-validation-reports/rebrand-qizhi-v2-glass-report.md)，补丁已重生成。
+
 ## 目录地图
 
 | 目录 | 是什么 | 入库 |
