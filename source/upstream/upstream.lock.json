@@ -927,6 +927,14 @@
       "display_name": "3JCN Physics Simulations",
       "decision_2026-10-19": "装目录，不装引擎。上一轮记「站点是 Java applet 时代的资源集合，没有可锁定版本」——本轮实测修正：new3jcn.com 是静态站（curl 200，www 跳转后正常），分类页可下载，因此把目录镜像下来做成可检索清单。",
       "install_method": "source/upstream/3jcn/fetch_3jcn_index.py：抓 8 个页面（index、simulation、motion/optics/thermo/electricity/modern/labs 六个分类页）存 source/upstream/3jcn/pages/，再抽 <a> 生成清单",
+      "local_paths": {
+        "note": "这一族只有脚本/README/证据 JSON 入库，四棵树全部被 .gitignore 挡住 ⇒ 新克隆要按下面命令重建，目录层级才是完整的（与其余引擎条目只记 local_path 的口径一致，见 source/upstream/README.md 引擎表）。",
+        "source/upstream/3jcn/pages/": "0.2 MB / 8 个 HTML（分类页）— python source/upstream/3jcn/fetch_3jcn_index.py",
+        "source/upstream/3jcn/demos/": "0.3 MB / 14 个 HTML（结构探针抓的演示页）— python source/upstream/3jcn/probe_3jcn_demo_interfaces.py 14",
+        "source/upstream/3jcn/site/": "27.8 MB / 135 个文件（同源依赖闭包镜像，按站点路径摆：jsm/、js/、css/、textures/、models/…）— python source/upstream/3jcn/mirror_3jcn_site.py，再对每页跑 node source/upstream/3jcn/audit_offline_gaps.mjs 补 JS 字符串里拼的那些路径",
+        "source/upstream/3jcn/offline/": "28.5 MB / 139 个文件（可交付形态：site/ 的派生副本，CDN 落到 _vendor/、跨域与站点根绝对 specifier 改相对）— python source/upstream/3jcn/assemble_3jcn_offline.py；site/ 保持上游原样不改",
+        "rebuild_order": "pages → demos → site（mirror + 逐页 audit）→ offline（assemble）→ 用 node source/library/jcn3_batch_probe.mjs --tree offline --repeat 2 复验"
+      },
       "facts_measured": {
         "pages": "8/8 全部抓到，落盘合计 209 KB（最大 simulation.html 48,115 B）",
         "links": "去重后 90 条 title+href，写进 source/upstream/3jcn/3jcn-inventory.json",

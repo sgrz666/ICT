@@ -4,9 +4,26 @@
 
 ## 内容
 
-- `fetch_3jcn_index.py` — 抓取与抽取脚本。抓 8 个页面（`index.html`、`simulation.html` 与 motion/optics/thermo/electricity/modern/labs 六个分类页）存 `pages/`，再从 `<a>` 里抽 title+href，去重后写 `3jcn-inventory.json`。已存在即跳过（可重复跑），每页之间 sleep 0.4 s。跑法：`python source/upstream/3jcn/fetch_3jcn_index.py`。
-- `3jcn-inventory.json` — 落盘清单（2026-10-19 实测：**8/8 页全部抓到、90 条链接**），含 `note` 字段说明「目录 ≠ 可控」。
-- `pages/` — 抓下来的第三方 HTML（实测 8 个文件、205 KB，最大 `simulation.html` 48,115 字节）。被 `.gitignore` 挡住不入库，重跑脚本即得。
+**入库的项目侧文件**（脚本 + 证据 + 本说明；四棵第三方树全部不入库，见下）：
+
+- `fetch_3jcn_index.py` — 抓 8 个页面（`index.html`、`simulation.html` 与 motion/optics/thermo/electricity/modern/labs 六个分类页）存 `pages/`，再从 `<a>` 里抽 title+href，去重后写 `3jcn-inventory.json`。已存在即跳过，每页 sleep 0.4 s。
+- `probe_3jcn_demo_interfaces.py` — 从清单里抓前 N 份演示页存 `demos/`，逐页统计外部脚本数 / three.js 引用数 / `range` 滑块数与量程 / `getElementById` 数 / 可改数值常量，产出 `3jcn-demo-interface-probe.json`。跑法 `python …probe_3jcn_demo_interfaces.py 14`。
+- `mirror_3jcn_site.py` — 把演示页的**同源依赖闭包**按站点路径镜像进 `site/`（BFS 跟 HTML 与 JS→JS import；缓存命中仍解析；跨域只记清单不改写）。
+- `audit_offline_gaps.mjs` — 以**浏览器真实发出的请求**为清单核 `site/` 并抓缺项（专治路径拼在 JS 运行时字符串里、正则 BFS 看不见的那一类）。跑法 `node …audit_offline_gaps.mjs --url http://127.0.0.1:<port>/<页>`，逐页合并写 `3jcn-offline-gaps.json`。
+- `assemble_3jcn_offline.py` — 整树复制 `site/ → offline/` 做**派生**离线包：jQuery/bootstrap/字模 JSON 落 `_vendor/`，CDN 与 threejs.org 的 specifier 改指包内自带那份（实例数收回 1），站点根绝对路径按每文件深度改相对（ZIP 挂子目录才不 404）。`site/` 保持上游原样，**不改上游**。
+- `diagnose_offline_load.mjs` — 「页面为什么没画面」的诊断台：控制台、`requestfailed`、非 2xx、`<canvas>` 数与尺寸、WebGL 实况一起收（ES module 的 import 失败**不抛 pageerror**，只收异常数的探针在这条上是哑的）。证据默认写 `3jcn-offline-diagnosis.json`，本会话两份留档 `3jcn-offline-diag-neton.json` / `3jcn-offline-diag-netoff.json`。
+- `3jcn-inventory.json`（8/8 页、90 条链接）、`3jcn-demo-interface-probe.json`、`3jcn-mirror.json`、`3jcn-offline-gaps.json`、`3jcn-offline-build.json` — 各步实测证据，数字以这几份为准，本文件只誊关键几句。
+
+**四棵第三方树（全部被 `.gitignore` 挡住，新克隆需按此顺序重建，否则目录层级就是缺的）**：
+
+| 目录 | 实测体积 | 怎么再来一次 |
+|---|---|---|
+| `pages/` | 0.2 MB / 8 个 HTML | `python source/upstream/3jcn/fetch_3jcn_index.py` |
+| `demos/` | 0.3 MB / 14 个 HTML | `python source/upstream/3jcn/probe_3jcn_demo_interfaces.py 14` |
+| `site/` | 27.8 MB / 135 个文件（`jsm/`、`js/`、`css/`、`textures/`、`models/` 按站点路径摆） | `python …mirror_3jcn_site.py`，再对每页跑 `node …audit_offline_gaps.mjs --url …` |
+| `offline/` | 28.5 MB / 139 个文件（可交付形态） | `python …assemble_3jcn_offline.py`，复验 `node source/library/jcn3_batch_probe.mjs --tree offline --repeat 2` |
+
+同一份重建顺序也记在 [`../upstream.lock.json`](../upstream.lock.json) 的 `3jcn.local_paths` 里，两处口径一致。
 
 ## 与上下层的关系
 
