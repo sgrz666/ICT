@@ -220,6 +220,13 @@
           "result": "pass",
           "measured": "用上游自己的 PendulumSim + SimpleAdvance：L=1 m、g=9.8、θ0=0.1 rad、dt=0.001 s 跑 30 s，15 次同向过零 ⇒ 周期 2.00835 s（前 4 段周期完全一致）；独立参考：小角度 2π√(L/g)=2.00709 s（+0.0625%），一级大角度修正 2.00709×(1+θ0²/16)=2.00834 s（偏差 0.0000%）",
           "consequence": "myphysicslab 成为第二个「无头可控 + 能与解析式独立对照」的引擎（第一个是 ray-optics）。这条力学线可以进首批模板了。"
+        },
+        {
+          "name": "headless-spring",
+          "command": "node source/upstream/probe_myphysicslab_spring.mjs（结果落盘 source/upstream/probe-myphysicslab-spring.json）",
+          "result": "pass",
+          "measured": "SingleSpringSim，k=2 N/m、m=0.5 kg、x0=0.3 m、dt=0.001 s：① 胡克定律 引擎算出的加速度 -1.1999976 vs 解析 -kx/m = -1.2；② 周期 3.14159 s vs 解析 2π√(m/k) = 3.14159 s；③ 无阻尼时能量 0.09 → 0.09，漂移 0%",
+          "note": "参数名不硬写：枚举 SingleSpringSim.en 后按语义匹配（实测键：ACCELERATION, DAMPING, MASS, POSITION, SPRING_LENGTH, SPRING_STIFFNESS, VELOCITY, WORK_FROM_DAMPING, FIXED_POINT）。上游把劲度系数叫 SPRING_STIFFNESS，不叫 K。"
         }
       ],
       "known_pits": [

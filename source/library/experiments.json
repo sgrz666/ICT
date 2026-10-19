@@ -58,7 +58,7 @@
       },
       "status": "engine_headless_verified",
       "build_state": "已实测：npx tsc（typescript 5.9.3）exit 0 → build/ 下 322 个 ESM .js；需在 build/ 放 {\"type\":\"module\"} 并预置 MPL_BUILD_TIME / MPL_LOCALE 两个编译期全局",
-      "headless_probe": "pass：PendulumSim L=1 m、g=9.8、θ0=0.1 → 周期 2.00835 s；一级大角度解析值 2.00834 s（偏差 0.0000%），小角度值 2.00709 s（偏差 +0.0625%，正是 θ0²/16 的修正量）",
+      "headless_probe": "pass：PendulumSim L=1 m、g=9.8、θ0=0.1 → 周期 2.00835 s；一级大角度解析值 2.00834 s（偏差 0.0000%），小角度值 2.00709 s（偏差 +0.0625%，正是 θ0²/16 的修正量） ；弹簧振子：加速度 -1.1999976 vs 解析 -1.2、周期 3.14159 vs 2π√(m/k)=3.14159、能量漂移 0%",
       "known_pit": "枚举键是 ANGULAR_VELOCITY 不是 ANGLE_VELOCITY；推进用 advance.advance(dt) 不是 step(dt)；默认 damping=0.5 且有驱动，做无阻尼摆要显式置零"
     },
     {
@@ -463,15 +463,19 @@
       "agent_params": [
         {
           "name": "spring.k",
-          "kind": "劲度系数"
+          "kind": "SingleSpringSim.en.SPRING_STIFFNESS（注意：不叫 K）"
         },
         {
           "name": "mass",
-          "kind": "振子质量"
+          "kind": "en.MASS"
         },
         {
           "name": "initial_displacement",
-          "kind": "初始拉伸"
+          "kind": "POSITION 变量初值（VELOCITY 置 0）"
+        },
+        {
+          "name": "damping",
+          "kind": "en.DAMPING，无阻尼实验必须显式置 0"
         }
       ],
       "readback": "静平衡伸长量 Δx、振动周期 T",
@@ -480,10 +484,13 @@
         "tolerance": "≤2%",
         "independent_reference": "解析式 + 独立能量法"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
-        "同上：myphysicslab 构建 pending；PhET masses-and-springs 需要 grunt 构建链（未跑）"
-      ]
+        "缺 catalog/templates/mechanics 下的弹簧模板三件套与适配器接线（并行会话正在改 code/eduforge）"
+      ],
+      "measured_evidence": "source/upstream/probe-myphysicslab-spring.json",
+      "measured_note": "k=2、m=0.5、x0=0.3：引擎加速度 -1.1999976 vs 解析 -kx/m=-1.2；周期 3.14159 s vs 解析 2π√(m/k)=3.14159 s；无阻尼能量漂移 0%",
+      "harness": "node source/upstream/probe_myphysicslab_spring.mjs"
     },
     {
       "id": "mechanics-projectile",

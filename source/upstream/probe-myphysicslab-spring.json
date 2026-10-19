@@ -1,0 +1,31 @@
+{
+  "engine": "myPhysicsLab / SingleSpringSim（上游自己的积分器）",
+  "result": "pass",
+  "params_set": {
+    "k": "SPRING_STIFFNESS",
+    "m": "MASS",
+    "damping": "DAMPING",
+    "k_value": 2,
+    "mass_value": 0.5,
+    "x0": 0.3,
+    "dt": 0.001
+  },
+  "en_keys_available": "ACCELERATION,DAMPING,MASS,POSITION,SPRING_LENGTH,SPRING_STIFFNESS,VELOCITY,WORK_FROM_DAMPING,FIXED_POINT",
+  "hook_law": {
+    "measured_accel": -1.199997600000799,
+    "analytic_accel": -1.2,
+    "rel_err_pct": 0
+  },
+  "period": {
+    "measured": 3.14159,
+    "analytic_T": 3.14159,
+    "rel_err_pct": 0
+  },
+  "energy": {
+    "initial": 0.09,
+    "at_end": 0.09,
+    "drift_pct": 0
+  },
+  "zero_crossings": 19,
+  "time_end": 60.000999999950864
+}

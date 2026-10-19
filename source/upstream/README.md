@@ -12,7 +12,7 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
   - `fetch_phet_sims.py` — PhET 仿真逐个 `git ls-remote --heads` 枚举分支、**取版本号最大的 X.Y 发行分支**浅克隆到 `phet/sims/`，写 `fetch-phet-log.tsv`。
   - `fetch_large.sh` — CircuitJS1 浅克隆 + three.js 稀疏克隆 + Webots 分阶段体积实测（先只取树 647 KB，再按需检出 `projects/`），写 `fetch-large-log.tsv`。
   - `inspect_upstreams.py` — 扫描已装引擎生成 `inventory.json`（38 个安装单元 / 18,473 文件 / 1,281,191 KB，**工作区体积不含 `.git`**，所以比 `du` 小）。
-  - `probe_myphysicslab.mjs` + `probe-myphysicslab.json` — myPhysicsLab 无头可控性实测与落盘结果。前置：`cd source/upstream/myphysicslab && npm install --no-save typescript && npx tsc`（`build/` 是生成物，不入库）；跑法 `node source/upstream/probe_myphysicslab.mjs`。实测：上游自己的 `PendulumSim`（L=1 m、g=9.8、θ0=0.1 rad、dt=0.001 s，跑 30 s）测得周期 **2.00835 s**，一级大角度解析值 **2.00834 s**（偏差 0.0000%）、小角度值 2.00709 s（偏差 +0.0625%，正是 θ0²/16 的修正量）。⇒ myPhysicsLab 是第二个能无头出数、并能与解析式独立对照的引擎。
+  - `probe_myphysicslab.mjs` / `probe_myphysicslab_spring.mjs` + 两份 `probe-myphysicslab*.json` — myPhysicsLab 无头可控性实测与落盘结果（单摆周期、弹簧振子的胡克定律与周期）。前置：`cd source/upstream/myphysicslab && npm install --no-save typescript && npx tsc`（`build/` 是生成物，不入库）；跑法 `node source/upstream/probe_myphysicslab.mjs`。实测：上游自己的 `PendulumSim`（L=1 m、g=9.8、θ0=0.1 rad、dt=0.001 s，跑 30 s）测得周期 **2.00835 s**，一级大角度解析值 **2.00834 s**（偏差 0.0000%）、小角度值 2.00709 s（偏差 +0.0625%，正是 θ0²/16 的修正量）。⇒ myPhysicsLab 是第二个能无头出数、并能与解析式独立对照的引擎。
 - **引擎目录**（全部由 `.gitignore` 挡住不入库；内部 README 属上游资产，保持原样）。体积为 `inventory.json` 实测：
 
 | 目录 | 引擎 / 许可 | 装法 | 工作区体积 | 文件数 | 状态 |
