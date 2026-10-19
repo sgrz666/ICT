@@ -1,0 +1,210 @@
+{
+  "generated_at": "2026-10-19T05:55:52.473Z",
+  "engine": "myPhysicsLab StringSim（上游 PDE 绳模型，leapfrog 格式；L=13.5 m、N=1001、Δt=0.0025 s、驱动端位移、右端固定）",
+  "run_command": "node source/library/wave_lab.mjs --json",
+  "pass": 5,
+  "fail": 0,
+  "results": [
+    {
+      "id": "waves-string-speed",
+      "title": "绳波波速 v = √(T/μ)：脉冲渡越时间实测 + 步长减半复现",
+      "engine": {
+        "engine": "myPhysicsLab StringSim（上游 PDE 绳模型， leapfrog）",
+        "T": 10,
+        "mu": 1,
+        "L": 13.5,
+        "dx": 0.0135,
+        "dt": 0.0025,
+        "probe_x": 6.7567,
+        "peak_t": 2.175,
+        "peak_y": 0.06354,
+        "stability": 0.5856,
+        "v_measured": 3.179644,
+        "v_half_dt": 3.175908
+      },
+      "formula": "v = √(T/μ)；渡越时间 = 峰值到达时刻 − 脉冲中心发射时刻",
+      "checks": [
+        {
+          "metric": "v (m/s) @ T=10 N, μ=1 kg/m",
+          "measured": 3.179644,
+          "analytic": 3.162278,
+          "rel_error_pct": 0.549,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "步长减半后 v 的复现（差异应远小于物理误差）",
+          "measured": 0.9988249,
+          "analytic": 1,
+          "rel_error_pct": 0.118,
+          "tolerance_pct": 0.3,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "waves-string-density-law",
+      "title": "线密度翻倍四次 ⇒ 波速减半、渡越时间翻倍（v ∝ 1/√μ）",
+      "engine": {
+        "mu_1": {
+          "v": 3.179644,
+          "transit_s": 2.125
+        },
+        "mu_4": {
+          "v": 1.571336,
+          "transit_s": 4.3
+        }
+      },
+      "formula": "v = √(T/μ) ⇒ v(μ=4)/v(μ=1) = 1/2；渡越时间之比 = 2",
+      "checks": [
+        {
+          "metric": "v(μ=4)/v(μ=1)",
+          "measured": 0.494186,
+          "analytic": 0.5,
+          "rel_error_pct": 1.163,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "渡越时间之比 t(μ=4)/t(μ=1)",
+          "measured": 2.023529,
+          "analytic": 2,
+          "rel_error_pct": 1.176,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "waves-string-reflection",
+      "title": "固定端反射：回到中点的脉冲峰值变号（倒相），幅度不超过入射脉冲",
+      "engine": {
+        "incident_peak": {
+          "t": 2.175,
+          "y": 0.063536
+        },
+        "reflected_peak": {
+          "t": 6.45,
+          "y": -0.063533
+        },
+        "expect_incident_at_s": 2.1367,
+        "expect_reflected_at_s": 6.4015,
+        "right_end_BC": "上游 advance() 里 wNew[N]=0（固定端）"
+      },
+      "formula": "固定端反射位移反号（自由端才同号）⇒ 读到同号说明边界条件或读数窗口在骗人",
+      "checks": [
+        {
+          "metric": "反射峰与入射峰反号",
+          "incident_y": 0.063536,
+          "reflected_y": -0.063533,
+          "verdict": "pass"
+        },
+        {
+          "metric": "反射峰幅度落在入射峰的 0.4~1.05 倍（格子色散只摊平不放大）",
+          "ratio": 0.9999,
+          "verdict": "pass"
+        },
+        {
+          "metric": "反射峰到达时刻 vs (2L−x_probe)/v",
+          "measured": 6.45,
+          "analytic": 6.45148,
+          "rel_error_pct": 0.023,
+          "tolerance_pct": 5,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "waves-string-resonance",
+      "title": "驻波共振：扫频峰值落在 f₁ = v/(2L)，二次模态 f₂=2f₁ 也明显高于失谐",
+      "engine": {
+        "v": 3.162278,
+        "L": 13.5,
+        "f1_Hz": 0.117121,
+        "damping": 0.05,
+        "drive_amp": 0.01,
+        "periods": 40,
+        "sweep": [
+          {
+            "f_Hz": 0.081985,
+            "f_over_f1": 0.7,
+            "amp": 0.01231
+          },
+          {
+            "f_Hz": 0.117121,
+            "f_over_f1": 1,
+            "amp": 0.093671
+          },
+          {
+            "f_Hz": 0.152258,
+            "f_over_f1": 1.3,
+            "amp": 0.012269
+          },
+          {
+            "f_Hz": 0.234243,
+            "f_over_f1": 2,
+            "amp": 0.09251
+          },
+          {
+            "f_Hz": 0.304516,
+            "f_over_f1": 2.6,
+            "amp": 0.010907
+          }
+        ],
+        "measured_peak_f_over_f1": 1
+      },
+      "formula": "两端（驱动端近似节点、固定端节点）驻波条件 L = n·λ/2 ⇒ f_n = n·v/(2L)",
+      "checks": [
+        {
+          "metric": "扫频峰值位置 f_peak / f₁（应为 1）",
+          "measured": 0.9999966,
+          "analytic": 1,
+          "rel_error_pct": 0,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "共振/失谐振幅之比 f₁ vs 1.3f₁ > 3",
+          "ratio": 7.635,
+          "verdict": "pass"
+        },
+        {
+          "metric": "二次模态 2f₁ 也共振（>2 倍失谐）",
+          "ratio": 7.54,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "waves-string-stability-guard",
+      "title": "CFL 护栏：v·Δt/Δx ≤ 1 才可信；把 Δt 翻倍（0.83→1.66）立即数值发散",
+      "engine": {
+        "v_T20": 4.472136,
+        "dx": 0.0135,
+        "stability_ok": 0.8282,
+        "stability_bad": 1.6563,
+        "envelope_ok": 0.064377,
+        "envelope_bad": "Infinity"
+      },
+      "formula": "上游 getStability() = √(T/μ)·Δt/Δx；显式格式要求 ≤ 1",
+      "checks": [
+        {
+          "metric": "合规配置 stability ≤ 1",
+          "stability": 0.8282,
+          "verdict": "pass"
+        },
+        {
+          "metric": "越界配置 stability > 1 且振幅炸掉（≥20× 或 NaN）",
+          "stability": 1.6563,
+          "verdict": "pass"
+        }
+      ],
+      "note": "这一条不是物理，是给模板用的实现约束：改 tension（=改 v）必须同时改 Δt 或 Δx，否则拿到的是数值爆炸不是实验结果。",
+      "verdict": "pass"
+    }
+  ]
+}

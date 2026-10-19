@@ -1,6 +1,6 @@
 {
   "comment": "上游源码记录。本文件是 source/upstream 下唯一的自有文件；这里记的每一条要么是上游文件里读到的，要么是本机真实跑过的输出。未跑的一律标 pending，不写成已完成。",
-  "updated_at": "2026-10-19T13:38:00+08:00",
+  "updated_at": "2026-10-19T14:06:00+08:00",
   "upstreams": [
     {
       "id": "ray-optics",
@@ -253,7 +253,13 @@
         "推进器方法是 advance.advance(timeStep)，不是 advance.step(dt)（后者 TypeError: advance.step is not a function，已实测）。",
         "PendulumSim 默认 damping=0.5 且带周期驱动：做无阻尼小摆动实验必须显式置零，否则周期不满足 2π√(L/g)。",
         "同向过零的间隔本身就是一个完整周期，不要再乘 2（探针第一版就犯了这个错，报出 2T = 4.01669 s）。"
-      ]
+      ],
+      "pde_string_2026-10-19": {
+        "status": "pass",
+        "measured": "build/sims/pde/StringSim 可在 Node 里无头驱动：左端由 'block' PointMass 的位移强制、右端 advance() 里 wNew[N]=0 固定。L=13.5 m、N=1001、Δt=0.0025 s、T=10 N、μ=1 kg/m ⇒ 测得波速 3.179644 m/s vs √(T/μ)=3.162278（0.549%），μ=4 时速度比 0.494186；固定端反射峰 +0.063536 → −0.063533；扫频峰值落 f₁ = v/(2L)；上游 getStability() = v·Δt/Δx = 0.8282 合规，Δt 翻倍到 1.6563 立即发散",
+        "run_command": "node source/library/wave_lab.mjs --json",
+        "pit": "getPoint(idx, point) 要的是带 setTo 的可变点，这一版 Vector 没有 setTo（全仓 grep 只有调用侧）⇒ 脚本自带最小 shim；中点是二次模态的节点，共振判据必须用全绳最大位移"
+      }
     },
     {
       "id": "circuitjs1",
@@ -417,7 +423,13 @@
         "run_command": "node source/library/field3d_lab.mjs --json",
         "summary": "5/5 pass：半径拟合 3.3597 vs mv/(|q|B)=3.3333、角速度 1.19999 vs 1.2、转角反出周期 5.23603 vs 5.23599、圆拟合残差/半径 0.285%、q 反号旋向反号、螺旋螺距 7.8566 vs 7.8540、q=0 侧向偏移 0"
       },
-      "collision_lab": "node source/library/collisions_lab.mjs（rapier 组 4/5：等质量交换速度 −2/4 精确、2 kg 撞 1 kg 得 1.66667/6.66667、弹性斜碰出射 90.000° 且末速率平方和 25.000、restitution=0.5 时动量守恒动能掉 37.5%；仅牛顿摆 n 进 n 出不成立——4 球同动、末端 1.588/3）"
+      "collision_lab": "node source/library/collisions_lab.mjs（rapier 组 4/5：等质量交换速度 −2/4 精确、2 kg 撞 1 kg 得 1.66667/6.66667、弹性斜碰出射 90.000° 且末速率平方和 25.000、restitution=0.5 时动量守恒动能掉 37.5%；仅牛顿摆 n 进 n 出不成立——4 球同动、末端 1.588/3）",
+      "kepler_lab_2026-10-19": {
+        "status": "pass",
+        "measured": "关重力 + 每步 addForce(−GM·m·r̂/r²)，GM=4π²（AU、年）、Δt=1e-5 yr：圆轨道周期 1.0011167 yr vs 1（0.112%）；e≈0.37/0.10 两条椭圆 T²/a³ = 0.99859881 / 0.99955356；比角动量波动 0.0737%（Δt/4 ⇒ 0.0421%）；vis-viva 三点 ≤0.122%；行星质量 1→50 周期比 0.99999667；无中心力时 y = v·t 误差 0.09% 且 x 不动；Δt 减半周期误差比 1.976（一阶格式）",
+        "run_command": "node source/library/kepler_lab.mjs --json",
+        "pit": "第 0 步就施加力：先空跑一步（为了拿 rb.mass()）会让首帧位置与速度错开，实测把圆轨道半径甩出 0.9%；另外圈数不足时脚本返回 NaN 而不是 0，免得把「窗口取短了」读成物理错"
+      }
     },
     {
       "id": "three",

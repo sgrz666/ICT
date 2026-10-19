@@ -60,7 +60,8 @@
       "status": "engine_headless_verified",
       "build_state": "已实测：npx tsc（typescript 5.9.3）exit 0 → build/ 下 322 个 ESM .js；需在 build/ 放 {\"type\":\"module\"} 并预置 MPL_BUILD_TIME / MPL_LOCALE 两个编译期全局",
       "headless_probe": "pass：PendulumSim L=1 m、g=9.8、θ0=0.1 → 周期 2.00835 s；一级大角度解析值 2.00834 s（偏差 0.0000%），小角度值 2.00709 s（偏差 +0.0625%，正是 θ0²/16 的修正量） ；弹簧振子：加速度 -1.1999976 vs 解析 -1.2、周期 3.14159 vs 2π√(m/k)=3.14159、能量漂移 0%",
-      "known_pit": "枚举键是 ANGULAR_VELOCITY 不是 ANGLE_VELOCITY；推进用 advance.advance(dt) 不是 step(dt)；默认 damping=0.5 且有驱动，做无阻尼摆要显式置零"
+      "known_pit": "枚举键是 ANGULAR_VELOCITY 不是 ANGLE_VELOCITY；推进用 advance.advance(dt) 不是 step(dt)；默认 damping=0.5 且有驱动，做无阻尼摆要显式置零",
+      "headless": "｜ 绳波：src/build sims/pde/StringSim（PDE leapfrog），驱动端位移、右端固定，波速/反射反相/驻波扫频/CFL 五判据 5/5 见 wave-lab-evidence.json"
     },
     {
       "id": "circuitjs1",
@@ -177,7 +178,8 @@
         "world.timestep 默认 1/60，要按物理周期细分才能压住离散漂移",
         "createCollider 之后 rb.mass() 仍是 0，必须 world.step() 一次才算出惯性质量 ⇒ 守恒量必须在第一个 step 之后取"
       ],
-      "collision_lab": "node source/library/collisions_lab.mjs（rapier 组 4/5 pass：等质量交换速度、2 kg 撞 1 kg、斜碰 90°、非弹性对照全中；仅牛顿摆 n 进 n 出不成立）"
+      "collision_lab": "node source/library/collisions_lab.mjs（rapier 组 4/5 pass：等质量交换速度、2 kg 撞 1 kg、斜碰 90°、非弹性对照全中；仅牛顿摆 n 进 n 出不成立）",
+      "kepler_lab": "source/library/kepler_lab.mjs（中心平方反比力由脚本每步施加，开普勒三定律 + vis-viva + 质量无关 6/6）"
     },
     {
       "id": "stellarium-web-engine",
@@ -800,6 +802,7 @@
       "form": "2D",
       "priority": "P1",
       "engines": [
+        "myphysicslab",
         "phet"
       ],
       "seed": [
@@ -830,14 +833,20 @@
       ],
       "readback": "波峰位置时程 → 波速；波长",
       "acceptance": {
-        "formula": "v = √(T/μ)，且 v = λf",
-        "tolerance": "≤3%",
+        "formula": "v = √(T/μ)；固定端反射位移反号；驻波 f_n = n·v/(2L)；稳定性 v·Δt/Δx ≤ 1",
+        "tolerance": "≤2%（波速与反射时刻）；共振只判「峰值位置」与「比值」，不判绝对振幅",
         "independent_reference": "解析式；自建一维波动方程差分作为第二路对照"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
-        "PhET 无统一 JSON 改参接口，张力/线密度等参数要从 sim 模型类里提取；构建链未跑（pending）"
-      ]
+        "PhET 无统一 JSON 改参接口，张力/线密度等参数要从 sim 模型类里提取；构建链未跑（pending）",
+        "上游 build/ 是生成物：要先 cd source/upstream/myphysicslab && npm install --no-save typescript && npx tsc；Node 侧还得写 build/package.json {\"type\":\"module\"} 并补 MPL_BUILD_TIME/MPL_LOCALE 两个编译期全局",
+        "探针位置会骗人：中点正好是二次模态的节点，只看中点会把 2f₁ 的共振读成 0（本轮实测踩过）⇒ 共振类判据必须取全绳最大位移",
+        "上游 getPoint(idx, point) 要求传入带 setTo 的可变点，而这个版本的 Vector 是不可变的（全仓 grep 无 setTo 实现）⇒ 脚本自带最小 shim"
+      ],
+      "harness": "source/library/wave_lab.mjs",
+      "measured_evidence": "source/library/wave-lab-evidence.json",
+      "measured_note": "2026-10-19 无头 5/5 pass（驱动上游 myPhysicsLab 的 PDE 绳模型 StringSim，只改它的 tension/density/damping/timeStep 参数）：波速 3.179644 m/s vs √(T/μ)=3.162278（0.549%），Δt 减半复现比 0.9988249（0.118%）；μ×4 ⇒ 速度比 0.494186（1.163%）、渡越时间比 2.023529；固定端反射峰由 +0.063536 变 −0.063533（比值 0.9999）且到达时刻 6.45 s vs 解析 6.45148（0.023%）；扫频峰值落在 f₁（0.9999966），f₁/1.3f₁ 振幅比 7.635、2f₁/1.3f₁ = 7.54；CFL 合规 0.8282 vs Δt 翻倍 1.6563 立即炸掉"
     },
     {
       "id": "waves-double-slit",
@@ -1023,8 +1032,9 @@
       "priority": "P2",
       "engines": [
         "phet",
-        "three",
-        "stellarium-web-engine"
+        "rapier",
+        "stellarium-web-engine",
+        "three"
       ],
       "seed": [
         "source/upstream/phet/sims/gravity-and-orbits",
@@ -1042,14 +1052,20 @@
       ],
       "readback": "轨道半径-时间序列、周期",
       "acceptance": {
-        "formula": "开普勒第三定律 T² ∝ a³；面积速度守恒",
-        "tolerance": "T²/a³ 相对偏差 ≤1%",
+        "formula": "T² = (4π²/GM)a³；h = |r×v| 守恒（第二定律）；v² = GM(2/r − 1/a)",
+        "tolerance": "≤0.5%（周期与 T²/a³）；h 波动只要求 ≤0.1% 并随 Δt 变小",
         "independent_reference": "Python 二体解析解 + 独立能量/角动量守恒核算"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
-        "gravity-and-orbits 是 GPL-3.0 源码且体积最大（实测 16,152 KB）；Stellarium 无现成 wasm（实测 0 个），要自建 Emscripten 构建；两者都未进首批"
-      ]
+        "gravity-and-orbits 是 GPL-3.0 源码且体积最大（实测 16,152 KB）；Stellarium 无现成 wasm（实测 0 个），要自建 Emscripten 构建；两者都未进首批",
+        "本轮验的是「一个行星绕一个固定中心」的开普勒定律，不是多体太阳系：行星间引力、进动、以及 three 的渲染链路都还没接",
+        "中心力由脚本每步施加（同 3D 带电粒子那条的做法），Rapier 本身不知道平方反比律 ⇒ 模板里 Δt 与运行年数必须一起钉死：周期误差随时长一阶累积（实测 4.5 yr 窗口半径漂 0.1055%）",
+        "轨道根数靠累计转角过 2π 定周期，圈数不够（<3 次过节点）时脚本直接返回 NaN 让判据显式失败，不静默给 0"
+      ],
+      "harness": "source/library/kepler_lab.mjs",
+      "measured_evidence": "source/library/kepler-lab-evidence.json",
+      "measured_note": "2026-10-19 无头 6/6 pass（Rapier 关重力、每步施加 −GM·m·r̂/r²，自然单位 GM=4π² AU³/yr²）：圆轨道周期 1.0011167 yr vs 解析 1（0.112%）、偏心率读数 0.000527；T²/a³ 在 e≈0.37 与 e≈0.10 两条椭圆上分别是 0.99859881（0.140%）与 0.99955356（0.045%）；比角动量波动 0.0737%（Δt 缩到 1/4 降到 0.0421%）；vis-viva 三点误差 ≤0.122%；行星质量 1→50 周期比 0.99999667（轨道与质量无关）；关掉中心力后 y=vt 误差 0.09% 且 x 一位不动；Δt 减半时周期误差比 1.976 ⇒ 一阶累积，半径漂移 4 年窗口 0.1055%"
     }
   ],
   "not_installed": [
@@ -1077,6 +1093,8 @@
     "collisions_lab": "source/library/collisions-lab-evidence.json",
     "field3d_lab": "source/library/field3d-lab-evidence.json",
     "projectile_lab": "source/library/projectile-lab-evidence.json",
-    "circuit_lab": "source/library/circuit-lab-evidence.json"
+    "circuit_lab": "source/library/circuit-lab-evidence.json",
+    "wave_lab": "source/library/wave-lab-evidence.json",
+    "kepler_lab": "source/library/kepler-lab-evidence.json"
   }
 }

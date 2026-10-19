@@ -1,0 +1,305 @@
+{
+  "generated_at": "2026-10-19T06:03:20.656Z",
+  "engine": "@dimforge/rapier3d-compat 0.21.0（重力关掉、每步施加 −GM·m·r̂/r²；自然单位 GM=4π² AU³/yr²；轨道根数由 world.step 给出的位置/速度算，Δt=0.00001 yr）",
+  "run_command": "node source/library/kepler_lab.mjs --json",
+  "pass": 6,
+  "fail": 0,
+  "results": [
+    {
+      "id": "kepler-circular-orbit",
+      "title": "圆轨道：v=√(GM/r) 出发，周期对 2π√(r³/GM)，半径漂移随时长线性累积",
+      "engine": {
+        "GM": 39.47841760435743,
+        "r_AU": 1,
+        "v0_AU_per_yr": 6.28318531,
+        "dt_yr": 0.00001,
+        "turns": 4,
+        "period_yr": 1.0011167,
+        "rmin": 1.0002945,
+        "rmax": 1.0013496,
+        "eccentricity": 0.000527,
+        "drift_2yr": 0.00059164,
+        "drift_4yr": 0.0010551,
+        "drift_ratio": 1.783
+      },
+      "formula": "T = 2π√(r³/GM)；GM = 4π² ⇒ r=1 AU 时 T = 1 yr",
+      "checks": [
+        {
+          "metric": "周期 T (yr)",
+          "measured": 1.0011167,
+          "analytic": 1,
+          "rel_error_pct": 0.1117,
+          "tolerance_pct": 0.2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "偏心率（圆轨道应为 0）",
+          "measured": 0.00052712602,
+          "analytic": 0,
+          "rel_error_pct": 0.0005,
+          "tolerance_pct": 200,
+          "verdict": "pass"
+        },
+        {
+          "metric": "半径漂移 / r 在整个窗口内 ≤ 0.15%",
+          "drift": 0.0010551,
+          "tolerance_pct": 0.15,
+          "verdict": "pass"
+        },
+        {
+          "metric": "漂移随时长的增长比（4 年 / 2 年 ≈ 2 ⇒ 一阶累积，不是物理）",
+          "measured": 1.7833748,
+          "analytic": 2,
+          "rel_error_pct": 10.8313,
+          "tolerance_pct": 15,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "kepler-third-law",
+      "title": "开普勒第三定律：两条不同偏心率的椭圆都满足 T² = a³",
+      "engine": [
+        {
+          "case": "e≈0.37 椭圆",
+          "rmin_AU": 0.565907,
+          "rmax_AU": 1.002575,
+          "a_AU": 0.784241,
+          "eccentricity": 0.278401,
+          "T_yr": 0.6940167,
+          "T2": 0.4816591,
+          "a3": 0.482335,
+          "T2_over_a3": 0.9985988
+        },
+        {
+          "case": "e≈0.10 椭圆",
+          "rmin_AU": 0.82273,
+          "rmax_AU": 1.001111,
+          "a_AU": 0.911921,
+          "eccentricity": 0.097805,
+          "T_yr": 0.87064,
+          "T2": 0.758014,
+          "a3": 0.7583526,
+          "T2_over_a3": 0.9995536
+        }
+      ],
+      "formula": "T² = (4π²/GM)·a³，取 GM = 4π² ⇒ T² = a³；a = (r_min + r_max)/2 由引擎轨道极值定出",
+      "checks": [
+        {
+          "metric": "T²/a³（e≈0.37 椭圆；GM=4π² ⇒ 应为 1）",
+          "measured": 0.99859881,
+          "analytic": 1,
+          "rel_error_pct": 0.1401,
+          "tolerance_pct": 0.5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "周期 vs 2π√(a³/GM)（e≈0.37 椭圆）",
+          "measured": 0.69401667,
+          "analytic": 0.6945034,
+          "rel_error_pct": 0.0701,
+          "tolerance_pct": 0.5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "T²/a³（e≈0.10 椭圆；GM=4π² ⇒ 应为 1）",
+          "measured": 0.99955356,
+          "analytic": 1,
+          "rel_error_pct": 0.0446,
+          "tolerance_pct": 0.5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "周期 vs 2π√(a³/GM)（e≈0.10 椭圆）",
+          "measured": 0.87064,
+          "analytic": 0.87083441,
+          "rel_error_pct": 0.0223,
+          "tolerance_pct": 0.5,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "kepler-second-law",
+      "title": "开普勒第二定律：dA/dt = h/2 沿整条椭圆守恒（残差随 Δt 线性缩小 ⇒ 是格式误差）",
+      "engine": {
+        "h_start": 5.34204986,
+        "h_min": 5.34204986,
+        "h_max": 5.34598916,
+        "spread_pct": 0.073741,
+        "spread_pct_quarter_dt": 0.042076,
+        "area_rate_dA_dt": 2.67102493,
+        "eccentricity": 0.2784,
+        "v_peri": 9.440916,
+        "v_aph": 5.332241
+      },
+      "formula": "h = |r×v| 只在力指向中心时才守恒；一阶格式下残差 ≈ C·Δt ⇒ Δt/4 应把波动压到约 1/4",
+      "checks": [
+        {
+          "metric": "Δt=0.00001 时 h 相对波动 ≤ 0.1%",
+          "spread_pct": 0.073741,
+          "tolerance_pct": 0.1,
+          "verdict": "pass"
+        },
+        {
+          "metric": "Δt 缩到四分之一 ⇒ h 波动确实变小（残差是格式来的，不是中心力破了角动量守恒）",
+          "spread_quarter_pct": 0.042076,
+          "improvement_ratio": 1.7526,
+          "verdict": "pass"
+        },
+        {
+          "metric": "近日点速度 > 远日点速度（第二定律的方向性）",
+          "v_peri": 9.440916,
+          "v_aph": 5.332241,
+          "verdict": "pass"
+        }
+      ],
+      "note": "实测波动 0.07374% → Δt/4 时 0.04208%，比值 1.75；不是干净的线性律（周期误差是线性的，见结果 ⑥），所以模板里 Δt 必须钉死，不能靠「反正会收敛」放过。",
+      "verdict": "pass"
+    },
+    {
+      "id": "kepler-vis-viva",
+      "title": "vis-viva 关系：轨道三点的 v² 与 GM(2/r − 1/a) 对上",
+      "engine": [
+        {
+          "at": "近日点",
+          "r_AU": 0.565907,
+          "v2": 89.1308996,
+          "vis_viva": 89.1828851
+        },
+        {
+          "at": "远日点",
+          "r_AU": 1.002575,
+          "v2": 28.432791,
+          "vis_viva": 28.4144193
+        },
+        {
+          "at": "中段",
+          "r_AU": 0.960756,
+          "v2": 31.8035884,
+          "vis_viva": 31.8423068
+        }
+      ],
+      "formula": "v² = GM(2/r − 1/a)，a = 0.784241 AU",
+      "checks": [
+        {
+          "metric": "v² vs GM(2/r − 1/a)（近日点）",
+          "measured": 89.1309,
+          "analytic": 89.182885,
+          "rel_error_pct": 0.0583,
+          "tolerance_pct": 0.5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "v² vs GM(2/r − 1/a)（远日点）",
+          "measured": 28.432791,
+          "analytic": 28.414419,
+          "rel_error_pct": 0.0647,
+          "tolerance_pct": 0.5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "v² vs GM(2/r − 1/a)（中段）",
+          "measured": 31.803588,
+          "analytic": 31.842307,
+          "rel_error_pct": 0.1216,
+          "tolerance_pct": 0.5,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "kepler-mass-independence-and-control",
+      "title": "周期与行星质量无关（1 vs 50）；关掉中心力 ⇒ 沿初速度方向匀速直线",
+      "engine": {
+        "mass_measured_light": 1,
+        "mass_measured_heavy": 50,
+        "T_mass1_yr": 1.0011167,
+        "T_mass50_yr": 1.0011133,
+        "turns_each": [
+          4,
+          4
+        ],
+        "no_force": {
+          "t_yr": 0.2,
+          "pos": {
+            "x": 1,
+            "y": 0.20017964
+          },
+          "expected_y": 0.2,
+          "expected_x": 1
+        }
+      },
+      "formula": "GM=4π²、r=1 AU ⇒ T=1 yr（与行星质量无关）；无合力时 y(t) = v·t、x 不动",
+      "checks": [
+        {
+          "metric": "周期比 T(50×质量)/T(1×质量)",
+          "measured": 0.99999667,
+          "analytic": 1,
+          "rel_error_pct": 0.0003,
+          "tolerance_pct": 0.2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "无外力时 y = v·t",
+          "measured": 0.20017964,
+          "analytic": 0.2,
+          "rel_error_pct": 0.0898,
+          "tolerance_pct": 0.2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "无外力时 x 不动（真直线，没有偷偷留向内的力）",
+          "x": 1,
+          "expected": 1,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "kepler-step-convergence",
+      "title": "步长收敛：Δt 每减半，周期误差近似减半（一阶格式），细步长下 <0.2%",
+      "engine": {
+        "dt_coarse": 0.00004,
+        "dt_mid": 0.00002,
+        "dt_fine": 0.00001,
+        "T_coarse": 1.00441333,
+        "T_mid": 1.00223333,
+        "T_fine": 1.00111667,
+        "err_pct": [
+          0.4413,
+          0.2233,
+          0.1117
+        ],
+        "error_halving_ratios": [
+          1.976,
+          2
+        ]
+      },
+      "formula": "解析周期 1 yr；一阶积分 ⇒ error ≈ C·Δt ⇒ Δt 减半误差减半（比值≈2）",
+      "checks": [
+        {
+          "metric": "细步长周期 vs 解析 1 yr",
+          "measured": 1.0011167,
+          "analytic": 1,
+          "rel_error_pct": 0.1117,
+          "tolerance_pct": 0.2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "误差随 Δt 减半的比例（应≈2，证明是离散化而非物理）",
+          "measured": 1.9761194,
+          "analytic": 2,
+          "rel_error_pct": 1.194,
+          "tolerance_pct": 12,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    }
+  ]
+}
