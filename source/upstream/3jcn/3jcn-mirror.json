@@ -1,0 +1,64 @@
+{
+  "base": "https://www.new3jcn.com/",
+  "mirrored_at": "2026-10-19T17:46:06+0800",
+  "seeds": [
+    "https://www.new3jcn.com/Phyc140/flat_mirror_prob.html",
+    "3",
+    "60"
+  ],
+  "depth": 3,
+  "max_files": 60,
+  "files_fetched": 60,
+  "site_bytes": 16930951,
+  "cross_origin_kept_as_is": [
+    "https://aapt.org/Conferences/WM2027/index.cfm",
+    "https://aip.org.au/Resource-Hub#:~:text=3%20JCN%20Physics%20simulations",
+    "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js",
+    "https://asccc-oeri.org/open-educational-resources-and-physics/#:~:text=Other%20Resources",
+    "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v10.0",
+    "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.1",
+    "https://creativecommons.org/licenses/by/4.0/",
+    "https://docs.google.com/document/d/1b8jNF9oTsLTBHgvs31sbE5LPP7UwRPrCMwRZ9FQcf0w/edit",
+    "https://dspace.hnpu.edu.ua/handle/123456789/22845",
+    "https://flagcdn.com/w20/${v.flag}.png",
+    "https://fonts.googleapis.com/css",
+    "https://gpa.cfuv.ru/ru/nauchnaya-deyatelnost/nauchnye-izdaniya/779-izdaniya-vak/problemy-sovremennogo-pedagogicheskogo-obrazovaniya/arkhiv-zhurnala-problemy-sovremennogo-pedagogicheskogo-obrazovaniya/problemy-sovremennogo-pedobrazovaniya-v-2025#:~:text=%D0%92%D1%8B%D0%BF%D1%83%D1%81%D0%BA%2086%20%D1%87%D0%B0%D1%81%D1%82%D1%8C%204%2C%202025%20%D0%B3%D0%BE%D0%B4.pdf",
+    "https://indico.phys.vt.edu/event/72/contributions/1742/",
+    "https://ista.ie/physics/",
+    "https://libguides.msubillings.edu/az/databases",
+    "https://libguides.wpi.edu/oer/physics#:~:text=3JCN%20(3D)%20Physics%20Simulation",
+    "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css",
+    "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
+    "https://mptl.org/links#:~:text=3JCN%20Physics%20Simulation",
+    "https://musicnotation.org/systems/more-notation-systems/#none",
+    "https://oeglobal2026.sched.com/speaker/3jcnguyen",
+    "https://oercommons.org/courseware/lesson/130684",
+    "https://publications.waset.org/abstracts/226772/3jcn-interactive-3d-physics-simulations-for-physics-teaching-and-learning",
+    "https://sg.iwant2study.org/ospsg/index.php/related-sites/794-chargein3denbfield-2",
+    "https://silpayamanant.wordpress.com/music-notation-software/#:~:text=3JCN%20Notation%20Builder",
+    "https://silpayamanant.wordpress.com/timeline-of-music-notation/#:~:text=3JCN%20Music%20Notation.%20Created%20by%20Thomas%20Nguyen",
+    "https://www.facebook.com/groups/vnphys/posts/2010135969937711/",
+    "https://www.googletagmanager.com/gtag/js",
+    "https://www.googletagmanager.com/gtm.js",
+    "https://www.googletagmanager.com/ns.html",
+    "https://www.linkedin.com/in/thomas-nguyen-4901a345",
+    "https://www.merlot.org/merlot/viewMaterial.htm",
+    "https://www.papsicenter.com/#:~:text=Featured%20Resources",
+    "https://www.physlink.com/education/educationreference.cfm#:~:text=3JCN%20Physics%20Simulations",
+    "https://www.saip.org.za/caps-aligned-virtual-experiments/#:~:text=Open%20Physics%20Education%20Resource%20%E2%80%93%203JCN%20Physics%20Simulation"
+  ],
+  "failed": [
+    {
+      "url": "https://www.new3jcn.com/3",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://www.new3jcn.com/60",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://www.new3jcn.com/jsm/chunkType === BINARY_EXTENSION_CHUNK_TYPES.JSON",
+      "error": "URL can't contain control characters. '/jsm/chunkType === BINARY_EXTENSION_CHUNK_TYPES.JSON' (found at least ' ')"
+    }
+  ]
+}

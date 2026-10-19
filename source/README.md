@@ -6,7 +6,7 @@ EduForge 的思路是「复用成熟实验环境」，所以把上游开源引�
 
 - [`upstream/`](upstream/README.md) — 上游源码区。自有文件是 `upstream.lock.json`（身份与构建结论的唯一权威）、九个安装/度量/探针/拼装脚本（`fetch_upstreams.sh`、`fetch_phet_sims.py`、`fetch_large.sh`、`fetch_osp_family.sh`、`3jcn/fetch_3jcn_index.py`、`fetch_phet_published.py`、`survey_ejss_models.py`、`probe_ejss_model.py` 与本轮新增 `assemble_ejss_offline.py`）、脚本生成的 `inventory.json`，以及 **16 个**引擎/资源目录（原有 `ray-optics/`、`myphysicslab/`、`circuitjs1/`、`matter-js/`、`rapier-js/`、`three/`、`stellarium-web-engine/`、`webots/`、`phet/{libs,sims}/`，本轮新增 OSP 家族 `osp/`、`osp_ejs/`、`webejs/`、`resources/`、`STP/`、`csm/` 与 `3jcn/` 目录镜像）。
 - [`components/`](components/README.md) — npm 组件区：`three@0.186.1`、`@dimforge/rapier3d@0.21.0`、`@dimforge/rapier3d-compat@0.21.0`、`matter-js@0.20.0` 钉版本安装，附可加载性实测脚本与结果。这类库的 wasm/编译产物只随 npm 发布，克隆仓库拿不到。
-- [`library/`](library/README.md) — 实验资源目录：`experiments.json` 把 18 个实验（P0 9 / P1 7 / P2 2）映射到具体引擎、种子文件、Agent 可改参数与独立验收公式；`check_catalog.py` 负责证明里面每条路径在磁盘上真实存在（2026-10-19 本轮实测 `paths checked: 95 | missing: 0`）。
+- [`library/`](library/README.md) — 实验资源目录：`experiments.json` 把 18 个实验（P0 9 / P1 7 / P2 2）映射到具体引擎、种子文件、Agent 可改参数与独立验收公式；`check_catalog.py` 负责证明里面每条路径在磁盘上真实存在（2026-10-19 本轮实测 `paths checked: 96 | missing: 0`）。
 
 ## 安装实况（2026-10-19）
 

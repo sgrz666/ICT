@@ -23,15 +23,32 @@ const ROOT = process.cwd();
 const { chromium } = require("playwright-core");
 const argv = process.argv;
 const opt = (k, d) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : d);
-const demo = opt("--demo", "source/upstream/3jcn/demos/Phyc140__buoyant_force_exp.html");
+const demo = opt("--demo", "source/upstream/3jcn/site/Phyc140/buoyant_force_exp.html");
+// 页面是 ES module（import from "../jsm/three.module.js"），file:// 下被 CORS 挡；
+// 所以这一支默认要求同源伺服（--url http://127.0.0.1:<port>/…），给 --demo 时退回 file:// 便于对照。
+const urlArg = argv.includes("--url") ? argv[argv.indexOf("--url") + 1] : null;
 const out = opt("--json", "source/library/jcn3-headless-lab-evidence.json");
 const exec = findChromium();
 
 const READ = () => {
-  const nums = ((document.body.innerText || "").match(/-?\d+(?:[.,]\d+)?/g) || []).map((x) => parseFloat(x.replace(",", ".")));
+  // 上一版把 body 里所有数字都当读数，结果采到的是滑块量程标注（100/200、1500/3000、10/100），
+  // 对照组必然守不住。这一版只认「数字紧跟物理单位」的文本，并且跳过 input 本身。
+  const UNIT = /(\d+(?:[.,]\d+)?)\s*(N|kN|mN|cm³|m³|mm³|kg|g|K|°C|V|A|W|Pa|atm|J|m\/s|km\/h|°|%|cm|mm|m)(?![a-zA-Z])/g;
+  const readouts = [];
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walk.nextNode())) {
+    const txt = (node.textContent || "").replace(/\s+/g, " ").trim();
+    if (!txt || (node.parentElement && node.parentElement.tagName === "INPUT")) continue;
+    let m;
+    UNIT.lastIndex = 0;
+    while ((m = UNIT.exec(txt))) readouts.push(m[1] + m[2]);
+  }
+  const nums = readouts.map((x) => parseFloat(x.replace(/[^0-9.,-]/g, "").replace(",", ".")));
   return {
     sliders: [...document.querySelectorAll('input[type=range]')].map((e) => ({ id: e.id, min: +e.min, max: +e.max, step: +e.step, value: +e.value })),
     number_tokens: nums,
+    readout_tokens: readouts.slice(0, 24),
     text: (document.body.innerText || "").replace(/\s+/g, " ").slice(0, 260),
     has_canvas: document.querySelectorAll("canvas").length,
   };
@@ -45,7 +62,9 @@ const p = await (await browser.newContext({ viewport: { width: 1280, height: 820
 const errs = [];
 p.on("pageerror", (e) => errs.push(String(e).slice(0, 140)));
 try {
-  await p.goto(pathToFileURL(path.join(ROOT, demo)).href, { waitUntil: "load", timeout: 90000 });
+  const target = urlArg || pathToFileURL(path.join(ROOT, demo)).href;
+  report.target = target;
+  await p.goto(target, { waitUntil: "load", timeout: 90000 });
   await p.waitForTimeout(6000);                     // 演示页要等 three.js 与 CDN 脚本就位
   const base = await p.evaluate(READ);
   report.baseline = base;
