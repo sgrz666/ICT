@@ -667,13 +667,33 @@
       "blockers": [
         "osp 与 osp_ejs 两个仓库没有 LICENSE 文件，许可未定 ⇒ 只读参考，不进任何交付包",
         "resources/ 里的演示是否可批量改参未知，只有目录级实测",
-        "webejs 视图层（Plotly/MathJax 与页面加载链）仍没跑过：已证的是「参数面可读、模型物理函数可执行」，未证的是「原样网页渲染与交互」"
+        "webejs 视图层（Plotly/MathJax 与页面加载链）仍没跑过：已证的是「参数面可读、模型物理函数可执行」，未证的是「原样网页渲染与交互」",
+        "视图层未验证：模型包的 HTML 引用包外 CSS 与包内不存在的目录名，需要与 webejs/static/assets 拼树后才能实测离线打开（2026-10-19 未做，标 pending）。"
       ],
       "ejss_control_surface_2026-10-19": {
         "status": "pass",
         "measured": "probe_ejss_model.py 解析 resources 里那份 WebEJS 多缝衍射模型：22 个 public 变量（N=3、D=10、d=100、lambda=0.40、L=100、xscale=2π、n=4*1024…，注释里连取值范围都写了），Osejs.Model.Library 里是纯 JS 的 getSingleSlitAmp/getMultiSlitAmp。把这两个原文函数在 Node 里执行并对解析式：主极大间距 0.3995078 vs λL/d=0.4、包络第一极小 4.001465 vs 4、第 10 级缺级 I=1.34e-7、N=1/2/3/5 的次极大数 0/0/1/3 = N−2 ⇒ node source/library/interference_lab.mjs --json 5/5",
         "corrected_claim": "撤销本文件 blockers 里「EJSS 的 Agent 改参路径本轮未验证」这一句的一半：参数面读取与模型物理函数执行都已经实测通；剩下的缺口是 webejs 浏览器运行时（视图层）没跑。",
         "encoding_pit": "_source.ejss 是 UTF-16（首字节 0xff 0xfe），utf-8 读直接崩；_metadata.txt 的 main-script 为空 ⇒ 这类模型常常只有源码没有编译产物"
+      },
+      "ejss_resource_inventory_2026-10-19": {
+        "command": "python source/upstream/survey_ejss_models.py --json",
+        "tool": "source/upstream/survey_ejss_models.py",
+        "evidence": "source/upstream/ejss-survey.json",
+        "zip_files_scanned": 84,
+        "ejss_models_with_source": 28,
+        "models_with_readable_param_table": 26,
+        "models_with_model_code": 28,
+        "models_bundling_ejs_runtime": 27,
+        "models_whose_declared_source_is_present": 27,
+        "public_vars_range": [
+          7,
+          29
+        ],
+        "public_vars_median": 13,
+        "zip_without_model": 55,
+        "measured_note": "6 仓里 84 个 zip 扫下来只有 28 个带 .ejss 模型源码（其余 55 个是文档/图片/网页壳）；其中 26 个能程序化读出可改参数表（7~29 个，中位 13），28 个能取到模型自己的代码块，27 个自带 ejsS.v1.min.js 运行时。",
+        "measured_negative": "但「自带运行时 = 能在浏览器里打开」这条不成立：28 个包里有 28 个的 HTML 引用了包外路径（例：MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css），27 个还引用了包内根本没有的文件（生成器把标题拼进了目录名，例：Ch2Ill.xhtml -> \"One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml\"）。实测缺的那个 ejss.css 不在模型包里，而在另一个仓库 webejs/static/assets/_ejs_library/css/ejss.css ⇒ 要跑视图层必须把模型包与 webejs 的静态资源树拼起来部署，本轮没有拼、也没在浏览器里验证过，所以这条标 pending，不许写成「离线可打开」。"
       }
     },
     {

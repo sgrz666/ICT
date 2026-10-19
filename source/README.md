@@ -6,7 +6,7 @@ EduForge 的思路是「复用成熟实验环境」，所以把上游开源引�
 
 - [`upstream/`](upstream/README.md) — 上游源码区。自有文件是 `upstream.lock.json`（身份与构建结论的唯一权威）、五个安装/度量脚本（`fetch_upstreams.sh`、`fetch_phet_sims.py`、`fetch_large.sh`、本轮新增 `fetch_osp_family.sh`、`3jcn/fetch_3jcn_index.py`）、脚本生成的 `inventory.json`，以及 **16 个**引擎/资源目录（原有 `ray-optics/`、`myphysicslab/`、`circuitjs1/`、`matter-js/`、`rapier-js/`、`three/`、`stellarium-web-engine/`、`webots/`、`phet/{libs,sims}/`，本轮新增 OSP 家族 `osp/`、`osp_ejs/`、`webejs/`、`resources/`、`STP/`、`csm/` 与 `3jcn/` 目录镜像）。
 - [`components/`](components/README.md) — npm 组件区：`three@0.186.1`、`@dimforge/rapier3d@0.21.0`、`@dimforge/rapier3d-compat@0.21.0`、`matter-js@0.20.0` 钉版本安装，附可加载性实测脚本与结果。这类库的 wasm/编译产物只随 npm 发布，克隆仓库拿不到。
-- [`library/`](library/README.md) — 实验资源目录：`experiments.json` 把 18 个实验（P0 9 / P1 7 / P2 2）映射到具体引擎、种子文件、Agent 可改参数与独立验收公式；`check_catalog.py` 负责证明里面每条路径在磁盘上真实存在（2026-10-19 本轮实测 `paths checked: 68 | missing: 0`）。
+- [`library/`](library/README.md) — 实验资源目录：`experiments.json` 把 18 个实验（P0 9 / P1 7 / P2 2）映射到具体引擎、种子文件、Agent 可改参数与独立验收公式；`check_catalog.py` 负责证明里面每条路径在磁盘上真实存在（2026-10-19 本轮实测 `paths checked: 72 | missing: 0`）。
 
 ## 安装实况（2026-10-19）
 
@@ -16,6 +16,7 @@ EduForge 的思路是「复用成熟实验环境」，所以把上游开源引�
 - 「无头能出数」还不等于「教师能一句话定制并拿到离线包」——上面这 18 条都还没有模板三件套与适配器接线（当前只有凸透镜那条线有），那是 `code/eduforge` 侧的下一步。
 - 简报里「二、适合补充进来的 2D/3D 仿真平台」的**全部七项**落到磁盘上了：Matter.js、Three+Rapier（npm 组件）、Stellarium Web Engine（源码，无 .wasm，需 Emscripten 构建）、Webots（`projects/` 稀疏检出，本体未装）、OSP@Singapore/EJSS（6 仓 1.0 GB：`osp`、`osp_ejs`、`webejs`、`resources`、`STP`、`csm`）、3JCN（静态站目录镜像 8 页 / 90 链接）。**装齐 ≠ 可控**，但这一轮把「可控」拆成了两条路来测：官方那条「改 `.ejs` → osp_ejs 编译 → webejs 运行时加载」仍然一步没跑；另一条「程序化读出 `.ejss` 里的参数表 + 执行模型自带的 JS 函数」已经在多缝衍射模型上实测成功（5/5），这条路不需要编译，也正是 Agent 实际要用的形态。3JCN 仍只有清单；Stellarium 与 Webots 没有可运行产物。
 - 本机 Java 已装（实测 `java version "23" 2024-09-17`），所以 OSP/STP/csm 这类 Java 工程**不是装了解不开**，编译链在；但本轮一次都没编译，别把这句当已完成。
+- EJSS 这批资源的「可改面」本轮被量成数字而不是印象：`upstream/survey_ejss_models.py` 扫 6 仓 84 个 zip，得 **28 个带模型源码的包 / 26 个能读出可改参数表（7~29 个变量，中位 13）/ 27 个自带 `ejsS.v1.min.js` 运行时**，证据 `upstream/ejss-survey.json`。同一趟扫描把「自带运行时就能打开」证伪了：28/28 的 HTML 引用包外路径（缺的 `ejss.css` 实测在 `webejs/static/assets/_ejs_library/css/`），27/28 还引用包内不存在的目录名。⇒ 扩实验的可靠通路是「读参数表 + 执行模型自带函数」（已用双缝干涉验到 5/5），拼树跑视图层仍是 pending。
 
 ## 纪律
 

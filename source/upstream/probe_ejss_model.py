@@ -56,10 +56,12 @@ def probe(xml: str) -> dict:
     variables = []
     for m in VARIABLE.finditer(xml):
         b = m.group(1)
+        declared = field(b, "Domain")
         variables.append({
             "name": field(b, "Name"),
             "type": field(b, "Type"),
-            "domain": field(b, "Domain"),
+            "domain": declared or "undeclared",
+            "domain_declared": bool(declared),
             "dimension": field(b, "Dimension"),
             "value": field(b, "Value"),
             "comment": field(b, "Comment"),
@@ -72,7 +74,8 @@ def probe(xml: str) -> dict:
             chunks = [strip_cdata(c) for c in CDATA.findall(m.group(1))] or [m.group(1)]
             joined = "\n".join(c for c in chunks if c.strip())
             code_blocks[tag] = joined[:4000] + ("…（截断）" if len(joined) > 4000 else "")
-    public = [v for v in variables if v["domain"] == "public"]
+    # EJSS 的 <Domain> 只在带"参数页"的模型里写；导出包普遍省略它，省略不等于不可改。
+    public = [v for v in variables if v["domain"] not in ("internal", "private")]
     return {
         "title": field(xml, "Title") or field(xml, "Osejs.Model.ModelName"),
         "author": field(xml, "Author"),
@@ -83,8 +86,9 @@ def probe(xml: str) -> dict:
         "use_interpreter": field(xml, "UseInterpreter"),
         "variables_total": len(variables),
         "variables_public": len(public),
+        "variables_domain_declared": sum(1 for v in variables if v["domain_declared"]),
         "public_variables": public,
-        "internal_or_private_variables": [v["name"] for v in variables if v["domain"] != "public"],
+        "internal_or_private_variables": [v["name"] for v in variables if v["domain"] == "internal"],
         "code_blocks": code_blocks,
     }
 

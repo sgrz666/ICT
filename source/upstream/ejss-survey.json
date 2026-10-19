@@ -1,0 +1,794 @@
+{
+  "summary": {
+    "roots_scanned": [
+      "resources",
+      "webejs",
+      "STP",
+      "csm",
+      "osp",
+      "osp_ejs"
+    ],
+    "zip_files_scanned": 84,
+    "outer_container_zips": 0,
+    "zip_without_model": 55,
+    "ejss_models_unique": 28,
+    "models_with_param_table": 26,
+    "models_with_code": 28,
+    "models_self_contained": 27,
+    "models_declaring_source_present": 27,
+    "models_with_refs_outside_bundle": 28,
+    "models_with_refs_missing_inside": 27,
+    "public_vars_min": 7,
+    "public_vars_median": 13,
+    "public_vars_max": 29,
+    "parse_errors": 0
+  },
+  "models": [
+    {
+      "zip": "resources\\docs\\CollectionTest\\webejs_model_MultislitDiffraction.zip",
+      "member": "_source.ejss",
+      "member_bytes": 49802,
+      "self_contained": false,
+      "launcher": null,
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "_source.json",
+        "meta_source_present": false,
+        "refs_checked": 20,
+        "refs_escape_bundle": 2,
+        "refs_missing_inside": 0,
+        "examples": [
+          "MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css (指向包外)",
+          "MultipleSlitDiffraction/MultipleSlitParticles.html -> ../resources/ejss.css (指向包外)"
+        ]
+      },
+      "title": "Multislit Diffraction",
+      "public_vars": 22,
+      "vars_total": 22,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 1140,
+        "Osejs.Model.Library": 1841,
+        "Osejs.Description": 54
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Ch2Ill.zip",
+      "member": "Ch2Ill.ejss",
+      "member_bytes": 5636,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Ch2Ill.ejss",
+        "meta_source_present": true,
+        "refs_checked": 11,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 3,
+        "examples": [
+          "Ch2Ill.xhtml -> One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Ch2Ill_Contents.xhtml -> One-Dimensional Kinematics Illustrations_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "One-Dimensional Kinematics Illustrations",
+      "public_vars": 0,
+      "vars_total": 0,
+      "code_blocks": {
+        "Osejs.Description": 25
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Ch2Prob.zip",
+      "member": "Ch2Prob.ejss",
+      "member_bytes": 5614,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Ch2Prob.ejss",
+        "meta_source_present": true,
+        "refs_checked": 11,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 3,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Ch2Prob_Contents.xhtml -> One-Dimensional Kinematics Problems_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "Ch2Prob_Contents.xhtml -> One-Dimensional Kinematics Problems./ch2_problems.xhtml (包内缺失)"
+        ]
+      },
+      "title": "One-Dimensional Kinematics Problems",
+      "public_vars": 0,
+      "vars_total": 0,
+      "code_blocks": {
+        "Osejs.Description": 20
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Illustration2_1.zip",
+      "member": "Illustration2_1.ejss",
+      "member_bytes": 39692,
+      "self_contained": true,
+      "launcher": "ejss_html_Illustration2_1.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Illustration2_1.ejss",
+        "meta_source_present": true,
+        "refs_checked": 21,
+        "refs_escape_bundle": 2,
+        "refs_missing_inside": 3,
+        "examples": [
+          "Illustration2_1.xhtml -> Illustration 2.1: Position and Displacement./ejss_html_Illustration2_1.html (包内缺失)",
+          "Illustration2_1_Contents.xhtml -> Illustration 2.1: Position and Displacement_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "Illustration2_1_Contents.xhtml -> Illustration 2.1: Position and Displacement./ejss_html_Illustration2_1.html (包内缺失)"
+        ]
+      },
+      "title": "Illustration 2.1: Position and Displacement",
+      "public_vars": 10,
+      "vars_total": 10,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 235,
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 91,
+        "Osejs.Description": 32
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Illustration2_2.zip",
+      "member": "Illustration2_2.ejss",
+      "member_bytes": 40454,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Illustration2_2.ejss",
+        "meta_source_present": true,
+        "refs_checked": 20,
+        "refs_escape_bundle": 2,
+        "refs_missing_inside": 1,
+        "examples": [
+          "ejss_html_Illustration2_2.html -> ../../../../../_ejs_library/css/ejsPage.css (指向包外)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Illustration2_2_Contents.xhtml -> Illustration 2.2: Average Velocity_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Illustration 2.2: Average Velocity",
+      "public_vars": 12,
+      "vars_total": 12,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 95,
+        "Osejs.Description": 32
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Illustration2_3.zip",
+      "member": "Illustration2_3.ejss",
+      "member_bytes": 61552,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Illustration2_3.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Illustration2_3_Contents.xhtml -> Illustration 2.3: Average and Instantaneous Velocity_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Illustration 2.3: Average and Instantaneous Velocity",
+      "public_vars": 29,
+      "vars_total": 29,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 231,
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 821,
+        "Osejs.Model.Library": 525,
+        "Osejs.Description": 22
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Illustration2_4.zip",
+      "member": "Illustration2_4.ejss",
+      "member_bytes": 39374,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Illustration2_4.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Illustration2_4_Contents.xhtml -> Illustration 2.4: Constant Acceleration and Measurement_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Illustration 2.4: Constant Acceleration and Measurement",
+      "public_vars": 11,
+      "vars_total": 11,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 260,
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 155,
+        "Osejs.Description": 22
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Illustration2_5.zip",
+      "member": "Illustration2_5.ejss",
+      "member_bytes": 53518,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Illustration2_5.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Illustration2_5_Contents.xhtml -> Illustration 2.5: Motion on a Ramp_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Illustration 2.5: Motion on a Ramp",
+      "public_vars": 23,
+      "vars_total": 23,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 664,
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 62,
+        "Osejs.Description": 22
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Illustration2_6.zip",
+      "member": "Illustration2_6.ejss",
+      "member_bytes": 52090,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Illustration2_6.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Illustration2_6_Contents.xhtml -> Illustration 2.6: Free Fall_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Illustration 2.6: Free Fall",
+      "public_vars": 24,
+      "vars_total": 24,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 908,
+        "Osejs.Model.Evolution": 235,
+        "Osejs.Description": 22
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_01.zip",
+      "member": "Problem2_01.ejss",
+      "member_bytes": 34130,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_01.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "Problem2_01_Contents.xhtml -> Problem 2.1: Position Vs. Time_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+        ]
+      },
+      "title": "Problem 2.1: Position Vs. Time",
+      "public_vars": 12,
+      "vars_total": 12,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 336,
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 370,
+        "Osejs.Description": 17
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_02.zip",
+      "member": "Problem2_02.ejss",
+      "member_bytes": 28848,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_02.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_02_Contents.xhtml -> Problem 2.2:  Sliding Hockey Puck_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.2:  Sliding Hockey Puck",
+      "public_vars": 13,
+      "vars_total": 13,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 205,
+        "Osejs.Model.Constraints": 74,
+        "Osejs.Description": 17
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_03.zip",
+      "member": "Problem2_03.ejss",
+      "member_bytes": 35904,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_03.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_03_Contents.xhtml -> Problem 2.3: Matching Helicopter Flight_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.3: Matching Helicopter Flight",
+      "public_vars": 16,
+      "vars_total": 16,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 257,
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 728,
+        "Osejs.Description": 28
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_04.zip",
+      "member": "Problem2_04.ejss",
+      "member_bytes": 38230,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_04.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "Problem2_04_Contents.xhtml -> Problem 2.4:  Golf Balls Putt Comparison_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+        ]
+      },
+      "title": "Problem 2.4:  Golf Balls Putt Comparison",
+      "public_vars": 14,
+      "vars_total": 14,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 946,
+        "Osejs.Model.Constraints": 57,
+        "Osejs.Description": 17
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_05.zip",
+      "member": "Problem2_05.ejss",
+      "member_bytes": 27920,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_05.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "Problem2_05_Contents.xhtml -> Problem 2.5: Puck Bounces Between Two Walls_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+        ]
+      },
+      "title": "Problem 2.5: Puck Bounces Between Two Walls",
+      "public_vars": 11,
+      "vars_total": 11,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 90,
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 296,
+        "Osejs.Description": 17
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_06.zip",
+      "member": "Problem2_06.ejss",
+      "member_bytes": 44754,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_06.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "Problem2_06_Contents.xhtml -> Problem 2.6: Constant Velocity Putt-Putt_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+        ]
+      },
+      "title": "Problem 2.6: Constant Velocity Putt-Putt",
+      "public_vars": 21,
+      "vars_total": 21,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 26,
+        "Osejs.Model.Evolution": 764,
+        "Osejs.Model.Library": 747,
+        "Osejs.Description": 17
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_07.zip",
+      "member": "Problem2_07.ejss",
+      "member_bytes": 35946,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_07.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_07_Contents.xhtml -> Problem 2.7: Acceleration of Carts_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.7: Acceleration of Carts",
+      "public_vars": 13,
+      "vars_total": 13,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 597,
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 701,
+        "Osejs.Description": 17
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_08.zip",
+      "member": "Problem2_08.ejss",
+      "member_bytes": 30616,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_08.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "Problem2_08_Contents.xhtml -> Problem 2.8: Purple Truck Catching Yellow Truck_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+        ]
+      },
+      "title": "Problem 2.8: Purple Truck Catching Yellow Truck",
+      "public_vars": 7,
+      "vars_total": 7,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 56,
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 59,
+        "Osejs.Description": 17
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_09.zip",
+      "member": "Problem2_09.ejss",
+      "member_bytes": 25820,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_09.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_09_Contents.xhtml -> Problem 2.9: Simulation of a Helium Balloon_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.9: Simulation of a Helium Balloon",
+      "public_vars": 7,
+      "vars_total": 7,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 55,
+        "Osejs.Model.Constraints": 58,
+        "Osejs.Description": 17
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_10.zip",
+      "member": "Problem2_10.ejss",
+      "member_bytes": 33224,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_10.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_10_Contents.xhtml -> Problem 2.10: Rope Holding a Hot Air Balloon Cargo_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.10: Rope Holding a Hot Air Balloon Cargo",
+      "public_vars": 16,
+      "vars_total": 16,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 329,
+        "Osejs.Description": 18
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_11.zip",
+      "member": "Problem2_11.ejss",
+      "member_bytes": 30244,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_11.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_11_Contents.xhtml -> Problem 2.11: Golf Ball on a Wet Green_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.11: Golf Ball on a Wet Green",
+      "public_vars": 12,
+      "vars_total": 12,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 190,
+        "Osejs.Description": 18
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_12.zip",
+      "member": "Problem2_12.ejss",
+      "member_bytes": 27338,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_12.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "Problem2_12_Contents.xhtml -> Problem 2.12: Car with Two Springs_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+        ]
+      },
+      "title": "Problem 2.12: Car with Two Springs",
+      "public_vars": 10,
+      "vars_total": 10,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 75,
+        "Osejs.Model.Constraints": 58,
+        "Osejs.Description": 18
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_13.zip",
+      "member": "Problem2_13.ejss",
+      "member_bytes": 38482,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_13.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_13_Contents.xhtml -> Problem 2.13: Golf Ball Putted Up a Steep Hill on a Green_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.13: Golf Ball Putted Up a Steep Hill on a Green",
+      "public_vars": 19,
+      "vars_total": 19,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 205,
+        "Osejs.Model.Evolution": 168,
+        "Osejs.Model.Constraints": 196,
+        "Osejs.Model.Library": 254,
+        "Osejs.Description": 18
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_14.zip",
+      "member": "Problem2_14.ejss",
+      "member_bytes": 29004,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_14.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "Problem2_14_Contents.xhtml -> Problem 2.14: Golf Ball on a Sloping Green_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+        ]
+      },
+      "title": "Problem 2.14: Golf Ball on a Sloping Green",
+      "public_vars": 14,
+      "vars_total": 14,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 569,
+        "Osejs.Description": 18
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_15.zip",
+      "member": "Problem2_15.ejss",
+      "member_bytes": 49270,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_15.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "Problem2_15_Contents.xhtml -> Problem 2.15: Constant Acceleration Putt-Putt_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+        ]
+      },
+      "title": "Problem 2.15: Constant Acceleration Putt-Putt",
+      "public_vars": 23,
+      "vars_total": 23,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 50,
+        "Osejs.Model.Evolution": 791,
+        "Osejs.Model.Library": 1346,
+        "Osejs.Description": 18
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_16.zip",
+      "member": "Problem2_16.ejss",
+      "member_bytes": 48904,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_16.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_16_Contents.xhtml -> Problem 2.16: Constant Acceleration Putt-Putt_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.16: Constant Acceleration Putt-Putt",
+      "public_vars": 23,
+      "vars_total": 23,
+      "code_blocks": {
+        "Osejs.Model.Initialization": 50,
+        "Osejs.Model.Evolution": 791,
+        "Osejs.Model.Library": 1346,
+        "Osejs.Description": 18
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_17.zip",
+      "member": "Problem2_17.ejss",
+      "member_bytes": 30244,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_17.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_17_Contents.xhtml -> Problem 2.17: Find Velocity from Position_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.17: Find Velocity from Position",
+      "public_vars": 10,
+      "vars_total": 10,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 185,
+        "Osejs.Model.Library": 79,
+        "Osejs.Description": 18
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_18.zip",
+      "member": "Problem2_18.ejss",
+      "member_bytes": 29418,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_18.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_18_Contents.xhtml -> Problem 2.18: Tennis Ball Launcher_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+        ]
+      },
+      "title": "Problem 2.18: Tennis Ball Launcher",
+      "public_vars": 10,
+      "vars_total": 10,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 236,
+        "Osejs.Description": 18
+      }
+    },
+    {
+      "zip": "resources\\docs\\PP\\Ch02\\js_ejs_model_Problem2_19.zip",
+      "member": "Problem2_19.ejss",
+      "member_bytes": 24080,
+      "self_contained": true,
+      "launcher": "_ejs_library/html/EjsLauncher.html",
+      "kind": "ejss",
+      "bundle_health": {
+        "meta_source": "Problem2_19.ejss",
+        "meta_source_present": true,
+        "refs_checked": 19,
+        "refs_escape_bundle": 1,
+        "refs_missing_inside": 1,
+        "examples": [
+          "Problem2_19_Contents.xhtml -> Problem 2.19: Tennis Ball Launcher_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+        ]
+      },
+      "title": "Problem 2.19: Tennis Ball Launcher",
+      "public_vars": 8,
+      "vars_total": 8,
+      "code_blocks": {
+        "Osejs.Model.Evolution": 235,
+        "Osejs.Description": 18
+      }
+    }
+  ]
+}

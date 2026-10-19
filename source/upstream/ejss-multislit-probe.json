@@ -10,11 +10,13 @@
   "use_interpreter": "true",
   "variables_total": 22,
   "variables_public": 22,
+  "variables_domain_declared": 22,
   "public_variables": [
     {
       "name": "font",
       "type": "String",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "\"normal normal 1.1vw \"",
       "comment": ""
@@ -23,6 +25,7 @@
       "name": "xscale",
       "type": "int",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "2*Math.PI",
       "comment": ""
@@ -31,6 +34,7 @@
       "name": "width",
       "type": "int",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "700",
       "comment": ""
@@ -39,6 +43,7 @@
       "name": "height",
       "type": "int",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "300",
       "comment": ""
@@ -47,6 +52,7 @@
       "name": "n",
       "type": "int",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "4*1024",
       "comment": "scale of x-axis; proportional to distance to screen"
@@ -55,6 +61,7 @@
       "name": "unitvec",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "[n]",
       "value": "1",
       "comment": ""
@@ -63,6 +70,7 @@
       "name": "xvec",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "[n]",
       "value": "0",
       "comment": ""
@@ -71,6 +79,7 @@
       "name": "yvec",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "[n]",
       "value": "0",
       "comment": "diffraction intensity values"
@@ -79,6 +88,7 @@
       "name": "uvec",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "[n]",
       "value": "0",
       "comment": "single slit envelope"
@@ -87,6 +97,7 @@
       "name": "colors",
       "type": "Object",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "[n]",
       "value": "'rgb(0, 0, 0)'",
       "comment": ""
@@ -95,6 +106,7 @@
       "name": "layout",
       "type": "Object",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "null",
       "comment": ""
@@ -103,6 +115,7 @@
       "name": "showEnvelope",
       "type": "boolean",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "true",
       "comment": ""
@@ -111,6 +124,7 @@
       "name": "intensityTrace",
       "type": "Object",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "null",
       "comment": ""
@@ -119,6 +133,7 @@
       "name": "envelopeTrace",
       "type": "Object",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "null",
       "comment": ""
@@ -127,6 +142,7 @@
       "name": "traces",
       "type": "Object",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "null",
       "comment": ""
@@ -135,6 +151,7 @@
       "name": "",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "",
       "comment": ""
@@ -143,6 +160,7 @@
       "name": "N",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "3",
       "comment": "number of slits"
@@ -151,6 +169,7 @@
       "name": "D",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "10",
       "comment": "slit width in microns between 1 and 100"
@@ -159,6 +178,7 @@
       "name": "d",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "100",
       "comment": "slit separation in microns between 120% of slit width and 300"
@@ -167,6 +187,7 @@
       "name": "lambda",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "0.40",
       "comment": "wavelength in microns between 0.1 and 1"
@@ -175,6 +196,7 @@
       "name": "L",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "100",
       "comment": "distance to screen"
@@ -183,6 +205,7 @@
       "name": "",
       "type": "double",
       "domain": "public",
+      "domain_declared": true,
       "dimension": "",
       "value": "",
       "comment": ""

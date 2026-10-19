@@ -227,7 +227,7 @@
       "upstream": "https://github.com/OpenSourcePhysics/{osp,osp_ejs,webejs,resources,STP,csm}",
       "commit": "ed085a921f61de653ad48570d2d566268049df63",
       "version": "6 个仓库分别锁 commit，见 upstream.lock.json 的 osp-singapore-ejss.repos[]",
-      "headless": "已实测第一条通路（2026-10-19）：probe_ejss_model.py 能把 .ejss/.ejs/打包 zip 的参数表与代码块解析出来，interference_lab.mjs 直接拿模型原文的振幅函数在 Node 里出数并对解析式（5/5）；但模型自带的浏览器运行时（webejs + Plotly 视图）仍没跑过",
+      "headless": "已实测第一条通路（2026-10-19）：probe_ejss_model.py 能把 .ejss/.ejs/打包 zip 的参数表与代码块解析出来，interference_lab.mjs 直接拿模型原文的振幅函数在 Node 里出数并对解析式（5/5）；但模型自带的浏览器运行时（webejs + Plotly 视图）仍没跑过；28 个模型的参数面已用 survey_ejss_models.py 逐个量出来（见 resource_inventory）",
       "agent_control_surface": "EJSS 模型的改参通路已实测：XML 的 public 变量表就是参数面（多缝衍射那一份实测 22 个 public 变量，含 N/D/d/lambda/L 及注释里写明的取值范围），代码块是 Osejs.Model.Library / Initialization；不必再猜「EJSS 能不能被 Agent 改」",
       "resource_seeds": {
         "STP_java_sources": 123,
@@ -235,7 +235,12 @@
         "osp_java_sources": 807,
         "osp_ejs_java_sources": 567,
         "resources_html_pages": 201,
-        "note": "STP/src/org/opensourcephysics/stp 下实测含 idealgas、idealgasintegrals、thermalcontact、carnot、entropy、diffusion、boltzmann 等包目录（完整清单见 inventory.json probes.STP_thermal_packages）"
+        "note": "STP/src/org/opensourcephysics/stp 下实测含 idealgas、idealgasintegrals、thermalcontact、carnot、entropy、diffusion、boltzmann 等包目录（完整清单见 inventory.json probes.STP_thermal_packages）",
+        "examples": [
+          "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_1.zip",
+          "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_15.zip",
+          "source/upstream/resources/docs/CollectionTest/webejs_model_MultislitDiffraction.zip"
+        ]
       },
       "known_pits": [
         "上一轮「找不到权威仓库」的结论是错的：组织名是 OpenSourcePhysics，实测 GET /orgs/OpenSourcePhysics/repos 返回 13 个仓库。教训：找不到来源时先查组织与搜索 API，再下「不装」的结论。",
@@ -243,9 +248,29 @@
         "模型可能只给 .ejss 源码而不给编译产物（这份多缝模型的 _metadata.txt 里 main-script 为空）⇒ 别假设能当静态网页直接交付",
         "osp 与 osp_ejs 无 LICENSE ⇒ 任何分发/嵌入前必须先取得授权说明，否则就是合规窟窿。",
         "这批是 Java 桌面系（Swing/SwingJS）+ 静态 CDN 资源，形态与「浏览器离线交付包」不同路；webejs 只有 74 MB 工作区静态资源，模型本体不在里面。",
-        "resources/ 的 201 个 html 是文档与收藏页，不是可直接改参的实验源。"
+        "resources/ 的 201 个 html 是文档与收藏页，不是可直接改参的实验源。",
+        "「包里带了 ejsS.v1.min.js」不等于能在浏览器打开：28/28 个模型包的 HTML 引用包外资源（样式表实际在 webejs/static/assets/_ejs_library/css/ 里），27/28 还引用包内不存在的文件（生成器把标题拼进目录名）。拼树部署 + 浏览器实测都还没做 ⇒ 视图层 pending。",
+        "EJSS 的 <Domain> 只在带参数页的模型里写：导出包普遍省略它（26/28 靠 Name/Value/Type 就能拿到参数表），按 domain==public 过滤会把整批模型误判成「没有可改参数」——probe_ejss_model.py 已改成「省略也算可调」，另有 2 个包（Ch2Ill/Ch2Prob）确实一个 <Variable> 都没有。"
       ],
-      "status": "resource_installed"
+      "status": "resource_installed",
+      "resource_inventory": {
+        "run_command": "python source/upstream/survey_ejss_models.py --json",
+        "measured_at": "2026-10-19",
+        "zip_files_scanned": 84,
+        "ejss_models_with_source": 28,
+        "models_with_readable_param_table": 26,
+        "models_with_model_code": 28,
+        "models_bundling_ejs_runtime": 27,
+        "models_whose_declared_source_is_present": 27,
+        "public_vars_range": [
+          7,
+          29
+        ],
+        "public_vars_median": 13,
+        "zip_without_model": 55,
+        "measured_note": "6 仓里 84 个 zip 扫下来只有 28 个带 .ejss 模型源码（其余 55 个是文档/图片/网页壳）；其中 26 个能程序化读出可改参数表（7~29 个，中位 13），28 个能取到模型自己的代码块，27 个自带 ejsS.v1.min.js 运行时。",
+        "measured_negative": "但「自带运行时 = 能在浏览器里打开」这条不成立：28 个包里有 28 个的 HTML 引用了包外路径（例：MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css），27 个还引用了包内根本没有的文件（生成器把标题拼进了目录名，例：Ch2Ill.xhtml -> \"One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml\"）。实测缺的那个 ejss.css 不在模型包里，而在另一个仓库 webejs/static/assets/_ejs_library/css/ejss.css ⇒ 要跑视图层必须把模型包与 webejs 的静态资源树拼起来部署，本轮没有拼、也没在浏览器里验证过，所以这条标 pending，不许写成「离线可打开」。"
+      }
     },
     {
       "id": "3jcn-catalog",
@@ -1120,6 +1145,8 @@
     "cradle_lab": "source/library/cradle-lab-evidence.json",
     "interference_lab": "source/library/interference-lab-evidence.json",
     "ejss_probe_tool": "source/upstream/probe_ejss_model.py",
-    "ejss_multislit_probe": "source/upstream/ejss-multislit-probe.json"
+    "ejss_multislit_probe": "source/upstream/ejss-multislit-probe.json",
+    "ejss_survey_tool": "source/upstream/survey_ejss_models.py",
+    "ejss_survey": "source/upstream/ejss-survey.json"
   }
 }
