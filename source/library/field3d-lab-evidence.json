@@ -1,0 +1,168 @@
+{
+  "generated_at": "2026-10-19T04:37:04.334Z",
+  "engine": "@dimforge/rapier3d-compat 0.21.0（无头 world.step，dt=0.004166666666666667s；洛伦兹力由脚本每步 qv×B 施加）",
+  "run_command": "node source/library/field3d_lab.mjs --json",
+  "pass": 5,
+  "fail": 0,
+  "calibrated_mass": 0.49999997392296924,
+  "results": [
+    {
+      "id": "mass-calibration",
+      "title": "惯性质量标定：setAdditionalMass 之后引擎自报多少、实际多少",
+      "formula": "m_eff = F·dt/Δv（单步恒力实测反算）",
+      "engine": {
+        "rb_mass_reported": 0,
+        "one_step_dv": 0.00833333,
+        "requested_additional_mass": 0.5
+      },
+      "checks": [
+        {
+          "metric": "有效质量 (kg)",
+          "measured": 0.5,
+          "analytic": 0.5,
+          "rel_error_pct": 0,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        }
+      ],
+      "lesson": "rb.mass() 报 0（没挂碰撞体时不重算质量属性），但动力学用的是 additionalMass——所以必须以实测为准",
+      "verdict": "pass"
+    },
+    {
+      "id": "bfield-circular-orbit",
+      "title": "匀强磁场中的圆周运动：qv×B 手写施加，圆拟合与解析式对照",
+      "engine": {
+        "steps": 1257,
+        "seconds": 5.2375,
+        "turned_rad": -6.28495,
+        "fit_center": {
+          "x": -0.02721,
+          "y": -3.33314
+        },
+        "fit_radius": 3.35971,
+        "fit_rms": 0.009574,
+        "speed_min": 4.00005,
+        "speed_max": 4.063337
+      },
+      "formula": "r = mv/(|q|B)，T = 2πm/(|q|B)，|v| 守恒（磁力不做功）",
+      "checks": [
+        {
+          "metric": "回旋半径 (m)",
+          "measured": 3.359707,
+          "analytic": 3.333333,
+          "rel_error_pct": 0.791,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "角速度 ω = |Δφ|/t (rad/s)",
+          "measured": 1.19999,
+          "analytic": 1.2,
+          "rel_error_pct": 0.001,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "由累积转角反出的周期 (s)",
+          "measured": 5.236031,
+          "analytic": 5.235987,
+          "rel_error_pct": 0.001,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "轨迹是不是圆（拟合残差 / 半径）",
+          "rms_over_radius_pct": 0.285,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        },
+        {
+          "metric": "速率漂移：离散施加 qv×B 会让 |v| 微增（磁力本不做功）——要用步长律来判，而不是把容差放大",
+          "drift_pct_dt": 1.582,
+          "drift_pct_dt_over_4": 0.394,
+          "rule": "dt/4 的漂移 ≤ 0.5% 且约为 dt 的 1/4（证明是 O(dt) 离散产物）",
+          "verdict": "pass"
+        },
+        {
+          "metric": "旋向：q>0、B 沿 +z 时应为顺时针（turned < 0）",
+          "turned_rad": -6.28495,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "bfield-charge-sign",
+      "title": "电荷符号 ↔ 旋向：q=+1 vs q=−1",
+      "engine": {
+        "turned_pos_q": -3.13997,
+        "turned_neg_q": 3.13997
+      },
+      "checks": [
+        {
+          "metric": "两者符号相反且幅值相当",
+          "verdict": "pass"
+        }
+      ],
+      "formula": "F = qv×B ⇒ 改变 q 的符号就是改变回转方向",
+      "verdict": "pass"
+    },
+    {
+      "id": "bfield-helix-pitch",
+      "title": "螺旋运动：v⊥ 决定半径、v∥ 决定螺距",
+      "engine": {
+        "dz_one_turn": 7.85659,
+        "fit_radius": 3.35971,
+        "turned_rad": -6.28495
+      },
+      "formula": "螺距 = v∥·T（T 用引擎实测的转角周期，不用解析 T），半径仍 = mv⊥/(|q|B)",
+      "checks": [
+        {
+          "metric": "半径 (m)",
+          "measured": 3.359707,
+          "analytic": 3.333333,
+          "rel_error_pct": 0.791,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "一圈沿 B 前进的距离 (m)",
+          "measured": 7.856586,
+          "analytic": 7.854046,
+          "rel_error_pct": 0.032,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "bfield-control-and-stepsize",
+      "title": "对照组与步长敏感度",
+      "engine": {
+        "q0_lateral_deviation_m": 0,
+        "q0_straight_run_m": 20.9509,
+        "fine_radius": 3.35971,
+        "coarse_radius": 3.44138,
+        "coarse_steps_per_turn": 314
+      },
+      "formula": "q=0 ⇒ 直线；半径误差随步长变化 ⇒ 模板必须约束步长",
+      "checks": [
+        {
+          "metric": "q=0 时侧向偏移≈0",
+          "measured_m": 0,
+          "tolerance_m": 1e-9,
+          "verdict": "pass"
+        },
+        {
+          "metric": "细步长在容差内，且粗步长偏差明显更大（说明判据对步长敏感）",
+          "fine_rel_pct": 0.791,
+          "coarse_rel_pct": 3.242,
+          "rule": "fine ≤ 2% 且 coarse > 4×fine",
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    }
+  ]
+}

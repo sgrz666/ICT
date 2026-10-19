@@ -111,9 +111,10 @@
       "npm_component": "source/components/node_modules/matter-js@0.20.0",
       "size_kb": 2085,
       "files": 122,
-      "headless_probe": "pass：Engine.update 步进 60 次（1s）后圆心 y = 421.347（Matter 默认重力尺度需要模板自己标定，见 component-probe.json）",
+      "headless_probe": "pass：Engine.update 步进 60 次（1s）后圆心 y = 421.347（默认重力尺度需模板标定）；抛体已实测对解析式（source/library/projectile-lab-evidence.json，5/5 pass）",
       "blocker_measured": "Matter.Runner 依赖 window.requestAnimationFrame，无头验证必须走 Engine.update",
-      "status": "component_headless_verified"
+      "status": "component_headless_verified",
+      "harness": "node source/library/projectile_lab.mjs --json"
     },
     {
       "id": "three",
@@ -148,12 +149,17 @@
       "commit": "9f638c5384c282a8abd22515973ac7c82ccfbc43",
       "size_kb": 2074,
       "files": 179,
-      "headless_probe": "关键实测：@dimforge/rapier3d 在 Node 里 import 失败（package.json 无 main/exports，ESM 内部用无扩展名导入 → Cannot find module '.../exports'）；@dimforge/rapier3d-compat 可用，init() 后建 World 步进 60 次，1 kg 小球从 y=20 自由落体 1s 后 y = 15.075，独立参考值 20 - 4.905 = 15.095，偏差 0.020 m。⇒ 3D 实验的「改参—跑—读数—对照公式」这条链在本机已跑通。",
+      "headless_probe": "关键实测：@dimforge/rapier3d 在 Node 里 import 失败（package.json 无 main/exports，ESM 内部用无扩展名导入 → Cannot find module '.../exports'）；@dimforge/rapier3d-compat 可用，init() 后建 World 步进 60 次，1 kg 小球从 y=20 自由落体 1s 后 y = 15.075，独立参考值 20 - 4.905 = 15.095，偏差 0.020 m。⇒ 3D 实验的「改参—跑—读数—对照公式」这条链在本机已跑通。 带电粒子在磁场中（脚本每步施加 qv×B）也已实测（source/library/field3d-lab-evidence.json，5/5 pass）。",
       "resource_seeds": {
         "repo_wasm": 0,
         "note": "仓库里实测 0 个 .wasm（builds/ 是 Rust→wasm 的生成模板），可直接用的 wasm 只在 npm 包里 —— 这就是「装 npm 组件」而不是「只克隆仓库」的原因"
       },
-      "status": "component_headless_verified"
+      "status": "component_headless_verified",
+      "harness": "node source/library/field3d_lab.mjs --json",
+      "known_pits": [
+        "无碰撞体时 rb.mass() 报 0，但 setAdditionalMass 的值确实参与动力学（实测 Δv=F·dt/0.5）⇒ 质量必须以单步实测反算，别读自报值",
+        "world.timestep 默认 1/60，要按物理周期细分才能压住离散漂移"
+      ]
     },
     {
       "id": "stellarium-web-engine",
@@ -535,10 +541,16 @@
         "tolerance": "≤1%（无阻力）",
         "independent_reference": "Python 抛体解析式；Matter.js 步进作为第二路对照"
       },
-      "status": "resource_installed",
+      "status": "component_headless_verified",
       "blockers": [
-        "Matter.js 默认重力尺度与教学单位不一致（实测 60 步后 y=421.347），模板必须先标定 scale 才能谈误差验收"
-      ]
+        "缺 catalog/templates/mechanics 下的抛体模板三件套与适配器接线",
+        "Matter 的 velocity 单位是「每个 baseDelta(16.667 ms) 的位移」，手写 positionPrev 会被首步 correction 再乘 dt/base（实测 1/240 s 步长下初速度缩水 4 倍、射程短 75%）⇒ 模板必须走 Body.setVelocity(v/60)",
+        "frictionAir 默认 0.01，不显式置 0 就不是抛体运动（实测同一射程偏离 56.5%）",
+        "残差 0.1–0.3% 来自 Matter 离散式 y_n=½a(n²+n)dt²（比连续式多半步相位），容差不应压到 0.1% 以下"
+      ],
+      "measured_evidence": "source/library/projectile-lab-evidence.json",
+      "measured_note": "matter-js 0.20.0 无头步进 5/5 pass：单位标定 a=g_y×scale×1e6 实测 9.80000 m/s²；平抛 h=20 m/v₀=15 → 飞行时间 2.0182 s vs √(2h/g)=2.0203、射程 30.2733 vs 30.3046；斜抛 45°/20 m/s → 射程 40.7574 vs 40.8163、最高点 10.1746 vs 10.2041；互补角 30°/60° 射程比 0.9991（判据不含 g）；对照组 frictionAir=0.01 时射程偏离解析 56.5%",
+      "harness": "node source/library/projectile_lab.mjs --json"
     },
     {
       "id": "mechanics-newtons-cradle",
@@ -907,10 +919,15 @@
         "tolerance": "≤1%",
         "independent_reference": "解析式 + 独立 Lorentz 积分器"
       },
-      "status": "resource_installed",
+      "status": "component_headless_verified",
       "blockers": [
-        "Rapier 是刚体引擎，不做洛伦兹力——需要用它的自定义力/速度接口手写积分，或自建积分器只用 three 渲染。这条要单独立项，不能当成现成能力"
-      ]
+        "Rapier 本身不做洛伦兹力：这里是脚本每步用「本步开始时的速度」算 qv×B 再 addForce，属显式 Euler ⇒ |v| 会微增（磁力本不做功），实测 dt=1/240 时每圈漂移 1.58%，dt/4 降到 0.394%（与步长成正比）⇒ 模板必须约束步长，或改用它旋方案",
+        "缺 catalog/templates 下这条实验的模板三件套与适配器接线",
+        "渲染侧未接：three 只做了稀疏源码检出，浏览器预览与离线包组装还 pending（无头读数已可用）"
+      ],
+      "measured_evidence": "source/library/field3d-lab-evidence.json",
+      "measured_note": "rapier3d-compat 0.21.0 无头 5/5 pass：质量标定 m_eff=0.500000（rb.mass() 却报 0）；圆周半径 拟合 3.3597 vs 解析 mv/(|q|B)=3.3333、角速度 1.19999 vs 1.2、由累积转角反出的周期 5.23603 vs 5.23599；拟合残差/半径 0.285%（轨迹确实是圆）；q 反号旋向反号；螺旋螺距 7.8566 vs v∥·T=7.8540；对照 q=0 侧向偏移 0",
+      "harness": "node source/library/field3d_lab.mjs --json"
     },
     {
       "id": "astro3d-solar-system-kepler",

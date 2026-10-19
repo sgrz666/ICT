@@ -1,0 +1,169 @@
+{
+  "generated_at": "2026-10-19T04:37:04.020Z",
+  "engine": "matter-js 0.20.0（无头步进，dt=0.004166666666666667s，1 单位 = 1 m）",
+  "run_command": "node source/library/projectile_lab.mjs --json",
+  "pass": 5,
+  "fail": 0,
+  "calibrated_acceleration": 9.799999999997377,
+  "results": [
+    {
+      "id": "unit-calibration",
+      "title": "单位标定：这个配置下 Matter 到底掉多快",
+      "config": {
+        "gravity_y": 9.8,
+        "gravity_scale": 0.000001,
+        "dt_s": 0.004166666666666667
+      },
+      "formula": "a[单位/s²] = gravity.y × gravity.scale × 1e6（由源码 force=m·g·scale 与 velocity+=(F/m)·dt² 合并推出，再用自由落体实测复核）",
+      "engine": {
+        "drop_from": 0,
+        "to": 20.05171874999463,
+        "steps": 485,
+        "seconds": 2.02083
+      },
+      "checks": [
+        {
+          "metric": "有效加速度 (m/s²)",
+          "measured": 9.8,
+          "analytic": 9.8,
+          "abs_error": 0,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "projectile-horizontal",
+      "title": "平抛：h=20 m、v₀=15 m/s 水平",
+      "engine": {
+        "landing": {
+          "t": 2.0182,
+          "x": 30.2733
+        },
+        "apex": {
+          "t": 0,
+          "y": 20
+        }
+      },
+      "formula": "T = √(2h/g)，R = v₀·T，最高点即抛出点",
+      "checks": [
+        {
+          "metric": "飞行时间 (s)",
+          "measured": 2.0182,
+          "analytic": 2.0203,
+          "abs_error": 0.00208,
+          "rel_error_pct": 0.103,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        },
+        {
+          "metric": "射程 (m)",
+          "measured": 30.2733,
+          "analytic": 30.3046,
+          "abs_error": 0.03125,
+          "rel_error_pct": 0.103,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        },
+        {
+          "metric": "最高点高度 (m)",
+          "measured": 20,
+          "analytic": 20,
+          "abs_error": 0,
+          "rel_error_pct": 0,
+          "tolerance_pct": 0.5,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "projectile-oblique-45",
+      "title": "斜抛：v₀=20 m/s、θ=45°",
+      "engine": {
+        "landing": {
+          "t": 2.882,
+          "x": 40.7574
+        },
+        "apex": {
+          "t": 1.4417,
+          "y": 10.1746
+        }
+      },
+      "formula": "T = 2v₀sinθ/g，R = v₀²sin2θ/g，H = v₀²sin²θ/(2g)",
+      "checks": [
+        {
+          "metric": "飞行时间 (s)",
+          "measured": 2.882,
+          "analytic": 2.8862,
+          "abs_error": 0.00417,
+          "rel_error_pct": 0.144,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        },
+        {
+          "metric": "射程 (m)",
+          "measured": 40.7574,
+          "analytic": 40.8163,
+          "abs_error": 0.05894,
+          "rel_error_pct": 0.144,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        },
+        {
+          "metric": "最高点 (m)",
+          "measured": 10.1746,
+          "analytic": 10.2041,
+          "abs_error": 0.02944,
+          "rel_error_pct": 0.289,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "projectile-complementary-angles",
+      "title": "互补角等射程：30° vs 60°（判据不含 g）",
+      "engine": {
+        "range_30": 35.2758,
+        "range_60": 35.3063
+      },
+      "formula": "R = v₀²sin2θ/g ⇒ sin60° = sin120°，与 g 和单位标定无关",
+      "checks": [
+        {
+          "metric": "R(30°)/R(60°)",
+          "measured": 0.9991,
+          "analytic": 1,
+          "abs_error": 0.00086,
+          "rel_error_pct": 0.086,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "projectile-drag-control",
+      "title": "对照组：frictionAir = 0.01（Matter 默认）vs 0",
+      "engine": {
+        "analytic_range": 40.8163,
+        "range_no_drag": 40.7574,
+        "range_default_drag": 17.7558
+      },
+      "checks": [
+        {
+          "metric": "开阻力后的射程偏离要远大于无阻力那组",
+          "dev_no_drag_pct": 0.144,
+          "dev_drag_pct": 56.498,
+          "ratio_required": "> 5×，且开阻力偏离 > 1%",
+          "verdict": "pass"
+        }
+      ],
+      "lesson": "模板若不显式写 frictionAir=0，所谓「抛体」其实在做有阻力运动，解析式对不上却没人报错",
+      "verdict": "pass"
+    }
+  ]
+}

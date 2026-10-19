@@ -30,7 +30,7 @@ node source/components/probe_components.mjs
 
 ## 与上下层的关系
 
-- 目录层：被 [`../library/experiments.json`](../library/experiments.json) 以 `npm_component` 字段引用（校验器会把带 `@版本` 后缀的路径截断后再查盘）。
+- 目录层：被 [`../library/experiments.json`](../library/experiments.json) 以 `npm_component` 字段引用（校验器会把带 `@版本` 后缀的路径截断后再查盘）。这里的两个组件已经各自长出一条「拿引擎跑物理量、拿解析式判对错」的实验线：matter-js ⇒ [`../library/projectile_lab.mjs`](../library/projectile_lab.mjs)（抛体，5/5 pass），rapier3d-compat ⇒ [`../library/field3d_lab.mjs`](../library/field3d_lab.mjs)（带电粒子在磁场中，5/5 pass）。
 - 源码层：three 与 rapier 的仓库克隆在 `../upstream/three/`、`../upstream/rapier-js/`（第三方树内部不写项目侧 README，口径见 [`../upstream/README.md`](../upstream/README.md)），只读参考；这里装的是能直接 import 的产物。
 - 工程层：`code/eduforge` 的 pnpm workspace **不共用**这里的 `node_modules`。真要进工程时按 pnpm 侧重新声明版本，别拿软链或相对路径过来。
 
@@ -38,6 +38,7 @@ node source/components/probe_components.mjs
 
 1. **3D 物理只认 `-compat`**。裸 `@dimforge/rapier3d` 在 Node 里装得上但 import 不了（已实测），适配器一律走 `@dimforge/rapier3d-compat`；浏览器侧才可以用裸包（由打包器解析无扩展名导入）。
 2. **Matter 的 `Runner` 在无头环境不能用**——它要 `window.requestAnimationFrame`（实测报错）。数值验证只能用 `Engine.update(engine, dt)` 手工步进。
-3. **Matter 默认重力尺度不是教学单位**：60 步后 y=421.347 这个数本身就说明需要先标定 scale，否则「误差 ≤1%」这种验收条件是空话。模板里必须先写明单位换算。
-4. 版本只在 `package.json` 钉一次；`experiments.json` 与 README 引用它，不各自另记。
-5. `node_modules/` 不入库（含 three 与 rapier 的许可文本，重装即得）；一旦把某个组件的产物打进离线交付包，要连带把它的 `LICENSE` 复制进去（three = MIT，matter-js = MIT，rapier = Apache-2.0）。
+3. **Matter 默认重力尺度不是教学单位**——但这条已经有实测换算律了：`a[单位/s²] = gravity.y × gravity.scale × 1e6`（自由落体反解校验，配置 9.8×1e-6 实测 9.80000 m/s²，见 [`../library/projectile-lab-evidence.json`](../library/projectile-lab-evidence.json) 的 `unit-calibration`）。另外两个坑同样实测过：Matter 的 `velocity` 单位是「每个 baseDelta(16.667 ms) 的位移」，手写 `positionPrev` 会被首步 `correction = dt/baseDelta` 再乘一次（1/240 s 步长下初速度缩水 4 倍）；`frictionAir` 默认 0.01，不显式置 0 就不是抛体（射程偏离解析 56.5%）。
+4. **Rapier 没挂碰撞体时 `rb.mass()` 报 0**，但 `setAdditionalMass` 的值确实参与动力学（实测单步 Δv = F·dt/0.5）⇒ 质量必须以单步实测反算，别读自报值（[`../library/field3d-lab-evidence.json`](../library/field3d-lab-evidence.json) 的 `mass-calibration`）。
+5. 版本只在 `package.json` 钉一次；`experiments.json` 与 README 引用它，不各自另记。
+6. `node_modules/` 不入库（含 three 与 rapier 的许可文本，重装即得）；一旦把某个组件的产物打进离线交付包，要连带把它的 `LICENSE` 复制进去（three = MIT，matter-js = MIT，rapier = Apache-2.0）。

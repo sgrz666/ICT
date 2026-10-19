@@ -20,8 +20,8 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
 | `ray-optics/` | Ray Optics，Apache-2.0 | `--depth 1` 全仓 | 54,610 KB | 3,241 | 已接通（唯一）；另有 5 项光学验收台 `../library/optics_hall.mjs` 5/5 pass |
 | `myphysicslab/` | myPhysicsLab，Apache-2.0 | `--depth 1` 全仓 | 10,208 KB | 530 | 已实测：`npx tsc` 出 322 个 ESM，无头单摆周期与解析式吻合 |
 | `circuitjs1/` | CircuitJS1，GPL-2.0 | `--depth 1` 全仓（**官方仓是 `pfalstad/circuitjs1`**） | 5,547 KB | 798 | Java 编译已打通（Gradle 8.14.3；8.7 与 Java 23 不兼容）；可运行 dist 仍未产出 |
-| `matter-js/` | Matter.js，MIT | `--depth 1` 全仓 | 2,085 KB | 122 | 无头步进已实测 pass |
-| `rapier-js/` | Rapier JS 绑定，Apache-2.0 | `--depth 1` 全仓 | 2,074 KB | 179 | 仓库内 0 个 .wasm，可用产物走 `../components` |
+| `matter-js/` | Matter.js，MIT | `--depth 1` 全仓 | 2,085 KB | 122 | 无头步进 pass；抛体已对解析式（`../library/projectile_lab.mjs` 5/5） |
+| `rapier-js/` | Rapier JS 绑定，Apache-2.0 | `--depth 1` 全仓 | 2,074 KB | 179 | 仓库内 0 个 .wasm，可用产物走 `../components`；自由落体与带电粒子（脚本每步施加 qv×B）均已对解析式（`../library/field3d_lab.mjs` 5/5） |
 | `three/` | three.js，MIT | `--filter=blob:none` + sparse（src、examples/jsm、build、LICENSE…） | 23,623 KB | 1,514 | 稀疏检出，纯数学已 pass |
 | `stellarium-web-engine/` | Stellarium Web Engine，AGPL-3.0 | `--depth 1` 全仓 | 14,282 KB | 818 | 仓库内 0 个 .wasm，需 Emscripten 构建 |
 | `webots/projects/` | Webots，Apache-2.0 | 只取树 + sparse 检出 `projects/` | 1,016,232 KB | 7,858 | 只装资源（304 世界 / 853 proto），本体未装 |

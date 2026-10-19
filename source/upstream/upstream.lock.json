@@ -327,7 +327,7 @@
     },
     {
       "id": "matter-js",
-      "status": "installed_readonly",
+      "status": "installed_and_headless_verified",
       "display_name": "Matter.js",
       "role": "2D 刚体物理（抛体、斜面、摩擦、碰撞）＋无头对照组",
       "source": {
@@ -345,6 +345,19 @@
         "result": "pass",
         "measured": "Engine.create(gravity y=1) + Bodies.circle(mass 2) 步进 60 次（1 s）后 y = 421.347",
         "pit": "Matter.Runner 依赖 window.requestAnimationFrame，无头直接报错「missing required global window.requestAnimationFrame」⇒ 数值验证只能用 Engine.update 手工步进；且默认重力尺度与教学单位不一致，模板必须先标定 scale"
+      },
+      "known_pits": [
+        "Runner 依赖 window.requestAnimationFrame，无头只能用 Engine.update(engine, dt) 手工步进。",
+        "单位律（实测）：a[单位/s²] = gravity.y × gravity.scale × 1e6，与步长无关；配置 9.8 × 1e-6 自由落体反解得 9.80000 m/s²。默认 gravity={y:1,scale:0.001} ⇒ 1000 单位/s²，直接把「像素」当米用一定错。",
+        "velocity 的单位是「每个 baseDelta(16.667 ms) 的位移」，不是每秒也不是每步；手写 positionPrev 求初速度会被首步 correction = dt/baseDelta 再乘一次（1/240 s 步长下初速度缩水 4 倍、射程短 75%，实测），必须走 Body.setVelocity(v_phys/60)。",
+        "frictionAir 默认 0.01（每步按 dt/baseDelta 衰减），不显式置 0 的「抛体实验」其实是有阻力运动：实测同一场景射程偏离理想解析式 56.5%。",
+        "离散式是 y_n = ½·a·(n²+n)·dt²（比连续 ½at² 多半步相位），所以与连续公式对照时 0.1–0.3% 的残差是方案本身的量级，容差压到 0.1% 以下会把数值格式问题当成物理错误。"
+      ],
+      "lab_verified_2026_10_19": {
+        "harness": "source/library/projectile_lab.mjs",
+        "evidence": "source/library/projectile-lab-evidence.json",
+        "run_command": "node source/library/projectile_lab.mjs --json",
+        "summary": "5/5 pass：平抛 2.0182 s/30.2733 m vs 2.0203/30.3046；斜抛 40.7574/10.1746 vs 40.8163/10.2041；互补角射程比 0.9991；对照组开阻力偏离 56.5%"
       }
     },
     {
@@ -381,8 +394,16 @@
       },
       "known_pits": [
         "无头一律用 -compat 变体；裸包只适合浏览器/打包器环境。",
-        "world.step() 的默认步长要与教学时间对齐（上面用的是引擎默认步长跑 60 次≈1 s，模板里要把 dt 写明确再谈误差）。"
-      ]
+        "world.step() 的默认步长要与教学时间对齐（上面用的是引擎默认步长跑 60 次≈1 s，模板里要把 dt 写明确再谈误差）。",
+        "没挂碰撞体时 rb.mass() 报 0，但 RigidBodyDesc.setAdditionalMass(m, true) 的值确实参与动力学（实测单步 Δv = F·dt/0.5 对应 m=0.5）⇒ 质量必须以单步实测反算，不能读自报值。",
+        "world.timestep 默认 1/60 s；做圆周/轨道类实验要按物理周期细分步长，否则显式施加的向心力会累积成漂移（实测 qv×B 每步施加在 dt=1/240 时 |v| 每圈 +1.58%，dt/4 降到 0.394%，与步长成正比）。"
+      ],
+      "lab_verified_2026_10_19": {
+        "harness": "source/library/field3d_lab.mjs",
+        "evidence": "source/library/field3d-lab-evidence.json",
+        "run_command": "node source/library/field3d_lab.mjs --json",
+        "summary": "5/5 pass：半径拟合 3.3597 vs mv/(|q|B)=3.3333、角速度 1.19999 vs 1.2、转角反出周期 5.23603 vs 5.23599、圆拟合残差/半径 0.285%、q 反号旋向反号、螺旋螺距 7.8566 vs 7.8540、q=0 侧向偏移 0"
+      }
     },
     {
       "id": "three",
