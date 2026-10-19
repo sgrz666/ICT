@@ -597,7 +597,9 @@
         "tolerance": "≤2%",
         "independent_reference": "Python 薄透镜公式（复用 convex-lens 的 ideal_lens_reference 并扩展到负焦距）"
       },
-      "status": "engine_headless_verified",
+      "status": "template_connected",
+      "template": "code/eduforge/catalog/templates/optics/concave-lens",
+      "template_note": "升格依据：下游 code/eduforge/catalog/templates/optics/concave-lens/ 三件套齐备（manifest.yaml 负焦距 + native.json + lesson.md，另加模板目录 README）；这一行原本是 engine_headless_verified（只到物理验证）。",
       "blockers": [
         "catalog/templates/optics/concave-lens 目录已在磁盘（待入库），适配器与验证器还没接负焦距分支"
       ],
