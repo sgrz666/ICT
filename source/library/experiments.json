@@ -175,7 +175,7 @@
         },
         "headless_probe_2026-10-19": {
           "measured_at": "2026-10-19",
-          "tools": ["source/library/phet_headless_probe.mjs", "source/library/phet_a11y_channel_probe.mjs", "source/library/phet_ohms_writeproof.mjs", "source/library/phet_keyboard_channel_probe.mjs"],
+          "tools": ["source/library/phet_headless_probe.mjs", "source/library/phet_a11y_channel_probe.mjs", "source/library/phet_ohms_writeproof.mjs", "source/library/phet_keyboard_channel_probe.mjs", "source/library/phet_a11y_enable_probe.mjs"],
           "evidence": ["source/library/phet-headless-probe.json", "source/library/phet-a11y-channel-probe.json", "source/library/phet-ohms-writeproof.json", "source/library/phet-keyboard-channel-probe.json"],
           "offline_boots": "13/13（无头 chromium 直开 file://，window.phet 命名空间齐全）",
           "sim_body_clean": "13/13 —— 之前报的「0/13 干净」是仪器假阴性：报错全部来自发布包内嵌的 Cloudflare 遥测桩（file:///cdn-cgi/rum、sendBeacon 只允许 HTTP(S)），不是仿真本体",
@@ -184,6 +184,7 @@
           "a11y_readable_values": "默认 6/13 能从 [aria-valuenow] 读到数值（ohms-law 4.5 V / 500 Ω、geometric-optics 1.5 折射率、wave-interference 0.625、energy-skate 62.5 / 0.05、circuit-construction-kit-dc 1e-10 / 1e-4、gas-properties 全 0），其余 7 只一个都读不到",
           "a11y_writable": "ohms-law 1/1 闭环成立：focus 无障碍 INPUT（实测 51×253 有尺寸）+ 方向键把电压 4.5→6 V、电阻 500→560 Ω，仿真自己念出的电流与 I=V/R 对账 6/6 pass（V 档 2/6/9 V × 500 Ω → 4/12/18 mA 逐位相同；R 档 320/980/220 Ω × 9 V → 28.1/9.2/40.9 mA vs 解析 28.125/9.184/40.909，最大 0.18% = 画面显示位数）；另外 5 只同类 INPUT 的 rect 是 0×0，focus 不进去，换「点画布中心」与「关欢迎屏 + 走 30 步 Tab 环」两条路也拿不到带 aria-valuenow 的焦点元素 ⇒ 判 no_focusable_value_target 5/5",
           "verdict_by_tier": ["展示级：13/13 离线能起、能换屏换语言", "可读级：6/13 默认能读到物理量数值", "可写级：1/13（ohms-law）实测可用无障碍层改参并与解析式对账", "API 级：0/13 有可调用 PhET-iO"],
+          "enable_switch": "48 次加载逐只试过 ?a11y=visible/label/sound、?accessibility=true、?fuzz=false 等候选开关：没有一只是被参数打开的（0×0 恒在），写通路仍 1/13 ⇒ 别再假设「一个开关整批点亮」。副产品：已知参数给非法值会让仿真直接不起（?fuzz=false 打死 6/6），未知参数才被忽略。",
           "not_claimed": "不写「PhET 不支持键盘」——本轮只证明了我们的探针没打开那 5 只的键盘写通路（Tab 环里只有无标签的 2×2 / 7×3 像素 BUTTON）",
           "instrument_lessons": ["结论文案要由实测派生，第一版预先写死「13 只都拿不到接口」而实测冒出 7 只带 window.phetio", "报错按加载次数归账，?screens=2 引发的错误记在探针头上", "画面对照要排掉『变成报错页』", "动画仿真不按键也在变画，改画不能当驱动证据", "单位正则要同时收 mA 与 milliamps，否则明明成立的写通路会被判 FAIL", "page.evaluate 要传函数引用，写成 TEXT() 会在 Node 侧执行，5 只全报 ReferenceError"]
         },
@@ -1275,6 +1276,7 @@
     "phet_a11y_channel_probe": "source/library/phet-a11y-channel-probe.json",
     "phet_ohms_writeproof": "source/library/phet-ohms-writeproof.json",
     "phet_keyboard_channel_probe": "source/library/phet-keyboard-channel-probe.json",
+    "phet_a11y_enable_probe": "source/library/phet-a11y-enable-probe.json",
     "fetch_logs": [
       "source/upstream/fetch-log.tsv",
       "source/upstream/fetch-phet-log.tsv",

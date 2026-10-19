@@ -1,0 +1,897 @@
+{
+  "measured_at": "2026-10-19T09:15:24.655Z",
+  "tool": "source/library/phet_a11y_enable_probe.mjs",
+  "rows": [
+    {
+      "sim": "ohms-law",
+      "query": "(基线)",
+      "qp_keys_a11": [
+        "a11y",
+        "accessibility",
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest",
+        "playbackInputEventLog",
+        "recordInputEventLog"
+      ],
+      "qp_total": 62,
+      "peers": 2,
+      "peers_with_size": 2,
+      "peer_display": [
+        "block/visible/51",
+        "block/visible/51"
+      ],
+      "first_focusable": true,
+      "write_test": {
+        "before": "4.5",
+        "after": "6",
+        "changed": true
+      }
+    },
+    {
+      "sim": "ohms-law",
+      "query": "?a11y=visible",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "ohms-law",
+      "query": "?a11y=label",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "ohms-law",
+      "query": "?a11y=sound",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "ohms-law",
+      "query": "?accessibility=true",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "ohms-law",
+      "query": "?supportsMultipleSim=visible",
+      "qp_keys_a11": [
+        "a11y",
+        "accessibility",
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest",
+        "playbackInputEventLog",
+        "recordInputEventLog"
+      ],
+      "qp_total": 62,
+      "peers": 2,
+      "peers_with_size": 2,
+      "peer_display": [
+        "block/visible/51",
+        "block/visible/51"
+      ],
+      "first_focusable": true,
+      "write_test": {
+        "before": "4.5",
+        "after": "6",
+        "changed": true
+      }
+    },
+    {
+      "sim": "ohms-law",
+      "query": "?fuzz=false",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "ohms-law",
+      "query": "?peak=0",
+      "qp_keys_a11": [
+        "a11y",
+        "accessibility",
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest",
+        "playbackInputEventLog",
+        "recordInputEventLog"
+      ],
+      "qp_total": 62,
+      "peers": 2,
+      "peers_with_size": 2,
+      "peer_display": [
+        "block/visible/51",
+        "block/visible/51"
+      ],
+      "first_focusable": true,
+      "write_test": {
+        "before": "4.5",
+        "after": "6",
+        "changed": true
+      }
+    },
+    {
+      "sim": "geometric-optics",
+      "query": "(基线)",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 78,
+      "peers": 7,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "geometric-optics",
+      "query": "?a11y=visible",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 78,
+      "peers": 7,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "geometric-optics",
+      "query": "?a11y=label",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 78,
+      "peers": 7,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "geometric-optics",
+      "query": "?a11y=sound",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 78,
+      "peers": 7,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "geometric-optics",
+      "query": "?accessibility=true",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 78,
+      "peers": 7,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "geometric-optics",
+      "query": "?supportsMultipleSim=visible",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 78,
+      "peers": 7,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "geometric-optics",
+      "query": "?fuzz=false",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "geometric-optics",
+      "query": "?peak=0",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 78,
+      "peers": 7,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "wave-interference",
+      "query": "(基线)",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 95,
+      "peers": 45,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "wave-interference",
+      "query": "?a11y=visible",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 95,
+      "peers": 45,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "wave-interference",
+      "query": "?a11y=label",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 95,
+      "peers": 45,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "wave-interference",
+      "query": "?a11y=sound",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 95,
+      "peers": 45,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "wave-interference",
+      "query": "?accessibility=true",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 95,
+      "peers": 45,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "wave-interference",
+      "query": "?supportsMultipleSim=visible",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 95,
+      "peers": 45,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "wave-interference",
+      "query": "?fuzz=false",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "wave-interference",
+      "query": "?peak=0",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 95,
+      "peers": 45,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "query": "(基线)",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 97,
+      "peers": 5,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "query": "?a11y=visible",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 97,
+      "peers": 5,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "query": "?a11y=label",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 97,
+      "peers": 5,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "query": "?a11y=sound",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 97,
+      "peers": 5,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "query": "?accessibility=true",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 97,
+      "peers": 5,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "query": "?supportsMultipleSim=visible",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 97,
+      "peers": 5,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "query": "?fuzz=false",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "query": "?peak=0",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 97,
+      "peers": 5,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "query": "(基线)",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 94,
+      "peers": 2,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "query": "?a11y=visible",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 94,
+      "peers": 2,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "query": "?a11y=label",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 94,
+      "peers": 2,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "query": "?a11y=sound",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 94,
+      "peers": 2,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "query": "?accessibility=true",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 94,
+      "peers": 2,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "query": "?supportsMultipleSim=visible",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 94,
+      "peers": 2,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "query": "?fuzz=false",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "query": "?peak=0",
+      "qp_keys_a11": [
+        "a11yStringTest",
+        "fuzzMouse",
+        "fuzzTouch",
+        "interruptMultitouch",
+        "mobileA11yTest",
+        "phetioInstrumentA11yStrings",
+        "preventMultitouch"
+      ],
+      "qp_total": 94,
+      "peers": 2,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "gas-properties",
+      "query": "(基线)",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 88,
+      "peers": 18,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "gas-properties",
+      "query": "?a11y=visible",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 88,
+      "peers": 18,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "gas-properties",
+      "query": "?a11y=label",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 88,
+      "peers": 18,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "gas-properties",
+      "query": "?a11y=sound",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 88,
+      "peers": 18,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "gas-properties",
+      "query": "?accessibility=true",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 88,
+      "peers": 18,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "gas-properties",
+      "query": "?supportsMultipleSim=visible",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 88,
+      "peers": 18,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    },
+    {
+      "sim": "gas-properties",
+      "query": "?fuzz=false",
+      "qp_keys_a11": [],
+      "qp_total": 0,
+      "peers": 0,
+      "peers_with_size": 0,
+      "peer_display": [],
+      "first_focusable": null
+    },
+    {
+      "sim": "gas-properties",
+      "query": "?peak=0",
+      "qp_keys_a11": [
+        "fuzzMouse",
+        "fuzzTouch",
+        "mobileA11yTest"
+      ],
+      "qp_total": 88,
+      "peers": 18,
+      "peers_with_size": 0,
+      "peer_display": [
+        "none/visible/0",
+        "none/visible/0",
+        "none/visible/0"
+      ],
+      "first_focusable": false
+    }
+  ],
+  "summary": {
+    "loads": 48,
+    "any_variant_expanded_the_inputs": 3,
+    "any_variant_made_it_focusable": 3,
+    "any_variant_written": 3
+  }
+}

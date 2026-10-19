@@ -671,6 +671,7 @@
           "other_five": "同一条定点 focus 在 geometric-optics / wave-interference / energy-skate-park-basics / circuit-construction-kit-dc / gas-properties 上全部 not-focusable：这些 [aria-valuenow] 的 INPUT rect 是 0×0。换两条替代路（点画布中心、关欢迎屏后走 30 步 Tab 环）也拿不到带 aria-valuenow 的焦点元素，Tab 环里只有无标签的 2×2 / 7×3 像素 BUTTON ⇒ 5/5 判 no_focusable_value_target。这句只写「我们的探针没打开键盘写通路」，不写「PhET 不支持键盘」。",
           "verdict": "无障碍层可以当写通路，但逐只不同（1/6 成立），不能当通用能力；给 Agent 用之前要逐只过这道定点测试"
         },
+        "enable_switch_tested": "「是不是缺一个开关」单独量过：48 次加载（6 只 × 8 种 URL），候选 ?a11y=visible/label/sound、?accessibility=true、?fuzz=false、?supportsMultipleSim=visible、?peak=0 —— 没有任何一只的 0×0 input 被打开（peers_with_size 恒 0），写通路仍是 1/13。副产品是一条可复用事实：已知参数给非法值会让仿真直接不起（?fuzz=false 打死 6/6；?a11y=* 打死声明 a11y 键的 ohms-law），未知参数才被忽略 ⇒ 剥 URL 参数时要小心。同一趟里 ohms-law 的 focus+方向键写通路第三次复现（4.5→6 V）。工具 source/library/phet_a11y_enable_probe.mjs，证据 source/library/phet-a11y-enable-probe.json。",
         "instrument_lessons": [
           "结论文案不许预先写死：第一版把「13 只都拿不到接口」写在 summary.conclusion 里，实测却冒出 7 只带 window.phetio —— 现在 conclusion 由实测计数派生。",
           "报错要按「哪一次加载」归账：?screens=2 造成的 invalid screen index 记到探针头上，不记到仿真头上。",
