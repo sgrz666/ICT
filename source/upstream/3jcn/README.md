@@ -48,3 +48,15 @@
 * 由此必须**更正上一轮那句话**：「本地镜像与真站逐哈希一致」只在**有网**前提下成立；同理，批量分档那 31 页的运行时结论也都是在有网条件下测的，凡 three.js 走 CDN 的页面，其「画面可驱动」都要附一条「需联网」。
 * 还记一条判据偏松：断网那次 5/5 滑块仍判 `agent_writable_and_observable`，但 canvas 是 0 —— 说明驱动台把「DOM 区域画面变了」也当成画面证据。这条判据要收紧成「canvas 存在且其像素变」，否则会把「页面控件有反应」误报成「3D 场景被驱动」。
 
+## 九 pass（同日）：把上一条的两件事都做了，结果**根因不在我猜的那处**
+
+新增 `diagnose_offline_load.mjs`（收控制台 + `requestfailed` + 非 2xx + `canvas`/WebGL 实况）。之所以必须新增这一支：驱动台只收 `pageerror`，而 **ES module 的 import 失败在 Chromium 里进控制台、不抛页面异常**，于是「canvas 0 + 异常 0 条」是一个完全哑的结论——说不清缺哪一个文件。
+
+* **打脸第一条：上一轮那条修法（把 CDN 的 three 代理进 `_vendor/`）本身就是坏的。** 诊断只抓到一条 404：`_vendor/three.core.js`。threejs.org 如今的 `build/three.module.js` 是**拆分产物**（首行就 `import … from './three.core.js'`），只搬主文件必然缺半条依赖；而且它 662,772 B，站方自带 `jsm/three.module.js` 1,145,222 B（0 处 core 引用）——版本不同、实例不同。⇒ 正确改法不是补 `three.core.js`，而是把 `jsm/FontLoader.js` 里那条 CDN specifier **改指包内自带那一份**（`assemble_3jcn_offline.py` 里 `three_cdn_repointed_to_local`）。
+* **第二条是 ZIP 交付的地雷**：`jsm/RoundedBoxGeometry.js` 写的是 `from '/jsm/three.module.js'`（站点根绝对路径）。「包=站点根」时刚好碰对，挂到任何子目录下必 404 ⇒ 按每个文件自己的深度改成相对（`root_absolute_specifiers_relabilized = 2`）。
+* **第三条又是「路径拼在 JS 字符串里」那一类**（与 `scene.bin` 同坑，静态正则 BFS 看不见）：模块链修好、canvas 起来之后，断网仍剩 1 条被拦——`https://threejs.org/examples/fonts/droid/droid_serif_bold.typeface.json`（`FontLoader().load("…")` 的实参，25 页共用，缺它 3D 场景能渲染但立体文字出不来）⇒ 代理进 `_vendor/` 后归零。
+* 构建实况（`3jcn-offline-build.json`）：扫描 83 个文件、改写跨域引用 155 处、其中非 HTML 1 处、three 改指包内 1 处、根绝对改相对 2 处、代理 4 个 CDN 文件、仍剩跨域 283 种（正文 `<a href>` 外链，不是运行依赖）。
+* **断网驱动复跑（`--offline`，只放行 127.0.0.1）+ 画面判据收紧**（`shot()` 只取 `<canvas>` 元素像素；没有 canvas 就记 `no-canvas-…` 且 `usable=false`，整页变化不再算画面证据）：`Phyc140/apparent_weight_exp.html` canvas=1（1280×820，WebGL 可用）、**被拦（运行期/总）= 0/0**、页面异常与控制台错各 0。五只具名滑块连跑两遍：**第一遍 4/5、第二遍 5/5**，其中 `tempMetalSlider` 一遍「改回原值画面没回基线」、一遍回了 ⇒ 记作**边界样本**，不写「5/5 稳定」。4 只（`posSlider`、`massMetalSlider`、`massLiquidSlider`、`tempLiquidSlider`）两遍都稳定通过「回读一致 + 同值再派发事件画面不变（对照组）+ canvas 像素变 + 改回原值回基线帧」。温度那一条的物理成因还没查：这页金属温度是随时间积分的量，复原本来就可能不回原帧，与平面镜那只「要靠页面 Reset 才回得去」可能是同一类现象。
+* 驱动台另外补了两处自查：`--offline` 的「被拦」按运行期/排版分档（`.css`/`.ico` 拦掉只是排版塌，`.js/.json/.gltf/.png` 拦掉才是场景出不来），以及新增控制台与 `requestfailed` 采集——上一版这两样都没有，所以「0 异常」被误读过一次。
+* **仍未做的一半**照旧：这一页 `readout_tokens` 为空（读数画在 3D 文字里），「Agent 改参 → 解析式对账」还是空白，状态只到 **UI 可驱动 + canvas 可观测**，不标 `engine_*_verified`。证据 `../../library/jcn3-apparent-weight-offline.json`、`diag-offline-neton.json`、`diag-offline-netoff.json`。
+

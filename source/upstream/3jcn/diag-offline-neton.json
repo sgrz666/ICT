@@ -1,0 +1,40 @@
+{
+  "measured_at": "2026-10-19T10:44:27.878Z",
+  "url": "http://127.0.0.1:8123/Phyc140/apparent_weight_exp.html",
+  "offline": false,
+  "tool": "diagnose_offline_load.mjs",
+  "probe": {
+    "canvas_count": 0,
+    "canvas_sizes": [],
+    "module_scripts": 1,
+    "range_sliders": 5,
+    "body_chars": 259,
+    "body_head": "Apparent Weight Lower the Metal: -10 15 Metal: Aluminum Copper Unknown Mass (g): 300 700 Temperature (掳C): 10 100 Reset Apparent Weight: Liquid: Coconut Oil Oli",
+    "webgl": true,
+    "three_global": "undefined"
+  },
+  "console_total": 1,
+  "module_errors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+      "at": "http://127.0.0.1:8123/_vendor/three.core.js:0"
+    }
+  ],
+  "other_console": [],
+  "request_failed": [
+    {
+      "url": "http://127.0.0.1:8123/_vendor/three.core.js",
+      "why": "net::ERR_ABORTED"
+    }
+  ],
+  "response_errors": [
+    {
+      "url": "http://127.0.0.1:8123/_vendor/three.core.js",
+      "status": 404
+    }
+  ],
+  "blocked_external": 0,
+  "blocked_sample": [],
+  "verdict": "NO_CANVAS_WITH_MODULE_ERRORS"
+}

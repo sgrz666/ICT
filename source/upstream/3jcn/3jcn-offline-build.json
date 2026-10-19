@@ -1,15 +1,18 @@
 {
-  "built_at": "2026-10-19T18:35:08+0800",
+  "built_at": "2026-10-19T18:47:40+0800",
   "tool": "source/upstream/3jcn/assemble_3jcn_offline.py",
   "site_tree": "source/upstream/3jcn/site",
   "out_tree": "source/upstream/3jcn/offline",
-  "html_pages": 61,
-  "cdn_refs_rewritten": 135,
+  "files_scanned": 83,
+  "cdn_refs_rewritten": 155,
+  "rewrites_outside_html": 1,
+  "three_cdn_repointed_to_local": 1,
+  "root_absolute_specifiers_relabilized": 2,
   "vendored": {
     "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js": "_vendor/jquery.min.js",
     "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js": "_vendor/bootstrap.min.js",
     "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css": "_vendor/bootstrap.min.css",
-    "https://threejs.org/build/three.module.js": "_vendor/three.module.js"
+    "https://threejs.org/examples/fonts/droid/droid_serif_bold.typeface.json": "_vendor/droid_serif_bold.typeface.json"
   },
   "residual_cross_origin_refs": [
     "http://daydanpiano.edu.vn/san-pham-1211/hoc-dan-voi-3jcn.html",
@@ -296,6 +299,6 @@
     "https://www.saip.org.za/caps-aligned-virtual-experiments/#:~:text=Open%20Physics%20Education%20Resource%20%E2%80%93%203JCN%20Physics%20Simulation",
     "https://www.youtube.com/embed/kw1ddBjA4NU"
   ],
-  "out_bytes": 30064462,
+  "out_bytes": 29886328,
   "note": "offline/ 与 site/、pages/、demos/ 同规被 .gitignore 挡住：整棵树是第三方 HTML 与三方库副本，不入库。"
 }

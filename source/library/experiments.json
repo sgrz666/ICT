@@ -1286,6 +1286,10 @@
     "jcn3_offline_gaps": "source/upstream/3jcn/3jcn-offline-gaps.json",
     "jcn3_headless_lab_weight": "source/library/jcn3-headless-lab-evidence-weight.json",
     "jcn3_batch_probe": "source/library/jcn3-batch-probe.json",
+    "jcn3_apparent_weight_offline": "source/library/jcn3-apparent-weight-offline.json",
+    "jcn3_offline_diagnosis_neton": "source/upstream/3jcn/diag-offline-neton.json",
+    "jcn3_offline_diagnosis_netoff": "source/upstream/3jcn/diag-offline-netoff.json",
+    "jcn3_offline_build": "source/upstream/3jcn/3jcn-offline-build.json",
     "fetch_logs": [
       "source/upstream/fetch-log.tsv",
       "source/upstream/fetch-phet-log.tsv",

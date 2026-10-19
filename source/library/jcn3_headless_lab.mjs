@@ -65,15 +65,26 @@ p.on("pageerror", (e) => errs.push(String(e).slice(0, 140)));
 // --offline：把所有非本机的请求掐掉，用来证明「离线真的能跑」而不是「本机恰好还有网」。
 // A/B 就在这条开关上：同一只页面对 site/（仍指 CDN）与 offline/（CDN 已落到 _vendor/）各跑一遍。
 const blocked = [];
+// 「被拦」要分档，不能压成一个数：字体 CSS 与 ico 拦掉只是排版塌，js/json/gltf 拦掉是场景出不来。
+// 压成一个「blocked=1」会让人以为离线包还有运行期缺口（或反过来，把真缺口当成无关噪音）。
+const RUNTIME_EXT = /\.(?:js|mjs|json|gltf|glb|png|jpg|jpeg|mp3|wav)(\?|$)/i;
+const cosmetic = [];
 if (argv.includes("--offline")) {
   report.network = "blocked_except_localhost";
   await p.route("**/*", (route) => {
-    const host = new URL(route.request().url()).hostname;
+    const u = route.request().url();
+    const host = new URL(u).hostname;
     if (host === "127.0.0.1" || host === "localhost") return route.continue();
-    blocked.push(route.request().url().slice(0, 90));
+    blocked.push(u.slice(0, 120));
+    if (!RUNTIME_EXT.test(new URL(u).pathname)) cosmetic.push(u.slice(0, 120));
     return route.abort();
   });
 }
+// ES module 的 import 失败**不抛 pageerror**，只进控制台 —— 上一版只收 pageerror，
+// 于是「canvas 0」这一条是彻底哑的（0 个异常 + 0 个读数，说不清缺哪个文件）。
+const consoleErrors = [];
+p.on("console", (m) => { if (m.type() === "error") consoleErrors.push(String(m.text()).slice(0, 160)); });
+p.on("requestfailed", (r) => consoleErrors.push("requestfailed " + r.url().slice(0, 110) + " " + String(r.failure()?.errorText).slice(0, 40)));
 try {
   const target = urlArg || pathToFileURL(path.join(ROOT, demo)).href;
   report.target = target;
@@ -84,7 +95,15 @@ try {
   // 3D 页面的物理后果多半画在 canvas 上而不是写在 DOM 文本里，所以画面是这一类的可观测量。
   // 但画面能当判据的前提是**它自己不动**：先连取两帧不作任何操作做对照组，两帧一致才允许用画面差异当证据
   // （PhET 那轮就是栽在「动画仿真不按键也在变画」上，同一课不能摔第二次）。
-  const shot = async () => createHash("sha1").update(await p.screenshot()).digest("hex").slice(0, 12);
+  // 画面证据只认 canvas 自己的像素：上一版取整页截图，于是断网那次明明 canvas=0，
+// 「DOM 区域变了」也能被算成「画面跟着参数变」，把「控件有反应」误报成「3D 场景被驱动」。
+const hasCanvas = async () => p.evaluate(() => document.querySelectorAll("canvas").length);
+const shot = async () => {
+  const n = await hasCanvas();
+  if (!n) return "no-canvas-" + createHash("sha1").update(await p.screenshot()).digest("hex").slice(0, 8);
+  const el = await p.$("canvas");
+  return "canvas-" + createHash("sha1").update(await el.screenshot()).digest("hex").slice(0, 10);
+};
   const shotA = await shot();
   await p.waitForTimeout(1200);
   const shotB = await shot();
@@ -125,7 +144,7 @@ try {
     row.readout_changed = fingerprint(after) !== fingerprint(base);
     const shotAfter = await shot();
     // 画面通道只在「不操作时两帧一致」的前提下计分，并且要求改回原值后画面也回来（双向才排掉噪声）
-    row.picture = { baseline: shotA, after_write: shotAfter, changed: shotAfter !== shotA, usable: report.render_control.render_is_static };
+    row.picture = { baseline: shotA, after_write: shotAfter, changed: shotAfter !== shotA, usable: report.render_control.render_is_static && !String(shotAfter).startsWith("no-canvas") };
     row.text_changed = after.text.slice(0, 200) !== base.text.slice(0, 200);
 
     // reverse：改回原值，读数应回到基线那一组
@@ -175,7 +194,10 @@ try {
   await browser.close();
 }
 report.blocked_external_requests = blocked.length;
+report.blocked_runtime_requests = blocked.length - cosmetic.length;
+report.blocked_cosmetic_sample = cosmetic.slice(0, 4);
 report.blocked_sample = blocked.slice(0, 6);
+report.console_errors = consoleErrors.slice(0, 8);
 const c = (f) => report.checks.filter(f).length;
 report.summary = {
   sliders: report.checks.length,
@@ -185,4 +207,7 @@ report.summary = {
 };
 report.result = report.summary.agent_writable_and_observable > 0 ? "PASS" : report.checks.length ? "FAIL" : "ERROR";
 fs.writeFileSync(path.join(ROOT, out), JSON.stringify(report, null, 2), "utf-8");
-console.log("\n汇总:", JSON.stringify(report.summary), report.result, "| 页面异常", errs.length, "\n写入", out);
+console.log("\n汇总:", JSON.stringify(report.summary), report.result,
+  "| 页面异常", errs.length, "| 控制台错", consoleErrors.length,
+  "| 被拦(运行期/总)", report.blocked_runtime_requests + "/" + blocked.length,
+  "| canvas 基线", report.baseline?.has_canvas, "\n写入", out);

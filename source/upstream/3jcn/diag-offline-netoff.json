@@ -1,0 +1,75 @@
+{
+  "measured_at": "2026-10-19T10:46:19.047Z",
+  "url": "http://127.0.0.1:8123/Phyc140/apparent_weight_exp.html",
+  "offline": true,
+  "tool": "diagnose_offline_load.mjs",
+  "probe": {
+    "canvas_count": 1,
+    "canvas_sizes": [
+      "1280x820 css=1280x820"
+    ],
+    "module_scripts": 1,
+    "range_sliders": 5,
+    "body_chars": 259,
+    "body_head": "Apparent Weight Lower the Metal: -10 15 Metal: Aluminum Copper Unknown Mass (g): 300 700 Temperature (掳C): 10 100 Reset Apparent Weight: Liquid: Coconut Oil Oli",
+    "webgl": true,
+    "three_global": "undefined"
+  },
+  "console_total": 8,
+  "module_errors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED",
+      "at": "https://threejs.org/examples/fonts/droid/droid_serif_bold.typeface.json:0"
+    }
+  ],
+  "other_console": [
+    {
+      "type": "warning",
+      "text": "WebGL: CONTEXT_LOST_WEBGL: loseContext: context lost",
+      "at": "http://127.0.0.1:8123/Phyc140/apparent_weight_exp.html:0"
+    },
+    {
+      "type": "log",
+      "text": "THREE.WebGLRenderer: Context Lost.",
+      "at": "http://127.0.0.1:8123/jsm/three.module.js:26858"
+    },
+    {
+      "type": "log",
+      "text": "THREE.WebGLRenderer: Context Restored.",
+      "at": "http://127.0.0.1:8123/jsm/three.module.js:26866"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x2d1c00c14c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "at": "http://127.0.0.1:8123/Phyc140/apparent_weight_exp.html:0"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x2d1c00c14c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "at": "http://127.0.0.1:8123/Phyc140/apparent_weight_exp.html:0"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x2d1c00c14c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "at": "http://127.0.0.1:8123/Phyc140/apparent_weight_exp.html:0"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x2d1c00c14c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+      "at": "http://127.0.0.1:8123/Phyc140/apparent_weight_exp.html:0"
+    }
+  ],
+  "request_failed": [
+    {
+      "url": "https://threejs.org/examples/fonts/droid/droid_serif_bold.typeface.json",
+      "why": "net::ERR_FAILED"
+    }
+  ],
+  "response_errors": [],
+  "blocked_external": 1,
+  "blocked_sample": [
+    "https://threejs.org/examples/fonts/droid/droid_serif_bold.typeface.json"
+  ],
+  "verdict": "CANVAS_PRESENT"
+}
