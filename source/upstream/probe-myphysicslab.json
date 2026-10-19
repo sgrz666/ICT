@@ -1,0 +1,25 @@
+{
+  "engine": "myphysicslab / PendulumSim（上游自己的 ODE 积分，不是我们的公式）",
+  "result": "pass",
+  "params": {
+    "length_m": 1,
+    "gravity": 9.8,
+    "theta0_rad": 0.1,
+    "dt_s": 0.001
+  },
+  "en_keys_available": "DRIVE_AMPLITUDE,ANGLE,ANGULAR_ACCEL,ANGULAR_VELOCITY,DAMPING,DRIVE_FREQUENCY,GRAVITY,LENGTH,LIMIT_ANGLE,MASS,TIME",
+  "zero_crossings": 15,
+  "measured_period_s": 2.00835,
+  "theoretical_period_small_angle_s": 2.00709,
+  "theoretical_period_large_angle_s": 2.00834,
+  "rel_error_vs_small_angle_pct": 0.0625,
+  "rel_error_vs_large_angle_pct": 0,
+  "note": "同向过零间隔即一个完整周期（上一版误乘 2，得到 2T）",
+  "period_series": [
+    2.00835,
+    2.00835,
+    2.00835,
+    2.00835
+  ],
+  "sim_time_end": 30.00000000001368
+}

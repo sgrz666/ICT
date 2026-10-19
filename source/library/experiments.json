@@ -7,7 +7,8 @@
     "template_connected": "引擎已接通 + 模板三件套齐备 + 已实测出离线包（当前全库只有 optics-convex-lens 这一条）",
     "resource_installed": "上游源码已在 source/upstream 落盘，但没有适配器，Agent 还改不动",
     "component_headless_verified": "组件已装且在本机 Node 里真跑通了物理量（见 source/components/component-probe.json）",
-    "reference_only": "只作为资源候选登记，本轮没装（原因写在 not_installed）"
+    "reference_only": "只作为资源候选登记，本轮没装（原因写在 not_installed）",
+    "engine_headless_verified": "上游引擎已构建出能在本机 Node 里 import 的产物，并用它自己的积分器跑出一个可与独立解析式对照的物理量"
   },
   "engines": [
     {
@@ -55,8 +56,10 @@
           "source/upstream/myphysicslab/src/sims/engine2D/MultipleCollisionApp.html"
         ]
       },
-      "blocker_measured": "仓库只有 .ts 源（src 下 .js 实测 0 个），跑之前必须先过 TypeScript 构建；构建命令未跑，标 pending",
-      "status": "resource_installed"
+      "status": "engine_headless_verified",
+      "build_state": "已实测：npx tsc（typescript 5.9.3）exit 0 → build/ 下 322 个 ESM .js；需在 build/ 放 {\"type\":\"module\"} 并预置 MPL_BUILD_TIME / MPL_LOCALE 两个编译期全局",
+      "headless_probe": "pass：PendulumSim L=1 m、g=9.8、θ0=0.1 → 周期 2.00835 s；一级大角度解析值 2.00834 s（偏差 0.0000%），小角度值 2.00709 s（偏差 +0.0625%，正是 θ0²/16 的修正量）",
+      "known_pit": "枚举键是 ANGULAR_VELOCITY 不是 ANGLE_VELOCITY；推进用 advance.advance(dt) 不是 step(dt)；默认 damping=0.5 且有驱动，做无阻尼摆要显式置零"
     },
     {
       "id": "circuitjs1",
@@ -90,7 +93,9 @@
       "libs_size_kb": 55726,
       "sims_installed": 20,
       "sims_with_source": 19,
-      "sims_stub": ["circuit-construction-kit-common"],
+      "sims_stub": [
+        "circuit-construction-kit-common"
+      ],
       "sims_size_kb": 96804,
       "critical_finding": "PhET 已把各仿真仓库的 main 分支空心化：main 只剩 README.md + doc/（实测 3~5 个文件），README 明说源码收进 monorepo 且「暂不公开」。可安装的完整源码在 X.Y 发行分支上，故 phet/sims/* 一律按最新发行分支浅克隆（fetch_phet_sims.py 会自动挑版本号最大的分支）。",
       "agent_control_surface_pending": "PhET 没有统一 JSON 改参接口；可改参数要从各 sim 的 *QueryParameters.ts 与 model 类里逐个提取，属后续适配工作。",
@@ -194,17 +199,37 @@
       "domain": "光学",
       "form": "2D",
       "priority": "P0",
-      "engines": ["ray-optics"],
-      "seed": ["source/upstream/ray-optics/data/galleryScenes/images-formed-by-two-mirrors.json", "source/upstream/ray-optics/data/galleryScenes/spherical-lens-and-mirror.json"],
+      "engines": [
+        "ray-optics"
+      ],
+      "seed": [
+        "source/upstream/ray-optics/data/galleryScenes/images-formed-by-two-mirrors.json",
+        "source/upstream/ray-optics/data/galleryScenes/spherical-lens-and-mirror.json"
+      ],
       "agent_params": [
-        {"name": "mirror.angle", "kind": "scene_obj rotation"},
-        {"name": "object.point_position", "kind": "PointSource x/y"},
-        {"name": "ray_count", "kind": "Beam 发散角与密度"}
+        {
+          "name": "mirror.angle",
+          "kind": "scene_obj rotation"
+        },
+        {
+          "name": "object.point_position",
+          "kind": "PointSource x/y"
+        },
+        {
+          "name": "ray_count",
+          "kind": "Beam 发散角与密度"
+        }
       ],
       "readback": "Detector 读数 + 像点坐标（由光线反向延长交点求得）",
-      "acceptance": {"formula": "像与物关于镜面对称：d_image = d_object，连线垂直镜面", "tolerance": "≤1% 或 0.5 个场景单位", "independent_reference": "自建几何参考（反射定律作图），不与引擎同源"},
+      "acceptance": {
+        "formula": "像与物关于镜面对称：d_image = d_object，连线垂直镜面",
+        "tolerance": "≤1% 或 0.5 个场景单位",
+        "independent_reference": "自建几何参考（反射定律作图），不与引擎同源"
+      },
       "status": "resource_installed",
-      "blockers": ["需新增模板三件套（catalog/templates/optics/plane-mirror）与适配器场景构造；引擎侧能力已实测可用"]
+      "blockers": [
+        "需新增模板三件套（catalog/templates/optics/plane-mirror）与适配器场景构造；引擎侧能力已实测可用"
+      ]
     },
     {
       "id": "optics-refraction",
@@ -212,17 +237,36 @@
       "domain": "光学",
       "form": "2D",
       "priority": "P0",
-      "engines": ["ray-optics"],
-      "seed": ["source/upstream/ray-optics/src/core/sceneObjs/glass/"],
+      "engines": [
+        "ray-optics"
+      ],
+      "seed": [
+        "source/upstream/ray-optics/src/core/sceneObjs/glass/"
+      ],
       "agent_params": [
-        {"name": "medium.refractive_index", "kind": "Glass 对象 refIndex"},
-        {"name": "incident.angle", "kind": "SingleRay/Beam 角度"},
-        {"name": "interface.tilt", "kind": "界面法向"}
+        {
+          "name": "medium.refractive_index",
+          "kind": "Glass 对象 refIndex"
+        },
+        {
+          "name": "incident.angle",
+          "kind": "SingleRay/Beam 角度"
+        },
+        {
+          "name": "interface.tilt",
+          "kind": "界面法向"
+        }
       ],
       "readback": "入射角/折射角（由光线路径与界面法向计算）",
-      "acceptance": {"formula": "斯涅尔定律 n1·sin θ1 = n2·sin θ2", "tolerance": "≤0.5%", "independent_reference": "Python 侧独立解 θ2 = asin(n1 sin θ1 / n2)"},
+      "acceptance": {
+        "formula": "斯涅尔定律 n1·sin θ1 = n2·sin θ2",
+        "tolerance": "≤0.5%",
+        "independent_reference": "Python 侧独立解 θ2 = asin(n1 sin θ1 / n2)"
+      },
       "status": "resource_installed",
-      "blockers": ["上游单位系统缺失（无 unitScale），教学角度与场景角度换算要由模板定义并守住——见 upstream.lock.json 的 unit_system 实测"]
+      "blockers": [
+        "上游单位系统缺失（无 unitScale），教学角度与场景角度换算要由模板定义并守住——见 upstream.lock.json 的 unit_system 实测"
+      ]
     },
     {
       "id": "optics-total-internal-reflection",
@@ -230,17 +274,36 @@
       "domain": "光学",
       "form": "2D",
       "priority": "P0",
-      "engines": ["ray-optics"],
-      "seed": ["source/upstream/ray-optics/data/galleryScenes/"],
+      "engines": [
+        "ray-optics"
+      ],
+      "seed": [
+        "source/upstream/ray-optics/data/galleryScenes/"
+      ],
       "agent_params": [
-        {"name": "medium.refractive_index", "kind": "refIndex"},
-        {"name": "incident.angle_sweep", "kind": "多角度批量入射"},
-        {"name": "partial_reflect", "kind": "bool"}
+        {
+          "name": "medium.refractive_index",
+          "kind": "refIndex"
+        },
+        {
+          "name": "incident.angle_sweep",
+          "kind": "多角度批量入射"
+        },
+        {
+          "name": "partial_reflect",
+          "kind": "bool"
+        }
       ],
       "readback": "折射光线是否存在 + Detector 功率分配",
-      "acceptance": {"formula": "临界角 θc = asin(n2/n1)，扫描角度跨过 θc 时折射光功率应从 >0 突变为 0", "tolerance": "测得 θc 与理论差 ≤0.5°", "independent_reference": "解析式 asin(n2/n1)"},
+      "acceptance": {
+        "formula": "临界角 θc = asin(n2/n1)，扫描角度跨过 θc 时折射光功率应从 >0 突变为 0",
+        "tolerance": "测得 θc 与理论差 ≤0.5°",
+        "independent_reference": "解析式 asin(n2/n1)"
+      },
       "status": "resource_installed",
-      "blockers": ["需确认上游 Simulator 在 TIR 时的功率守恒读数口径（Detector.power 实测可读，但阈值判定未做）"]
+      "blockers": [
+        "需确认上游 Simulator 在 TIR 时的功率守恒读数口径（Detector.power 实测可读，但阈值判定未做）"
+      ]
     },
     {
       "id": "optics-concave-lens",
@@ -248,17 +311,36 @@
       "domain": "光学",
       "form": "2D",
       "priority": "P0",
-      "engines": ["ray-optics"],
-      "seed": ["source/upstream/ray-optics/data/galleryScenes/concave-lens.json"],
+      "engines": [
+        "ray-optics"
+      ],
+      "seed": [
+        "source/upstream/ray-optics/data/galleryScenes/concave-lens.json"
+      ],
       "agent_params": [
-        {"name": "lens.focalLength", "kind": "IdealLens，符号为负（实测 focalLength<0 = 发散）"},
-        {"name": "object.distance", "kind": "PointSource 位置"},
-        {"name": "lengthScale", "kind": "模板须锁 1，否则滑块量程与教学单位脱节（已实测）"}
+        {
+          "name": "lens.focalLength",
+          "kind": "IdealLens，符号为负（实测 focalLength<0 = 发散）"
+        },
+        {
+          "name": "object.distance",
+          "kind": "PointSource 位置"
+        },
+        {
+          "name": "lengthScale",
+          "kind": "模板须锁 1，否则滑块量程与教学单位脱节（已实测）"
+        }
       ],
       "readback": "虚像位置（反向延长交点）、放大率",
-      "acceptance": {"formula": "薄透镜 1/v - 1/u = 1/f（f 取负），虚像同侧", "tolerance": "≤2%", "independent_reference": "Python 薄透镜公式（复用 convex-lens 的 ideal_lens_reference 并扩展到负焦距）"},
+      "acceptance": {
+        "formula": "薄透镜 1/v - 1/u = 1/f（f 取负），虚像同侧",
+        "tolerance": "≤2%",
+        "independent_reference": "Python 薄透镜公式（复用 convex-lens 的 ideal_lens_reference 并扩展到负焦距）"
+      },
       "status": "resource_installed",
-      "blockers": ["catalog/templates/optics/concave-lens 目录已在磁盘（待入库），适配器与验证器还没接负焦距分支"]
+      "blockers": [
+        "catalog/templates/optics/concave-lens 目录已在磁盘（待入库），适配器与验证器还没接负焦距分支"
+      ]
     },
     {
       "id": "optics-prism-dispersion",
@@ -266,18 +348,43 @@
       "domain": "光学",
       "form": "2D",
       "priority": "P1",
-      "engines": ["ray-optics", "phet"],
-      "seed": ["source/upstream/ray-optics/data/galleryScenes/chromatic-dispersion.json", "source/upstream/ray-optics/data/galleryScenes/prisms.json", "source/upstream/phet/sims/bending-light"],
+      "engines": [
+        "ray-optics",
+        "phet"
+      ],
+      "seed": [
+        "source/upstream/ray-optics/data/galleryScenes/chromatic-dispersion.json",
+        "source/upstream/ray-optics/data/galleryScenes/prisms.json",
+        "source/upstream/phet/sims/bending-light"
+      ],
       "agent_params": [
-        {"name": "prism.apex_angle", "kind": "Glass 多边形顶点"},
-        {"name": "cauchyB", "kind": "SphericalLens/玻璃的 Cauchy 色散系数（实测序列化为 refIndex + cauchyB）"},
-        {"name": "simulateColors", "kind": "Scene 级开关，默认 false"},
-        {"name": "wavelength", "kind": "光源波长"}
+        {
+          "name": "prism.apex_angle",
+          "kind": "Glass 多边形顶点"
+        },
+        {
+          "name": "cauchyB",
+          "kind": "SphericalLens/玻璃的 Cauchy 色散系数（实测序列化为 refIndex + cauchyB）"
+        },
+        {
+          "name": "simulateColors",
+          "kind": "Scene 级开关，默认 false"
+        },
+        {
+          "name": "wavelength",
+          "kind": "光源波长"
+        }
       ],
       "readback": "不同波长出射角分离量",
-      "acceptance": {"formula": "最小偏向角公式 n = sin((A+δm)/2)/sin(A/2)，且 n(蓝光) > n(红光)", "tolerance": "分离方向正确 + 偏向角误差 ≤1°", "independent_reference": "Cauchy 公式 n(λ)=A+B/λ² 的独立实现"},
+      "acceptance": {
+        "formula": "最小偏向角公式 n = sin((A+δm)/2)/sin(A/2)，且 n(蓝光) > n(红光)",
+        "tolerance": "分离方向正确 + 偏向角误差 ≤1°",
+        "independent_reference": "Cauchy 公式 n(λ)=A+B/λ² 的独立实现"
+      },
       "status": "resource_installed",
-      "blockers": ["Scene.simulateColors 默认 false，模板必须显式开启并纳入版本校验（实测默认值清单在 upstream.lock.json）"]
+      "blockers": [
+        "Scene.simulateColors 默认 false，模板必须显式开启并纳入版本校验（实测默认值清单在 upstream.lock.json）"
+      ]
     },
     {
       "id": "mechanics-pendulum",
@@ -285,18 +392,46 @@
       "domain": "力学",
       "form": "2D",
       "priority": "P0",
-      "engines": ["myphysicslab", "phet", "matter-js"],
-      "seed": ["source/upstream/myphysicslab/src/sims/pendulum/PendulumApp.html", "source/upstream/phet/sims/pendulum-lab"],
+      "engines": [
+        "myphysicslab",
+        "phet",
+        "matter-js"
+      ],
+      "seed": [
+        "source/upstream/myphysicslab/src/sims/pendulum/PendulumApp.html",
+        "source/upstream/phet/sims/pendulum-lab"
+      ],
       "agent_params": [
-        {"name": "pendulum.length", "kind": "摆长"},
-        {"name": "pendulum.gravity", "kind": "g"},
-        {"name": "pendulum.initial_angle", "kind": "初始角（小角度近似是否成立要单独标注）"},
-        {"name": "damping", "kind": "阻尼"}
+        {
+          "name": "pendulum.length",
+          "kind": "摆长"
+        },
+        {
+          "name": "pendulum.gravity",
+          "kind": "g"
+        },
+        {
+          "name": "pendulum.initial_angle",
+          "kind": "初始角（小角度近似是否成立要单独标注）"
+        },
+        {
+          "name": "damping",
+          "kind": "阻尼"
+        }
       ],
       "readback": "周期 T（过零检测）、角度时程",
-      "acceptance": {"formula": "T = 2π√(L/g)，小角度；摆长翻倍时 T 比 √2", "tolerance": "≤1%（θ0≤10°），θ0=30° 时按椭圆积分修正 ≤0.5%", "independent_reference": "Python 独立 ODE 积分 + 解析式"},
-      "status": "resource_installed",
-      "blockers": ["catalog/templates/mechanics/pendulum 仍是预留（pending_slice_9）", "myphysicslab 需先过 TS 构建（实测 src 下 0 个 .js）", "matter-js 路线已在本机跑通步进，可作为无头对照组"]
+      "acceptance": {
+        "formula": "T = 2π√(L/g)，小角度；摆长翻倍时 T 比 √2",
+        "tolerance": "≤1%（θ0≤10°），θ0=30° 时按椭圆积分修正 ≤0.5%",
+        "independent_reference": "Python 独立 ODE 积分 + 解析式"
+      },
+      "status": "engine_headless_verified",
+      "blockers": [
+        "catalog/templates/mechanics/pendulum 仍是预留（pending_slice_9）：引擎侧已能无头取数，缺的是模板三件套与适配器接线",
+        "浏览器端打包（上游 makefile + esbuild）未做，交付离线实验前要补这一步"
+      ],
+      "measured_evidence": "source/upstream/probe-myphysicslab.json",
+      "measured_note": "（上游 PendulumSim 无头跑 30 s，周期 2.00835 s vs 解析 2.00834 s）"
     },
     {
       "id": "mechanics-spring-hooke",
@@ -304,17 +439,39 @@
       "domain": "力学",
       "form": "2D",
       "priority": "P0",
-      "engines": ["myphysicslab", "phet"],
-      "seed": ["source/upstream/myphysicslab/src/sims/roller/RollerSpringApp.html", "source/upstream/phet/sims/masses-and-springs", "source/upstream/phet/sims/hookes-law"],
+      "engines": [
+        "myphysicslab",
+        "phet"
+      ],
+      "seed": [
+        "source/upstream/myphysicslab/src/sims/roller/RollerSpringApp.html",
+        "source/upstream/phet/sims/masses-and-springs",
+        "source/upstream/phet/sims/hookes-law"
+      ],
       "agent_params": [
-        {"name": "spring.k", "kind": "劲度系数"},
-        {"name": "mass", "kind": "振子质量"},
-        {"name": "initial_displacement", "kind": "初始拉伸"}
+        {
+          "name": "spring.k",
+          "kind": "劲度系数"
+        },
+        {
+          "name": "mass",
+          "kind": "振子质量"
+        },
+        {
+          "name": "initial_displacement",
+          "kind": "初始拉伸"
+        }
       ],
       "readback": "静平衡伸长量 Δx、振动周期 T",
-      "acceptance": {"formula": "F = -kx（静态：mg = kΔx）；T = 2π√(m/k)", "tolerance": "≤2%", "independent_reference": "解析式 + 独立能量法"},
+      "acceptance": {
+        "formula": "F = -kx（静态：mg = kΔx）；T = 2π√(m/k)",
+        "tolerance": "≤2%",
+        "independent_reference": "解析式 + 独立能量法"
+      },
       "status": "resource_installed",
-      "blockers": ["同上：myphysicslab 构建 pending；PhET masses-and-springs 需要 grunt 构建链（未跑）"]
+      "blockers": [
+        "同上：myphysicslab 构建 pending；PhET masses-and-springs 需要 grunt 构建链（未跑）"
+      ]
     },
     {
       "id": "mechanics-projectile",
@@ -322,18 +479,43 @@
       "domain": "力学",
       "form": "2D",
       "priority": "P0",
-      "engines": ["matter-js", "myphysicslab", "phet"],
-      "seed": ["source/upstream/phet/sims/projectile-motion", "source/upstream/myphysicslab/src/sims/roller/"],
+      "engines": [
+        "matter-js",
+        "myphysicslab",
+        "phet"
+      ],
+      "seed": [
+        "source/upstream/phet/sims/projectile-motion",
+        "source/upstream/myphysicslab/src/sims/roller/"
+      ],
       "agent_params": [
-        {"name": "v0", "kind": "初速度"},
-        {"name": "launch_angle", "kind": "抛射角"},
-        {"name": "gravity", "kind": "g"},
-        {"name": "air_drag", "kind": "是否开阻力（开阻力后解析解不再适用，要在模板里标注）"}
+        {
+          "name": "v0",
+          "kind": "初速度"
+        },
+        {
+          "name": "launch_angle",
+          "kind": "抛射角"
+        },
+        {
+          "name": "gravity",
+          "kind": "g"
+        },
+        {
+          "name": "air_drag",
+          "kind": "是否开阻力（开阻力后解析解不再适用，要在模板里标注）"
+        }
       ],
       "readback": "落点射程、最高点、飞行时间",
-      "acceptance": {"formula": "无阻力：R = v0²·sin2θ/g，H = v0²sin²θ/(2g)", "tolerance": "≤1%（无阻力）", "independent_reference": "Python 抛体解析式；Matter.js 步进作为第二路对照"},
+      "acceptance": {
+        "formula": "无阻力：R = v0²·sin2θ/g，H = v0²sin²θ/(2g)",
+        "tolerance": "≤1%（无阻力）",
+        "independent_reference": "Python 抛体解析式；Matter.js 步进作为第二路对照"
+      },
       "status": "resource_installed",
-      "blockers": ["Matter.js 默认重力尺度与教学单位不一致（实测 60 步后 y=421.347），模板必须先标定 scale 才能谈误差验收"]
+      "blockers": [
+        "Matter.js 默认重力尺度与教学单位不一致（实测 60 步后 y=421.347），模板必须先标定 scale 才能谈误差验收"
+      ]
     },
     {
       "id": "mechanics-newtons-cradle",
@@ -341,17 +523,40 @@
       "domain": "力学",
       "form": "2D/3D",
       "priority": "P1",
-      "engines": ["myphysicslab", "phet", "rapier"],
-      "seed": ["source/upstream/myphysicslab/src/sims/engine2D/NewtonsCradleApp.html", "source/upstream/myphysicslab/src/sims/engine2D/MultipleCollisionApp.html", "source/upstream/phet/sims/collision-lab"],
+      "engines": [
+        "myphysicslab",
+        "phet",
+        "rapier"
+      ],
+      "seed": [
+        "source/upstream/myphysicslab/src/sims/engine2D/NewtonsCradleApp.html",
+        "source/upstream/myphysicslab/src/sims/engine2D/MultipleCollisionApp.html",
+        "source/upstream/phet/sims/collision-lab"
+      ],
       "agent_params": [
-        {"name": "ball_masses", "kind": "各球质量"},
-        {"name": "initial_ball_count", "kind": "拉起球数"},
-        {"name": "restitution", "kind": "弹性系数（≈1 才是牛顿摆）"}
+        {
+          "name": "ball_masses",
+          "kind": "各球质量"
+        },
+        {
+          "name": "initial_ball_count",
+          "kind": "拉起球数"
+        },
+        {
+          "name": "restitution",
+          "kind": "弹性系数（≈1 才是牛顿摆）"
+        }
       ],
       "readback": "碰撞前后各球速度序列",
-      "acceptance": {"formula": "Σmv 守恒、等质量完全弹性碰撞时速度交换", "tolerance": "动量漂移 ≤0.5%", "independent_reference": "Python 独立动量核算 + Rapier 3D 作为第二实现"},
+      "acceptance": {
+        "formula": "Σmv 守恒、等质量完全弹性碰撞时速度交换",
+        "tolerance": "动量漂移 ≤0.5%",
+        "independent_reference": "Python 独立动量核算 + Rapier 3D 作为第二实现"
+      },
       "status": "resource_installed",
-      "blockers": ["牛顿摆对 restitution 极敏感，需先实测引擎默认弹性系数（未做，pending）"]
+      "blockers": [
+        "牛顿摆对 restitution 极敏感，需先实测引擎默认弹性系数（未做，pending）"
+      ]
     },
     {
       "id": "circuits-ohms-law",
@@ -359,17 +564,39 @@
       "domain": "电学",
       "form": "2D",
       "priority": "P0",
-      "engines": ["circuitjs1", "phet"],
-      "seed": ["source/upstream/circuitjs1", "source/upstream/phet/sims/ohms-law"],
+      "engines": [
+        "circuitjs1",
+        "phet"
+      ],
+      "seed": [
+        "source/upstream/circuitjs1",
+        "source/upstream/phet/sims/ohms-law"
+      ],
       "agent_params": [
-        {"name": "source.voltage", "kind": "电压源"},
-        {"name": "resistance", "kind": "电阻值"},
-        {"name": "topology", "kind": "元件增删与连线"}
+        {
+          "name": "source.voltage",
+          "kind": "电压源"
+        },
+        {
+          "name": "resistance",
+          "kind": "电阻值"
+        },
+        {
+          "name": "topology",
+          "kind": "元件增删与连线"
+        }
       ],
       "readback": "回路电流、各元件两端电压",
-      "acceptance": {"formula": "I = U/R", "tolerance": "≤1%", "independent_reference": "独立节点方程（Python，lcapy 或手写 MNA）"},
+      "acceptance": {
+        "formula": "I = U/R",
+        "tolerance": "≤1%",
+        "independent_reference": "独立节点方程（Python，lcapy 或手写 MNA）"
+      },
       "status": "resource_installed",
-      "blockers": ["circuitjs1 需 Java+GWT 构建（实测 war/ 只有 4 个 .js，无编译产物），且控制页与模拟器必须同源；本机 Docker 守护进程未运行", "PhET ohms-law 改参要走源码级 QueryParameters，不是统一 JSON 接口"]
+      "blockers": [
+        "circuitjs1 需 Java+GWT 构建（实测 war/ 只有 4 个 .js，无编译产物），且控制页与模拟器必须同源；本机 Docker 守护进程未运行",
+        "PhET ohms-law 改参要走源码级 QueryParameters，不是统一 JSON 接口"
+      ]
     },
     {
       "id": "circuits-series-parallel",
@@ -377,17 +604,37 @@
       "domain": "电学",
       "form": "2D",
       "priority": "P0",
-      "engines": ["circuitjs1", "phet"],
-      "seed": ["source/upstream/phet/sims/circuit-construction-kit-dc"],
+      "engines": [
+        "circuitjs1",
+        "phet"
+      ],
+      "seed": [
+        "source/upstream/phet/sims/circuit-construction-kit-dc"
+      ],
       "agent_params": [
-        {"name": "resistor_values[]", "kind": "多电阻取值"},
-        {"name": "wiring.topology", "kind": "串/并结构"},
-        {"name": "meter.placement", "kind": "电流表/电压表位置"}
+        {
+          "name": "resistor_values[]",
+          "kind": "多电阻取值"
+        },
+        {
+          "name": "wiring.topology",
+          "kind": "串/并结构"
+        },
+        {
+          "name": "meter.placement",
+          "kind": "电流表/电压表位置"
+        }
       ],
       "readback": "总电流、各支路电流、等效电阻",
-      "acceptance": {"formula": "串联 R=ΣR；并联 1/R=Σ1/R", "tolerance": "≤1%", "independent_reference": "独立 MNA 求解"},
+      "acceptance": {
+        "formula": "串联 R=ΣR；并联 1/R=Σ1/R",
+        "tolerance": "≤1%",
+        "independent_reference": "独立 MNA 求解"
+      },
       "status": "resource_installed",
-      "blockers": ["circuit-construction-kit-common 在 GitHub 只剩空心 main 分支（实测 3 个文件），依赖它的 dc 仿真若要构建需先解决该公共库来源"]
+      "blockers": [
+        "circuit-construction-kit-common 在 GitHub 只剩空心 main 分支（实测 3 个文件），依赖它的 dc 仿真若要构建需先解决该公共库来源"
+      ]
     },
     {
       "id": "circuits-rc",
@@ -395,18 +642,42 @@
       "domain": "电学",
       "form": "2D",
       "priority": "P1",
-      "engines": ["circuitjs1", "phet"],
-      "seed": ["source/upstream/phet/sims/circuit-construction-kit-ac", "source/upstream/circuitjs1"],
+      "engines": [
+        "circuitjs1",
+        "phet"
+      ],
+      "seed": [
+        "source/upstream/phet/sims/circuit-construction-kit-ac",
+        "source/upstream/circuitjs1"
+      ],
       "agent_params": [
-        {"name": "R", "kind": "电阻"},
-        {"name": "C", "kind": "电容"},
-        {"name": "V", "kind": "电源电压"},
-        {"name": "switch.t0", "kind": "换路时刻"}
+        {
+          "name": "R",
+          "kind": "电阻"
+        },
+        {
+          "name": "C",
+          "kind": "电容"
+        },
+        {
+          "name": "V",
+          "kind": "电源电压"
+        },
+        {
+          "name": "switch.t0",
+          "kind": "换路时刻"
+        }
       ],
       "readback": "电容电压时程曲线",
-      "acceptance": {"formula": "τ = RC，U(t) = V(1-e^-t/τ)；实测 τ 取 63.2% 时刻", "tolerance": "τ 误差 ≤3%", "independent_reference": "Python 解析式 + 独立 ODE 积分"},
+      "acceptance": {
+        "formula": "τ = RC，U(t) = V(1-e^-t/τ)；实测 τ 取 63.2% 时刻",
+        "tolerance": "τ 误差 ≤3%",
+        "independent_reference": "Python 解析式 + 独立 ODE 积分"
+      },
       "status": "resource_installed",
-      "blockers": ["同 circuitjs1 构建阻塞；需要一条能读到元件内部量的接口（上游文档化的是同源 JavaScript 接口，未实测）"]
+      "blockers": [
+        "同 circuitjs1 构建阻塞；需要一条能读到元件内部量的接口（上游文档化的是同源 JavaScript 接口，未实测）"
+      ]
     },
     {
       "id": "waves-string",
@@ -414,19 +685,45 @@
       "domain": "波动",
       "form": "2D",
       "priority": "P1",
-      "engines": ["phet"],
-      "seed": ["source/upstream/phet/sims/wave-on-a-string", "source/upstream/phet/sims/waves-intro"],
+      "engines": [
+        "phet"
+      ],
+      "seed": [
+        "source/upstream/phet/sims/wave-on-a-string",
+        "source/upstream/phet/sims/waves-intro"
+      ],
       "agent_params": [
-        {"name": "amplitude", "kind": "振幅"},
-        {"name": "frequency", "kind": "驱动频率"},
-        {"name": "tension", "kind": "张力"},
-        {"name": "density", "kind": "线密度"},
-        {"name": "damping", "kind": "阻尼"}
+        {
+          "name": "amplitude",
+          "kind": "振幅"
+        },
+        {
+          "name": "frequency",
+          "kind": "驱动频率"
+        },
+        {
+          "name": "tension",
+          "kind": "张力"
+        },
+        {
+          "name": "density",
+          "kind": "线密度"
+        },
+        {
+          "name": "damping",
+          "kind": "阻尼"
+        }
       ],
       "readback": "波峰位置时程 → 波速；波长",
-      "acceptance": {"formula": "v = √(T/μ)，且 v = λf", "tolerance": "≤3%", "independent_reference": "解析式；自建一维波动方程差分作为第二路对照"},
+      "acceptance": {
+        "formula": "v = √(T/μ)，且 v = λf",
+        "tolerance": "≤3%",
+        "independent_reference": "解析式；自建一维波动方程差分作为第二路对照"
+      },
       "status": "resource_installed",
-      "blockers": ["PhET 无统一 JSON 改参接口，张力/线密度等参数要从 sim 模型类里提取；构建链未跑（pending）"]
+      "blockers": [
+        "PhET 无统一 JSON 改参接口，张力/线密度等参数要从 sim 模型类里提取；构建链未跑（pending）"
+      ]
     },
     {
       "id": "waves-double-slit",
@@ -434,17 +731,38 @@
       "domain": "波动",
       "form": "2D",
       "priority": "P1",
-      "engines": ["phet", "ray-optics"],
-      "seed": ["source/upstream/phet/sims/wave-interference", "source/upstream/ray-optics"],
+      "engines": [
+        "phet",
+        "ray-optics"
+      ],
+      "seed": [
+        "source/upstream/phet/sims/wave-interference",
+        "source/upstream/ray-optics"
+      ],
       "agent_params": [
-        {"name": "slit_spacing", "kind": "缝间距"},
-        {"name": "wavelength", "kind": "波长"},
-        {"name": "screen_distance", "kind": "屏距"}
+        {
+          "name": "slit_spacing",
+          "kind": "缝间距"
+        },
+        {
+          "name": "wavelength",
+          "kind": "波长"
+        },
+        {
+          "name": "screen_distance",
+          "kind": "屏距"
+        }
       ],
       "readback": "屏上强度分布（亮纹位置）",
-      "acceptance": {"formula": "亮纹 d·sin θ = mλ，屏上间距 Δy ≈ λL/d", "tolerance": "≤5%（离散采样）", "independent_reference": "Python 叠加求和（两点源相位差）"},
+      "acceptance": {
+        "formula": "亮纹 d·sin θ = mλ，屏上间距 Δy ≈ λL/d",
+        "tolerance": "≤5%（离散采样）",
+        "independent_reference": "Python 叠加求和（两点源相位差）"
+      },
       "status": "resource_installed",
-      "blockers": ["几何光学引擎不做波动叠加，这条只能靠 PhET 或自建二维波动求解器；先标 pending"]
+      "blockers": [
+        "几何光学引擎不做波动叠加，这条只能靠 PhET 或自建二维波动求解器；先标 pending"
+      ]
     },
     {
       "id": "thermal-ideal-gas",
@@ -452,18 +770,41 @@
       "domain": "热学",
       "form": "2D",
       "priority": "P1",
-      "engines": ["phet"],
-      "seed": ["source/upstream/phet/sims/gas-properties", "source/upstream/phet/sims/gases-intro"],
+      "engines": [
+        "phet"
+      ],
+      "seed": [
+        "source/upstream/phet/sims/gas-properties",
+        "source/upstream/phet/sims/gases-intro"
+      ],
       "agent_params": [
-        {"name": "n", "kind": "物质的量"},
-        {"name": "temperature", "kind": "温度"},
-        {"name": "volume", "kind": "体积"},
-        {"name": "process", "kind": "等温/等压/等容/绝热"}
+        {
+          "name": "n",
+          "kind": "物质的量"
+        },
+        {
+          "name": "temperature",
+          "kind": "温度"
+        },
+        {
+          "name": "volume",
+          "kind": "体积"
+        },
+        {
+          "name": "process",
+          "kind": "等温/等压/等容/绝热"
+        }
       ],
       "readback": "P、V、T 与压强读数",
-      "acceptance": {"formula": "PV = nRT；等温 P-V 双曲线", "tolerance": "≤2%", "independent_reference": "解析式 + 独立动理论估算"},
+      "acceptance": {
+        "formula": "PV = nRT；等温 P-V 双曲线",
+        "tolerance": "≤2%",
+        "independent_reference": "解析式 + 独立动理论估算"
+      },
       "status": "resource_installed",
-      "blockers": ["gas-properties 是这批里源码量最大的 sim（实测 js/*.ts 134 个），参数面大，要限定首批可控参数白名单"]
+      "blockers": [
+        "gas-properties 是这批里源码量最大的 sim（实测 js/*.ts 134 个），参数面大，要限定首批可控参数白名单"
+      ]
     },
     {
       "id": "mech3d-free-fall-collision",
@@ -471,19 +812,44 @@
       "domain": "3D 力学",
       "form": "3D",
       "priority": "P1",
-      "engines": ["three", "rapier"],
-      "seed": ["source/components/node_modules/@dimforge/rapier3d-compat", "source/upstream/three/examples/jsm"],
+      "engines": [
+        "three",
+        "rapier"
+      ],
+      "seed": [
+        "source/components/node_modules/@dimforge/rapier3d-compat",
+        "source/upstream/three/examples/jsm"
+      ],
       "agent_params": [
-        {"name": "gravity", "kind": "World 重力矢量"},
-        {"name": "body.mass / shape", "kind": "刚体与碰撞体"},
-        {"name": "initial_position / velocity", "kind": "初始状态"},
-        {"name": "restitution / friction", "kind": "碰撞参数"}
+        {
+          "name": "gravity",
+          "kind": "World 重力矢量"
+        },
+        {
+          "name": "body.mass / shape",
+          "kind": "刚体与碰撞体"
+        },
+        {
+          "name": "initial_position / velocity",
+          "kind": "初始状态"
+        },
+        {
+          "name": "restitution / friction",
+          "kind": "碰撞参数"
+        }
       ],
       "readback": "rb.translation() 逐帧读数",
-      "acceptance": {"formula": "y(t) = y0 - ½gt²（已实测 1s 后 15.075 vs 理论 15.095）", "tolerance": "≤0.5%", "independent_reference": "解析式，独立于引擎"},
+      "acceptance": {
+        "formula": "y(t) = y0 - ½gt²（已实测 1s 后 15.075 vs 理论 15.095）",
+        "tolerance": "≤0.5%",
+        "independent_reference": "解析式，独立于引擎"
+      },
       "status": "component_headless_verified",
-      "measured_evidence": "source/components/component-probe.json（rapier3d-compat 0.21.0，pass）",
-      "blockers": ["渲染侧 three 只装了稀疏源码，浏览器端预览与离线包组装还没接；无头读数已可用，是这条线最快的落地路径"]
+      "measured_evidence": "source/components/component-probe.json",
+      "blockers": [
+        "渲染侧 three 只装了稀疏源码，浏览器端预览与离线包组装还没接；无头读数已可用，是这条线最快的落地路径"
+      ],
+      "measured_note": "（rapier3d-compat 0.21.0，pass）"
     },
     {
       "id": "em3d-charged-particle-in-b",
@@ -491,17 +857,37 @@
       "domain": "3D 电磁",
       "form": "3D",
       "priority": "P2",
-      "engines": ["three", "rapier"],
-      "seed": ["source/components/node_modules/three"],
+      "engines": [
+        "three",
+        "rapier"
+      ],
+      "seed": [
+        "source/components/node_modules/three"
+      ],
       "agent_params": [
-        {"name": "q", "kind": "电荷量"},
-        {"name": "v0", "kind": "初速度矢量"},
-        {"name": "B", "kind": "磁感应强度矢量"}
+        {
+          "name": "q",
+          "kind": "电荷量"
+        },
+        {
+          "name": "v0",
+          "kind": "初速度矢量"
+        },
+        {
+          "name": "B",
+          "kind": "磁感应强度矢量"
+        }
       ],
       "readback": "轨迹坐标序列、回旋半径与周期",
-      "acceptance": {"formula": "r = mv/(|q|B)，T = 2πm/(|q|B)（v⊥B 时）", "tolerance": "≤1%", "independent_reference": "解析式 + 独立 Lorentz 积分器"},
+      "acceptance": {
+        "formula": "r = mv/(|q|B)，T = 2πm/(|q|B)（v⊥B 时）",
+        "tolerance": "≤1%",
+        "independent_reference": "解析式 + 独立 Lorentz 积分器"
+      },
       "status": "resource_installed",
-      "blockers": ["Rapier 是刚体引擎，不做洛伦兹力——需要用它的自定义力/速度接口手写积分，或自建积分器只用 three 渲染。这条要单独立项，不能当成现成能力"]
+      "blockers": [
+        "Rapier 是刚体引擎，不做洛伦兹力——需要用它的自定义力/速度接口手写积分，或自建积分器只用 three 渲染。这条要单独立项，不能当成现成能力"
+      ]
     },
     {
       "id": "astro3d-solar-system-kepler",
@@ -509,16 +895,35 @@
       "domain": "天体物理",
       "form": "3D",
       "priority": "P2",
-      "engines": ["phet", "three", "stellarium-web-engine"],
-      "seed": ["source/upstream/phet/sims/gravity-and-orbits", "source/upstream/stellarium-web-engine/data"],
+      "engines": [
+        "phet",
+        "three",
+        "stellarium-web-engine"
+      ],
+      "seed": [
+        "source/upstream/phet/sims/gravity-and-orbits",
+        "source/upstream/stellarium-web-engine/data"
+      ],
       "agent_params": [
-        {"name": "planet.mass / semi_major_axis / eccentricity", "kind": "轨道要素"},
-        {"name": "central_mass", "kind": "中心天体质量"}
+        {
+          "name": "planet.mass / semi_major_axis / eccentricity",
+          "kind": "轨道要素"
+        },
+        {
+          "name": "central_mass",
+          "kind": "中心天体质量"
+        }
       ],
       "readback": "轨道半径-时间序列、周期",
-      "acceptance": {"formula": "开普勒第三定律 T² ∝ a³；面积速度守恒", "tolerance": "T²/a³ 相对偏差 ≤1%", "independent_reference": "Python 二体解析解 + 独立能量/角动量守恒核算"},
+      "acceptance": {
+        "formula": "开普勒第三定律 T² ∝ a³；面积速度守恒",
+        "tolerance": "T²/a³ 相对偏差 ≤1%",
+        "independent_reference": "Python 二体解析解 + 独立能量/角动量守恒核算"
+      },
       "status": "resource_installed",
-      "blockers": ["gravity-and-orbits 是 GPL-3.0 源码且体积最大（实测 16,152 KB）；Stellarium 无现成 wasm（实测 0 个），要自建 Emscripten 构建；两者都未进首批"]
+      "blockers": [
+        "gravity-and-orbits 是 GPL-3.0 源码且体积最大（实测 16,152 KB）；Stellarium 无现成 wasm（实测 0 个），要自建 Emscripten 构建；两者都未进首批"
+      ]
     }
   ],
   "not_installed": [
@@ -544,7 +949,11 @@
   "verification_log": {
     "component_probe": "source/components/component-probe.json",
     "inventory": "source/upstream/inventory.json",
-    "fetch_logs": ["source/upstream/fetch-log.tsv", "source/upstream/fetch-phet-log.tsv", "source/upstream/fetch-large-log.tsv"],
+    "fetch_logs": [
+      "source/upstream/fetch-log.tsv",
+      "source/upstream/fetch-phet-log.tsv",
+      "source/upstream/fetch-large-log.tsv"
+    ],
     "installed_units": 38,
     "installed_size_kb": 1281191,
     "installed_files": 18473

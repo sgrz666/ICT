@@ -22,6 +22,8 @@ for e in data["engines"]:
         paths.append(v)
 for x in data["experiments"]:
     paths.extend(x.get("seed", []))
+    if isinstance(x.get("measured_evidence"), str):
+        paths.append(x["measured_evidence"])
 for v in data["verification_log"].values():
     if isinstance(v, str):
         paths.append(v)

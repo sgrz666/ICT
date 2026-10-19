@@ -4,8 +4,8 @@
 
 ## 内容
 
-- `experiments.json` — 目录本体。9 个引擎条目 + 18 个实验条目 + 3 条「本轮没装」的记录。实验按 P0/P1/P2 分优先级（实测计数：P0 9 条、P1 7 条、P2 2 条）；状态词只有四种，含义写死在文件开头的 `status_words` 里，避免把「装了源码」说成「接通了」。
-- `check_catalog.py` — 校验器。把 `experiments.json` 里引用的每一条 `install_path`/`seed`/`npm_component`/证据路径拿去磁盘上 `os.path.exists`，**missing 必须为 0** 才算这份目录可用。2026-10-19 实测：`paths checked: 49 | missing: 0`。
+- `experiments.json` — 目录本体。9 个引擎条目 + 18 个实验条目 + 3 条「本轮没装」的记录。实验按 P0/P1/P2 分优先级（实测计数：P0 9 条、P1 7 条、P2 2 条）；状态词有五种（`template_connected` / `engine_headless_verified` / `component_headless_verified` / `resource_installed` / `reference_only`），含义写死在文件开头的 `status_words` 里，避免把「装了源码」说成「接通了」。当前分布：`resource_installed` 16 条、`engine_headless_verified` 1 条（单摆）、`component_headless_verified` 1 条（3D 自由落体）。
+- `check_catalog.py` — 校验器。把 `experiments.json` 里引用的每一条 `install_path`/`seed`/`npm_component`/`measured_evidence`/证据路径拿去磁盘上 `os.path.exists`，**missing 必须为 0** 才算这份目录可用。2026-10-19 实测：`paths checked: 50 | missing: 0`（这一条本身就是被它逮出来的：`measured_evidence` 里混进了中文括注说明，路径不再是纯字符串，已拆成 `measured_evidence` + `measured_note` 两个字段）。
 
 跑校验（仓库根目录）：
 
@@ -21,7 +21,7 @@ python source/library/check_catalog.py   # 退出码 0 = 路径全通
 
 ## 已知的坑与纪律
 
-1. **状态词不许拔高**。18 条实验里只有 `mech3d-free-fall-collision` 达到 `component_headless_verified`（Rapier 无头跑出 1s 自由落体 y=15.075，理论 15.095，偏差 0.020 m）。其余一律 `resource_installed`：源码在盘上，但 Agent 还改不动，别对外说成「18 个实验已支持 AI 定制」。
+1. **状态词不许拔高**。18 条实验里只有两条达到了「本机真跑出可对账的物理量」：`mech3d-free-fall-collision`（`component_headless_verified`，Rapier 无头自由落体 1 s 后 y=15.075，理论 15.095）与 `mechanics-pendulum`（`engine_headless_verified`，myPhysicsLab 自己的 PendulumSim 测得周期 2.00835 s，一级大角度解析值 2.00834 s）。其余 16 条一律 `resource_installed`：源码在盘上，但 Agent 还改不动，别对外说成「18 个实验已支持 AI 定制」。注意这两条也**还没有模板与适配器**——能无头取数 ≠ 教师能一句话定制并拿到离线包。
 2. **PhET 的 main 分支是空壳**。各仿真仓库 main 只剩 README.md + doc/（实测 3~5 个文件），完整源码在 X.Y 发行分支上；`experiments.json` 里记录的 sim 路径全部指向 `source/upstream/phet/sims/<name>`（发行分支克隆）。`circuit-construction-kit-common` 只有 main，是这批里唯一的空壳。
 3. **许可义务要在装的时候就写清楚**，不要等到分发前。GPL-2.0（circuitjs1）、GPL-3.0（PhET 仿真源码）、AGPL-3.0（Stellarium Web Engine）三条各有不同的触发条件，已分别登记在 `experiments.json` 的 `license_obligation` 里。
 4. **没权威来源就不装**。OSP@Singapore（EJSS）与 3JCN 记在 `not_installed`：GitHub 上找不到可确认的官方仓库（猜测的 wejen/osp-tools/compadre-io 实测均 404），搜到的都是个人复刻、许可参差。宁可留候选记录，也不把来路不明的代码请进工作区。

@@ -1,6 +1,6 @@
 {
   "comment": "上游源码记录。本文件是 source/upstream 下唯一的自有文件；这里记的每一条要么是上游文件里读到的，要么是本机真实跑过的输出。未跑的一律标 pending，不写成已完成。",
-  "updated_at": "2026-10-19T11:52:00+08:00",
+  "updated_at": "2026-10-19T12:01:00+08:00",
   "upstreams": [
     {
       "id": "ray-optics",
@@ -135,7 +135,7 @@
     },
     {
       "id": "myphysicslab",
-      "status": "installed_readonly",
+      "status": "installed_and_headless_verified",
       "decision_2026-10-15": "不进首批（首批范围收口为 Ray Optics 一条线打穿；三套上游构建链同时接是主要进度风险来源）。",
       "decision_2026-10-19": "资源库安装轮把源码请进工作区做只读参考与种子来源，构建链仍未打通——这两件事不要混着说。",
       "display_name": "myPhysicsLab",
@@ -152,12 +152,44 @@
       },
       "facts_measured": {
         "demo_html": "src/sims 下 .html 71 个；关键入口 src/sims/pendulum/PendulumApp.html、src/sims/pendulum/DoublePendulumApp.html、src/sims/roller/RollerSpringApp.html、src/sims/engine2D/NewtonsCradleApp.html、src/sims/engine2D/MultipleCollisionApp.html",
-        "source_language": "src 下 .ts 322 个、.js 0 个 ⇒ 仓库里没有任何预编译 JS，浏览器直接用要先过 TypeScript 构建（构建命令未跑，pending）",
-        "consequence": "适配器不能假设 import 就能跑；第一条力学模板的落地前置动作是搞清 makefile / tsconfig 的构建产出路径"
+        "source_language": "src 下 .ts 322 个、.js 0 个 ⇒ 仓库不带任何预编译 JS；构建已实测打通（见 commands_verified.ts-build）",
+        "param_enum": "PendulumSim.en 实测可用键：DRIVE_AMPLITUDE, ANGLE, ANGULAR_ACCEL, ANGULAR_VELOCITY, DAMPING, DRIVE_FREQUENCY, GRAVITY, LENGTH, LIMIT_ANGLE, MASS, TIME"
       },
       "commands_pending": [
-        {"name": "ts-build", "command": "见仓库 makefile 与 tsconfig.json，未执行", "status": "pending"},
-        {"name": "headless-readout", "command": "无头取数值（周期、角度时程）", "status": "pending"}
+        {
+          "name": "browser-bundle",
+          "command": "上游 makefile + esbuild（需 ln -s esbuild；本轮未做，Node 直用已够）",
+          "status": "pending"
+        },
+        {
+          "name": "spring-and-collision",
+          "command": "springs/ 与 engine2D 碰撞类的无头读数（T=2π√(m/k)、动量守恒）",
+          "status": "pending"
+        }
+      ],
+      "commands_verified": [
+        {
+          "name": "ts-build",
+          "command": "npm install --no-save typescript（装进克隆目录的 node_modules，不入库）&& npx tsc",
+          "result": "pass",
+          "measured": "typescript 5.9.3；tsc exit 0；build/ 下 .js 322 个（与 src 下 322 个 .ts 一一对应）",
+          "why_it_matters": "上游 makefile 说「先 tsc 再 make」，但 make/esbuild 只是给浏览器打包；Node 直接 import build/ 的 ESM 产物就能取数，不需要 make。"
+        },
+        {
+          "name": "headless-pendulum",
+          "command": "node source/upstream/probe_myphysicslab.mjs（结果落盘 source/upstream/probe-myphysicslab.json）",
+          "result": "pass",
+          "measured": "用上游自己的 PendulumSim + SimpleAdvance：L=1 m、g=9.8、θ0=0.1 rad、dt=0.001 s 跑 30 s，15 次同向过零 ⇒ 周期 2.00835 s（前 4 段周期完全一致）；独立参考：小角度 2π√(L/g)=2.00709 s（+0.0625%），一级大角度修正 2.00709×(1+θ0²/16)=2.00834 s（偏差 0.0000%）",
+          "consequence": "myphysicslab 成为第二个「无头可控 + 能与解析式独立对照」的引擎（第一个是 ray-optics）。这条力学线可以进首批模板了。"
+        }
+      ],
+      "known_pits": [
+        "裸 tsc 产物在 Node 里不能直接 import：克隆根目录没有 package.json，Node 把 .js 当 CommonJS。已在 tsc 的输出目录 build/ 放 {\"type\":\"module\"} 解决（build/ 是生成物，不算改上游源码）。",
+        "Util.js 模块顶层写 Util.COMPILE_TIME = MPL_BUILD_TIME，这两个全局（MPL_BUILD_TIME / MPL_LOCALE）由上游 makefile 用 esbuild --define 注入；不先定义就 ReferenceError。实测全仓编译期全局只有这两个。",
+        "角速度枚举键是 ANGULAR_VELOCITY，不是 ANGLE_VELOCITY。取错键得到 undefined，而 getVariable(undefined) 抛出的是空串异常（message 为空），极易误判成「引擎跑不起来」；要靠分阶段打点定位，别指望异常消息。",
+        "推进器方法是 advance.advance(timeStep)，不是 advance.step(dt)（后者 TypeError: advance.step is not a function，已实测）。",
+        "PendulumSim 默认 damping=0.5 且带周期驱动：做无阻尼小摆动实验必须显式置零，否则周期不满足 2π√(L/g)。",
+        "同向过零的间隔本身就是一个完整周期，不要再乘 2（探针第一版就犯了这个错，报出 2T = 4.01669 s）。"
       ]
     },
     {
@@ -194,8 +226,16 @@
       },
       "license_obligation": "GPL-2.0-or-later：把编译产物随离线包分发时，必须一并开放对应源码并保留许可证副本。当前只作本地只读参考，不分发 ⇒ 义务尚未触发，触发点在打进交付包那一刻。",
       "commands_pending": [
-        {"name": "gwt-build", "command": "./gradlew（需 Java + GWT；仓库带 circuitjs1.Containerfile，走 Docker 但本机 Docker 守护进程未运行）", "status": "pending"},
-        {"name": "js-api-probe", "command": "同源 JavaScript 接口的导入/导出/读元件量，简报里说有文档，本机未实测", "status": "pending"}
+        {
+          "name": "gwt-build",
+          "command": "./gradlew（需 Java + GWT；仓库带 circuitjs1.Containerfile，走 Docker 但本机 Docker 守护进程未运行）",
+          "status": "pending"
+        },
+        {
+          "name": "js-api-probe",
+          "command": "同源 JavaScript 接口的导入/导出/读元件量，简报里说有文档，本机未实测",
+          "status": "pending"
+        }
       ]
     },
     {
@@ -239,8 +279,16 @@
       "headless_probe": {
         "command": "node source/components/probe_components.mjs",
         "results": [
-          {"pkg": "@dimforge/rapier3d", "result": "fail", "measured": "Cannot find module '.../rapier3d/exports'：package.json 无 main/exports，内部用无扩展名 ESM 导入，Node 解析不了（浏览器由打包器处理，所以不是包坏了，是 Node 不能直用）"},
-          {"pkg": "@dimforge/rapier3d-compat", "result": "pass", "measured": "init() 后 new World(gravity -9.81)，动态刚体从 y=20 起、球半径 0.5，world.step() 60 次 ⇒ y = 15.075；独立参考 20 - 0.5*9.81*1² = 15.095，偏差 0.020 m（0.13%）"}
+          {
+            "pkg": "@dimforge/rapier3d",
+            "result": "fail",
+            "measured": "Cannot find module '.../rapier3d/exports'：package.json 无 main/exports，内部用无扩展名 ESM 导入，Node 解析不了（浏览器由打包器处理，所以不是包坏了，是 Node 不能直用）"
+          },
+          {
+            "pkg": "@dimforge/rapier3d-compat",
+            "result": "pass",
+            "measured": "init() 后 new World(gravity -9.81)，动态刚体从 y=20 起、球半径 0.5，world.step() 60 次 ⇒ y = 15.075；独立参考 20 - 0.5*9.81*1² = 15.095，偏差 0.020 m（0.13%）"
+          }
         ],
         "implication": "3D 实验的「Agent 改参 → 无头运行 → 读数 → 与解析公式对照」这条链在本机成立，不需要浏览器。"
       },
@@ -266,7 +314,10 @@
         "why_sparse": "GitHub API size = 1,693,072 KB（≈1.7 GB），整仓浅克隆不划算；稀疏检出后工作区 1,514 个文件 / 23,623 KB",
         "facts_measured": "src 下 .js 755 个、examples/jsm 下 .js 496 个"
       },
-      "headless_probe": {"result": "pass", "measured": "REVISION = 186；Vector3(1,2,2).length() = 3 ⇒ 纯数学/几何可在 Node 直接用（渲染需要浏览器另说）"},
+      "headless_probe": {
+        "result": "pass",
+        "measured": "REVISION = 186；Vector3(1,2,2).length() = 3 ⇒ 纯数学/几何可在 Node 直接用（渲染需要浏览器另说）"
+      },
       "known_pits": [
         "sparse-checkout 初装时漏了仓库根 LICENSE，MIT 组件缺许可证文本是分发合规问题，已补检出；以后稀疏装任何仓库都要把 LICENSE/NOTICE 一并列入 sparse 清单。",
         "cone 模式稀疏会把 examples/jsm 之外的空目录（examples/、manual/、test/、utils/）也建出来，`ls` 看到目录不代表里面有东西。"
@@ -286,7 +337,9 @@
         "fetched_at": "2026-10-19T11:35:14+08:00",
         "repo_size": "GitHub API size = 34,724 KB；浅克隆 du -sk = 25,106 KB；工作区文件 818 个 / 14,282 KB"
       },
-      "facts_measured": {"wasm_in_repo": "0 个 .wasm ⇒ 可运行产物要 SCons + Emscripten 自行构建（未跑，pending）；data/ 目录含星表与影像，授权要单独评估"},
+      "facts_measured": {
+        "wasm_in_repo": "0 个 .wasm ⇒ 可运行产物要 SCons + Emscripten 自行构建（未跑，pending）；data/ 目录含星表与影像，授权要单独评估"
+      },
       "license_obligation": "AGPL-3.0：把构建产物嵌入交付物并向用户提供网络服务即触发源码开放义务 ⇒ 首批不进离线包，只作本地资源参考。这是选装它时就要记住的红线，不是分发前才查。"
     },
     {
@@ -337,7 +390,28 @@
         ]
       },
       "license": "分层实测：仿真源码仓库 LICENSE = GNU GENERAL PUBLIC LICENSE Version 3（如 phet/sims/ohms-law/LICENSE）；通用库 LICENSE = The MIT License (MIT)（如 phet/libs/scenery/LICENSE）。⇒ 改仿真源码再分发触发 GPL-3.0 义务；只用库是 MIT。",
-      "installed_sims": ["bending-light@1.2", "ohms-law@1.4", "circuit-construction-kit-common@main(stub)", "circuit-construction-kit-dc@1.5", "circuit-construction-kit-ac@1.0", "pendulum-lab@1.0", "masses-and-springs@1.0", "hookes-law@1.2", "projectile-motion@1.0", "collision-lab@1.1", "wave-on-a-string@1.2", "waves-intro@1.1", "wave-interference@2.0", "gas-properties@1.1", "gases-intro@1.1", "gravity-and-orbits@1.6", "charges-and-fields@1.0", "magnets-and-electromagnets@1.0", "energy-skate-park-basics@1.5", "forces-and-motion-basics@2.6"],
+      "installed_sims": [
+        "bending-light@1.2",
+        "ohms-law@1.4",
+        "circuit-construction-kit-common@main(stub)",
+        "circuit-construction-kit-dc@1.5",
+        "circuit-construction-kit-ac@1.0",
+        "pendulum-lab@1.0",
+        "masses-and-springs@1.0",
+        "hookes-law@1.2",
+        "projectile-motion@1.0",
+        "collision-lab@1.1",
+        "wave-on-a-string@1.2",
+        "waves-intro@1.1",
+        "wave-interference@2.0",
+        "gas-properties@1.1",
+        "gases-intro@1.1",
+        "gravity-and-orbits@1.6",
+        "charges-and-fields@1.0",
+        "magnets-and-electromagnets@1.0",
+        "energy-skate-park-basics@1.5",
+        "forces-and-motion-basics@2.6"
+      ],
       "known_pits": [
         "「iframe 能打开」≠「Agent 能改实验」：PhET 没有统一 JSON 改参接口，可改参数要从各 sim 的 *QueryParameters.ts 与 model 类逐个提取（本轮未做，pending）。",
         "官方发布成品（离线 HTML5）这条路本轮没打通：实测 phet.colorado.edu/sims/html/<sim>/latest/*.zip 两种命名都 404，unzipper.colorado.edu 本机 TLS 直接失败（curl 返回码 000）⇒ 后续要么走官方 bulk 页拿真链接，要么自建 grunt 构建。",
