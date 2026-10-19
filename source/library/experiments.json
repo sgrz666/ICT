@@ -8,7 +8,8 @@
     "resource_installed": "上游源码已在 source/upstream 落盘，但没有适配器，Agent 还改不动",
     "component_headless_verified": "组件已装且在本机 Node 里真跑通了物理量（见 source/components/component-probe.json）",
     "reference_only": "只作为资源候选登记，本轮没装（原因写在 not_installed）",
-    "engine_headless_verified": "上游引擎已构建出能在本机 Node 里 import 的产物，并用它自己的积分器跑出一个可与独立解析式对照的物理量"
+    "engine_headless_verified": "上游引擎已构建出能在本机 Node 里 import 的产物，并用它自己的积分器跑出一个可与独立解析式对照的物理量",
+    "engine_browser_verified": "上游产物已构建并在同源浏览器里经官方 JavaScript 接口改参、读数，与解析式对照通过；不是无头路径，暂时进不了 CI"
   },
   "engines": [
     {
@@ -80,7 +81,17 @@
       },
       "upstream_location_finding": "GitHub 上 falstad/circuitjs1 已 404，作者自有 git 服务 git.pfalstad.com 在本机 SSL 握手失败（实测 SSL_ERROR_SYSCALL）；官方 about 页指向 pfalstad/circuitjs1（活跃，最后提交 2026-10-18），故装的是这一个。维护分支 sharpie7/circuitjs1 作为备选登记。",
       "license_obligation": "GPL-2.0：一旦把编译产物随离线包分发，必须同时提供对应源码与许可证副本。当前只作为本地只读参考，不分发。",
-      "status": "resource_installed"
+      "status": "built_and_js_api_verified",
+      "js_api_verified_2026_10_19": {
+        "how": "makeSite 产出 site/ → python source/library/serve_circuitjs.py（同源伺服，验收台在 source/library/circuit_harness.html）→ 官方接口 importCircuit / setMaxTimeStep / setSimRunning / getElements / getCurrent / getVoltageDiff / getInfo",
+        "readings": "欧姆（R=100、R=470）、串并联、RC 充电全部对上解析式，详见 source/library/circuit-lab-evidence.json（5/5 pass）",
+        "interface_facts": [
+          "接口只有 12 个方法（setSimRunning、getTime、getTimeStep、setTimeStep、getMaxTimeStep、setMaxTimeStep、isRunning、getNodeVoltage、setExtVoltage、getElements、getCircuitAsSVG、exportCircuit、importCircuit）；改元件参数没有专门 setter，走 importCircuit 换整份电路文本（对 Agent 反而更简单，也更可 diff）",
+          "电压源在这份产物里 getType() 是 VoltageElm（不是 SourceElm），元件类型串要按实测写",
+          "getCurrent() 给 double，getInfo() 给渲染串（4 位有效）——两者要分开用，别拿显示串当高精度"
+        ],
+        "headless_caveat": "Qoder 内置浏览器无可见 surface（实测 visibilityState=hidden、rAF 不触发）⇒ 页内自跑被节流到约 3 帧/秒；本轮由外部逐条 evaluate 驱动。要进 CI 需要真浏览器或虚拟时间调度"
+      }
     },
     {
       "id": "phet",
@@ -639,11 +650,15 @@
         "tolerance": "≤1%",
         "independent_reference": "独立节点方程（Python，lcapy 或手写 MNA）"
       },
-      "status": "resource_installed",
+      "status": "engine_browser_verified",
       "blockers": [
-        "circuitjs1 需 Java+GWT 构建（实测 war/ 只有 4 个 .js，无编译产物），且控制页与模拟器必须同源；本机 Docker 守护进程未运行",
-        "PhET ohms-law 改参要走源码级 QueryParameters，不是统一 JSON 接口"
-      ]
+        "缺 catalog/templates/circuits 模板三件套与 engine-host 适配器（现在是浏览器里手工驱动，不是服务链路）",
+        "验收台页内自动跑在无可见 surface 的浏览器里被节流到 ~3 帧/秒，需要外部逐条驱动；接进 CI 前要解决（真浏览器 / 虚拟时间）",
+        "GPL-2.0：把产物打进离线交付包时义务触发"
+      ],
+      "measured_evidence": "source/library/circuit-lab-evidence.json",
+      "measured_note": "同源浏览器里 importCircuit 后读 ResistorElm：R=100 Ω ⇒ I = 50 mA、Vd = 5 V、P = 250 mW；把 R 改成 470 Ω ⇒ getCurrent() = 0.010638297872340425 A，与 5/470 在双精度下逐位相同 ⇒ 「改参→引擎跟着变」成立",
+      "harness": "python source/library/serve_circuitjs.py 8767 → http://127.0.0.1:8767/circuit_harness.html"
     },
     {
       "id": "circuits-series-parallel",
@@ -678,10 +693,14 @@
         "tolerance": "≤1%",
         "independent_reference": "独立 MNA 求解"
       },
-      "status": "resource_installed",
+      "status": "engine_browser_verified",
       "blockers": [
-        "circuit-construction-kit-common 在 GitHub 只剩空心 main 分支（实测 3 个文件），依赖它的 dc 仿真若要构建需先解决该公共库来源"
-      ]
+        "缺模板三件套与适配器接线",
+        "要用 getCurrent() 的 double 精度复测一遍才能把容差从 0.5% 收到 0.1% 以内"
+      ],
+      "measured_evidence": "source/library/circuit-lab-evidence.json",
+      "measured_note": "串联 100+220 Ω：两支路电流都是 15.625 mA = 5/320，分压 1.563 + 3.438 = 5.001 V；并联 100∥220 Ω：两支路同压 5 V，电流 50 mA 与 22.727 mA，等效电阻 68.75 Ω = (1/100+1/220)^-1。读数取自引擎 getInfo() 的显示串（4 位有效），所以判据只压到 0.1–0.5%",
+      "harness": "python source/library/serve_circuitjs.py 8767 → http://127.0.0.1:8767/circuit_harness.html"
     },
     {
       "id": "circuits-rc",
@@ -721,10 +740,14 @@
         "tolerance": "τ 误差 ≤3%",
         "independent_reference": "Python 解析式 + 独立 ODE 积分"
       },
-      "status": "resource_installed",
+      "status": "engine_browser_verified",
       "blockers": [
-        "同 circuitjs1 构建阻塞；需要一条能读到元件内部量的接口（上游文档化的是同源 JavaScript 接口，未实测）"
-      ]
+        "引擎自报 getTime() 与状态之间差约 1~2 个步长（0.39% 的偏差按 0.0854 s 算就完全吻合）⇒ 与抛体台同一类「半拍相位」问题，容差不能压到 0.1%",
+        "缺模板三件套与适配器接线"
+      ],
+      "measured_evidence": "source/library/circuit-lab-evidence.json",
+      "measured_note": "R=1 kΩ、C=100 µF ⇒ τ=0.1 s：t=0.084 s 时 Vc = 2.830615570750429 V（解析 2.8418，偏 0.39%），t=1.02 s 时 Vc = 4.999809787763836 V（解析 4.9999725），电阻电流 1.9021223615633964e-7 A = (V−Vc)/R 自洽",
+      "harness": "python source/library/serve_circuitjs.py 8767 → http://127.0.0.1:8767/circuit_harness.html"
     },
     {
       "id": "waves-string",

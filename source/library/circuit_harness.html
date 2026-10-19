@@ -1,0 +1,271 @@
+<!doctype html>
+<!--
+  电学实验的同源验收台：把 CircuitJS1 的模拟器放在 iframe 里，用官方 JavaScript 接口
+  （importCircuit / getElements / getCurrent / getNodeVoltage / setTimeStep）改电路、跑仿真、读电气量，
+  再交给解析式判对错。同源性由 serve_circuitjs.py 保证（接口文档明写必须同源）。
+
+  驱动方式：浏览器里打开 /circuit_harness.html?autorun=1，页面把结果写进 window.__RESULT，
+  外部轮询 window.__STATUS（loading → running → done / error:<msg>）。
+-->
+<meta charset="utf-8" />
+<title>CircuitJS1 电学验收台</title>
+<style>
+  body { font: 13px/1.5 system-ui, monospace; margin: 12px; }
+  #log { white-space: pre-wrap; background: #111; color: #8f8; padding: 8px; max-height: 40vh; overflow: auto; }
+</style>
+<!-- iframe 由脚本创建：必须先在它的 window 上替换 requestAnimationFrame，再写入 circuitjs.html（见 boot() 里的说明） -->
+  <div id="slot"></div>
+<div id="log">等待模拟器加载…</div>
+<script>
+  const logEl = document.getElementById("log");
+  const log = (m) => {
+    window.__TRACE = (window.__TRACE || "") + m + "\n";
+    logEl.textContent = window.__TRACE;
+  };
+  window.__STATUS = "loading";
+  window.__RESULT = null;
+
+  // ── 电路文本（格式抄上游 circuits/*.txt：v=电压源 r=电阻 c=电容 g=地 w=导线）──
+  const HEADER = "$ 1 1.0E-5 10.39 50 5.0 50\n";
+  const cirOhm = (R) => HEADER + `v 100 200 100 100 0 0 60 5 0
+w 100 200 300 200 0
+r 100 100 300 100 0 ${R}
+w 300 100 300 200 0
+g 300 200 300 230 0
+`;
+  const cirSeries = (R1, R2) => HEADER + `v 100 200 100 100 0 0 60 5 0
+w 100 200 400 200 0
+r 100 100 200 100 0 ${R1}
+r 200 100 400 100 0 ${R2}
+w 400 100 400 200 0
+g 400 200 400 230 0
+`;
+  const cirParallel = (R1, R2) => HEADER + `v 100 300 100 100 0 0 60 5 0
+w 100 100 200 100 0
+r 200 100 200 300 0 ${R1}
+r 320 100 320 300 0 ${R2}
+w 200 100 320 100 0
+w 200 300 320 300 0
+w 100 300 200 300 0
+g 320 300 320 340 0
+`;
+  const cirRC = (R, C) => HEADER + `v 100 200 100 100 0 0 60 5 0
+w 100 200 400 200 0
+r 100 100 250 100 0 ${R}
+c 250 100 250 300 0 ${C} 0
+w 250 300 400 300 0
+w 400 200 400 300 0
+g 400 300 400 330 0
+`;
+
+  let sim = null;
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  function pick(type) {
+    return sim.getElements().filter((e) => e.getType() === type);
+  }
+
+  // 跑仿真到目标时间（用 sim.getTime() 轮询，不依赖回调，避免后台标签页 rAF 被节流时行为不明）
+  async function runUntil(targetT, guardMs = 240000) {
+    sim.setSimRunning(true);
+    const t0 = Date.now();
+    while (sim.getTime() < targetT) {
+      if (Date.now() - t0 > guardMs) throw new Error(`仿真时间没走到 ${targetT}s（当前 ${sim.getTime()}s）`);
+      await wait(5);
+    }
+    sim.setSimRunning(false);
+    await wait(30);
+  }
+
+  async function scenario(cir, opts = {}) {
+    sim.setSimRunning(false);
+    sim.importCircuit(cir, false); // 实测：importCircuit 是同步生效的，elements 立刻换成新电路
+    if (opts.timeStep) sim.setMaxTimeStep(opts.timeStep);
+    if (opts.until) await runUntil(opts.until);
+    const resistors = pick("ResistorElm").map((e) => ({ R: e.getVoltageDiff(), v: e.getVoltageDiff(), i: e.getCurrent() }));
+    const caps = pick("CapacitorElm").map((e) => ({ v0: e.getVoltage(0), v1: e.getVoltage(1), diff: e.getVoltageDiff(), i: e.getCurrent() }));
+    const sources = pick("SourceElm").concat(pick("VoltageElm")).map((e) => ({ diff: e.getVoltageDiff(), i: e.getCurrent(), info: e.getInfo() }));
+    return { t: sim.getTime(), nElements: sim.getElements().length, resistors, caps, sources, exported: sim.exportCircuit().split("\n").length };
+  }
+
+  // 无头/隐藏页面里 requestAnimationFrame 不会触发，CircuitJS1 的仿真时钟就冻在原地
+  // （实测：running=true 但 2 s 墙钟里 sim.getTime() 前进 0）。所以先把 iframe 开成空白文档、
+  // 在它的 window 上把 rAF 换成 setTimeout，再把 circuitjs.html 写进同一个文档（不导航，window 不换，
+  // 补丁才保得住）。相对路径靠注入 <base> 解析。
+  async function boot() {
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "width:760px;height:420px;border:1px solid #444";
+    document.getElementById("slot").appendChild(iframe);
+    const w = iframe.contentWindow;
+    // 隐藏页面里连 setTimeout 都被 Chrome 节流到 ~1 Hz（实测 rAF→setTimeout 桥接后 3 s 墙钟只走 8 步），
+    // 而 MessageChannel 的任务不在节流名单里。用它做 rAF 泵才能把仿真推到目标时间。
+    const q = [];
+    let seq = 1;
+    let frames = 0;
+    const ch = new w.MessageChannel();
+    ch.port1.onmessage = () => {
+      const cb = q.shift();
+      if (!cb) return;
+      cb(w.performance ? w.performance.now() : Date.now());
+      // 每 30 帧让路一次给定时器：不让路会把页面自己的 setTimeout 饿死（runUntil 就再也轮不到），
+      // 全交给定时器又会被隐藏页节流到 1 Hz。30 帧一拍是实测能同时跑动的折中。
+      if (++frames % 30 === 0) w.setTimeout(() => ch.port2.postMessage(0), 0);
+      else ch.port2.postMessage(0);
+    };
+    const shim = (cb) => {
+      q.push(cb);
+      ch.port2.postMessage(0);
+      return seq++;
+    };
+    w.requestAnimationFrame = shim;
+    w.webkitRequestAnimationFrame = shim;
+    w.mozRequestAnimationFrame = shim;
+    w.cancelAnimationFrame = () => {};
+    const res = await fetch("circuitjs.html?run=0");
+    const html = await res.text();
+    w.document.open();
+    w.document.write('<base href="' + location.origin + '/">' + html);
+    w.document.close();
+    for (let i = 0; i < 400; i++) {
+      if (w.CircuitJS1) break;
+      await wait(50);
+    }
+    if (!w.CircuitJS1) throw new Error("打了 rAF 补丁还是没等到 CircuitJS1（GWT 未加载？）");
+    log("CircuitJS1 就绪（rAF 已换成 MessageChannel 泵；隐藏页里 rAF 与定时器都会被节流）");
+    return w.CircuitJS1;
+  }
+
+  const near = (metric, measured, analytic, tolPct) => {
+    const rel = analytic === 0 ? Math.abs(measured) : Math.abs((measured - analytic) / analytic) * 100;
+    return { metric, measured: +measured.toFixed(9), analytic: +analytic.toFixed(9), rel_error_pct: +rel.toFixed(4), tolerance_pct: tolPct, verdict: rel <= tolPct ? "pass" : "fail" };
+  };
+
+  async function main() {
+    sim = await boot();
+    log("CircuitJS1 就绪，可用方法：" + Object.keys(sim).filter((k) => typeof sim[k] === "function").slice(0, 40).join(","));
+
+    const results = [];
+    const V = 5;
+
+    // ① 欧姆定律：改 R 三次，I 必须跟着 V/R 走
+    {
+      const rows = [];
+      const checks = [];
+      for (const R of [100, 220, 470]) {
+        const s = await scenario(cirOhm(R), { timeStep: 1e-2, until: 2e-2 });
+        const i = s.resistors[0] ? s.resistors[0].i : NaN;
+        rows.push({ R, i_measured: i, t: s.t, nElements: s.nElements });
+        checks.push(near(`I(R=${R}Ω) (A)`, Math.abs(i), V / R, 1));
+      }
+      results.push({ id: "ohms-law", title: "欧姆定律 I = V/R（同一电路改三次电阻）", engine: rows, formula: "V=5 V ⇒ I = 5/R；R 改 100/220/470", checks });
+    }
+
+    // ② 串联：电流相同、总压等于分压和、Req = R1+R2
+    {
+      const R1 = 100, R2 = 220;
+      const s = await scenario(cirSeries(R1, R2), { timeStep: 1e-2, until: 2e-2 });
+      const [a, b] = s.resistors;
+      const I = V / (R1 + R2);
+      results.push({
+        id: "circuits-series",
+        title: "串联电路：同一电流、电压按阻值分配",
+        engine: s.resistors,
+        formula: "I = V/(R1+R2)，U1 = I·R1，U2 = I·R2",
+        checks: [
+          near("回路电流 (A)", Math.abs(a.i), I, 1),
+          near("R1 分压 (V)", Math.abs(a.v), I * R1, 1),
+          near("R2 分压 (V)", Math.abs(b.v), I * R2, 1),
+          near("两电阻压降之和 (V)", Math.abs(a.v) + Math.abs(b.v), V, 1),
+          { metric: "串联电流处处相等", i1: +a.i.toFixed(9), i2: +b.i.toFixed(9), verdict: Math.abs(a.i - b.i) < 1e-9 ? "pass" : "fail" },
+        ],
+      });
+    }
+
+    // ③ 并联：电压相同、总电流 = V/R1 + V/R2、1/Req = 1/R1 + 1/R2
+    {
+      const R1 = 100, R2 = 220;
+      const s = await scenario(cirParallel(R1, R2), { timeStep: 1e-2, until: 2e-2 });
+      const [a, b] = s.resistors;
+      const Req = 1 / (1 / R1 + 1 / R2);
+      results.push({
+        id: "circuits-parallel",
+        title: "并联电路：电压相同、干路电流按电导分配",
+        engine: s.resistors,
+        formula: "U 相等 = V；I1 = V/R1，I2 = V/R2；Req = (1/R1+1/R2)^-1",
+        checks: [
+          near("支路 1 电流 (A)", Math.abs(a.i), V / R1, 1),
+          near("支路 2 电流 (A)", Math.abs(b.i), V / R2, 1),
+          near("等效电阻 (Ω)", V / (Math.abs(a.i) + Math.abs(b.i)), Req, 1),
+          { metric: "并联两支路电压相等", v1: +Math.abs(a.v).toFixed(6), v2: +Math.abs(b.v).toFixed(6), verdict: Math.abs(Math.abs(a.v) - Math.abs(b.v)) < 1e-6 ? "pass" : "fail" },
+        ],
+      });
+    }
+
+    // ④ RC 充电：同一个电路里采两点，由两点反解 τ 再和 RC 对照（不看引擎自报的任何量）
+    {
+      const R = 1000, C = 1e-4, tau = R * C;
+      const snap = () => {
+        const cap = pick("CapacitorElm")[0];
+        return { t: sim.getTime(), Vc: cap ? Math.abs(cap.getVoltageDiff()) : NaN };
+      };
+      const s0 = await scenario(cirRC(R, C), { timeStep: 2e-3, until: 0.05 });
+      const p1 = snap();
+      await runUntil(0.2);
+      const p2 = snap();
+      const tauFit = (p2.t - p1.t) / Math.log((V - p1.Vc) / (V - p2.Vc));
+      results.push({
+        id: "circuits-rc-charge",
+        title: "RC 充电曲线：两点反解 τ 与 RC 对照",
+        engine: { p1, p2, R, C, tau_expected: tau },
+        formula: "Vc(t) = V(1−e^(−t/RC))；τ = (t2−t1)/ln((V−Vc1)/(V−Vc2))，V=5、R=1 kΩ、C=100 µF ⇒ τ=0.1 s",
+        checks: [
+          near(`Vc(t=${p1.t.toFixed(4)} s) (V)`, p1.Vc, V * (1 - Math.exp(-p1.t / tau)), 5),
+          near(`Vc(t=${p2.t.toFixed(4)} s) (V)`, p2.Vc, V * (1 - Math.exp(-p2.t / tau)), 5),
+          near("两点反解出的 τ (s)", tauFit, tau, 5),
+        ],
+      });
+    }
+
+    for (const r of results) r.verdict = r.checks.every((c) => c.verdict === "pass") ? "pass" : "fail";
+    window.__RESULT = {
+      generated_at: new Date().toISOString(),
+      engine: "CircuitJS1 (GWT 产物 build/gwt/out/circuitjs1) 经官方 JavaScript 接口驱动",
+      pass: results.filter((r) => r.verdict === "pass").length,
+      fail: results.filter((r) => r.verdict !== "pass").length,
+      results,
+    };
+    window.__STATUS = "done";
+    log(`完成：${window.__RESULT.pass}/${results.length} pass`);
+    // 落盘交给伺服（浏览器里没法写文件），这样整条链能被脚本复现
+    try {
+      await fetch("report", { method: "POST", body: JSON.stringify(window.__RESULT, null, 2), headers: { "Content-Type": "application/json" } });
+      log("结果已 POST 给伺服 → circuit-lab-evidence.json");
+    } catch (e) {
+      log("POST 失败：" + e.message);
+    }
+  }
+
+  // 默认不自动跑：外部驱动器（evaluate_script 逐条下发场景）与页内自动跑会互相抢
+  // setSimRunning/importCircuit，实测会把刚导入的电路换掉、读数错到上一个场景。
+  // 需要页内自跑时加 ?autorun=1。
+  window.__boot = boot;
+  window.__cir = { HEADER, cirOhm, cirSeries, cirParallel, cirRC };
+  window.__scenario = scenario;
+  window.__pick = pick;
+  if (location.search.indexOf("autorun=1") >= 0) {
+    main().catch((e) => {
+      window.__STATUS = "error:" + (e && e.message ? e.message : String(e));
+      log("错误：" + (e && e.stack ? e.stack : e));
+    });
+  } else {
+    boot()
+      .then((s) => {
+        sim = s;
+        window.__STATUS = "ready";
+        log("已就绪，等外部驱动（autorun=1 才自跑）");
+      })
+      .catch((e) => {
+        window.__STATUS = "error:" + e.message;
+      });
+  }
+</script>

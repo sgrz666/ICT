@@ -17,9 +17,9 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
 
 | 目录 | 引擎 / 许可 | 装法 | 工作区体积 | 文件数 | 状态 |
 |---|---|---|---|---|---|
-| `ray-optics/` | Ray Optics，Apache-2.0 | `--depth 1` 全仓 | 54,610 KB | 3,241 | 已接通（唯一）；另有 5 项光学验收台 `../library/optics_hall.mjs` 5/5 pass |
+| `ray-optics/` | Ray Optics，Apache-2.0 | `--depth 1` 全仓 | 54,610 KB | 3,241 | 已接通（唯一有模板与适配器的）；另有 5 项光学验收台 `../library/optics_hall.mjs` 5/5 pass |
 | `myphysicslab/` | myPhysicsLab，Apache-2.0 | `--depth 1` 全仓 | 10,208 KB | 530 | 已实测：`npx tsc` 出 322 个 ESM，无头单摆周期与解析式吻合 |
-| `circuitjs1/` | CircuitJS1，GPL-2.0（`build.gradle` 自身声明 GPLv3） | `--depth 1` 全仓（**官方仓是 `pfalstad/circuitjs1`**） | 5,547 KB | 798 | **GWT 编译已跑通**：`compileGwt` 58 s，产物 `build/gwt/out/circuitjs1` 实测 12.4 MB / 5 个 permutation；`dist.sh` 与 `site/` 仍未产出（脚本自带 md5 校验，实测报 TestManager.java 哈希不符） |
+| `circuitjs1/` | CircuitJS1，GPL-2.0（`build.gradle` 自身声明 GPLv3） | `--depth 1` 全仓（**官方仓是 `pfalstad/circuitjs1`**） | 5,547 KB | 798 | **GWT 编译已跑通**：`compileGwt` 58 s，产物 `build/gwt/out/circuitjs1` 实测 12.4 MB / 5 个 permutation；`dist.sh` 仍失败（脚本自带 md5 校验，实测报 TestManager.java 哈希不符），但 `makeSite` 已把可部署站点拼出来（`site/`），电学三条已在同源浏览器里对上解析式（`../library/circuit-lab-evidence.json` 5/5） |
 | `matter-js/` | Matter.js，MIT | `--depth 1` 全仓 | 2,085 KB | 122 | 无头步进 pass；抛体 5/5（`../library/projectile_lab.mjs`）；碰撞 2/4（`../library/collisions_lab.mjs`：完全非弹性共速 pass，弹性正碰与牛顿摆不如预期） |
 | `rapier-js/` | Rapier JS 绑定，Apache-2.0 | `--depth 1` 全仓 | 2,074 KB | 179 | 仓库内 0 个 .wasm，可用产物走 `../components`；自由落体与带电粒子（脚本每步施加 qv×B）均已对解析式（`../library/field3d_lab.mjs` 5/5） |
 | `three/` | three.js，MIT | `--filter=blob:none` + sparse（src、examples/jsm、build、LICENSE…） | 23,623 KB | 1,514 | 稀疏检出，纯数学已 pass |
@@ -41,6 +41,6 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
 - 升级上游 = 重新克隆 + 更新 lock 文件的 commit 与实测记录，**不**在旧检出上打补丁。
 - lock 文件里的「实测」条目必须可复现；写新条目时把命令和输出一起记。
 - **稀疏检出的仓库必须把 LICENSE/NOTICE 一并检出**。three.js 第一次稀疏只取了 `src / examples/jsm / build`，仓库根 LICENSE 不在盘上——MIT 组件缺许可证文本是合规缺陷，不是小事（已补，见 lock 里 three 的 known_pits）。
-- **别把「装上了」写成「接通了」**。本目录现在的状态分四层：① Ray Optics 已接通（有模板、有适配器、出过离线包），并已用 `../library/optics_hall.mjs` 把平面镜/折射/全反射/凹透镜/三棱镜五项对了解析式（5/5 pass）；② myPhysicsLab 与 Rapier 已实测「无头能出数、数值能与解析式对照」（myPhysicsLab：单摆、弹簧；Rapier：自由落体、带电粒子、弹性碰撞；Matter：抛体），但还没有模板与适配器；③ Matter/three 的 npm 组件在本机 Node 里跑通了步进与几何；④ 其余引擎只是源码落盘，构建或本体仍 pending。对外描述资源库进度时按这四层说。
+- **别把「装上了」写成「接通了」**。本目录现在的状态分四层：① Ray Optics 已接通（有模板、有适配器、出过离线包），并已用 `../library/optics_hall.mjs` 把平面镜/折射/全反射/凹透镜/三棱镜五项对了解析式（5/5 pass）；② myPhysicsLab 与 Rapier 已实测「无头能出数、数值能与解析式对照」（myPhysicsLab：单摆、弹簧；Rapier：自由落体、带电粒子、弹性碰撞；Matter：抛体），但还没有模板与适配器；③ Matter/three 的 npm 组件在本机 Node 里跑通了步进与几何（Matter 另有一条抛体线）；CircuitJS1 走的是「同源浏览器 + 官方 JS 接口」这条第四类路径（能改参能读数，但不是无头，进不了 CI）；④ 其余引擎只是源码落盘，构建或本体仍 pending。对外描述资源库进度时按这四层说。
 - 改过上游清单（增删目录、换分支、换克隆方式）后，**重跑 `inspect_upstreams.py` 与 `python source/library/check_catalog.py`**，两边数字与路径要一致；后者 missing 不为 0 就不算装完。
 - 遍历本目录的脚本必须先剪枝：`phet/`、`webots/`、`three/` 等每个引擎目录都自带 `.git`，文件总数上万，用 `rglob`/`find` 全走一遍会明显变慢（AGENTS.md 第 4 节同一口径）。
