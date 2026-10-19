@@ -14,6 +14,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 import { findChromium } from "./ejss_headless_lab.mjs";
@@ -68,6 +69,16 @@ try {
   await p.waitForTimeout(6000);                     // 演示页要等 three.js 与 CDN 脚本就位
   const base = await p.evaluate(READ);
   report.baseline = base;
+  // 3D 页面的物理后果多半画在 canvas 上而不是写在 DOM 文本里，所以画面是这一类的可观测量。
+  // 但画面能当判据的前提是**它自己不动**：先连取两帧不作任何操作做对照组，两帧一致才允许用画面差异当证据
+  // （PhET 那轮就是栽在「动画仿真不按键也在变画」上，同一课不能摔第二次）。
+  const shot = async () => createHash("sha1").update(await p.screenshot()).digest("hex").slice(0, 12);
+  const shotA = await shot();
+  await p.waitForTimeout(1200);
+  const shotB = await shot();
+  report.render_control = { frame_a: shotA, frame_b: shotB, render_is_static: shotA === shotB,
+    note: "render_is_static=false 时画面差异一律不作判据（动画本底），只能靠 DOM 读数" };
+  console.log("渲染对照组：两帧 %s / %s ⇒ 静态=%s", shotA, shotB, report.render_control.render_is_static);
   console.log("基线：滑块 %d 个，读数 %d 个数字，canvas %d；文本 %s",
     base.sliders.length, base.number_tokens.length, base.has_canvas, base.text.slice(0, 90));
   if (!base.sliders.length) throw new Error("页面里没有 range 控件，判据不成立");
@@ -100,14 +111,21 @@ try {
     row.numbers_before = base.number_tokens;
     row.numbers_after = after.number_tokens;
     row.readout_changed = fingerprint(after) !== fingerprint(base);
+    const shotAfter = await shot();
+    // 画面通道只在「不操作时两帧一致」的前提下计分，并且要求改回原值后画面也回来（双向才排掉噪声）
+    row.picture = { baseline: shotA, after_write: shotAfter, changed: shotAfter !== shotA, usable: report.render_control.render_is_static };
     row.text_changed = after.text.slice(0, 200) !== base.text.slice(0, 200);
 
     // reverse：改回原值，读数应回到基线那一组
     await write(s.id, s.value); await p.waitForTimeout(900);
     const back = await p.evaluate(READ);
     row.reverts_to_baseline = fingerprint(back) === fingerprint(base);
+    const shotBack = await shot();
+    row.picture.reverted_to_baseline = shotBack === shotA;
+    const observable = row.readout_changed || (row.picture.usable && row.picture.changed && row.picture.reverted_to_baseline);
+    row.observable_channel = row.readout_changed ? "dom_readout" : (observable ? "static_canvas" : "none");
 
-    row.verdict = row.write.readback_matches && row.control_noop && row.readout_changed && row.reverts_to_baseline
+    row.verdict = row.write.readback_matches && row.control_noop && observable && row.reverts_to_baseline
       ? "agent_writable_and_observable"
       : row.write.readback_matches && row.control_noop ? "accepted_but_no_observable_change"
       : row.write.readback_matches ? "readback_ok_but_control_group_fails"

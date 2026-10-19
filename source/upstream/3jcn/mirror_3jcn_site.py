@@ -54,6 +54,7 @@ def main():
     for s in seeds:
         u = s if s.startswith("http") else urljoin(BASE, s)
         queue.append((u, 0))
+    report_cached = []
     while queue and fetched < maxn:
         url, d = queue.pop(0)
         if url in seen:
@@ -62,12 +63,17 @@ def main():
         if not same_origin(url):
             external.add(url)
             continue
+        dst = local_path(url)
+        if os.path.exists(dst) and os.path.getsize(dst) > 0:
+            # 已在盘上就跳过：上一轮跑到 --max 上限就停了，重跑时不该把 60 个文件再下一遍
+            report_cached.append(url)
+            seen.add(url)
+            continue
         try:
             raw, ctype = get(url)
         except Exception as e:                                    # noqa: BLE001
             failed.append({"url": url, "error": str(e)[:120]})
             continue
-        dst = local_path(url)
         os.makedirs(os.path.dirname(dst) or SITE, exist_ok=True)
         io.open(dst, "wb").write(raw)
         fetched += 1
@@ -85,10 +91,18 @@ def main():
                     if au not in seen:
                         queue.append((au, d + 1))
         elif d < depth:
-            # 资产本身也引资源（three.module.js 里的贴图、css 里的 url(...)）
+            # 资产本身也引资源。**这一版补上了 JS→JS 的 import**：jsm 里的 addon 会引
+            # ../js/three.module.js，上一版只跟 png/json/glb，所以那条 import 永远没进队列，
+            # 页面就卡在 404 上（表现是「无异常但没画面」，因为模块 import 失败不抛 pageerror）。
             t = raw.decode("utf-8", errors="replace")
-            for m in re.finditer(r"""["'(]([^"')]+\.(?:png|jpg|json|glb|gltf|woff|wasm))["')\s]""", t, re.I):
-                au = urljoin(url, m.group(1))
+            refs = [m.group(1) for m in re.finditer(r"""(?:from|import)\s+["']([^"']+)["']""", t)]
+            refs += [m.group(1) for m in re.finditer(r"""["'(]([^"')]+\.(?:png|jpg|json|glb|gltf|woff|wasm))["')\s]""", t, re.I)]
+            for ref in refs:
+                if not ref or ref.startswith(("data:", "http:", "https:", "#")):
+                    continue
+                if not (ref.startswith("./") or ref.startswith("../") or ref.startswith("/")):
+                    continue            # 裸 'three' 这类要靠 import map，不在这一步里猜
+                au = urljoin(url, ref)
                 if same_origin(au) and au not in seen:
                     queue.append((au, d + 1))
         print("  [%d] %s (%d B)" % (d, url.replace(BASE, "/"), len(raw)))
@@ -96,6 +110,7 @@ def main():
     report = {"base": BASE, "mirrored_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "seeds": seeds,
               "depth": depth, "max_files": maxn, "files_fetched": fetched,
               "site_bytes": sum(os.path.getsize(os.path.join(r, f)) for r, _, fs in os.walk(SITE) for f in fs) if os.path.isdir(SITE) else 0,
+              "already_on_disk_skipped": len(report_cached),
               "cross_origin_kept_as_is": sorted(external), "failed": failed}
     io.open(os.path.join(HERE, "3jcn-mirror.json"), "w", encoding="utf-8").write(json.dumps(report, ensure_ascii=False, indent=2))
     print("\nmirrored %d files into %s (%d B); 跨域保留 %d; 失败 %d" % (fetched, SITE, report["site_bytes"], len(external), len(failed)))
