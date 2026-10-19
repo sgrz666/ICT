@@ -302,7 +302,9 @@
         "examples": [
           "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_1.zip",
           "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_15.zip",
-          "source/upstream/resources/docs/CollectionTest/webejs_model_MultislitDiffraction.zip"
+          "source/upstream/resources/docs/CollectionTest/webejs_model_MultislitDiffraction.zip",
+          "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_18.zip",
+          "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_6.zip"
         ]
       },
       "known_pits": [
@@ -313,7 +315,9 @@
         "这批是 Java 桌面系（Swing/SwingJS）+ 静态 CDN 资源，形态与「浏览器离线交付包」不同路；webejs 只有 74 MB 工作区静态资源，模型本体不在里面。",
         "resources/ 的 201 个 html 是文档与收藏页，不是可直接改参的实验源。",
         "「包里带了 ejsS.v1.min.js」不等于能在浏览器打开：28/28 个模型包的 HTML 引用包外资源（样式表实际在 webejs/static/assets/_ejs_library/css/ 里），27/28 还引用包内不存在的文件（生成器把标题拼进目录名）。拼树部署 + 浏览器实测都还没做 ⇒ 视图层 pending。",
-        "EJSS 的 <Domain> 只在带参数页的模型里写：导出包普遍省略它（26/28 靠 Name/Value/Type 就能拿到参数表），按 domain==public 过滤会把整批模型误判成「没有可改参数」——probe_ejss_model.py 已改成「省略也算可调」，另有 2 个包（Ch2Ill/Ch2Prob）确实一个 <Variable> 都没有。"
+        "EJSS 的 <Domain> 只在带参数页的模型里写：导出包普遍省略它（26/28 靠 Name/Value/Type 就能拿到参数表），按 domain==public 过滤会把整批模型误判成「没有可改参数」——probe_ejss_model.py 已改成「省略也算可调」，另有 2 个包（Ch2Ill/Ch2Prob）确实一个 <Variable> 都没有。",
+        "unserialize() 有两种静默失效写法（只喂 model 子对象 / 直接改顶层字段），initialize() 的效果也不在同一 tick 生效 ⇒ 这类「不报错但没改」只能靠写后回读暴露，见 runtime_control_surface.silent_failures",
+        "文本探针读 .ejss/.xhtml 前要先证明解码对：decode() 原先先试 utf-16，不带 BOM 的偶数长度 UTF-8 会静默变乱码，把「有」读成「没有」（2026-10-19 已修为只认 BOM）"
       ],
       "status": "resource_installed",
       "resource_inventory": {
@@ -332,9 +336,46 @@
         "public_vars_median": 13,
         "zip_without_model": 55,
         "measured_note": "6 仓里 84 个 zip 扫下来只有 28 个带 .ejss 模型源码（其余 55 个是文档/图片/网页壳）；其中 26 个能程序化读出可改参数表（7~29 个，中位 13），28 个能取到模型自己的代码块，27 个自带 ejsS.v1.min.js 运行时。",
-        "measured_negative": "但「自带运行时 = 能在浏览器里打开」这条不成立：28 个包里有 28 个的 HTML 引用了包外路径（例：MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css），27 个还引用了包内根本没有的文件（生成器把标题拼进了目录名，例：Ch2Ill.xhtml -> \"One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml\"）。实测缺的那个 ejss.css 不在模型包里，而在另一个仓库 webejs/static/assets/_ejs_library/css/ejss.css ⇒ 要跑视图层必须把模型包与 webejs 的静态资源树拼起来部署，本轮没有拼、也没在浏览器里验证过，所以这条标 pending，不许写成「离线可打开」。"
+        "measured_negative": "但「自带运行时 = 能在浏览器里打开」这条不成立：28 个包里有 28 个的 HTML 引用了包外路径（例：MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css），27 个还引用了包内根本没有的文件（生成器把标题拼进了目录名，例：Ch2Ill.xhtml -> \"One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml\"）。实测缺的那个 ejss.css 不在模型包里，而在另一个仓库 webejs/static/assets/_ejs_library/css/ejss.css ⇒ 要跑视图层必须把模型包与 webejs 的静态资源树拼起来部署，本轮没有拼、也没在浏览器里验证过，所以这条标 pending，不许写成「离线可打开」。",
+        "entry_page_scope": {
+          "measured_at": "2026-10-19（survey 新增 deliverability()，只看仿真主页面）",
+          "family_breakdown": {
+            "ejs6": 25,
+            "webejs": 1,
+            "no_sim_page_container": 2
+          },
+          "entry_pages_offline_ready": 25,
+          "entry_pages_needing_cdn_localise": 1,
+          "entry_pages_with_missing_local_ref": 0,
+          "entry_pages_with_model_global": 26,
+          "entry_pages_with_baked_var_comments": 25,
+          "scope_note": "整包所有 HTML 的 28/28、27/28 那两个计数把包装页（EjsLauncher/_Contents）算在内；坏路径在包装页，仿真主页面引用缺失文件实测为 0",
+          "coverage_caveat": "25 个 EJS 6.02 包全部来自 resources/docs/PP/Ch02（一维运动学一章题集），不是 25 个不同学科实验",
+          "evidence": "source/upstream/ejss-survey.json"
+        },
+        "retracted_claims": [
+          "『另外 27 个 EJS 导出包的内部路径要先修才谈得上同样处理』（上一轮 source/README.md）过宽，作废：主页面解压即用，已在 2 个模型上实测",
+          "survey 第一版报『0 个包有 _model / 0 个包要改 CDN』是探针坏了：decode() 先试 utf-16，不带 BOM 的偶数长度 UTF-8 被静默解成乱码；已修并与直连 grep 对照后重跑"
+        ]
       },
-      "offline_view_evidence": "source/upstream/ejss-offline-evidence.json"
+      "offline_view_evidence": "source/upstream/ejss-offline-evidence.json",
+      "runtime_control_surface": {
+        "evidence": "source/upstream/ejss-runtime-evidence.json",
+        "measured_models": 2,
+        "models": [
+          "Illustration2_6 Free Fall（dt=0.1，Initialization 会重赋 y/v/t）",
+          "Problem2_18 Tennis Ball Launcher（dt=0.02，Initialization 代码块长度实测 0）"
+        ],
+        "surface": "window._model 暴露 initialize/step/update/play/pause/reset/serialize/unserialize；step() 不依赖 requestAnimationFrame",
+        "numbers": "Illustration2_6：t=1.9 处 y=27.31099999999999 vs 45-4.9*1.9^2=27.311（~1e-13）；Problem2_18：t=0.1/0.2/0.4 三点 y、v 全落在 y0+v0*t+0.5*a*t^2 上，注入 y_r=3.5/v_r=6.0 后一步得 3.61804/5.804 与解析值逐位相同",
+        "silent_failures": [
+          "unserialize() 只喂 serialize() 里的 model 子对象（不报错、不改状态；要喂完整信封）",
+          "直接改 _model.<字段>（读回是新值，step 后仍走原轨迹）",
+          "同一 tick 里 initialize() 后立刻读状态（t 不会被重置）"
+        ],
+        "acceptance_rule": "写值后必须立即 serialize 回读比对注入值，再 step 对解析式；只看有没有异常会假通过",
+        "pending": "其余 24 个有主页面的包只做过结构探测，运行时语义与画布视觉未逐个验"
+      }
     },
     {
       "id": "3jcn-catalog",
@@ -1207,7 +1248,10 @@
     "phet_published_tool": "source/upstream/fetch_phet_published.py",
     "phet_published_manifest": "source/upstream/phet-published.json",
     "phet_published_log": "source/upstream/phet-published-log.tsv",
-    "ejss_offline_tool": "source/upstream/webejs_offline_try.py",
-    "ejss_offline_evidence": "source/upstream/ejss-offline-evidence.json"
+    "ejss_offline_tool": "source/upstream/assemble_ejss_offline.py",
+    "ejss_offline_evidence": "source/upstream/ejss-offline-evidence.json",
+    "ejss_runtime_evidence": "source/upstream/ejss-runtime-evidence.json",
+    "ejss_assemble_tool": "source/upstream/assemble_ejss_offline.py",
+    "ejss_entry_page_scope": "source/upstream/ejss-survey.json"
   }
 }

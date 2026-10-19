@@ -44,7 +44,11 @@ def load_source(path: Path) -> tuple[str, str]:
 
 
 def decode(raw: bytes) -> str:
-    for enc in ("utf-16", "utf-8-sig", "utf-8", "latin-1"):
+    # 只看 BOM 判 UTF-16：不带 BOM 的 ASCII/UTF-8 文件长度为偶数时能被 utf-16 「解成功」，
+    # 结果是整篇乱码却毫不报错（2026-10-19 实测：仿真页里的 var _model / CDN 引用因此全部读成 0）。
+    if raw[:2] in (b"\xff\xfe", b"\xfe\xff") or raw[:4] == b"\x00\x00\xfe\xff":
+        return raw.decode("utf-16")
+    for enc in ("utf-8-sig", "utf-8", "latin-1"):
         try:
             return raw.decode(enc)
         except UnicodeDecodeError:

@@ -21,7 +21,19 @@
     "public_vars_min": 7,
     "public_vars_median": 13,
     "public_vars_max": 29,
-    "parse_errors": 0
+    "parse_errors": 0,
+    "entry_page_family_breakdown": {
+      "webejs": 1,
+      "no-sim-page": 2,
+      "ejs6": 25
+    },
+    "entry_page_offline_ready": 25,
+    "entry_page_needs_cdn_localise": 1,
+    "entry_page_with_missing_local_ref": 0,
+    "entry_page_with_model_global": 26,
+    "entry_page_with_serialize_unserialize": 26,
+    "entry_page_with_baked_var_comments": 25,
+    "note_bundle_health_scope": "上面两个 refs_* 计数是把包里所有 HTML（含外层介绍页）混在一起数的；仿真主页面能不能断网加载看 entry_page_* 这几项，两者结论不同，别互相替代。"
   },
   "models": [
     {
@@ -38,9 +50,20 @@
         "refs_escape_bundle": 2,
         "refs_missing_inside": 0,
         "examples": [
-          "MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css (指向包外)",
-          "MultipleSlitDiffraction/MultipleSlitParticles.html -> ../resources/ejss.css (指向包外)"
+          "MultipleSlitDiffraction/MultipleSlitParticles.html -> ../resources/ejss.css (指向包外)",
+          "MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "webejs",
+        "entry": "_simulation.xhtml",
+        "entry_bytes": 37306,
+        "remote_loads": 6,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 0
       },
       "title": "Multislit Diffraction",
       "public_vars": 22,
@@ -65,10 +88,21 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 3,
         "examples": [
-          "Ch2Ill.xhtml -> One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml (包内缺失)",
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
-          "Ch2Ill_Contents.xhtml -> One-Dimensional Kinematics Illustrations_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+          "Ch2Ill_Contents.xhtml -> One-Dimensional Kinematics Illustrations_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "Ch2Ill_Contents.xhtml -> One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml (包内缺失)",
+          "Ch2Ill.xhtml -> One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml (包内缺失)"
         ]
+      },
+      "deliverability": {
+        "family": null,
+        "entry": null,
+        "entry_bytes": null,
+        "remote_loads": null,
+        "local_loads_missing": 0,
+        "model_global": false,
+        "serialize": false,
+        "unserialize": false,
+        "baked_var_comments": 0
       },
       "title": "One-Dimensional Kinematics Illustrations",
       "public_vars": 0,
@@ -91,10 +125,21 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 3,
         "examples": [
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
           "Ch2Prob_Contents.xhtml -> One-Dimensional Kinematics Problems_ejs_library/css/ejsContentsLeft.css (包内缺失)",
-          "Ch2Prob_Contents.xhtml -> One-Dimensional Kinematics Problems./ch2_problems.xhtml (包内缺失)"
+          "Ch2Prob_Contents.xhtml -> One-Dimensional Kinematics Problems./ch2_problems.xhtml (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": null,
+        "entry": null,
+        "entry_bytes": null,
+        "remote_loads": null,
+        "local_loads_missing": 0,
+        "model_global": false,
+        "serialize": false,
+        "unserialize": false,
+        "baked_var_comments": 0
       },
       "title": "One-Dimensional Kinematics Problems",
       "public_vars": 0,
@@ -117,10 +162,21 @@
         "refs_escape_bundle": 2,
         "refs_missing_inside": 3,
         "examples": [
-          "Illustration2_1.xhtml -> Illustration 2.1: Position and Displacement./ejss_html_Illustration2_1.html (包内缺失)",
           "Illustration2_1_Contents.xhtml -> Illustration 2.1: Position and Displacement_ejs_library/css/ejsContentsLeft.css (包内缺失)",
-          "Illustration2_1_Contents.xhtml -> Illustration 2.1: Position and Displacement./ejss_html_Illustration2_1.html (包内缺失)"
+          "Illustration2_1_Contents.xhtml -> Illustration 2.1: Position and Displacement./ejss_html_Illustration2_1.html (包内缺失)",
+          "ejss_html_Illustration2_1.html -> ../../_css/ejsPage.css (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Illustration2_1_Simulation.xhtml",
+        "entry_bytes": 40297,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 18
       },
       "title": "Illustration 2.1: Position and Displacement",
       "public_vars": 10,
@@ -151,6 +207,17 @@
           "Illustration2_2_Contents.xhtml -> Illustration 2.2: Average Velocity_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Illustration2_2_Simulation.xhtml",
+        "entry_bytes": 41642,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 20
+      },
       "title": "Illustration 2.2: Average Velocity",
       "public_vars": 12,
       "vars_total": 12,
@@ -174,9 +241,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
-          "Illustration2_3_Contents.xhtml -> Illustration 2.3: Average and Instantaneous Velocity_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+          "Illustration2_3_Contents.xhtml -> Illustration 2.3: Average and Instantaneous Velocity_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Illustration2_3_Simulation.xhtml",
+        "entry_bytes": 60259,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 50
       },
       "title": "Illustration 2.3: Average and Instantaneous Velocity",
       "public_vars": 29,
@@ -207,6 +285,17 @@
           "Illustration2_4_Contents.xhtml -> Illustration 2.4: Constant Acceleration and Measurement_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Illustration2_4_Simulation.xhtml",
+        "entry_bytes": 37900,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 18
+      },
       "title": "Illustration 2.4: Constant Acceleration and Measurement",
       "public_vars": 11,
       "vars_total": 11,
@@ -231,9 +320,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
-          "Illustration2_5_Contents.xhtml -> Illustration 2.5: Motion on a Ramp_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+          "Illustration2_5_Contents.xhtml -> Illustration 2.5: Motion on a Ramp_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Illustration2_5_Simulation.xhtml",
+        "entry_bytes": 52615,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 42
       },
       "title": "Illustration 2.5: Motion on a Ramp",
       "public_vars": 23,
@@ -263,6 +363,17 @@
           "Illustration2_6_Contents.xhtml -> Illustration 2.6: Free Fall_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Illustration2_6_Simulation.xhtml",
+        "entry_bytes": 53832,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 42
+      },
       "title": "Illustration 2.6: Free Fall",
       "public_vars": 24,
       "vars_total": 24,
@@ -286,9 +397,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "Problem2_01_Contents.xhtml -> Problem 2.1: Position Vs. Time_ejs_library/css/ejsContentsLeft.css (包内缺失)",
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_01_Contents.xhtml -> Problem 2.1: Position Vs. Time_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_01_Simulation.xhtml",
+        "entry_bytes": 38181,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 20
       },
       "title": "Problem 2.1: Position Vs. Time",
       "public_vars": 12,
@@ -318,6 +440,17 @@
           "Problem2_02_Contents.xhtml -> Problem 2.2:  Sliding Hockey Puck_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_02_Simulation.xhtml",
+        "entry_bytes": 31492,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 22
+      },
       "title": "Problem 2.2:  Sliding Hockey Puck",
       "public_vars": 13,
       "vars_total": 13,
@@ -345,6 +478,17 @@
           "Problem2_03_Contents.xhtml -> Problem 2.3: Matching Helicopter Flight_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_03_Simulation.xhtml",
+        "entry_bytes": 39765,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 28
+      },
       "title": "Problem 2.3: Matching Helicopter Flight",
       "public_vars": 16,
       "vars_total": 16,
@@ -369,9 +513,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "Problem2_04_Contents.xhtml -> Problem 2.4:  Golf Balls Putt Comparison_ejs_library/css/ejsContentsLeft.css (包内缺失)",
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_04_Contents.xhtml -> Problem 2.4:  Golf Balls Putt Comparison_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_04_Simulation.xhtml",
+        "entry_bytes": 44466,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 24
       },
       "title": "Problem 2.4:  Golf Balls Putt Comparison",
       "public_vars": 14,
@@ -400,6 +555,17 @@
           "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_05_Simulation.xhtml",
+        "entry_bytes": 31360,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 18
+      },
       "title": "Problem 2.5: Puck Bounces Between Two Walls",
       "public_vars": 11,
       "vars_total": 11,
@@ -424,9 +590,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "Problem2_06_Contents.xhtml -> Problem 2.6: Constant Velocity Putt-Putt_ejs_library/css/ejsContentsLeft.css (包内缺失)",
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_06_Contents.xhtml -> Problem 2.6: Constant Velocity Putt-Putt_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_06_Simulation.xhtml",
+        "entry_bytes": 51655,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 38
       },
       "title": "Problem 2.6: Constant Velocity Putt-Putt",
       "public_vars": 21,
@@ -456,6 +633,17 @@
           "Problem2_07_Contents.xhtml -> Problem 2.7: Acceleration of Carts_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_07_Simulation.xhtml",
+        "entry_bytes": 38385,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 22
+      },
       "title": "Problem 2.7: Acceleration of Carts",
       "public_vars": 13,
       "vars_total": 13,
@@ -480,9 +668,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "Problem2_08_Contents.xhtml -> Problem 2.8: Purple Truck Catching Yellow Truck_ejs_library/css/ejsContentsLeft.css (包内缺失)",
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_08_Contents.xhtml -> Problem 2.8: Purple Truck Catching Yellow Truck_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_08_Simulation.xhtml",
+        "entry_bytes": 34568,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 12
       },
       "title": "Problem 2.8: Purple Truck Catching Yellow Truck",
       "public_vars": 7,
@@ -512,6 +711,17 @@
           "Problem2_09_Contents.xhtml -> Problem 2.9: Simulation of a Helium Balloon_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_09_Simulation.xhtml",
+        "entry_bytes": 30221,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 12
+      },
       "title": "Problem 2.9: Simulation of a Helium Balloon",
       "public_vars": 7,
       "vars_total": 7,
@@ -535,9 +745,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
-          "Problem2_10_Contents.xhtml -> Problem 2.10: Rope Holding a Hot Air Balloon Cargo_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+          "Problem2_10_Contents.xhtml -> Problem 2.10: Rope Holding a Hot Air Balloon Cargo_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_10_Simulation.xhtml",
+        "entry_bytes": 39116,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 28
       },
       "title": "Problem 2.10: Rope Holding a Hot Air Balloon Cargo",
       "public_vars": 16,
@@ -565,6 +786,17 @@
           "Problem2_11_Contents.xhtml -> Problem 2.11: Golf Ball on a Wet Green_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_11_Simulation.xhtml",
+        "entry_bytes": 34342,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 20
+      },
       "title": "Problem 2.11: Golf Ball on a Wet Green",
       "public_vars": 12,
       "vars_total": 12,
@@ -590,6 +822,17 @@
           "Problem2_12_Contents.xhtml -> Problem 2.12: Car with Two Springs_ejs_library/css/ejsContentsLeft.css (包内缺失)",
           "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_12_Simulation.xhtml",
+        "entry_bytes": 31331,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 18
       },
       "title": "Problem 2.12: Car with Two Springs",
       "public_vars": 10,
@@ -618,6 +861,17 @@
           "Problem2_13_Contents.xhtml -> Problem 2.13: Golf Ball Putted Up a Steep Hill on a Green_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_13_Simulation.xhtml",
+        "entry_bytes": 41152,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 34
+      },
       "title": "Problem 2.13: Golf Ball Putted Up a Steep Hill on a Green",
       "public_vars": 19,
       "vars_total": 19,
@@ -643,9 +897,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "Problem2_14_Contents.xhtml -> Problem 2.14: Golf Ball on a Sloping Green_ejs_library/css/ejsContentsLeft.css (包内缺失)",
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
+          "Problem2_14_Contents.xhtml -> Problem 2.14: Golf Ball on a Sloping Green_ejs_library/css/ejsContentsLeft.css (包内缺失)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_14_Simulation.xhtml",
+        "entry_bytes": 35140,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 26
       },
       "title": "Problem 2.14: Golf Ball on a Sloping Green",
       "public_vars": 14,
@@ -673,6 +938,17 @@
           "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
       },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_15_Simulation.xhtml",
+        "entry_bytes": 56659,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 42
+      },
       "title": "Problem 2.15: Constant Acceleration Putt-Putt",
       "public_vars": 23,
       "vars_total": 23,
@@ -697,9 +973,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
-          "Problem2_16_Contents.xhtml -> Problem 2.16: Constant Acceleration Putt-Putt_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+          "Problem2_16_Contents.xhtml -> Problem 2.16: Constant Acceleration Putt-Putt_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_16_Simulation.xhtml",
+        "entry_bytes": 56233,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 42
       },
       "title": "Problem 2.16: Constant Acceleration Putt-Putt",
       "public_vars": 23,
@@ -725,9 +1012,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
-          "Problem2_17_Contents.xhtml -> Problem 2.17: Find Velocity from Position_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+          "Problem2_17_Contents.xhtml -> Problem 2.17: Find Velocity from Position_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_17_Simulation.xhtml",
+        "entry_bytes": 34771,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 18
       },
       "title": "Problem 2.17: Find Velocity from Position",
       "public_vars": 10,
@@ -752,9 +1050,20 @@
         "refs_escape_bundle": 1,
         "refs_missing_inside": 1,
         "examples": [
-          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)",
-          "Problem2_18_Contents.xhtml -> Problem 2.18: Tennis Ball Launcher_ejs_library/css/ejsContentsLeft.css (包内缺失)"
+          "Problem2_18_Contents.xhtml -> Problem 2.18: Tennis Ball Launcher_ejs_library/css/ejsContentsLeft.css (包内缺失)",
+          "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_18_Simulation.xhtml",
+        "entry_bytes": 34973,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 18
       },
       "title": "Problem 2.18: Tennis Ball Launcher",
       "public_vars": 10,
@@ -781,6 +1090,17 @@
           "Problem2_19_Contents.xhtml -> Problem 2.19: Tennis Ball Launcher_ejs_library/css/ejsContentsLeft.css (包内缺失)",
           "_ejs_library/html/EjsLauncher.html -> ../images/Gyroscope.gif (指向包外)"
         ]
+      },
+      "deliverability": {
+        "family": "ejs6",
+        "entry": "Problem2_19_Simulation.xhtml",
+        "entry_bytes": 29462,
+        "remote_loads": 0,
+        "local_loads_missing": 0,
+        "model_global": true,
+        "serialize": true,
+        "unserialize": true,
+        "baked_var_comments": 14
       },
       "title": "Problem 2.19: Tennis Ball Launcher",
       "public_vars": 8,

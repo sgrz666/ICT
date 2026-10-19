@@ -1,0 +1,102 @@
+{
+  "measured_at": "2026-10-19T07:52Z",
+  "title": "EJSS 导出包的运行时控制面实测：两个模型各自跑通 bake/serialize/step，并量出 unserialize 的两个静默失效条件",
+  "scope_note": "这里只有两个模型真在浏览器里跑过（Illustration2_6 与 Problem2_18）。28 个包的结构性就绪度由 survey_ejss_models.py 全量扫描给出（见 ejss-survey.json 的 entry_page_* 计数），结构性存在不等于运行时已验。",
+  "models": [
+    {
+      "id": "Illustration2_6",
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_6.zip",
+      "entry": "Illustration2_6_Simulation.xhtml",
+      "family": "ejs6",
+      "assemble_command": "python source/upstream/assemble_ejss_offline.py source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_6.zip --param y=45 --param a=-9.8",
+      "assembly": {
+        "cdn_rewrites": 0,
+        "baked_param_rewrites": { "y": { "from": "80.0", "to": "45", "count": 5 }, "a": { "from": "-10.0", "to": "-9.8", "count": 1 } },
+        "https_refs_left": 1,
+        "https_note": "唯一一处是正文里的 CC 许可链接（<a href>），不是资源加载"
+      },
+      "runtime_probe": {
+        "api_present": ["initialize", "step", "update", "play", "pause", "reset", "serialize", "unserialize"],
+        "state_after_page_load": { "y": 45, "v": 0, "a": -9.8, "t": 0, "dt": 0.1, "tmax": 4, "animation": 1 },
+        "trajectory_vs_analytic": [
+          { "t": 1.9, "engine_y": 27.31099999999999, "analytic_y": "45 − 4.9·1.9² = 27.311", "abs_diff": "≈1e-13" }
+        ],
+        "write_state": { "injected": { "y": 20, "v": 0, "a": -9.8 }, "one_step_y": 19.951, "analytic": "20 + ½·(−9.8)·0.1² = 19.951", "abs_diff": "0（6 位小数内）", "one_step_v": -0.98 },
+        "landing_check": { "engine_t_when_y_le_0": 3.099994, "analytic": "√(2·45/9.8) = 3.030458", "rel_error_pct": 2.29, "attribution": "落地事件只在步长格点上判定，dt=0.1 ⇒ 量化误差 ~0.07 s（<dt）；不是积分误差：轨迹点上的 y/v 与解析式一致到 1e-13（leapfrog 对恒定加速度是精确的）" }
+      }
+    },
+    {
+      "id": "Problem2_18",
+      "purpose": "换一个模型、换一组变量名、换 dt 与事件机制，验证上面那条控制面不是 Illustration2_6 的特例",
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_18.zip",
+      "entry": "Problem2_18_Simulation.xhtml",
+      "family": "ejs6",
+      "ejss_source": "Problem2_18.ejss（public 变量 10 个：y_g,y_r,v_r,v_g,a,t,dt,ball_size,msg + 1 个无名解析产物）",
+      "assemble_command": "python source/upstream/assemble_ejss_offline.py source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_18.zip --param y_r=2.0 --param v_r=10.0 --param a=-9.8",
+      "assembly": {
+        "cdn_rewrites": 0,
+        "baked_param_rewrites": { "y_r": { "from": "1.0", "to": "2.0", "count": 1 }, "v_r": { "from": "8.0", "to": "10.0", "count": 1 }, "a": { "from": "-10.0", "to": "-9.8", "count": 1 } },
+        "note": "Initialization 代码块长度为 0 ⇒ 这个模型的初值只来自变量默认值，烘焙是唯一能改初值的入口之一"
+      },
+      "runtime_probe": {
+        "api_present": ["initialize", "step", "update", "play", "pause", "reset", "serialize", "unserialize"],
+        "state_after_page_load": { "y_r": 2, "v_r": 10, "a": -9.8, "t": 0, "dt": 0.02 },
+        "baked_reached_engine": "烘焙的 y_r=2 / v_r=10 / a=-9.8 正是运行时 serialize() 读回来的值 ⇒ 改参数确实进了引擎",
+        "trajectory_vs_analytic_baked": [
+          { "t": 0.1, "engine_y": 2.9509999999999996, "analytic": "2 + 10·0.1 − 4.9·0.01 = 2.951", "engine_v": 9.020000000000001, "analytic_v": 9.02 },
+          { "t": 0.2, "engine_y": 3.804, "analytic": "3.804", "engine_v": 8.040000000000003, "analytic_v": 8.04 },
+          { "t": 0.4, "engine_y": 5.216, "analytic": "5.216", "engine_v": 6.080000000000005, "analytic_v": 6.08 }
+        ],
+        "write_state_full_envelope": {
+          "injected": { "y_r": 3.5, "v_r": 6.0, "t": 0 },
+          "readback_immediate": { "y_r": 3.5, "v_r": 6.0, "t": 0 },
+          "one_step": { "t": 0.02, "y_r": 3.61804, "v_r": 5.804 },
+          "analytic": "y = 3.5 + 6·0.02 − 4.9·0.02² = 3.61804 ；v = 6 − 9.8·0.02 = 5.804",
+          "abs_diff": "0（给定位数内）"
+        }
+      }
+    }
+  ],
+  "silently_failing_write_paths_measured": [
+    {
+      "form": "unserialize( 只传 serialize() 里的 model 子对象 )",
+      "observed": "不抛异常、不改状态：随后 step() 得到的仍是烘焙值（t=0.02 时 y_r=2.198、v_r=9.804，正是起点 y_r=2/v_r=10 的抛物线）",
+      "correct_form": "unserialize( serialize() 的完整返回值 )——里面是 {\"model\":{…},\"view\":{…}} 信封，必须整份回传",
+      "why_it_matters": "Agent 若按『改 model 字段再写回』的直觉调用，会拿到一个看似成功实则毫无变化的运行；验收必须写回读（unserialize 后立即 serialize 比对注入值），不能只看 step 没报错"
+    },
+    {
+      "form": "直接改字段 _model.y_r = 1.25",
+      "observed": "读回来是 1.25，但 step() 后引擎仍按原轨迹走（y_r 从 3.61804 走到 3.73216）⇒ 真正的状态不在这些顶层字段上",
+      "correct_form": "同上，走 unserialize 全信封"
+    },
+    {
+      "form": "同一 tick 里调用 initialize() 后立刻读状态",
+      "observed": "t 没被重置（跑过 20 步后 initialize() 再 serialize 仍是 t=0.12）⇒ initialize 的效果不同步可见",
+      "correct_form": "把『页面刚加载完』当作已初始化态；需要重置就重新加载页面，别指望同 tick 的 initialize()"
+    }
+  ],
+  "structural_readiness_28_packages": {
+    "source": "survey_ejss_models.py（本轮修好 decode 后全量重跑）",
+    "ejss_models_unique": 28,
+    "entry_page_family_breakdown": { "ejs6": 25, "webejs": 1, "no_sim_page": 2 },
+    "entry_page_offline_ready": 25,
+    "entry_page_needs_cdn_localise": 1,
+    "entry_page_with_missing_local_ref": 0,
+    "entry_page_with_model_global": 26,
+    "entry_page_with_serialize_unserialize": 26,
+    "entry_page_with_baked_var_comments": 25,
+    "caveat_scope": "25 个 EJS 6.02 包全部来自 resources/docs/PP/Ch02（一维运动学一个章节的题集），不是 25 个不同学科实验；webejs 那个才是多缝衍射",
+    "runtime_verified": 2
+  },
+  "corrections_to_previous_claims": [
+    "旧说法『另外 27 个 EJS 导出包的内部路径要先修才谈得上同样处理』过宽，作废：survey 的 refs_escape_bundle/refs_missing_inside 是把包里所有 HTML（含 EjsLauncher、_Contents 等包装页）混在一起数的；只看向导页时 26 个可运行包的主页面 local_loads_missing 全为 0，25 个连远程加载都是 0。要修的确实是那批包装页，但主页面本来就是解压即用。",
+    "本轮差点写下相反的假结论：survey 第一版把每个包都报成 remote_loads=0、model_global=False，因为 probe_ejss_model.decode() 先试 utf-16——不带 BOM 的偶数长度 UTF-8 文件会被它静默解成乱码。直连 grep 的对照值（var _model 2、src=\"http 4）暴露了这一点。教训：文本探针必须先证明解码正确，否则 0 是探针坏了不是资源没有。"
+  ],
+  "what_this_unlocks": "对 25 个 EJS 6.02 包通用的三条 Agent 能力（结构上都在，运行时已验 2 个）：①按变量名烘焙默认值（赋值行带 // EjsS Model.Variables.<页>.Vars.<name> 注释，可精确定位）②运行时 serialize() 读数 ③step() 推进并逐项对解析式。第④条『unserialize() 写数』已验 2 个模型，但必须整份信封 + 写后回读。",
+  "not_yet_verified": [
+    "其余 24 个包的运行时语义（尤其带自定义事件/多粒子动画的）未逐个在浏览器里跑过，只做了结构探测",
+    "画布没画（本机内置浏览器无可见 surface，rAF 0 帧）⇒ 画面正确性目前靠数值 + 解析式判，视觉确认待有头浏览器",
+    "落点这类事件判定的 dt 量化要在模板里显式声明容差，不能要求 0.1% 级",
+    "包装页（EjsLauncher/_Contents 那类）的路径修复没做，只确认可导页本身是好的"
+  ]
+}

@@ -67,6 +67,62 @@ def bundle_health(raw: bytes) -> dict:
     return out
 
 
+def deliverability(raw: bytes) -> dict:
+    """只看仿真主页面（不是外层介绍页）能不能断网加载、有没有运行时控制面。
+
+    区分两族很关键：webejs 导出的主页用 `<script src="https://cdn.jsdelivr.net/...">` 取运行时，
+    EJS 6.02 导出的主页把 `_ejs_library/` 装在包里、0 个远程加载。此前的「28/28 都有包外引用」
+    是把整包所有 HTML（含包装页）混在一起数的，会把「主页面其实能用」这条好消息一起埋掉。
+    控制面按文本特征判定（`var _model` + serialize/unserialize），真机数值另见
+    `ejss-runtime-evidence.json`；这里只回答「哪些包值得拿去实测」。
+    """
+    import posixpath
+    import re
+
+    out = {"family": None, "entry": None, "entry_bytes": None, "remote_loads": None,
+           "local_loads_missing": 0, "model_global": False, "serialize": False,
+           "unserialize": False, "baked_var_comments": 0}
+    try:
+        with zipfile.ZipFile(io.BytesIO(raw)) as zf:
+            names = set(zf.namelist())
+            pages = [n for n in names if n.lower().endswith((".html", ".xhtml"))]
+            if not pages:
+                return out
+            low = {n.lower(): n for n in pages}
+            if "_simulation.xhtml" in low:            # webejs 导出：根下就叫 _simulation.xhtml
+                out["family"], entry = "webejs", low["_simulation.xhtml"]
+            else:                                     # EJS 6.02 导出：<Name>_Simulation.xhtml
+                hit = [n for n in pages if n.lower().endswith("_simulation.xhtml")]
+                if hit:
+                    out["family"], entry = "ejs6", sorted(hit)[-1]
+            if not entry:
+                return out
+            raw_bytes = zf.read(entry)
+            out["entry"], out["entry_bytes"] = entry, len(raw_bytes)
+            text = decode(raw_bytes)
+            out["model_global"] = bool(re.search(r"\bvar\s+_model\b", text))
+            out["serialize"] = "serialize" in text
+            out["unserialize"] = "unserialize" in text
+            out["baked_var_comments"] = len(re.findall(r"EjsS Model\.Variables", text))
+            remote = local_missing = 0
+            # 不能只按标签属性匹配：webejs 那族的 <script src> 是运行时用 document.write 拼出来的，
+            # 远程地址在 JS 字符串里。所以 src="http…" 一律算远程加载；href 只在 <link> 上算，
+            # 正文里的 <a href="http…">（许可链接等）不算加载，别把它当成「断网打不开」。
+            remote = len(re.findall(r'src\s*=\s*["\']https?://', text, re.I))
+            remote += len(re.findall(r'<link\b[^>]{0,400}?href\s*=\s*["\']https?://', text, re.I | re.S))
+            for m in re.finditer(r'<(?:script|link|iframe|img)\b[^>]{0,400}?\b(?:src|href)="([^"]+)"', text, re.I | re.S):
+                ref = m.group(1)
+                if ref.startswith(("http:", "https:", "data:", "#", "/")):
+                    continue
+                target = posixpath.normpath(posixpath.join(posixpath.dirname(entry), ref))
+                if target.lstrip("/") not in names:
+                    local_missing += 1
+            out["remote_loads"], out["local_loads_missing"] = remote, local_missing
+    except Exception:
+        pass
+    return out
+
+
 def zip_entries(raw: bytes):
     """列出 zip 里的模型源码、运行时、启动页与嵌套 zip。"""
     out = {"ejss": [], "ejs": [], "runtime": None, "launcher": None, "nested": [], "html": 0}
@@ -141,10 +197,12 @@ def main() -> int:
         if not sources:
             containers += 1  # 只是把一批子 zip 打在一起的外层包
         health = bundle_health(raw)
+        deliv = deliverability(raw)
         for name, size in sources:
             key = Path(name).stem.lower()
             entry = {"zip": rel, "member": name, "member_bytes": size, "self_contained": has_runtime,
-                     "launcher": top["launcher"], "kind": "ejss", "bundle_health": health}
+                     "launcher": top["launcher"], "kind": "ejss", "bundle_health": health,
+                     "deliverability": deliv}
             if key not in models:
                 try:
                     with zipfile.ZipFile(io.BytesIO(raw)) as zf:
@@ -160,12 +218,14 @@ def main() -> int:
             except Exception:
                 continue
             got = zip_entries(inner)
+            deliv_inner = deliverability(inner)
             for mname, msize in got["ejss"]:
                 key = Path(mname).stem.lower()
                 if key in models:
                     continue
                 entry = {"zip": f"{rel}::{name}", "member": mname, "member_bytes": msize,
-                         "self_contained": bool(got["runtime"]), "launcher": got["launcher"], "kind": "ejss"}
+                         "self_contained": bool(got["runtime"]), "launcher": got["launcher"],
+                         "kind": "ejss", "deliverability": deliv_inner}
                 try:
                     with zipfile.ZipFile(io.BytesIO(inner)) as zf2:
                         entry.update(model_info(zf2.read(mname)))
@@ -183,6 +243,20 @@ def main() -> int:
     escape_bundles = [m for m in vals if (m.get("bundle_health") or {}).get("refs_escape_bundle")]
     broken_inside = [m for m in vals if (m.get("bundle_health") or {}).get("refs_missing_inside")]
 
+    def dv(m):
+        return m.get("deliverability") or {}
+
+    fam = {}
+    for m in vals:
+        fam[dv(m).get("family") or "no-sim-page"] = fam.get(dv(m).get("family") or "no-sim-page", 0) + 1
+    offline_ready = [m for m in vals if dv(m).get("entry") and not dv(m).get("remote_loads")
+                     and not dv(m).get("local_loads_missing")]
+    needs_localise = [m for m in vals if dv(m).get("remote_loads")]
+    entry_broken = [m for m in vals if dv(m).get("local_loads_missing")]
+    with_global = [m for m in vals if dv(m).get("model_global")]
+    with_serde = [m for m in vals if dv(m).get("serialize") and dv(m).get("unserialize")]
+    with_baked = [m for m in vals if dv(m).get("baked_var_comments")]
+
     summary = {
         "roots_scanned": ROOTS,
         "zip_files_scanned": scanned,
@@ -199,6 +273,15 @@ def main() -> int:
         "public_vars_median": var_counts[len(var_counts) // 2] if var_counts else None,
         "public_vars_max": var_counts[-1] if var_counts else None,
         "parse_errors": sum(1 for m in vals if m.get("error")),
+        "entry_page_family_breakdown": fam,
+        "entry_page_offline_ready": len(offline_ready),
+        "entry_page_needs_cdn_localise": len(needs_localise),
+        "entry_page_with_missing_local_ref": len(entry_broken),
+        "entry_page_with_model_global": len(with_global),
+        "entry_page_with_serialize_unserialize": len(with_serde),
+        "entry_page_with_baked_var_comments": len(with_baked),
+        "note_bundle_health_scope": "上面两个 refs_* 计数是把包里所有 HTML（含外层介绍页）混在一起数的；"
+                                    "仿真主页面能不能断网加载看 entry_page_* 这几项，两者结论不同，别互相替代。",
     }
     if "--json" in sys.argv:
         out = HERE / "ejss-survey.json"
@@ -212,7 +295,13 @@ def main() -> int:
         print(f"{k}: {v}")
     print("—— 抽样 10 个模型 ——")
     for m in sorted(vals, key=lambda x: -(x.get("public_vars") or 0))[:10]:
-        print(f"  {m['zip']} :: {m['member']} | 参数 {m.get('public_vars')} | 自包含 {m.get('self_contained')} | {m['title'][:30]}")
+        d = m.get("deliverability") or {}
+        print(f"  {m['zip']} :: {m['member']} | 参数 {m.get('public_vars')} | 自包含 {m.get('self_contained')} | "
+              f"{m['title'][:30]}")
+        print(f"      主页 {d.get('family')} remote_loads={d.get('remote_loads')} "
+              f"local_missing={d.get('local_loads_missing')} _model={d.get('model_global')} "
+              f"serde={int(bool(d.get('serialize') and d.get('unserialize')))} "
+              f"烘焙注释={d.get('baked_var_comments')}")
     print("—— 交付包内部引用的缺口（前 6 条）——")
     shown = 0
     for m in vals:

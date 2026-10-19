@@ -1,6 +1,6 @@
 {
   "comment": "上游源码记录。本文件是 source/upstream 下唯一的自有文件；这里记的每一条要么是上游文件里读到的，要么是本机真实跑过的输出。未跑的一律标 pending，不写成已完成。",
-  "updated_at": "2026-10-19T14:17:00+08:00",
+  "updated_at": "2026-10-19",
   "upstreams": [
     {
       "id": "ray-optics",
@@ -630,7 +630,7 @@
       "status": "installed_readonly",
       "display_name": "OSP@Singapore / EJSS（Open Source Physics 家族）",
       "decision_2026-10-19": "装。上一轮判「找不到权威仓库」是搜索方式错了：猜组织名（wejen、osp-tools、compadre-io）全 404，但权威组织其实叫 OpenSourcePhysics，GitHub API /orgs/OpenSourcePhysics/repos 实测返回 13 个仓库。本轮按其 git 大小浅克隆 6 个，合计 1,057,753 KB ≈ 1.0 GB。",
-      "corrected_claim": "撤销本文件旧条目里的「没有权威可克隆仓库」结论：那句是建立在猜测组织名之上的，实测不成立。教训写进 source/upstream/README.md 的坑节。",
+      "corrected_claim": "撤销本文件旧条目里的「没有权威可克隆仓库」结论：那句是建立在猜测组织名之上的，实测不成立。教训写进 source/upstream/README.md 的坑节。 同日第二次撤销：本文件与 source/README.md 里「EJS 6.02 那 27 个包的内部路径本身就是坏的、要按同法修完才能打开」也过宽——那是整包所有 HTML 的混数口径，仿真主页面实测引用缺失数为 0、25 个包 0 个远程加载，解压即可运行（两个模型已真跑）。",
       "install_method": "source/upstream/fetch_osp_family.sh（git clone --depth 1 --single-branch，逐仓落 osp-family-log.tsv：名称/commit/KB/status）",
       "repos": [
         {
@@ -726,8 +726,10 @@
       "blockers": [
         "osp 与 osp_ejs 两个仓库没有 LICENSE 文件，许可未定 ⇒ 只读参考，不进任何交付包",
         "resources/ 里的演示是否可批量改参未知，只有目录级实测",
-        "webejs 视图层（Plotly/MathJax 与页面加载链）仍没跑过：已证的是「参数面可读、模型物理函数可执行」，未证的是「原样网页渲染与交互」",
-        "视图层已在 webejs 那一个模型上跑通（见 webejs_offline_assembly_2026-10-19），但 EJS 6.02 导出的 27 个包内部路径本身就是坏的，要按同法修完再逐个验；且面板高度要外部补，交付形态还没定。"
+        "官方那条链路（改 .ejs → osp_ejs 编译 → webejs 运行时加载）一步没跑；现在走的是「直接消费导出包」这条替代路",
+        "视图/运行时控制面实测过 2 个模型（Illustration2_6、Problem2_18）；其余 24 个有主页面的包只做过结构探测，运行时语义与画布视觉仍未逐个验",
+        "包装页（EjsLauncher/_Contents）引用包外资源与包内不存在的目录名，仍未修；webejs 那份需要 6 处远程加载本地化（已做通一次）",
+        "交付形态未定：plotlyPanel 高度为 0 要外层页面或 CSS 补；EJS 6.02 包内的模型运行时是否随包分发（CC BY-NC-SA 4.0 署名与非商业条款）要法务确认"
       ],
       "ejss_control_surface_2026-10-19": {
         "status": "pass",
@@ -752,11 +754,29 @@
         "public_vars_median": 13,
         "zip_without_model": 55,
         "measured_note": "6 仓里 84 个 zip 扫下来只有 28 个带 .ejss 模型源码（其余 55 个是文档/图片/网页壳）；其中 26 个能程序化读出可改参数表（7~29 个，中位 13），28 个能取到模型自己的代码块，27 个自带 ejsS.v1.min.js 运行时。",
-        "measured_negative": "但「自带运行时 = 能在浏览器里打开」这条不成立：28 个包里有 28 个的 HTML 引用了包外路径（例：MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css），27 个还引用了包内根本没有的文件（生成器把标题拼进了目录名，例：Ch2Ill.xhtml -> \"One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml\"）。实测缺的那个 ejss.css 不在模型包里，而在另一个仓库 webejs/static/assets/_ejs_library/css/ejss.css ⇒ 要跑视图层必须把模型包与 webejs 的静态资源树拼起来部署，本轮没有拼、也没在浏览器里验证过，所以这条标 pending，不许写成「离线可打开」。"
+        "measured_negative": "但「自带运行时 = 能在浏览器里打开」这条不成立：28 个包里有 28 个的 HTML 引用了包外路径（例：MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css），27 个还引用了包内根本没有的文件（生成器把标题拼进了目录名，例：Ch2Ill.xhtml -> \"One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml\"）。实测缺的那个 ejss.css 不在模型包里，而在另一个仓库 webejs/static/assets/_ejs_library/css/ejss.css ⇒ 要跑视图层必须把模型包与 webejs 的静态资源树拼起来部署，本轮没有拼、也没在浏览器里验证过，所以这条标 pending，不许写成「离线可打开」。（2026-10-19 追加：这两个计数是整包所有 HTML 的口径，按页面分开量之后仿真主页面本身是好的，见 entry_page_scope_2026-10-19）",
+        "entry_page_scope_2026-10-19": {
+          "tool": "survey_ejss_models.py 新增 deliverability()（只看仿真主页面，不看包装页）",
+          "family_breakdown": {
+            "ejs6": 25,
+            "webejs": 1,
+            "no_sim_page_container": 2
+          },
+          "entry_pages_offline_ready": 25,
+          "entry_pages_needing_cdn_localise": 1,
+          "entry_pages_with_missing_local_ref": 0,
+          "entry_pages_with_model_global": 26,
+          "entry_pages_with_serialize_unserialize": 26,
+          "entry_pages_with_baked_var_comments": 25,
+          "scope_of_all_pages_counts": "上面 measured_negative 里的 28/28 与 27/28 是把包里所有 HTML（含 EjsLauncher.html、<Name>_Contents.xhtml 等包装页）混在一起数的；坏路径全在包装页，仿真主页面引用缺失文件数为 0",
+          "coverage_caveat": "25 个 EJS 6.02 包全部来自 resources/docs/PP/Ch02（一维运动学一章的题集），不是 25 个不同学科实验",
+          "retracted_claim": "上一轮写在 source/README.md 的『另外 27 个 EJS 导出包的内部路径要先修才谈得上同样处理』过宽，作废：EJS 6.02 的仿真页解压即用，本轮已在两个模型上实测",
+          "probe_bug_fixed": "survey 第一版把每个包都报成 remote_loads=0、model_global=False：probe_ejss_model.decode() 先试 utf-16，不带 BOM 的偶数长度 UTF-8 会被静默解成乱码。已改为只认 BOM 判 UTF-16，并与直连 grep 的对照值核对后重跑"
+        }
       },
       "webejs_offline_assembly_2026-10-19": {
-        "command": "python source/upstream/webejs_offline_try.py --param N=5 --param lambda=0.6 --param d=40 --param D=8 --param L=80",
-        "tool": "source/upstream/webejs_offline_try.py",
+        "command": "python source/upstream/assemble_ejss_offline.py --param N=5 --param lambda=0.6 --param d=40 --param D=8 --param L=80",
+        "tool": "source/upstream/assemble_ejss_offline.py",
         "evidence": "source/upstream/ejss-offline-evidence.json",
         "result": "视图层第一次真跑通：5 处 CDN 换成本地、plotly 1.58.5 与 MathJax 替身齐备 ⇒ file:// 离线打开后 Plotly 出 3 条曲线（4096 点/条），主极大间距 1.1976 vs λL/d=1.2（0.2%）、两主极大之间次极大 3 个 = N−2（N 被改成 5）",
         "meaning": "「教师提需求 → Agent 改参数 → 浏览器里那个可操作实验真的跟着变」这条闭环在 EJSS 上第一次拿到画面内的数值证据（之前只有无头函数那条路）",
@@ -764,6 +784,38 @@
           "面板高度需外部补（plotlyPanel 实测 0），交付要带外层页面或修 CSS",
           "EJS 6.02 导出的 27 个包仍要先修坏掉的内部路径",
           "无可见视口，截图级视觉确认没做"
+        ]
+      },
+      "ejss_runtime_control_surface_2026-10-19": {
+        "tool": "source/upstream/assemble_ejss_offline.py（两族通吃）+ 内置浏览器 file:// 探针",
+        "evidence": "source/upstream/ejss-runtime-evidence.json",
+        "measured_models": 2,
+        "models": {
+          "Illustration2_6_Free_Fall": {
+            "family": "EJS 6.02 导出（仿真页 0 个远程加载，解压即用）",
+            "baked": "y=45 / a=-9.8 各命中 5 处与 1 处赋值，serialize() 读回来确实是这两个值",
+            "numbers": "t=1.9 时 y=27.31099999999999，与 45-4.9*1.9^2=27.311 差 ~1e-13；运行时注入 y=20 后一步 y=19.951 = 20+0.5*a*dt^2",
+            "landing": "落地时刻 3.099994 vs 解析 3.030458（+2.29%）：事件只在 dt=0.1 格点判定，属步长量化，不是积分误差"
+          },
+          "Problem2_18_Tennis_Ball_Launcher": {
+            "family": "EJS 6.02 导出（同上；Initialization 代码块长度实测为 0，dt=0.02）",
+            "baked": "y_r=2.0 / v_r=10.0 / a=-9.8 各命中 1 处赋值，serialize() 读回一致",
+            "numbers": "t=0.1/0.2/0.4 三点 y 与 v 全落在 y0+v0*t+0.5*a*t^2 上（差在浮点末位）；运行时注入 y_r=3.5/v_r=6.0 后一步 y_r=3.61804、v_r=5.804，与解析值逐位相同"
+          }
+        },
+        "api": "window._model 全局可见，initialize/step/update/play/pause/reset/serialize/unserialize 八个方法在两个模型上都在；step() 不依赖 requestAnimationFrame",
+        "silent_failures_measured": [
+          "unserialize() 只喂 serialize() 里的 model 子对象 —— 不报错、不改状态，随后 step() 仍按烘焙值走；正确用法是把 serialize() 的完整信封（含 view）改字段后整份回传",
+          "直接改 _model.<字段> —— 读回来是新值，step() 后引擎仍走原轨迹 ⇒ 真实状态不在顶层字段上",
+          "同一 tick 里 initialize() 后立刻读：t 不会被重置（跑完 20 步再 initialize，serialize 仍给 t=0.12）"
+        ],
+        "acceptance_rule_for_agent": "写值必须「写后回读」：unserialize 之后立即 serialize 比对注入值，再 step 对解析式。只看有没有异常会得出假通过。",
+        "retracted_attribution": "本条目上一版把 Illustration2_6 的现象写成『unserialize 必须在 initialize 之后，否则被 reset 覆盖』。第二模型的对照实测说明真正的失败原因是信封不对（只传 model 子对象），保留这句旧归因作为教训，不再当作结论。",
+        "structural_readiness": "survey_ejss_models.py 全量扫描：26 个包有仿真主页面，其中 26 个页面文本里就有 _model + serialize/unserialize、25 个带 // EjsS Model.Variables 可寻址赋值注释；但运行时逐个跑过的只有上面 2 个，其余 24 个标 pending",
+        "not_verified": [
+          "其余 24 个包的运行时语义（多粒子/自定义事件类）",
+          "画布视觉正确性（本机内置浏览器无可见 surface，rAF 0 帧）",
+          "包装页（EjsLauncher/_Contents）的路径修复"
         ]
       }
     },

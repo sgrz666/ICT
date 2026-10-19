@@ -1,10 +1,10 @@
 {
   "measured_at": "2026-10-19T07:33Z",
   "title": "EJSS/WebEJS 模型离线拼装 + 浏览器实测：改参数真的会改到画面里的曲线",
-  "tool": "source/upstream/webejs_offline_try.py",
+  "tool": "source/upstream/assemble_ejss_offline.py",
   "model": "Multislit Diffraction (W. Christian) @ source/upstream/resources/docs/CollectionTest/webejs_model_MultislitDiffraction.zip",
   "assembly": {
-    "command": "python source/upstream/webejs_offline_try.py --param N=5 --param lambda=0.6 --param d=40 --param D=8 --param L=80",
+    "command": "python source/upstream/assemble_ejss_offline.py --param N=5 --param lambda=0.6 --param d=40 --param D=8 --param L=80",
     "scratch_dir": "source/upstream/.webejs-offline/multislit/（不入库）",
     "cdns_replaced": 5,
     "local_runtime_copied": {
