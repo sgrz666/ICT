@@ -69,10 +69,16 @@ for (const m of missing) {
     failed.push({ ...m, error: String(e).slice(0, 100) });
   }
 }
-const report = { audited_at: new Date().toISOString(), page: rel, tool: "source/upstream/3jcn/audit_offline_gaps.mjs",
-  same_origin_requests: present.length + missing.length, already_on_disk: present.length,
+const gapFile = path.join(ROOT, "source/upstream/3jcn/3jcn-offline-gaps.json");
+// 逐页运行要**合并**而不是覆盖：上一版直接整份重写，于是第二个页面把第一个页面的审计结果抹掉了，
+// 已入库的那份证据就不再代表任何一次完整测量（同一仓库里刚学过「一份数字一个家」，这里自己犯了反向的错）。
+const prior = fs.existsSync(gapFile) ? JSON.parse(fs.readFileSync(gapFile, "utf-8")) : null;
+const pages = prior && prior.pages ? prior.pages : {};
+pages[rel] = { same_origin_requests: present.length + missing.length, already_on_disk: present.length,
   missing_before: missing.map((m) => m.rel), fetched_now: fetched,
   still_missing: failed.map((f) => ({ rel: f.rel, status: f.status || null, error: f.error || null })),
-  cross_origin_not_mirrored: crossOrigin, page_errors_on_live: pageErrors };
-fs.writeFileSync(path.join(ROOT, "source/upstream/3jcn/3jcn-offline-gaps.json"), JSON.stringify(report, null, 2), "utf-8");
+  page_errors_on_live: pageErrors };
+const report = { tool: "source/upstream/3jcn/audit_offline_gaps.mjs", base: BASE, audited_at: new Date().toISOString(),
+  cross_origin_not_mirrored: crossOrigin, pages };
+fs.writeFileSync(gapFile, JSON.stringify(report, null, 2), "utf-8");
 console.log(`补齐 ${fetched} 个，真站自身也没给回来的 ${failed.length} 个；证据 source/upstream/3jcn/3jcn-offline-gaps.json`);

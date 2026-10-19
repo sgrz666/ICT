@@ -436,7 +436,7 @@
       "upstream": "https://www.new3jcn.com/",
       "commit": "无仓库可锁；锁抓取时间 + 页面字节数，见 upstream.lock.json",
       "headless": "不适用：没有可运行产物",
-      "agent_control_surface": "2026-10-19 分档实测：结构面 14/14 页有具名 range 滑块；运行时面 Phyc140/flat_mirror_prob 已证 UI 可驱动并完成离线闭环——用 audit_offline_gaps.mjs 按浏览器真实请求补齐 GLTF 与贴图后，本地伺服与真站逐哈希一致（写滑块画面变、页面自身 Reset 精确复原、不作操作两帧一致、异常 0 条），即离线可跑 + 可自动化驱动；但该页采不到物理量数字读数，故不升格为已验证实验。其余页面逐只待测；跨域 jQuery/bootstrap 仍未代理。",
+      "agent_control_surface": "2026-10-19 分档实测：结构面 14/14 页有具名 range 滑块；运行时面 Phyc140/apparent_weight_exp 已拿到第一只完整样本——本地镜像 + 同源伺服连跑两遍，5/5 滑块 agent_writable_and_observable（写值回读一致、同值派发事件的对照组守住、写值后画面变、改回原值画面回基线、异常 0 条），即离线可跑 + Agent 改参 + 可观测 + 可复原；平面镜那只则要靠页面自身 Reset 才复原。仍差半截：该族读数画在 3D 文字里、DOM 无数字，改参→解析式对账未做，故只到 UI 可驱动且可观测、不标 engine_*_verified；跨域 jQuery/bootstrap 未代理。",
       "known_pits": [
         "「装了目录」≠「装了引擎」：90 条链接只是检索清单，Agent 控制面一个都没验。"
       ],
@@ -1282,6 +1282,7 @@
     "jcn3_mirror": "source/upstream/3jcn/3jcn-mirror.json",
     "jcn3_headless_lab_mirror": "source/library/jcn3-headless-lab-evidence-mirror.json",
     "jcn3_offline_gaps": "source/upstream/3jcn/3jcn-offline-gaps.json",
+    "jcn3_headless_lab_weight": "source/library/jcn3-headless-lab-evidence-weight.json",
     "fetch_logs": [
       "source/upstream/fetch-log.tsv",
       "source/upstream/fetch-phet-log.tsv",

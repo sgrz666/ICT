@@ -1,18 +1,7 @@
 {
-  "audited_at": "2026-10-19T10:06:31.705Z",
-  "page": "Phyc140/flat_mirror_prob.html",
   "tool": "source/upstream/3jcn/audit_offline_gaps.mjs",
-  "same_origin_requests": 13,
-  "already_on_disk": 8,
-  "missing_before": [
-    "models/free_kick/scene.gltf",
-    "Phyc140/texture/cross.png",
-    "models/free_kick/scene.bin",
-    "models/free_kick/textures/PackedMaterial0mat_baseColor.png",
-    "3jcn.ico"
-  ],
-  "fetched_now": 5,
-  "still_missing": [],
+  "base": "https://www.new3jcn.com/",
+  "audited_at": "2026-10-19T10:10:34.051Z",
   "cross_origin_not_mirrored": [
     "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css",
     "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js",
@@ -21,5 +10,22 @@
     "https://threejs.org/build/three.core.js",
     "https://threejs.org/examples/fonts/droid/droid_serif_bold.typeface.json"
   ],
-  "page_errors_on_live": []
+  "pages": {
+    "Phyc140/apparent_weight_exp.html": {
+      "same_origin_requests": 15,
+      "already_on_disk": 15,
+      "missing_before": [],
+      "fetched_now": 0,
+      "still_missing": [],
+      "page_errors_on_live": []
+    },
+    "Phyc140/flat_mirror_prob.html": {
+      "same_origin_requests": 13,
+      "already_on_disk": 13,
+      "missing_before": [],
+      "fetched_now": 0,
+      "still_missing": [],
+      "page_errors_on_live": []
+    }
+  }
 }

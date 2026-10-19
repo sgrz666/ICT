@@ -148,9 +148,12 @@ try {
       : row.write.readback_matches ? "readback_ok_but_control_group_fails"
       : "rejected";
     report.checks.push(row);
-    console.log("  %s [%s..%s step %s] 写 %s→%s 回读=%s 匹配=%s 对照组不变=%s 读数变=%s 改回原值=%s => %s" % (
+    // 注意：这里是 JavaScript，不是 Python——`"…%s…" % (…)` 会被当成取模、整行打印成 NaN。
+    // 上一版就是这么写的，于是 5/5 通过的运行在控制台上看起来只有 NaN，判据只能去翻 JSON。
+    console.log("  %s [%s..%s step %s] 写 %s→%s 回读=%s 匹配=%s 对照组不变=%s 读数变=%s 画面变=%s 复原=%s 通道=%s => %s",
       s.id, s.min, s.max, s.step, s.value, row.write.attempted, row.write.readback,
-      row.write.readback_matches, row.control_noop, row.readout_changed, row.reverts_to_baseline, row.verdict));
+      row.write.readback_matches, row.control_noop, row.readout_changed, row.picture.changed,
+      row.picture.reverted_to_baseline, row.observable_channel, row.verdict);
   }
 } catch (e) {
   report.load_error = String(e).slice(0, 220);
