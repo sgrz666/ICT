@@ -17,7 +17,7 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
 
 | 目录 | 引擎 / 许可 | 装法 | 工作区体积 | 文件数 | 状态 |
 |---|---|---|---|---|---|
-| `ray-optics/` | Ray Optics，Apache-2.0 | `--depth 1` 全仓 | 54,610 KB | 3,241 | 已接通（唯一） |
+| `ray-optics/` | Ray Optics，Apache-2.0 | `--depth 1` 全仓 | 54,610 KB | 3,241 | 已接通（唯一）；另有 4 项光学验收台 `../library/optics_hall.mjs` 4/4 pass |
 | `myphysicslab/` | myPhysicsLab，Apache-2.0 | `--depth 1` 全仓 | 10,208 KB | 530 | 已实测：`npx tsc` 出 322 个 ESM，无头单摆周期与解析式吻合 |
 | `circuitjs1/` | CircuitJS1，GPL-2.0 | `--depth 1` 全仓（**官方仓是 `pfalstad/circuitjs1`**） | 5,547 KB | 798 | 源码在，GWT 构建 pending |
 | `matter-js/` | Matter.js，MIT | `--depth 1` 全仓 | 2,085 KB | 122 | 无头步进已实测 pass |
@@ -41,6 +41,6 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
 - 升级上游 = 重新克隆 + 更新 lock 文件的 commit 与实测记录，**不**在旧检出上打补丁。
 - lock 文件里的「实测」条目必须可复现；写新条目时把命令和输出一起记。
 - **稀疏检出的仓库必须把 LICENSE/NOTICE 一并检出**。three.js 第一次稀疏只取了 `src / examples/jsm / build`，仓库根 LICENSE 不在盘上——MIT 组件缺许可证文本是合规缺陷，不是小事（已补，见 lock 里 three 的 known_pits）。
-- **别把「装上了」写成「接通了」**。本目录现在的状态分四层：① Ray Optics 已接通（有模板、有适配器、出过离线包）；② myPhysicsLab 与 Rapier 已实测「无头能出数、数值能与解析式对照」，但还没有模板与适配器；③ Matter/three 的 npm 组件在本机 Node 里跑通了步进与几何；④ 其余引擎只是源码落盘，构建或本体仍 pending。对外描述资源库进度时按这四层说。
+- **别把「装上了」写成「接通了」**。本目录现在的状态分四层：① Ray Optics 已接通（有模板、有适配器、出过离线包），并已用 `../library/optics_hall.mjs` 把平面镜/折射/全反射/凹透镜四项对了解析式（4/4 pass）；② myPhysicsLab 与 Rapier 已实测「无头能出数、数值能与解析式对照」，但还没有模板与适配器；③ Matter/three 的 npm 组件在本机 Node 里跑通了步进与几何；④ 其余引擎只是源码落盘，构建或本体仍 pending。对外描述资源库进度时按这四层说。
 - 改过上游清单（增删目录、换分支、换克隆方式）后，**重跑 `inspect_upstreams.py` 与 `python source/library/check_catalog.py`**，两边数字与路径要一致；后者 missing 不为 0 就不算装完。
 - 遍历本目录的脚本必须先剪枝：`phet/`、`webots/`、`three/` 等每个引擎目录都自带 `.git`，文件总数上万，用 `rglob`/`find` 全走一遍会明显变慢（AGENTS.md 第 4 节同一口径）。

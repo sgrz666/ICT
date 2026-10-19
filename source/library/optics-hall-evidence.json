@@ -1,0 +1,186 @@
+{
+  "generated_at": "2026-10-19T04:12:34.752Z",
+  "engine": "ray-optics 5.5.0 dist-node/rayOptics.js（真实光线追迹；解析式独立于引擎）",
+  "pass": 4,
+  "fail": 0,
+  "results": [
+    {
+      "id": "optics-plane-mirror",
+      "title": "平面镜成像（像与物关于镜面对称 / 反射等角）",
+      "analytic": {
+        "expected_screen_y": 200,
+        "image_y": -200
+      },
+      "engine": {
+        "processedRayCount": 3,
+        "detectors": [
+          {
+            "name": "screen",
+            "power": 1,
+            "bins": 800,
+            "centroid": {
+              "x": 300,
+              "y": 200.5
+            },
+            "extent": null
+          }
+        ]
+      },
+      "check": {
+        "metric": "屏上亮斑 y",
+        "measured": 200.5,
+        "expected": 200,
+        "tolerance": 2
+      },
+      "verdict": "pass"
+    },
+    {
+      "id": "optics-refraction-snell",
+      "title": "折射定律 n1 sinθ1 = n2 sinθ2",
+      "baseline_control": {
+        "refIndex": 1,
+        "screen_y": 200.5,
+        "expected": 200,
+        "verdict": "pass"
+      },
+      "analytic": {
+        "theta1_deg": 33.690067525979785,
+        "predict_enter_y": 119.40446282519866,
+        "predict_exit_y": 449.9999999999999
+      },
+      "geometry_convention_measured": "玻璃在 x<0（光线由玻璃离开）",
+      "engine": {
+        "processedRayCount": 3,
+        "detectors": [
+          {
+            "name": "screen",
+            "power": 1,
+            "bins": 1200,
+            "centroid": {
+              "x": 300,
+              "y": 449.5
+            },
+            "extent": null
+          }
+        ]
+      },
+      "check": {
+        "metric": "折射后屏上亮斑 y",
+        "measured": 449.5,
+        "expected": 449.9999999999999,
+        "tolerance": 2
+      },
+      "verdict": "pass"
+    },
+    {
+      "id": "optics-total-internal-reflection",
+      "title": "全反射与临界角（扫描入射角求 θc）",
+      "analytic": {
+        "critical_angle_deg": 41.810314895778596
+      },
+      "sweep": [
+        {
+          "incidence_deg": 30,
+          "transmitted_power": 1,
+          "hit_y": 340.5,
+          "bins_lit": 2400
+        },
+        {
+          "incidence_deg": 36,
+          "transmitted_power": 1,
+          "hit_y": 560.5,
+          "bins_lit": 2400
+        },
+        {
+          "incidence_deg": 40,
+          "transmitted_power": 1,
+          "hit_y": 1090.5,
+          "bins_lit": 2400
+        },
+        {
+          "incidence_deg": 42,
+          "transmitted_power": 0,
+          "hit_y": null,
+          "bins_lit": 2400
+        },
+        {
+          "incidence_deg": 46,
+          "transmitted_power": 0,
+          "hit_y": null,
+          "bins_lit": 2400
+        },
+        {
+          "incidence_deg": 52,
+          "transmitted_power": 0,
+          "hit_y": null,
+          "bins_lit": 2400
+        },
+        {
+          "incidence_deg": 60,
+          "transmitted_power": 0,
+          "hit_y": null,
+          "bins_lit": 2400
+        }
+      ],
+      "measured": {
+        "last_angle_with_transmission": 40,
+        "first_angle_without_transmission": 42
+      },
+      "verdict": "pass",
+      "check": {
+        "metric": "θc 是否落在 (最后透射角, 首个全反射角] 内",
+        "tolerance_deg": 2.5
+      }
+    },
+    {
+      "id": "optics-concave-lens",
+      "title": "凹透镜发散（虚焦点位置可测，不读引擎自报焦距）",
+      "analytic": {
+        "expected_abs_f": 100,
+        "beam_height": 40,
+        "screens": [
+          200,
+          500
+        ],
+        "formula": "w(L)=h*(L+|f|)/|f|"
+      },
+      "measured": {
+        "width_at_200": 90,
+        "width_at_500": 179.9999999999999,
+        "fitted_abs_f": 100.00000000000037
+      },
+      "engine": {
+        "processedRayCount": 16,
+        "detectors": [
+          {
+            "name": "s1",
+            "power": 4,
+            "bins": 1200,
+            "centroid": {
+              "x": 200,
+              "y": 0.5000000000001137
+            },
+            "extent": 90
+          },
+          {
+            "name": "s2",
+            "power": 4,
+            "bins": 1600,
+            "centroid": {
+              "x": 500,
+              "y": 0.5000000000001137
+            },
+            "extent": 179.9999999999999
+          }
+        ]
+      },
+      "check": {
+        "metric": "束宽反解出的 |f|",
+        "measured": 100.00000000000037,
+        "expected": 100,
+        "tolerance": 15
+      },
+      "verdict": "pass"
+    }
+  ]
+}

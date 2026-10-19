@@ -226,10 +226,13 @@
         "tolerance": "≤1% 或 0.5 个场景单位",
         "independent_reference": "自建几何参考（反射定律作图），不与引擎同源"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
-        "需新增模板三件套（catalog/templates/optics/plane-mirror）与适配器场景构造；引擎侧能力已实测可用"
-      ]
+        "引擎侧已可无头改参+验证，缺的是 catalog/templates 模板三件套与适配器接线（并行会话正在改 code/eduforge，等它落盘）"
+      ],
+      "measured_evidence": "source/library/optics-hall-evidence.json",
+      "measured_note": "反射等角：屏上落点实测 200.5 vs 解析 200（binSize=1 的量化误差 0.5 单位）",
+      "harness": "node source/library/optics_hall.mjs --json"
     },
     {
       "id": "optics-refraction",
@@ -263,10 +266,13 @@
         "tolerance": "≤0.5%",
         "independent_reference": "Python 侧独立解 θ2 = asin(n1 sin θ1 / n2)"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
         "上游单位系统缺失（无 unitScale），教学角度与场景角度换算要由模板定义并守住——见 upstream.lock.json 的 unit_system 实测"
-      ]
+      ],
+      "measured_evidence": "source/library/optics-hall-evidence.json",
+      "measured_note": "玻璃→空气出射点实测 449.5 vs 解析 450；另有 refIndex=1.0 对照跑（200.5 vs 200）钉死几何基线",
+      "harness": "node source/library/optics_hall.mjs --json"
     },
     {
       "id": "optics-total-internal-reflection",
@@ -300,10 +306,13 @@
         "tolerance": "测得 θc 与理论差 ≤0.5°",
         "independent_reference": "解析式 asin(n2/n1)"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
         "需确认上游 Simulator 在 TIR 时的功率守恒读数口径（Detector.power 实测可读，但阈值判定未做）"
-      ]
+      ],
+      "measured_evidence": "source/library/optics-hall-evidence.json",
+      "measured_note": "入射角扫描：40° 仍透射、42° 起透射消失 ⇒ θc 落在 (40°,42°]，解析值 asin(1/1.5)=41.81°",
+      "harness": "node source/library/optics_hall.mjs --json"
     },
     {
       "id": "optics-concave-lens",
@@ -337,10 +346,13 @@
         "tolerance": "≤2%",
         "independent_reference": "Python 薄透镜公式（复用 convex-lens 的 ideal_lens_reference 并扩展到负焦距）"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
         "catalog/templates/optics/concave-lens 目录已在磁盘（待入库），适配器与验证器还没接负焦距分支"
-      ]
+      ],
+      "measured_evidence": "source/library/optics-hall-evidence.json",
+      "measured_note": "两个屏的束宽反解 |f| = 100.00000000000037，设定焦距 −100；公式 w(L)=h(L+|f|)/|f|，不读引擎自报焦距",
+      "harness": "node source/library/optics_hall.mjs --json"
     },
     {
       "id": "optics-prism-dispersion",
