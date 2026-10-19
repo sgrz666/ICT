@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-19T10:00:52.312Z",
+  "measured_at": "2026-10-19T10:06:46.175Z",
   "tool": "source/library/jcn3_headless_lab.mjs",
   "demo": "source/upstream/3jcn/site/Phyc140/buoyant_force_exp.html",
   "chromium": "D:\\temp\\ms-playwright\\chromium-1248\\chrome-win64\\chrome.exe",
@@ -23,8 +23,8 @@
       "numbers_after": [],
       "readout_changed": false,
       "picture": {
-        "baseline": "734c3edec38e",
-        "after_write": "cf130dfc7950",
+        "baseline": "898e13f2824b",
+        "after_write": "a8c46ff79ebf",
         "changed": true,
         "usable": true,
         "reverted_to_baseline": false
@@ -33,7 +33,7 @@
       "reverts_to_baseline": true,
       "reset": {
         "button": "Reset",
-        "frame": "734c3edec38e",
+        "frame": "898e13f2824b",
         "back_to_baseline": true
       },
       "interpretation": "写值改到画面、Reset 能回基线 ⇒ 复原是路径问题，画面通道成立",
@@ -41,7 +41,7 @@
       "verdict": "accepted_but_no_observable_change"
     }
   ],
-  "target": "http://127.0.0.1:8793/Phyc140/flat_mirror_prob.html",
+  "target": "http://127.0.0.1:8794/Phyc140/flat_mirror_prob.html",
   "baseline": {
     "sliders": [
       {
@@ -58,16 +58,12 @@
     "has_canvas": 1
   },
   "render_control": {
-    "frame_a": "734c3edec38e",
-    "frame_b": "734c3edec38e",
+    "frame_a": "898e13f2824b",
+    "frame_b": "898e13f2824b",
     "render_is_static": true,
     "note": "render_is_static=false 时画面差异一律不作判据（动画本底），只能靠 DOM 读数"
   },
-  "page_errors": [
-    "TypeError: Cannot read properties of undefined (reading 'position')",
-    "TypeError: Cannot read properties of undefined (reading 'position')",
-    "TypeError: Cannot read properties of undefined (reading 'position')"
-  ],
+  "page_errors": [],
   "summary": {
     "sliders": 1,
     "agent_writable_and_observable": 0,
