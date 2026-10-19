@@ -383,7 +383,7 @@
           "同一 tick 里 initialize() 后立刻读状态（t 不会被重置）"
         ],
         "acceptance_rule": "写值后必须立即 serialize 回读比对注入值，再 step 对解析式；只看有没有异常会假通过",
-        "pending": "其余 24 个有主页面的包只做过结构探测，运行时语义与画布视觉未逐个验",
+        "pending": "其余 24 个有主页面的包只做过结构探测，运行时语义未逐个验；另外画面这一项在 file:// 直开路径上量不出值（页面里 0 个 <canvas>，补测 initialize()+20 步仍为 0）⇒ 视图构建链待走通，不写成画面已验证",
         "headless_sweep": {
           "tools": [
             "source/library/ejss_headless_lab.mjs",

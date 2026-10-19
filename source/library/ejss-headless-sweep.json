@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-19T08:09:48.834Z",
+  "measured_at": "2026-10-19T08:26:49.378Z",
   "tool": "source/library/ejss_headless_sweep.mjs",
   "chromium": "D:\\temp\\ms-playwright\\chromium-1248\\chrome-win64\\chrome.exe",
   "packages_in_survey": 25,
@@ -21,6 +21,12 @@
       "primary_kind": "array_element",
       "primary_start": -50,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -50,6 +56,12 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -79,6 +91,12 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -108,6 +126,12 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -137,6 +161,12 @@
       "primary_kind": "scalar",
       "primary_start": 4.82,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -166,6 +196,12 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -195,6 +231,12 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -224,6 +266,12 @@
       "primary_kind": "scalar",
       "primary_start": -11,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -253,6 +301,12 @@
       "primary_kind": "scalar",
       "primary_start": 5.5,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -282,6 +336,12 @@
       "primary_kind": "array_element",
       "primary_start": -4.5,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -311,6 +371,12 @@
       "primary_kind": "scalar",
       "primary_start": -18,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -340,6 +406,12 @@
       "primary_kind": "scalar",
       "primary_start": -15,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -369,6 +441,12 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -398,6 +476,12 @@
       "primary_kind": "array_element",
       "primary_start": 8,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -427,6 +511,12 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -456,6 +546,12 @@
       "primary_kind": "scalar",
       "primary_start": 1.5,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -485,6 +581,12 @@
       "primary_kind": "scalar",
       "primary_start": 8,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -514,6 +616,12 @@
       "primary_kind": "scalar",
       "primary_start": -160,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -543,6 +651,12 @@
       "primary_kind": "scalar",
       "primary_start": 4.7849759686055675,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": false,
@@ -572,6 +686,12 @@
       "primary_kind": "scalar",
       "primary_start": 5,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -601,6 +721,12 @@
       "primary_kind": "scalar",
       "primary_start": -15,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -630,6 +756,12 @@
       "primary_kind": "scalar",
       "primary_start": -15,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -659,6 +791,12 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -688,6 +826,12 @@
       "primary_kind": "scalar",
       "primary_start": 8,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -717,6 +861,12 @@
       "primary_kind": "scalar",
       "primary_start": 10,
       "deterministic": true,
+      "canvas": {
+        "count": 0,
+        "lit_ratio": 0,
+        "hash": ""
+      },
+      "canvas_changes_with_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -743,7 +893,10 @@
     "write_rejected": 1,
     "runtime_writable": 24,
     "array_state_packages": 3,
+    "canvas_painted": 0,
+    "canvas_follows_state": 0,
     "failed_to_load_list": [],
+    "canvas_note": "25 个包页面里的 <canvas> 数全为 0（Illustration2_6 上再补测：initialize() + 20 步 + 等 1.5 s 之后仍是 0 个 canvas、只有 13 个 div）。所以 EJS 6.02 这条 `file://` 直开路径只证明了数值控制面，视图构建链没被触发（要靠包里的启动器页或 EJSS_CORE 的显示初始化）。这一项按「没有值」记，不写成「画面坏了」；对比：webejs 那份拼树后 Plotly 是真出了曲线的。",
     "recompute_note": "accepted_but_recomputed / rejected 两档里被注入的量是「步内变化最快的量」，它可能是模型每步重算的派生量（如 2.12 的 a、2.13 的 x_hill）⇒ 这两档说明的是选靶规则不够好，不能当成「包不可控」的证据"
   },
   "result": "部分未过"

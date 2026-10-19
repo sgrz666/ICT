@@ -99,7 +99,7 @@ function check(name, ok, detail) {
 /** 在同一个浏览器里把一个包跑起来，返回运行时控制面与轨迹。
  *  四个通用判据不需要知道模型物理：能否无异常加载、控制面是否真在、
  *  step 是否确定性推进、unserialize 写入是否真的改变后续状态。 */
-export async function probePackage(browser, pagePath, { steps = 10, inject = null, injectFirst = false, primaryOverride = null, fullTrace = false } = {}) {
+export async function probePackage(browser, pagePath, { steps = 10, inject = null, injectFirst = false, primaryOverride = null, fullTrace = false, canvas = false } = {}) {
   const ctx = await browser.newContext();
   const p = await ctx.newPage();
   const errors = [];
@@ -190,6 +190,33 @@ export async function probePackage(browser, pagePath, { steps = 10, inject = nul
         .reduce((acc, k) => { acc[k] = first.trace.map((s) => s[k]); return acc; }, {});
     }
     out.start_keys = Object.keys(first.start).length;
+
+    // 画面到底画没画：此前所有 EJSS 实测都只能靠数值，因为对话内置浏览器没有可见 surface（rAF 0 帧）。
+    // 无头 chromium 是真的在渲染，所以这里直接读 canvas 像素：统计非背景像素占比。
+    // 只看「有没有画」不够，还要能证明「改参数会改到画面」，所以同一个包可以带不同烘焙值跑两遍比哈希。
+    if (canvas) {
+      out.canvas = await p.evaluate(() => {
+        const list = Array.from(document.querySelectorAll("canvas"));
+        const per = [];
+        for (const c of list) {
+          let ctx;
+          try { ctx = c.getContext("2d", { willReadFrequently: true }); } catch { ctx = null; }
+          if (!ctx) { per.push({ w: c.width, h: c.height, painted: null, note: "no 2d ctx" }); continue; }
+          let data;
+          try { data = ctx.getImageData(0, 0, c.width, c.height).data; } catch (e) { per.push({ error: String(e).slice(0, 80) }); continue; }
+          let lit = 0, hash = 2166136261;
+          for (let i = 0; i < data.length; i += 4) {
+            const a = data[i + 3];
+            if (a > 0 && (data[i] > 245 && data[i + 1] > 245 && data[i + 2] > 245) === false) lit++;
+            hash = ((hash ^ ((data[i] << 8) | data[i + 2])) * 16777619) >>> 0;
+          }
+          per.push({ w: c.width, h: c.height, pixels: data.length / 4, painted_ratio: +(lit / (data.length / 4)).toFixed(6), hash });
+        }
+        return { count: list.length, per };
+      });
+      out.canvas.lit_total = (out.canvas.per || []).reduce((n, c) => n + (c.painted_ratio || 0), 0);
+      out.canvas.hash = (out.canvas.per || []).map((c) => c.hash ?? null).join("|");
+    }
     if (inject && primary) out.write = await writeTest(inject);
   } catch (e) {
     out.load_error = String(e).slice(0, 200);
