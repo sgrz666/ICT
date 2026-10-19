@@ -122,6 +122,23 @@ try {
     row.reverts_to_baseline = fingerprint(back) === fingerprint(base);
     const shotBack = await shot();
     row.picture.reverted_to_baseline = shotBack === shotA;
+    // 判别实验：「改回原值画面没回来」有两种解释——页面是单向状态，或者我的复原没触发它的监听。
+    // 分法就一个：点页面自己的 Reset（人真会用的那条路），再看画面回不回基线帧。
+    const resetHit = await p.evaluate(() => {
+      const b = [...document.querySelectorAll("button,[role=button],a,input[type=button]")].find((x) =>
+        /reset/i.test((x.innerText || x.value || x.getAttribute("aria-label") || "")));
+      if (!b) return null;
+      b.click();
+      return (b.innerText || b.value || "").trim().slice(0, 30);
+    });
+    await p.waitForTimeout(1500);
+    const shotReset = await shot();
+    row.reset = { button: resetHit, frame: shotReset, back_to_baseline: shotReset === shotA };
+    row.interpretation = row.picture.changed
+      ? (row.reset.back_to_baseline
+        ? "写值改到画面、Reset 能回基线 ⇒ 复原是路径问题，画面通道成立"
+        : "写值改到画面但 Reset 也回不去 ⇒ 页面是单向状态或 Reset 不清这参数，画面通道不可逆")
+      : "写值没改到画面";
     const observable = row.readout_changed || (row.picture.usable && row.picture.changed && row.picture.reverted_to_baseline);
     row.observable_channel = row.readout_changed ? "dom_readout" : (observable ? "static_canvas" : "none");
 

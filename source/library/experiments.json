@@ -436,7 +436,7 @@
       "upstream": "https://www.new3jcn.com/",
       "commit": "无仓库可锁；锁抓取时间 + 页面字节数，见 upstream.lock.json",
       "headless": "不适用：没有可运行产物",
-      "agent_control_surface": "未核实（pending）——本轮只证明目录抓得下来（实测 8/8 页、90 条链接），不证明演示可改参",
+      "agent_control_surface": "2026-10-19 分档实测：结构面 14/14 页有具名 range 滑块（min/max/step/value 齐全）；运行时面 Phyc140/flat_mirror_prob 这一条已证 UI 可驱动——写滑块会改变 3D 画面、页面自身 Reset 能精确复原（真站与本地镜像双路一致，且不作操作两帧一致的渲染对照组成立），但该页采不到物理量数字读数（readout_tokens 为空），故不升格为已验证实验；其余页面逐只待测，镜像依赖闭包仍缺 GLTF 一类资源（本地跑出 3 条 reading position 异常，真站 0 条）。",
       "known_pits": [
         "「装了目录」≠「装了引擎」：90 条链接只是检索清单，Agent 控制面一个都没验。"
       ],
@@ -1280,6 +1280,7 @@
     "jcn3_demo_probe": "source/upstream/3jcn/3jcn-demo-interface-probe.json",
     "jcn3_headless_lab": "source/library/jcn3-headless-lab-evidence.json",
     "jcn3_mirror": "source/upstream/3jcn/3jcn-mirror.json",
+    "jcn3_headless_lab_mirror": "source/library/jcn3-headless-lab-evidence-mirror.json",
     "fetch_logs": [
       "source/upstream/fetch-log.tsv",
       "source/upstream/fetch-phet-log.tsv",

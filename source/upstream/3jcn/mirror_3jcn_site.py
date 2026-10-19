@@ -65,18 +65,20 @@ def main():
             continue
         dst = local_path(url)
         if os.path.exists(dst) and os.path.getsize(dst) > 0:
-            # 已在盘上就跳过：上一轮跑到 --max 上限就停了，重跑时不该把 60 个文件再下一遍
+            # 已在盘上就不再下载，但**仍然要解析**：上一版在这里直接 continue，
+            # 结果已抓过的页面里的 import 永远进不了队列，闭包怎么补都补不全（表现为 mirrored 0 files）。
+            raw = io.open(dst, "rb").read()
+            ctype = "text/html" if dst.endswith(".html") else "application/javascript"
             report_cached.append(url)
-            seen.add(url)
-            continue
-        try:
-            raw, ctype = get(url)
-        except Exception as e:                                    # noqa: BLE001
-            failed.append({"url": url, "error": str(e)[:120]})
-            continue
-        os.makedirs(os.path.dirname(dst) or SITE, exist_ok=True)
-        io.open(dst, "wb").write(raw)
-        fetched += 1
+        else:
+            try:
+                raw, ctype = get(url)
+            except Exception as e:                                    # noqa: BLE001
+                failed.append({"url": url, "error": str(e)[:120]})
+                continue
+            os.makedirs(os.path.dirname(dst) or SITE, exist_ok=True)
+            io.open(dst, "wb").write(raw)
+            fetched += 1
         if d < depth and (".html" in url or "text/html" in ctype):
             t = raw.decode("utf-8", errors="replace")
             for m in REF_RE.finditer(t):

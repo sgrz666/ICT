@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-19T09:52:23.606Z",
+  "measured_at": "2026-10-19T10:01:22.734Z",
   "tool": "source/library/jcn3_headless_lab.mjs",
   "demo": "source/upstream/3jcn/site/Phyc140/buoyant_force_exp.html",
   "chromium": "D:\\temp\\ms-playwright\\chromium-1248\\chrome-win64\\chrome.exe",
@@ -31,6 +31,12 @@
       },
       "text_changed": false,
       "reverts_to_baseline": true,
+      "reset": {
+        "button": "Reset",
+        "frame": "898e13f2824b",
+        "back_to_baseline": true
+      },
+      "interpretation": "写值改到画面、Reset 能回基线 ⇒ 复原是路径问题，画面通道成立",
       "observable_channel": "none",
       "verdict": "accepted_but_no_observable_change"
     }
