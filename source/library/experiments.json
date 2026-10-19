@@ -317,7 +317,9 @@
         "「包里带了 ejsS.v1.min.js」不等于能在浏览器打开：28/28 个模型包的 HTML 引用包外资源（样式表实际在 webejs/static/assets/_ejs_library/css/ 里），27/28 还引用包内不存在的文件（生成器把标题拼进目录名）。拼树部署 + 浏览器实测都还没做 ⇒ 视图层 pending。",
         "EJSS 的 <Domain> 只在带参数页的模型里写：导出包普遍省略它（26/28 靠 Name/Value/Type 就能拿到参数表），按 domain==public 过滤会把整批模型误判成「没有可改参数」——probe_ejss_model.py 已改成「省略也算可调」，另有 2 个包（Ch2Ill/Ch2Prob）确实一个 <Variable> 都没有。",
         "unserialize() 有两种静默失效写法（只喂 model 子对象 / 直接改顶层字段），initialize() 的效果也不在同一 tick 生效 ⇒ 这类「不报错但没改」只能靠写后回读暴露，见 runtime_control_surface.silent_failures",
-        "文本探针读 .ejss/.xhtml 前要先证明解码对：decode() 原先先试 utf-16，不带 BOM 的偶数长度 UTF-8 会静默变乱码，把「有」读成「没有」（2026-10-19 已修为只认 BOM）"
+        "文本探针读 .ejss/.xhtml 前要先证明解码对：decode() 原先先试 utf-16，不带 BOM 的偶数长度 UTF-8 会静默变乱码，把「有」读成「没有」（2026-10-19 已修为只认 BOM）",
+        "无头验收时「变化最快的状态量」往往是模型每步重算的派生量（2.12 的 a、2.13 的 x_hill），拿它当写值目标会得出『包不可控』的假结论；写值判据必须分三档：落地且改变行为 / 落地但被重算 / 不落地",
+        "状态可能是数组（两车、多体模型 x[]/v[]）。探针只认标量时会把这类包误报成「状态没变」——量不出来要写成本项没有值，不能写成更差"
       ],
       "status": "resource_installed",
       "resource_inventory": {
@@ -374,7 +376,19 @@
           "同一 tick 里 initialize() 后立刻读状态（t 不会被重置）"
         ],
         "acceptance_rule": "写值后必须立即 serialize 回读比对注入值，再 step 对解析式；只看有没有异常会假通过",
-        "pending": "其余 24 个有主页面的包只做过结构探测，运行时语义与画布视觉未逐个验"
+        "pending": "其余 24 个有主页面的包只做过结构探测，运行时语义与画布视觉未逐个验",
+        "headless_sweep": {
+          "tools": [
+            "source/library/ejss_headless_lab.mjs",
+            "source/library/ejss_headless_sweep.mjs"
+          ],
+          "evidence": [
+            "source/library/ejss-headless-lab-evidence.json",
+            "source/library/ejss-headless-sweep.json"
+          ],
+          "measured": "25 个 EJS 6.02 包无头逐个跑：25/25 零异常加载 + 全套 8 个方法 + 推进时间 + 重载后轨迹逐点相同；写值 24/25 落地（23 个同时改变后续轨迹）",
+          "pending": "另外两个包不是不可控，是探针选中了派生量（a、x_hill）；逐包对解析式的数值验收目前只做了 Illustration2_6 与 Problem2_18 两个"
+        }
       }
     },
     {
@@ -1252,6 +1266,11 @@
     "ejss_offline_evidence": "source/upstream/ejss-offline-evidence.json",
     "ejss_runtime_evidence": "source/upstream/ejss-runtime-evidence.json",
     "ejss_assemble_tool": "source/upstream/assemble_ejss_offline.py",
-    "ejss_entry_page_scope": "source/upstream/ejss-survey.json"
+    "ejss_entry_page_scope": "source/upstream/ejss-survey.json",
+    "ejss_headless_lab": "source/library/ejss_headless_lab.mjs",
+    "ejss_headless_lab_evidence": "source/library/ejss-headless-lab-evidence.json",
+    "ejss_headless_sweep": "source/library/ejss_headless_sweep.mjs",
+    "ejss_headless_sweep_evidence": "source/library/ejss-headless-sweep.json",
+    "ejss_headless_lab_evidence_illustration26": "source/library/ejss-headless-lab-evidence-Illustration2_6.json"
   }
 }

@@ -816,7 +816,24 @@
           "其余 24 个包的运行时语义（多粒子/自定义事件类）",
           "画布视觉正确性（本机内置浏览器无可见 surface，rAF 0 帧）",
           "包装页（EjsLauncher/_Contents）的路径修复"
-        ]
+        ],
+        "headless_sweep_2026-10-19": {
+          "tool": "source/library/ejss_headless_lab.mjs + source/library/ejss_headless_sweep.mjs（playwright-core 1.58.2 驱动本机 Playwright 缓存里的 chromium-1248）",
+          "evidence": "source/library/ejss-headless-sweep.json",
+          "packages_run": 25,
+          "load_clean": 25,
+          "api_full_8_methods": 25,
+          "advanced_time": 25,
+          "deterministic_on_reload": 25,
+          "write_accepted": 24,
+          "write_accepted_and_changes_behaviour": 23,
+          "write_accepted_but_recomputed": 1,
+          "write_rejected": 1,
+          "array_state_packages": 3,
+          "exceptions_explained": "2.12 注入的是 a、2.13 注入的是 x_hill，两者都是模型每步重算的派生量 ⇒ 说明探针的选靶规则（取步内变化最快的量）不够好，不能写成这两个包不可控",
+          "instrument_bug_fixed": "探针上一版只认标量状态，把 3 个数组状态包（两车/多体）读成「状态没变、不可复现」；已改为标量与数组元素一起参与判定",
+          "significance": "浏览器态引擎（EJSS 视图、CircuitJS1、PhET 成品）第一次有了可脚本化、可重跑的验证通道；此前这类只能人工点浏览器"
+        }
       }
     },
     {

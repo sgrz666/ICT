@@ -1,0 +1,306 @@
+{
+  "measured_at": "2026-10-19T08:11:46.165Z",
+  "tool": "source/library/ejss_headless_lab.mjs",
+  "args": {
+    "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_18.zip",
+    "params": [
+      "y_r=2.0",
+      "v_r=10.0",
+      "a=-9.8"
+    ],
+    "kinematic": "y_r,v_r,a",
+    "steps": 20
+  },
+  "checks": [
+    {
+      "name": "拼包脚本退出码为 0",
+      "ok": true,
+      "detail": {
+        "code": 0,
+        "dir": "D:\\codeplus\\ICT\\source\\upstream\\.webejs-offline\\js_ejs_model_Problem2_18"
+      }
+    },
+    {
+      "name": "找到仿真主页面",
+      "ok": true,
+      "detail": {
+        "entry": "Problem2_18_Simulation.xhtml"
+      }
+    },
+    {
+      "name": "本机有可用的 chromium（Playwright 缓存）",
+      "ok": true,
+      "detail": {
+        "path": "D:\\temp\\ms-playwright\\chromium-1248\\chrome-win64\\chrome.exe"
+      }
+    },
+    {
+      "name": "页面里有 window._model 全套控制面",
+      "ok": true,
+      "detail": {
+        "present": true,
+        "methods": [
+          "initialize",
+          "step",
+          "update",
+          "play",
+          "pause",
+          "reset",
+          "serialize",
+          "unserialize"
+        ]
+      }
+    },
+    {
+      "name": "烘焙值确实进了运行时状态 y_r=2",
+      "ok": true,
+      "detail": {
+        "expected": "2",
+        "engine_value": 2
+      }
+    },
+    {
+      "name": "烘焙值确实进了运行时状态 v_r=10",
+      "ok": true,
+      "detail": {
+        "expected": "10",
+        "engine_value": 10
+      }
+    },
+    {
+      "name": "烘焙值确实进了运行时状态 a=-9.8",
+      "ok": true,
+      "detail": {
+        "expected": "-9.8",
+        "engine_value": -9.8
+      }
+    },
+    {
+      "name": "每一步都落在匀加速解析解上（容差 0.000001%）",
+      "ok": true,
+      "detail": {
+        "steps": 20,
+        "worst_rel_err_pct": 1.168655815394902e-13,
+        "last": {
+          "t": 0.4,
+          "y_engine": 5.216,
+          "y_analytic": 5.216,
+          "v_engine": 6.080000000000005,
+          "v_analytic": 6.08,
+          "y_rel_err_pct": 0,
+          "v_rel_err_pct": 1.168655815394902e-13
+        }
+      }
+    },
+    {
+      "name": "引擎确实推进了时间",
+      "ok": true,
+      "detail": {
+        "t_after_steps": 0.4000000000000001
+      }
+    },
+    {
+      "name": "页面加载与步进期间没有 JS 异常/资源失败",
+      "ok": true,
+      "detail": {
+        "errors": []
+      }
+    }
+  ],
+  "failures": [],
+  "notes": [],
+  "assemble_log_tail": [
+    "js_ejs_model_Problem2_18.zip  family=ejs6  entry=Problem2_18_Simulation.xhtml\r",
+    "  输出 → D:\\codeplus\\ICT\\source\\upstream\\.webejs-offline\\js_ejs_model_Problem2_18\r",
+    "  CDN→本地 改写 0 处；仿真页剩余 https 引用 1 处\r",
+    "  参数 y_r：1.0 → 2.0，改了 1 处  例：y_r = 1.0;\r",
+    "  参数 v_r：8.0 → 10.0，改了 1 处  例：v_r = 8.0;\r",
+    "  参数 a：-10.0 → -9.8，改了 1 处  例：a = -10.0;\r"
+  ],
+  "kinematic_trace": [
+    {
+      "t": 0.02,
+      "y_engine": 2.1980399999999998,
+      "y_analytic": 2.19804,
+      "v_engine": 9.804,
+      "v_analytic": 9.804,
+      "y_rel_err_pct": 2.0203872989120423e-14,
+      "v_rel_err_pct": 0
+    },
+    {
+      "t": 0.04,
+      "y_engine": 2.3921599999999996,
+      "y_analytic": 2.39216,
+      "v_engine": 9.608,
+      "v_analytic": 9.608,
+      "y_rel_err_pct": 1.856436065522635e-14,
+      "v_rel_err_pct": 0
+    },
+    {
+      "t": 0.06,
+      "y_engine": 2.5823599999999995,
+      "y_analytic": 2.58236,
+      "v_engine": 9.412,
+      "v_analytic": 9.412,
+      "y_rel_err_pct": 1.719702945561667e-14,
+      "v_rel_err_pct": 0
+    },
+    {
+      "t": 0.08,
+      "y_engine": 2.7686399999999995,
+      "y_analytic": 2.76864,
+      "v_engine": 9.216000000000001,
+      "v_analytic": 9.216,
+      "y_rel_err_pct": 1.6039976661829007e-14,
+      "v_rel_err_pct": 1.927470528863119e-14
+    },
+    {
+      "t": 0.1,
+      "y_engine": 2.9509999999999996,
+      "y_analytic": 2.951,
+      "v_engine": 9.020000000000001,
+      "v_analytic": 9.02,
+      "y_rel_err_pct": 1.5048770242292872e-14,
+      "v_rel_err_pct": 1.9693534804880828e-14
+    },
+    {
+      "t": 0.12,
+      "y_engine": 3.1294399999999998,
+      "y_analytic": 3.12944,
+      "v_engine": 8.824000000000002,
+      "v_analytic": 8.824,
+      "y_rel_err_pct": 1.4190692579185497e-14,
+      "v_rel_err_pct": 2.0130970528108004e-14
+    },
+    {
+      "t": 0.14,
+      "y_engine": 3.30396,
+      "y_analytic": 3.30396,
+      "v_engine": 8.628000000000002,
+      "v_analytic": 8.628,
+      "y_rel_err_pct": 1.344111944000722e-14,
+      "v_rel_err_pct": 2.0588280475199937e-14
+    },
+    {
+      "t": 0.16,
+      "y_engine": 3.47456,
+      "y_analytic": 3.47456,
+      "v_engine": 8.432000000000002,
+      "v_analytic": 8.432,
+      "y_rel_err_pct": 1.2781163941623186e-14,
+      "v_rel_err_pct": 2.1066850562147183e-14
+    },
+    {
+      "t": 0.18,
+      "y_engine": 3.64124,
+      "y_analytic": 3.64124,
+      "v_engine": 8.236000000000002,
+      "v_analytic": 8.236,
+      "y_rel_err_pct": 0,
+      "v_rel_err_pct": 2.156819863283451e-14
+    },
+    {
+      "t": 0.2,
+      "y_engine": 3.804,
+      "y_analytic": 3.804,
+      "v_engine": 8.040000000000003,
+      "v_analytic": 8.04,
+      "y_rel_err_pct": 0,
+      "v_rel_err_pct": 4.418798107960823e-14
+    },
+    {
+      "t": 0.22,
+      "y_engine": 3.96284,
+      "y_analytic": 3.96284,
+      "v_engine": 7.844000000000003,
+      "v_analytic": 7.844,
+      "y_rel_err_pct": 1.1206337118078517e-14,
+      "v_rel_err_pct": 3.396908795385487e-14
+    },
+    {
+      "t": 0.24,
+      "y_engine": 4.11776,
+      "y_analytic": 4.11776,
+      "v_engine": 7.648000000000003,
+      "v_analytic": 7.648,
+      "y_rel_err_pct": 0,
+      "v_rel_err_pct": 4.6452846218625794e-14
+    },
+    {
+      "t": 0.26,
+      "y_engine": 4.268759999999999,
+      "y_analytic": 4.26876,
+      "v_engine": 7.4520000000000035,
+      "v_analytic": 7.452,
+      "y_rel_err_pct": 0,
+      "v_rel_err_pct": 4.7674633370913865e-14
+    },
+    {
+      "t": 0.28,
+      "y_engine": 4.415839999999999,
+      "y_analytic": 4.41584,
+      "v_engine": 7.256000000000004,
+      "v_analytic": 7.256,
+      "y_rel_err_pct": 2.0113464702075373e-14,
+      "v_rel_err_pct": 4.8962426664836003e-14
+    },
+    {
+      "t": 0.3,
+      "y_engine": 4.558999999999999,
+      "y_analytic": 4.559,
+      "v_engine": 7.060000000000004,
+      "v_analytic": 7.06,
+      "y_rel_err_pct": 1.9481869262999016e-14,
+      "v_rel_err_pct": 5.0321723495757805e-14
+    },
+    {
+      "t": 0.32,
+      "y_engine": 4.698239999999999,
+      "y_analytic": 4.69824,
+      "v_engine": 6.864000000000004,
+      "v_analytic": 6.864,
+      "y_rel_err_pct": 1.8904492314145834e-14,
+      "v_rel_err_pct": 6.469831145834246e-14
+    },
+    {
+      "t": 0.34,
+      "y_engine": 4.833559999999999,
+      "y_analytic": 4.83356,
+      "v_engine": 6.668000000000005,
+      "v_analytic": 6.668,
+      "y_rel_err_pct": 1.8375243499617782e-14,
+      "v_rel_err_pct": 7.992007375825964e-14
+    },
+    {
+      "t": 0.36,
+      "y_engine": 4.96496,
+      "y_analytic": 4.96496,
+      "v_engine": 6.472000000000005,
+      "v_analytic": 6.472,
+      "y_rel_err_pct": 1.7888934043781322e-14,
+      "v_rel_err_pct": 8.234039737640222e-14
+    },
+    {
+      "t": 0.38,
+      "y_engine": 5.09244,
+      "y_analytic": 5.09244,
+      "v_engine": 6.276000000000005,
+      "v_analytic": 6.276,
+      "y_rel_err_pct": 1.7441117022490696e-14,
+      "v_rel_err_pct": 8.491189480880739e-14
+    },
+    {
+      "t": 0.4,
+      "y_engine": 5.216,
+      "y_analytic": 5.216,
+      "v_engine": 6.080000000000005,
+      "v_analytic": 6.08,
+      "y_rel_err_pct": 0,
+      "v_rel_err_pct": 1.168655815394902e-13
+    }
+  ],
+  "elapsed_ms": 238,
+  "result": "PASS",
+  "pass_count": 10,
+  "check_count": 10
+}

@@ -1,0 +1,750 @@
+{
+  "measured_at": "2026-10-19T08:09:48.834Z",
+  "tool": "source/library/ejss_headless_sweep.mjs",
+  "chromium": "D:\\temp\\ms-playwright\\chromium-1248\\chrome-win64\\chrome.exe",
+  "packages_in_survey": 25,
+  "packages_run": 25,
+  "steps": 8,
+  "results": [
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_1.zip",
+      "title": "Illustration 2.1: Position and Displacement",
+      "params_declared": 10,
+      "state_vars": 8,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.7999999999999999,
+      "advanced": true,
+      "primary_var": "x[0]",
+      "primary_kind": "array_element",
+      "primary_start": -50,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.5,
+          1001,
+          1001.5,
+          1002
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_2.zip",
+      "title": "Illustration 2.2: Average Velocity",
+      "params_declared": 12,
+      "state_vars": 10,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.7999999999999999,
+      "advanced": true,
+      "primary_var": "v",
+      "primary_kind": "scalar",
+      "primary_start": 0,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.2,
+          1000.4000000000001,
+          1000.6000000000001,
+          1000.8000000000002
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_3.zip",
+      "title": "Illustration 2.3: Average and Instantaneous Velocity",
+      "params_declared": 29,
+      "state_vars": 25,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.7999999999999999,
+      "advanced": true,
+      "primary_var": "v",
+      "primary_kind": "scalar",
+      "primary_start": 0,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.2,
+          1000.4000000000001,
+          1000.6000000000001,
+          1000.8000000000002
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_4.zip",
+      "title": "Illustration 2.4: Constant Acceleration and Measurement",
+      "params_declared": 11,
+      "state_vars": 9,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.08,
+      "advanced": true,
+      "primary_var": "x",
+      "primary_kind": "scalar",
+      "primary_start": 0,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.02,
+          1000.04,
+          1000.06,
+          1000.0799999999999
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_5.zip",
+      "title": "Illustration 2.5: Motion on a Ramp",
+      "params_declared": 23,
+      "state_vars": 21,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.39999999999999997,
+      "advanced": true,
+      "primary_var": "x",
+      "primary_kind": "scalar",
+      "primary_start": 4.82,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          999.7558929351248,
+          999.5159756170054,
+          999.2802480456418,
+          999.0487102210338
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_6.zip",
+      "title": "Illustration 2.6: Free Fall",
+      "params_declared": 24,
+      "state_vars": 21,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.7999999999999998,
+      "advanced": true,
+      "primary_var": "v",
+      "primary_kind": "scalar",
+      "primary_start": 0,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          999,
+          998,
+          997,
+          996
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_01.zip",
+      "title": "Problem 2.1: Position Vs. Time",
+      "params_declared": 12,
+      "state_vars": 10,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.10000000000000005,
+      "advanced": true,
+      "primary_var": "v",
+      "primary_kind": "scalar",
+      "primary_start": 0,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.05,
+          1000.0999999999999,
+          1000.1499999999999,
+          1000.1999999999998
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_02.zip",
+      "title": "Problem 2.2:  Sliding Hockey Puck",
+      "params_declared": 13,
+      "state_vars": 11,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.39999999999999997,
+      "advanced": true,
+      "primary_var": "x",
+      "primary_kind": "scalar",
+      "primary_start": -11,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.1,
+          1000.2,
+          1000.3000000000001,
+          1000.4000000000001
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_03.zip",
+      "title": "Problem 2.3: Matching Helicopter Flight",
+      "params_declared": 16,
+      "state_vars": 14,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 4,
+      "advanced": true,
+      "primary_var": "x",
+      "primary_kind": "scalar",
+      "primary_start": 5.5,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          999.704125,
+          999.4164999999999,
+          999.137125,
+          998.866
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_04.zip",
+      "title": "Problem 2.4:  Golf Balls Putt Comparison",
+      "params_declared": 14,
+      "state_vars": 12,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.08,
+      "advanced": true,
+      "primary_var": "r_pos[0]",
+      "primary_kind": "array_element",
+      "primary_start": -4.5,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.05,
+          1000.0999999999999,
+          1000.1499999999999,
+          1000.1999999999998
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_05.zip",
+      "title": "Problem 2.5: Puck Bounces Between Two Walls",
+      "params_declared": 11,
+      "state_vars": 9,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.16,
+      "advanced": true,
+      "primary_var": "x",
+      "primary_kind": "scalar",
+      "primary_start": -18,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          999.64,
+          999.28,
+          998.92,
+          998.56
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_06.zip",
+      "title": "Problem 2.6: Constant Velocity Putt-Putt",
+      "params_declared": 21,
+      "state_vars": 19,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.16,
+      "advanced": true,
+      "primary_var": "xi",
+      "primary_kind": "scalar",
+      "primary_start": -15,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_07.zip",
+      "title": "Problem 2.7: Acceleration of Carts",
+      "params_declared": 13,
+      "state_vars": 11,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.08,
+      "advanced": true,
+      "primary_var": "v",
+      "primary_kind": "scalar",
+      "primary_start": 0,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.02,
+          1000.04,
+          1000.06,
+          1000.0799999999999
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_08.zip",
+      "title": "Problem 2.8: Purple Truck Catching Yellow Truck",
+      "params_declared": 7,
+      "state_vars": 6,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.16,
+      "advanced": true,
+      "primary_var": "x[0]",
+      "primary_kind": "array_element",
+      "primary_start": 8,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          999.8999,
+          999.7996,
+          999.6991,
+          999.5984000000001
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_09.zip",
+      "title": "Problem 2.9: Simulation of a Helium Balloon",
+      "params_declared": 7,
+      "state_vars": 6,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.32,
+      "advanced": true,
+      "primary_var": "v",
+      "primary_kind": "scalar",
+      "primary_start": 0,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.002,
+          1000.0039999999999,
+          1000.0059999999999,
+          1000.0079999999998
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_10.zip",
+      "title": "Problem 2.10: Rope Holding a Hot Air Balloon Cargo",
+      "params_declared": 16,
+      "state_vars": 14,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.32,
+      "advanced": true,
+      "primary_var": "y_cargo",
+      "primary_kind": "scalar",
+      "primary_start": 1.5,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.2,
+          1000.4000000000001,
+          1000.6000000000001,
+          1000.8000000000002
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_11.zip",
+      "title": "Problem 2.11: Golf Ball on a Wet Green",
+      "params_declared": 12,
+      "state_vars": 10,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.7999999999999999,
+      "advanced": true,
+      "primary_var": "x",
+      "primary_kind": "scalar",
+      "primary_start": 8,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          999.3256060546875,
+          998.6999414515329,
+          998.1194851791103,
+          997.5809706419348
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_12.zip",
+      "title": "Problem 2.12: Car with Two Springs",
+      "params_declared": 10,
+      "state_vars": 9,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.16,
+      "advanced": true,
+      "primary_var": "a",
+      "primary_kind": "scalar",
+      "primary_start": -160,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": false,
+        "head": [
+          -159.67914666666667,
+          -152.06574205610667,
+          -134.77261178361627,
+          -108.90058596703149
+        ],
+        "class": "accepted_but_recomputed"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_13.zip",
+      "title": "Problem 2.13: Golf Ball Putted Up a Steep Hill on a Green",
+      "params_declared": 19,
+      "state_vars": 17,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.39999999999999997,
+      "advanced": true,
+      "primary_var": "x_hill",
+      "primary_kind": "scalar",
+      "primary_start": 4.7849759686055675,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": false,
+        "trajectory_moved": false,
+        "head": [
+          4.537103158781988,
+          4.293484729311247,
+          4.054120680193346,
+          3.819011011428286
+        ],
+        "class": "rejected"
+      },
+      "verdict": "partial"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_14.zip",
+      "title": "Problem 2.14: Golf Ball on a Sloping Green",
+      "params_declared": 14,
+      "state_vars": 13,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.19999999999999998,
+      "advanced": true,
+      "primary_var": "x",
+      "primary_kind": "scalar",
+      "primary_start": 5,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          999.85,
+          999.7,
+          999.5500000000001,
+          999.4000000000001
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_15.zip",
+      "title": "Problem 2.15: Constant Acceleration Putt-Putt",
+      "params_declared": 23,
+      "state_vars": 21,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.16,
+      "advanced": true,
+      "primary_var": "xi",
+      "primary_kind": "scalar",
+      "primary_start": -15,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_16.zip",
+      "title": "Problem 2.16: Constant Acceleration Putt-Putt",
+      "params_declared": 23,
+      "state_vars": 21,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.16,
+      "advanced": true,
+      "primary_var": "xi",
+      "primary_kind": "scalar",
+      "primary_start": -15,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_17.zip",
+      "title": "Problem 2.17: Find Velocity from Position",
+      "params_declared": 10,
+      "state_vars": 9,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.16000000000000011,
+      "advanced": true,
+      "primary_var": "v_ball",
+      "primary_kind": "scalar",
+      "primary_start": 0,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          1000.0171997070308,
+          1000.0571997070299,
+          1000.097199707029,
+          1000.137199707028
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_18.zip",
+      "title": "Problem 2.18: Tennis Ball Launcher",
+      "params_declared": 10,
+      "state_vars": 9,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.16,
+      "advanced": true,
+      "primary_var": "v_r",
+      "primary_kind": "scalar",
+      "primary_start": 8,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          999.8,
+          999.5999999999999,
+          999.3999999999999,
+          999.1999999999998
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_19.zip",
+      "title": "Problem 2.19: Tennis Ball Launcher",
+      "params_declared": 8,
+      "state_vars": 7,
+      "load_clean": true,
+      "errors": [],
+      "api_methods": 8,
+      "serde": true,
+      "t_after_steps": 0.16000000000000011,
+      "advanced": true,
+      "primary_var": "v",
+      "primary_kind": "scalar",
+      "primary_start": 10,
+      "deterministic": true,
+      "write_test": {
+        "injected_to": 1000,
+        "stuck": true,
+        "trajectory_moved": true,
+        "head": [
+          999.8000000000002,
+          999.6000000000004,
+          999.4000000000005,
+          999.2000000000007
+        ],
+        "class": "accepted_and_changes_behaviour"
+      },
+      "verdict": "runtime_writable"
+    }
+  ],
+  "summary": {
+    "run": 25,
+    "load_clean": 25,
+    "with_serde_api": 25,
+    "advanced": 25,
+    "deterministic": 25,
+    "write_accepted_and_changes_behaviour": 23,
+    "write_accepted_but_recomputed": 1,
+    "write_rejected": 1,
+    "runtime_writable": 24,
+    "array_state_packages": 3,
+    "failed_to_load_list": [],
+    "recompute_note": "accepted_but_recomputed / rejected 两档里被注入的量是「步内变化最快的量」，它可能是模型每步重算的派生量（如 2.12 的 a、2.13 的 x_hill）⇒ 这两档说明的是选靶规则不够好，不能当成「包不可控」的证据"
+  },
+  "result": "部分未过"
+}
