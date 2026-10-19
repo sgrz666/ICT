@@ -18,6 +18,7 @@
  */
 
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -99,7 +100,7 @@ function check(name, ok, detail) {
 /** 在同一个浏览器里把一个包跑起来，返回运行时控制面与轨迹。
  *  四个通用判据不需要知道模型物理：能否无异常加载、控制面是否真在、
  *  step 是否确定性推进、unserialize 写入是否真的改变后续状态。 */
-export async function probePackage(browser, pagePath, { steps = 10, inject = null, injectFirst = false, primaryOverride = null, fullTrace = false, canvas = false } = {}) {
+export async function probePackage(browser, pagePath, { steps = 10, inject = null, injectFirst = false, primaryOverride = null, fullTrace = false, visual = false } = {}) {
   const ctx = await browser.newContext();
   const p = await ctx.newPage();
   const errors = [];
@@ -145,11 +146,33 @@ export async function probePackage(browser, pagePath, { steps = 10, inject = nul
       return { readback, trace, stuck: Number(readback[key]) === Number(inject[key]), trace_head: trace.slice(0, 4).map((r) => r[key]) };
     }, { inject: target, n: steps });
 
+    // 画面到底画没画：先记下走过的弯路——第一版按 <canvas> 计数，25 个包全报 0，
+    // 于是我在 README/lock 里写成「画面这一项没有值」。那是选错可观测量：EJS 6.02（2012 的编译期）
+    // 用 **SVG** 画（Illustration2_6 实测 4 个 <svg>、103~108 个几何节点、canvas 确实是 0）。
+    // 所以这里同时数 svg 与 canvas，并用整页 PNG 的哈希当「画成什么样」的指纹；
+    // 「改状态画面跟着变」必须有 PNG 差异作证，光看节点数不够（静态坐标轴/文字也在里面）。
+    const captureVisual = async () => {
+      const v = await p.evaluate(() => {
+        const q = (s) => document.querySelectorAll(s).length;
+        const top = document.getElementById("_topFrame");
+        return {
+          svg: q("svg"), canvas: q("canvas"), img: q("img"),
+          geometry: q("svg path, svg rect, svg circle, svg line, svg polyline, svg text"),
+          top_frame_present: !!top, top_frame_html_len: top ? top.innerHTML.length : 0,
+        };
+      });
+      const shot = await p.screenshot({ fullPage: true });
+      v.png_bytes = shot.length;
+      v.png_sha1 = createHash("sha1").update(shot).digest("hex").slice(0, 16);
+      return v;
+    };
+
     if (injectFirst && inject && primaryOverride) {
       // 干净页面上「先写后跑」：这才是 Agent 的实际用法，也排除「中途注入把积分器历史搞乱」这种假阳性
       out.mode = "inject_on_fresh_page";
       out.primary_var = primaryOverride;
       out.write = await writeTest(inject);
+      if (visual) out.visual = await captureVisual();
       return out;
     }
 
@@ -191,32 +214,7 @@ export async function probePackage(browser, pagePath, { steps = 10, inject = nul
     }
     out.start_keys = Object.keys(first.start).length;
 
-    // 画面到底画没画：此前所有 EJSS 实测都只能靠数值，因为对话内置浏览器没有可见 surface（rAF 0 帧）。
-    // 无头 chromium 是真的在渲染，所以这里直接读 canvas 像素：统计非背景像素占比。
-    // 只看「有没有画」不够，还要能证明「改参数会改到画面」，所以同一个包可以带不同烘焙值跑两遍比哈希。
-    if (canvas) {
-      out.canvas = await p.evaluate(() => {
-        const list = Array.from(document.querySelectorAll("canvas"));
-        const per = [];
-        for (const c of list) {
-          let ctx;
-          try { ctx = c.getContext("2d", { willReadFrequently: true }); } catch { ctx = null; }
-          if (!ctx) { per.push({ w: c.width, h: c.height, painted: null, note: "no 2d ctx" }); continue; }
-          let data;
-          try { data = ctx.getImageData(0, 0, c.width, c.height).data; } catch (e) { per.push({ error: String(e).slice(0, 80) }); continue; }
-          let lit = 0, hash = 2166136261;
-          for (let i = 0; i < data.length; i += 4) {
-            const a = data[i + 3];
-            if (a > 0 && (data[i] > 245 && data[i + 1] > 245 && data[i + 2] > 245) === false) lit++;
-            hash = ((hash ^ ((data[i] << 8) | data[i + 2])) * 16777619) >>> 0;
-          }
-          per.push({ w: c.width, h: c.height, pixels: data.length / 4, painted_ratio: +(lit / (data.length / 4)).toFixed(6), hash });
-        }
-        return { count: list.length, per };
-      });
-      out.canvas.lit_total = (out.canvas.per || []).reduce((n, c) => n + (c.painted_ratio || 0), 0);
-      out.canvas.hash = (out.canvas.per || []).map((c) => c.hash ?? null).join("|");
-    }
+    if (visual) out.visual = await captureVisual();
     if (inject && primary) out.write = await writeTest(inject);
   } catch (e) {
     out.load_error = String(e).slice(0, 200);

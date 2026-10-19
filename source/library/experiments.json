@@ -99,7 +99,8 @@
         "evidence": "source/library/circuit-lab-evidence.json",
         "measured": "2026-10-19 无头连跑两遍：5/5 检查通过、4/4 场景 pass（欧姆 3 档电阻逐位对上 5/R；RC 两点反解 τ=0.0999967 s vs 0.1 s）",
         "pit": "两处判据缺陷是无头跑才暴露的：元件种类守卫因短码/类名不匹配成了空判据（第一个场景读到启动电路）；runUntil 用绝对时钟，importCircuit 不重置时间 ⇒ 后续场景空转。都已修，RC 旧 pass 视为不可靠重做"
-      }
+      },
+      "headless_caveat": " ⇒ 2026-10-19 起改用无头 chromium（source/library/circuit_headless_lab.mjs）驱动，页内 autorun 跑得完，4/4 场景 pass、连跑两遍一致"
     },
     {
       "id": "phet",
@@ -383,7 +384,7 @@
           "同一 tick 里 initialize() 后立刻读状态（t 不会被重置）"
         ],
         "acceptance_rule": "写值后必须立即 serialize 回读比对注入值，再 step 对解析式；只看有没有异常会假通过",
-        "pending": "其余 24 个有主页面的包只做过结构探测，运行时语义未逐个验；另外画面这一项在 file:// 直开路径上量不出值（页面里 0 个 <canvas>，补测 initialize()+20 步仍为 0）⇒ 视图构建链待走通，不写成画面已验证",
+        "pending": "其余 24 个有主页面的包运行时语义逐个验过控制面（25/25 加载+步进+复现+写值），但逐包对解析式的数值验收只做了 2 个；画面：25/25 有 SVG 绘制、21/25 画面随写入改变，剩下 4 个是选靶（注入的是 xi 这类初值存储量 / 2.13 写入未接受）",
         "headless_sweep": {
           "tools": [
             "source/library/ejss_headless_lab.mjs",
@@ -401,6 +402,11 @@
           "evidence": "source/library/ejss-kinematics-selfcheck.json",
           "measured": "25 个 EJS 6.02 包：13 个运动学自洽（6 匀速 + 7 匀加速），5 个抛物线但找不到对应恒定加速度量，4 个非匀加速，3 个窗口内没动",
           "criterion": "二次拟合残差/跨度 ≤1e-6 且加速度与引擎自报常量相符；或梯形差分链 p→v→a 成立（错开半步用均值）"
+        },
+        "visual": {
+          "measured": "25/25 个包有 <svg>（1~4 个）与 15~173 个几何节点；运行时写入并 play() 后 21/25 的整页 PNG sha1 改变（Illustration2_6：几何节点 103→108）",
+          "evidence": "source/library/ejss-headless-sweep.json",
+          "retracted": "上一轮「canvas=0 ⇒ 画面没有值」作废：这一族用 SVG 画，canvas=0 是探针选错可观测量"
         }
       }
     },

@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-19T08:26:49.378Z",
+  "measured_at": "2026-10-19T08:32:15.655Z",
   "tool": "source/library/ejss_headless_sweep.mjs",
   "chromium": "D:\\temp\\ms-playwright\\chromium-1248\\chrome-win64\\chrome.exe",
   "packages_in_survey": 25,
@@ -21,12 +21,17 @@
       "primary_kind": "array_element",
       "primary_start": -50,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 7,
+        "geometry": 73,
+        "top_frame_present": true,
+        "top_frame_html_len": 32148,
+        "png_bytes": 160304,
+        "png_sha1": "eaed7aa59fe67fb1"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -56,12 +61,17 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 7,
+        "geometry": 77,
+        "top_frame_present": true,
+        "top_frame_html_len": 23264,
+        "png_bytes": 92951,
+        "png_sha1": "be4d27f5426bcfec"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -91,12 +101,17 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 7,
+        "geometry": 77,
+        "top_frame_present": true,
+        "top_frame_html_len": 25387,
+        "png_bytes": 112068,
+        "png_sha1": "fa1ad9fe1b7c760e"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -126,12 +141,17 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 20,
+        "top_frame_present": true,
+        "top_frame_html_len": 9613,
+        "png_bytes": 92799,
+        "png_sha1": "9f854eef6c75830c"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -161,12 +181,17 @@
       "primary_kind": "scalar",
       "primary_start": 4.82,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 77,
+        "top_frame_present": true,
+        "top_frame_html_len": 20504,
+        "png_bytes": 102455,
+        "png_sha1": "c6bc7e6fd65b0726"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -196,12 +221,17 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 4,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 173,
+        "top_frame_present": true,
+        "top_frame_html_len": 37007,
+        "png_bytes": 111642,
+        "png_sha1": "87b07d4a708e9e52"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -231,12 +261,17 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 65,
+        "top_frame_present": true,
+        "top_frame_html_len": 29877,
+        "png_bytes": 77634,
+        "png_sha1": "27695e83f6cfa44b"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -266,12 +301,17 @@
       "primary_kind": "scalar",
       "primary_start": -11,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 15,
+        "top_frame_present": true,
+        "top_frame_html_len": 6208,
+        "png_bytes": 66293,
+        "png_sha1": "969df8e6c545eb32"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -301,12 +341,17 @@
       "primary_kind": "scalar",
       "primary_start": 5.5,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 81,
+        "top_frame_present": true,
+        "top_frame_html_len": 25838,
+        "png_bytes": 91033,
+        "png_sha1": "a80cadc38cb86e9a"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -336,12 +381,17 @@
       "primary_kind": "array_element",
       "primary_start": -4.5,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 3,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 90,
+        "top_frame_present": true,
+        "top_frame_html_len": 20940,
+        "png_bytes": 90514,
+        "png_sha1": "8dc4159e529c0081"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -371,12 +421,17 @@
       "primary_kind": "scalar",
       "primary_start": -18,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 16,
+        "top_frame_present": true,
+        "top_frame_html_len": 7051,
+        "png_bytes": 80386,
+        "png_sha1": "7336fd8887ad5d6c"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -406,12 +461,17 @@
       "primary_kind": "scalar",
       "primary_start": -15,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 9,
+        "geometry": 19,
+        "top_frame_present": true,
+        "top_frame_html_len": 8266,
+        "png_bytes": 67204,
+        "png_sha1": "8a4d76aa3ea46bdf"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -441,12 +501,17 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 9,
+        "geometry": 22,
+        "top_frame_present": true,
+        "top_frame_html_len": 9800,
+        "png_bytes": 73160,
+        "png_sha1": "78b147f22378caad"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -476,12 +541,17 @@
       "primary_kind": "array_element",
       "primary_start": 8,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 19,
+        "top_frame_present": true,
+        "top_frame_html_len": 52649,
+        "png_bytes": 79773,
+        "png_sha1": "f44af27dfe54da3f"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -511,12 +581,17 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 63,
+        "top_frame_present": true,
+        "top_frame_html_len": 16405,
+        "png_bytes": 79903,
+        "png_sha1": "9eee787250401e79"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -546,12 +621,17 @@
       "primary_kind": "scalar",
       "primary_start": 1.5,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 17,
+        "top_frame_present": true,
+        "top_frame_html_len": 14777,
+        "png_bytes": 79807,
+        "png_sha1": "eff2b93fd09ebd94"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -581,12 +661,17 @@
       "primary_kind": "scalar",
       "primary_start": 8,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 72,
+        "top_frame_present": true,
+        "top_frame_html_len": 16364,
+        "png_bytes": 99688,
+        "png_sha1": "c673caa68fc70822"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -616,12 +701,17 @@
       "primary_kind": "scalar",
       "primary_start": -160,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 77,
+        "top_frame_present": true,
+        "top_frame_html_len": 44838,
+        "png_bytes": 104511,
+        "png_sha1": "de3396788f81569b"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -651,12 +741,17 @@
       "primary_kind": "scalar",
       "primary_start": 4.7849759686055675,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 68,
+        "top_frame_present": true,
+        "top_frame_html_len": 16843,
+        "png_bytes": 91606,
+        "png_sha1": "b3df89d015ae5e85"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": false,
@@ -686,12 +781,17 @@
       "primary_kind": "scalar",
       "primary_start": 5,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 2,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 63,
+        "top_frame_present": true,
+        "top_frame_html_len": 14975,
+        "png_bytes": 92655,
+        "png_sha1": "61a25bf2854fcdce"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -721,12 +821,17 @@
       "primary_kind": "scalar",
       "primary_start": -15,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 9,
+        "geometry": 19,
+        "top_frame_present": true,
+        "top_frame_html_len": 9071,
+        "png_bytes": 72766,
+        "png_sha1": "7b2a3724dc6a4d05"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -756,12 +861,17 @@
       "primary_kind": "scalar",
       "primary_start": -15,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 9,
+        "geometry": 19,
+        "top_frame_present": true,
+        "top_frame_html_len": 9107,
+        "png_bytes": 72981,
+        "png_sha1": "34defea8ab0d47aa"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": false,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -791,12 +901,17 @@
       "primary_kind": "scalar",
       "primary_start": 0,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 9,
+        "geometry": 19,
+        "top_frame_present": true,
+        "top_frame_html_len": 7451,
+        "png_bytes": 81600,
+        "png_sha1": "71fa83a0af5b9d41"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -826,12 +941,17 @@
       "primary_kind": "scalar",
       "primary_start": 8,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 16,
+        "top_frame_present": true,
+        "top_frame_html_len": 6805,
+        "png_bytes": 78759,
+        "png_sha1": "03bdcebc90aa0f5d"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -861,12 +981,17 @@
       "primary_kind": "scalar",
       "primary_start": 10,
       "deterministic": true,
-      "canvas": {
-        "count": 0,
-        "lit_ratio": 0,
-        "hash": ""
+      "visual": {
+        "svg": 1,
+        "canvas": 0,
+        "img": 8,
+        "geometry": 16,
+        "top_frame_present": true,
+        "top_frame_html_len": 5758,
+        "png_bytes": 62686,
+        "png_sha1": "7c89497227a527d5"
       },
-      "canvas_changes_with_state": false,
+      "visual_follows_state": true,
       "write_test": {
         "injected_to": 1000,
         "stuck": true,
@@ -893,10 +1018,12 @@
     "write_rejected": 1,
     "runtime_writable": 24,
     "array_state_packages": 3,
-    "canvas_painted": 0,
-    "canvas_follows_state": 0,
+    "view_draws": 25,
+    "svg_drawn": 25,
+    "canvas_drawn": 0,
+    "visual_follows_state": 21,
     "failed_to_load_list": [],
-    "canvas_note": "25 个包页面里的 <canvas> 数全为 0（Illustration2_6 上再补测：initialize() + 20 步 + 等 1.5 s 之后仍是 0 个 canvas、只有 13 个 div）。所以 EJS 6.02 这条 `file://` 直开路径只证明了数值控制面，视图构建链没被触发（要靠包里的启动器页或 EJSS_CORE 的显示初始化）。这一项按「没有值」记，不写成「画面坏了」；对比：webejs 那份拼树后 Plotly 是真出了曲线的。",
+    "canvas_note_retracted": "上一轮按 <canvas> 计数得到 25 个包全为 0，据此写下「画面这一项没有值、视图构建链没被触发」——那句作废：EJS 6.02 用 SVG 画（Illustration2_6 实测 4 个 <svg>、103~108 个几何节点、#_topFrame 里有 35 KB DOM、canvas 才真的是 0），且运行时写入 + initialize() + play() 之后整页 PNG 与基线不同（抽样 2048/2067 个字节位置不一致）、几何节点数从 103 变到 108 ⇒ 画面确实在跟着状态走。教训同一类：0 个 canvas 是探针选错了可观测量，不是资源没有画面。",
     "recompute_note": "accepted_but_recomputed / rejected 两档里被注入的量是「步内变化最快的量」，它可能是模型每步重算的派生量（如 2.12 的 a、2.13 的 x_hill）⇒ 这两档说明的是选靶规则不够好，不能当成「包不可控」的证据"
   },
   "result": "部分未过"

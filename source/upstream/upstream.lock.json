@@ -826,7 +826,6 @@
         "structural_readiness": "survey_ejss_models.py 全量扫描：26 个包有仿真主页面，其中 26 个页面文本里就有 _model + serialize/unserialize、25 个带 // EjsS Model.Variables 可寻址赋值注释；但运行时逐个跑过的只有上面 2 个，其余 24 个标 pending",
         "not_verified": [
           "其余 24 个包的运行时语义（多粒子/自定义事件类）",
-          "画布视觉正确性（本机内置浏览器无可见 surface，rAF 0 帧）",
           "包装页（EjsLauncher/_Contents）的路径修复"
         ],
         "headless_sweep_2026-10-19": {
@@ -844,7 +843,20 @@
           "array_state_packages": 3,
           "exceptions_explained": "2.12 注入的是 a、2.13 注入的是 x_hill，两者都是模型每步重算的派生量 ⇒ 说明探针的选靶规则（取步内变化最快的量）不够好，不能写成这两个包不可控",
           "instrument_bug_fixed": "探针上一版只认标量状态，把 3 个数组状态包（两车/多体）读成「状态没变、不可复现」；已改为标量与数组元素一起参与判定",
-          "significance": "浏览器态引擎（EJSS 视图、CircuitJS1、PhET 成品）第一次有了可脚本化、可重跑的验证通道；此前这类只能人工点浏览器"
+          "significance": "浏览器态引擎（EJSS 视图、CircuitJS1、PhET 成品）第一次有了可脚本化、可重跑的验证通道；此前这类只能人工点浏览器",
+          "visual_2026-10-19": {
+            "metric": "svg/canvas/几何节点数 + 整页 PNG 的 sha1（同一页写入前后比）",
+            "view_draws": 25,
+            "svg_drawn": 25,
+            "canvas_drawn": 0,
+            "geometry_nodes_range": [
+              15,
+              173
+            ],
+            "visual_follows_state": 21,
+            "exceptions": "3 个包注入的是 xi 这类初值存储量（画面画的是别的量），1 个（2.13）写入未被接受 ⇒ 是选靶规则问题，不是画不出来",
+            "retracted": "上一轮「<canvas>=0 ⇒ 画面这一项没有值、视图构建链未触发」作废：EJS 6.02 用 SVG 画，25/25 都有 <svg> 与 15~173 个几何节点；canvas=0 只是探针选错量"
+          }
         }
       }
     },

@@ -61,12 +61,12 @@ try {
       console.log(`SKIP ${pkg.title} :: 拼包失败`);
       continue;
     }
-    const probe = await probePackage(browser, page, { steps, canvas: true });
+    const probe = await probePackage(browser, page, { steps, visual: true });
     // 控制组：同一份包重新加载再跑一遍，轨迹必须逐点相同（否则「可复现」这条不成立）
     const again = await probePackage(browser, page, { steps });
     // 写值组：把主角变量注入一个新起点，看后续轨迹是否跟着分离
     const injected = probe.primary_var
-      ? await probePackage(browser, page, { steps, inject: { [probe.primary_var]: 1000 }, injectFirst: true, primaryOverride: probe.primary_var, canvas: true })
+      ? await probePackage(browser, page, { steps, inject: { [probe.primary_var]: 1000 }, injectFirst: true, primaryOverride: probe.primary_var, visual: true })
       : null;
     const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     const row = {
@@ -84,10 +84,10 @@ try {
       primary_kind: probe.primary_kind,
       primary_start: probe.start_primary,
       deterministic: !!probe.trace_head && same(probe.trace_head, again.trace_head),
-      // 画面：无头 chromium 确实在渲染。两件事分开量——「有没有画」（点亮像素占比）
-      // 与「改状态会不会改到画面」（写入前后 canvas 哈希是否分离）。
-      canvas: probe.canvas ? { count: probe.canvas.count, lit_ratio: +probe.canvas.lit_total.toFixed(5), hash: probe.canvas.hash } : null,
-      canvas_changes_with_state: !!(probe.canvas && injected && injected.canvas && injected.canvas.hash !== probe.canvas.hash),
+      // 画面：数 svg/canvas/几何节点，并用整页 PNG 的 sha1 当指纹；
+      // 「改状态画面跟着变」要求写入那一趟的 PNG 与基线那趟不同（同一趟比不了，静态坐标轴文字也在图里）。
+      visual: probe.visual || null,
+      visual_follows_state: !!(probe.visual && injected && injected.visual && injected.visual.png_sha1 !== probe.visual.png_sha1),
       write_test: injected && injected.write ? {
         injected_to: 1000,
         stuck: injected.write.stuck,
@@ -126,12 +126,15 @@ report.summary = {
   write_rejected: n((r) => r.write_test && r.write_test.class === "rejected"),
   runtime_writable: n((r) => r.verdict === "runtime_writable"),
   array_state_packages: n((r) => r.primary_kind === "array_element"),
-  canvas_painted: n((r) => r.canvas && r.canvas.count > 0 && r.canvas.lit_ratio > 1e-5),
-  canvas_follows_state: n((r) => r.canvas_changes_with_state === true),
+  view_draws: n((r) => r.visual && (r.visual.svg > 0 || r.visual.canvas > 0) && r.visual.geometry > 0),
+  svg_drawn: n((r) => r.visual && r.visual.svg > 0),
+  canvas_drawn: n((r) => r.visual && r.visual.canvas > 0),
+  visual_follows_state: n((r) => r.visual_follows_state === true),
   failed_to_load_list: report.results.filter((r) => !r.load_clean).map((r) => r.zip),
-  canvas_note: "25 个包页面里的 <canvas> 数全为 0（Illustration2_6 上再补测：initialize() + 20 步 + 等 1.5 s 之后仍是 0 个 canvas、只有 13 个 div）。"
-    + "所以 EJS 6.02 这条 `file://` 直开路径只证明了数值控制面，视图构建链没被触发（要靠包里的启动器页或 EJSS_CORE 的显示初始化）。"
-    + "这一项按「没有值」记，不写成「画面坏了」；对比：webejs 那份拼树后 Plotly 是真出了曲线的。",
+  canvas_note_retracted: "上一轮按 <canvas> 计数得到 25 个包全为 0，据此写下「画面这一项没有值、视图构建链没被触发」——那句作废："
+    + "EJS 6.02 用 SVG 画（Illustration2_6 实测 4 个 <svg>、103~108 个几何节点、#_topFrame 里有 35 KB DOM、canvas 才真的是 0），"
+    + "且运行时写入 + initialize() + play() 之后整页 PNG 与基线不同（抽样 2048/2067 个字节位置不一致）、几何节点数从 103 变到 108 ⇒ 画面确实在跟着状态走。"
+    + "教训同一类：0 个 canvas 是探针选错了可观测量，不是资源没有画面。",
   recompute_note: "accepted_but_recomputed / rejected 两档里被注入的量是「步内变化最快的量」，"
     + "它可能是模型每步重算的派生量（如 2.12 的 a、2.13 的 x_hill）⇒ 这两档说明的是选靶规则不够好，不能当成「包不可控」的证据",
 };
