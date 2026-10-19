@@ -1,6 +1,6 @@
 {
   "comment": "上游源码记录。本文件是 source/upstream 下唯一的自有文件；这里记的每一条要么是上游文件里读到的，要么是本机真实跑过的输出。未跑的一律标 pending，不写成已完成。",
-  "updated_at": "2026-10-15T20:35:00+08:00",
+  "updated_at": "2026-10-19T11:52:00+08:00",
   "upstreams": [
     {
       "id": "ray-optics",
@@ -135,15 +135,229 @@
     },
     {
       "id": "myphysicslab",
-      "status": "deferred",
-      "decision": "本轮决定不进首批，仅保留目录位与 engine_id 取值。",
-      "reason": "首批范围收口为 Ray Optics 一条线打穿；三套上游构建链同时接是主要进度风险来源。"
+      "status": "installed_readonly",
+      "decision_2026-10-15": "不进首批（首批范围收口为 Ray Optics 一条线打穿；三套上游构建链同时接是主要进度风险来源）。",
+      "decision_2026-10-19": "资源库安装轮把源码请进工作区做只读参考与种子来源，构建链仍未打通——这两件事不要混着说。",
+      "display_name": "myPhysicsLab",
+      "role": "2D 力学实验源（单摆、双摆、弹簧、碰撞）",
+      "source": {
+        "repository": "https://github.com/myPhysicsLab/myPhysicsLab",
+        "branch": "master",
+        "commit": "4b0bb8e1fa3b00889bb20dfa0d238674ac2e0b3c",
+        "license": "Apache-2.0（实测仓库根 LICENSE 首行 Apache License）",
+        "local_path": "source/upstream/myphysicslab",
+        "fetched_at": "2026-10-19T11:35:02+08:00",
+        "fetch_command": "git clone --depth 1 --single-branch --branch master https://github.com/myPhysicsLab/myPhysicsLab.git source/upstream/myphysicslab",
+        "repo_size": "GitHub API size = 10,547 KB；浅克隆后 du -sk = 16,401 KB（含 .git）；工作区文件 530 个 / 10,208 KB（不含 .git，按 inventory.json）"
+      },
+      "facts_measured": {
+        "demo_html": "src/sims 下 .html 71 个；关键入口 src/sims/pendulum/PendulumApp.html、src/sims/pendulum/DoublePendulumApp.html、src/sims/roller/RollerSpringApp.html、src/sims/engine2D/NewtonsCradleApp.html、src/sims/engine2D/MultipleCollisionApp.html",
+        "source_language": "src 下 .ts 322 个、.js 0 个 ⇒ 仓库里没有任何预编译 JS，浏览器直接用要先过 TypeScript 构建（构建命令未跑，pending）",
+        "consequence": "适配器不能假设 import 就能跑；第一条力学模板的落地前置动作是搞清 makefile / tsconfig 的构建产出路径"
+      },
+      "commands_pending": [
+        {"name": "ts-build", "command": "见仓库 makefile 与 tsconfig.json，未执行", "status": "pending"},
+        {"name": "headless-readout", "command": "无头取数值（周期、角度时程）", "status": "pending"}
+      ]
     },
     {
       "id": "circuitjs1",
-      "status": "deferred",
-      "decision": "本轮决定不进首批，仅保留目录位与 engine_id 取值。",
-      "extra": "其构建需要 Java/GWT 工具链，且控制页与模拟器必须同源，本机 Docker 守护进程当前未运行。"
+      "status": "installed_readonly",
+      "decision_2026-10-15": "不进首批；其构建需要 Java/GWT 工具链，且控制页与模拟器必须同源，本机 Docker 守护进程当前未运行。",
+      "decision_2026-10-19": "源码已装为只读参考；构建与许可证义务仍未解除，不能打进离线交付包。",
+      "display_name": "CircuitJS1 (Falstad Circuit)",
+      "role": "2D 电路实验台（欧姆定律、串并联、RC/RL、振荡）",
+      "source": {
+        "repository": "https://github.com/pfalstad/circuitjs1",
+        "branch": "master",
+        "commit": "5a707168778216bb6ed01bfdd62e8bbf7ae0a032",
+        "license": "GPL-2.0（实测仓库根 COPYING.txt 首行 GNU GENERAL PUBLIC LICENSE；GitHub API license.spdx_id = GPL-2.0）",
+        "local_path": "source/upstream/circuitjs1",
+        "fetched_at": "2026-10-19T11:36:46+08:00",
+        "fetch_command": "git clone --depth 1 --single-branch --branch master https://github.com/pfalstad/circuitjs1.git source/upstream/circuitjs1",
+        "repo_size": "GitHub API size = 8,423 KB；浅克隆 du -sk = 8,987 KB；工作区文件 798 个 / 5,547 KB"
+      },
+      "upstream_location_probe": {
+        "question": "调研简报里的 GitHub 地址还能用吗？",
+        "answer": "不能用。",
+        "measured": [
+          "git ls-remote https://github.com/falstad/circuitjs1.git → remote: Repository not found（GitHub API 同样 404）",
+          "用户 falstad 在 GitHub 的公开仓库列表实测为空数组",
+          "作者自建 git 服务 https://git.pfalstad.com/circuitjs1/circuitjs1.git → OpenSSL SSL_connect: SSL_ERROR_SYSCALL（本机 TLS 握手直接失败）",
+          "官方站点 falstad.com/circuit/about.html 指两个源：pfalstad/circuitjs1（作者本人，pushed_at 2026-10-18，活跃）与 sharpie7/circuitjs1（Iain 维护，GPL-2.0）⇒ 装前者，后者登记为备选"
+        ]
+      },
+      "facts_measured": {
+        "java_sources": "src 下 .java 249 个",
+        "war_js": "war/ 下 .js 只有 4 个 ⇒ GWT 编译产物不在仓库里，必须自建",
+        "sample_circuits": "全仓 .cir 实测 0 个 ⇒ 电路不是以样例文件形式存的（要确认上游的 ?c= 参数编码方式后再谈种子）"
+      },
+      "license_obligation": "GPL-2.0-or-later：把编译产物随离线包分发时，必须一并开放对应源码并保留许可证副本。当前只作本地只读参考，不分发 ⇒ 义务尚未触发，触发点在打进交付包那一刻。",
+      "commands_pending": [
+        {"name": "gwt-build", "command": "./gradlew（需 Java + GWT；仓库带 circuitjs1.Containerfile，走 Docker 但本机 Docker 守护进程未运行）", "status": "pending"},
+        {"name": "js-api-probe", "command": "同源 JavaScript 接口的导入/导出/读元件量，简报里说有文档，本机未实测", "status": "pending"}
+      ]
+    },
+    {
+      "id": "matter-js",
+      "status": "installed_readonly",
+      "display_name": "Matter.js",
+      "role": "2D 刚体物理（抛体、斜面、摩擦、碰撞）＋无头对照组",
+      "source": {
+        "repository": "https://github.com/liabru/matter-js",
+        "branch": "master",
+        "commit": "b8ee71cd7f9b49f53639ddaedd6254f1929bcbe5",
+        "license": "MIT（实测 LICENSE 首行 The MIT License (MIT)）",
+        "local_path": "source/upstream/matter-js",
+        "npm_package": "source/components/node_modules/matter-js@0.20.0",
+        "fetched_at": "2026-10-19T11:35:06+08:00",
+        "repo_size": "浅克隆 du -sk = 3,039 KB；工作区文件 122 个 / 2,085 KB；build/ 下 .js 2 个"
+      },
+      "headless_probe": {
+        "command": "node source/components/probe_components.mjs（结果落盘 source/components/component-probe.json）",
+        "result": "pass",
+        "measured": "Engine.create(gravity y=1) + Bodies.circle(mass 2) 步进 60 次（1 s）后 y = 421.347",
+        "pit": "Matter.Runner 依赖 window.requestAnimationFrame，无头直接报错「missing required global window.requestAnimationFrame」⇒ 数值验证只能用 Engine.update 手工步进；且默认重力尺度与教学单位不一致，模板必须先标定 scale"
+      }
+    },
+    {
+      "id": "rapier",
+      "status": "installed_and_headless_verified",
+      "display_name": "Rapier 3D",
+      "role": "3D 刚体动力学（自由落体、三维碰撞）——资源库里唯一已实测跑通无头数值验证的 3D 引擎",
+      "source": {
+        "repository": "https://github.com/dimforge/rapier.js",
+        "branch": "master",
+        "commit": "9f638c5384c282a8abd22515973ac7c82ccfbc43",
+        "license": "Apache-2.0",
+        "local_path": "source/upstream/rapier-js",
+        "npm_package": "source/components/node_modules/@dimforge/rapier3d@0.21.0 + @dimforge/rapier3d-compat@0.21.0",
+        "fetched_at": "2026-10-19T11:35:09+08:00",
+        "repo_size": "浅克隆 du -sk = 2,934 KB；工作区文件 179 个 / 2,074 KB"
+      },
+      "why_npm_not_just_clone": "仓库内实测 0 个 .wasm（builds/ 是 Rust→wasm 的生成模板），可直接 import 的 wasm 只随 npm 发布 ⇒ 只克隆仓库等于装不了。",
+      "headless_probe": {
+        "command": "node source/components/probe_components.mjs",
+        "results": [
+          {"pkg": "@dimforge/rapier3d", "result": "fail", "measured": "Cannot find module '.../rapier3d/exports'：package.json 无 main/exports，内部用无扩展名 ESM 导入，Node 解析不了（浏览器由打包器处理，所以不是包坏了，是 Node 不能直用）"},
+          {"pkg": "@dimforge/rapier3d-compat", "result": "pass", "measured": "init() 后 new World(gravity -9.81)，动态刚体从 y=20 起、球半径 0.5，world.step() 60 次 ⇒ y = 15.075；独立参考 20 - 0.5*9.81*1² = 15.095，偏差 0.020 m（0.13%）"}
+        ],
+        "implication": "3D 实验的「Agent 改参 → 无头运行 → 读数 → 与解析公式对照」这条链在本机成立，不需要浏览器。"
+      },
+      "known_pits": [
+        "无头一律用 -compat 变体；裸包只适合浏览器/打包器环境。",
+        "world.step() 的默认步长要与教学时间对齐（上面用的是引擎默认步长跑 60 次≈1 s，模板里要把 dt 写明确再谈误差）。"
+      ]
+    },
+    {
+      "id": "three",
+      "status": "installed_sparse",
+      "display_name": "three.js",
+      "role": "3D 渲染层（与 Rapier 搭配做有展示效果的 3D 实验）",
+      "source": {
+        "repository": "https://github.com/mrdoob/three.js",
+        "branch": "dev",
+        "commit": "b8219a69eef61962206e78d161911f835cc064e3",
+        "license": "MIT（LICENSE 已单独检出，实测首行 The MIT License，Copyright © 2010-2026 three.js authors）",
+        "local_path": "source/upstream/three",
+        "npm_package": "source/components/node_modules/three@0.186.1",
+        "fetched_at": "2026-10-19T11:36:58+08:00",
+        "fetch_command": "git clone --depth 1 --filter=blob:none --sparse --single-branch --branch dev … && git sparse-checkout set src examples/jsm build LICENSE package.json README.md",
+        "why_sparse": "GitHub API size = 1,693,072 KB（≈1.7 GB），整仓浅克隆不划算；稀疏检出后工作区 1,514 个文件 / 23,623 KB",
+        "facts_measured": "src 下 .js 755 个、examples/jsm 下 .js 496 个"
+      },
+      "headless_probe": {"result": "pass", "measured": "REVISION = 186；Vector3(1,2,2).length() = 3 ⇒ 纯数学/几何可在 Node 直接用（渲染需要浏览器另说）"},
+      "known_pits": [
+        "sparse-checkout 初装时漏了仓库根 LICENSE，MIT 组件缺许可证文本是分发合规问题，已补检出；以后稀疏装任何仓库都要把 LICENSE/NOTICE 一并列入 sparse 清单。",
+        "cone 模式稀疏会把 examples/jsm 之外的空目录（examples/、manual/、test/、utils/）也建出来，`ls` 看到目录不代表里面有东西。"
+      ]
+    },
+    {
+      "id": "stellarium-web-engine",
+      "status": "installed_build_pending",
+      "display_name": "Stellarium Web Engine",
+      "role": "3D 天象（星空、星座、天体观测）候选",
+      "source": {
+        "repository": "https://github.com/Stellarium/stellarium-web-engine",
+        "branch": "master",
+        "commit": "7d45c8fec393fbbabadcefa935794290fc39723d",
+        "license": "AGPL-3.0（实测仓库内 LICENSE-AGPL-3.0.txt 首行 GNU AFFERO GENERAL PUBLIC LICENSE）",
+        "local_path": "source/upstream/stellarium-web-engine",
+        "fetched_at": "2026-10-19T11:35:14+08:00",
+        "repo_size": "GitHub API size = 34,724 KB；浅克隆 du -sk = 25,106 KB；工作区文件 818 个 / 14,282 KB"
+      },
+      "facts_measured": {"wasm_in_repo": "0 个 .wasm ⇒ 可运行产物要 SCons + Emscripten 自行构建（未跑，pending）；data/ 目录含星表与影像，授权要单独评估"},
+      "license_obligation": "AGPL-3.0：把构建产物嵌入交付物并向用户提供网络服务即触发源码开放义务 ⇒ 首批不进离线包，只作本地资源参考。这是选装它时就要记住的红线，不是分发前才查。"
+    },
+    {
+      "id": "webots",
+      "status": "installed_resources_only",
+      "display_name": "Webots",
+      "role": "3D 机器人/传感器/碰撞场景资源（高级实验候选）",
+      "source": {
+        "repository": "https://github.com/cyberbotics/webots",
+        "branch": "master",
+        "commit": "b98cfb89c61f3d3acc9bf31833e044f38d1321fc",
+        "license": "Apache-2.0",
+        "local_path": "source/upstream/webots/projects",
+        "fetched_at": "2026-10-19T11:37:02+08:00",
+        "install_method": "整仓 GitHub API size = 4,306,713 KB（≈4.2 GB）。改为 git clone --depth 1 --filter=blob:none --no-checkout（实测只取 commit+trees 仅 647 KB），再 sparse-checkout 只检出 projects/ 并 read-tree -mu HEAD 落盘",
+        "installed_size": "projects/ 稀疏检出后工作区 7,858 个文件 / 1,016,232 KB（≈1.0 GB）；含 .git 的整目录 du -sk = 1,795,644 KB"
+      },
+      "facts_measured": {
+        "worlds": ".wbproj 304 个；分布集中在 projects/samples/devices/worlds（51）、projects/samples/curriculum/worlds（27）、projects/vehicles/worlds（13）等",
+        "protos": ".proto 853 个（注意：上游已把扩展名从 .wbo 改成 .proto，实测仓库内 .wbo 为 0）",
+        "controllers": ".py 112 个、.c/.cpp 416 个",
+        "submodules": "HEAD:.gitmodules 只有 src/glm 与 src/stb 两个构建依赖，protos/worlds 不是子模块（早期猜「protos 在子模块里」是错的）"
+      },
+      "blocker": "场景文件可当资源检索，但跑仿真要装 Webots 桌面本体（本机未装）⇒ 无头验证 pending；且产物是桌面程序而非浏览器实验，与我们的离线交付形态不同路。",
+      "decision_2026-10-19": "只装资源、不装本体、不进首批；等真有机器人/传感器类实验需求时再评估。"
+    },
+    {
+      "id": "phet",
+      "status": "installed_readonly",
+      "display_name": "PhET Interactive Simulations",
+      "role": "多学科 2D 教学实验源（光学/力学/电学/波动/热学/天文）与展示资源库",
+      "source": {
+        "repository": "https://github.com/phetsims/<repo>",
+        "local_path": "source/upstream/phet",
+        "fetched_at": "2026-10-19T11:35:17 ~ 11:41:33+08:00",
+        "install_method": "source/upstream/fetch_phet_sims.py：先 git ls-remote --heads 枚举分支，取版本号最大的 X.Y 发行分支浅克隆（main 已空心化，不能用）",
+        "libs_installed": "10 个（assert/axon/dot/joist/kite/mobius/phet-core/scenery/scenery-phet/sun），工作区合计 55,726 KB —— 库仓库的 main 分支实测仍是完整源码",
+        "sims_installed": "20 个（19 个有完整源码 + 1 个空壳），工作区合计 96,804 KB"
+      },
+      "critical_finding": {
+        "question": "能不能照简报说的「物理实验目录 · GitHub 源码」直接克隆 main？",
+        "answer": "不能。PhET 已把仿真仓库的 main 分支空心化，完整源码只在 X.Y 发行分支上。",
+        "measured": [
+          "git clone main 后实测：bending-light 3 个文件 / 85 KB、ohms-law 5 个文件 / 274 KB（对比 API 报的仓库大小 16,848 KB / 3,352 KB）",
+          "README.md 首行「⚠️ This Repository Is No Longer Maintained」，正文说明源码收进 monorepo 且「not publicly available at this time」",
+          "改按最新发行分支克隆后立即变实：bending-light@1.2 = 113 个文件 / 13,609 KB、js/ 下 .ts 68 个、dependencies.json 与 bending-light_en.html 均在",
+          "circuit-construction-kit-common 只有 main 一个分支 ⇒ 实测仍是 3 个文件的空壳，登记为 sims_stub（依赖它的 dc/ac 仿真若要自建，先解决这个公共库来源）"
+        ]
+      },
+      "license": "分层实测：仿真源码仓库 LICENSE = GNU GENERAL PUBLIC LICENSE Version 3（如 phet/sims/ohms-law/LICENSE）；通用库 LICENSE = The MIT License (MIT)（如 phet/libs/scenery/LICENSE）。⇒ 改仿真源码再分发触发 GPL-3.0 义务；只用库是 MIT。",
+      "installed_sims": ["bending-light@1.2", "ohms-law@1.4", "circuit-construction-kit-common@main(stub)", "circuit-construction-kit-dc@1.5", "circuit-construction-kit-ac@1.0", "pendulum-lab@1.0", "masses-and-springs@1.0", "hookes-law@1.2", "projectile-motion@1.0", "collision-lab@1.1", "wave-on-a-string@1.2", "waves-intro@1.1", "wave-interference@2.0", "gas-properties@1.1", "gases-intro@1.1", "gravity-and-orbits@1.6", "charges-and-fields@1.0", "magnets-and-electromagnets@1.0", "energy-skate-park-basics@1.5", "forces-and-motion-basics@2.6"],
+      "known_pits": [
+        "「iframe 能打开」≠「Agent 能改实验」：PhET 没有统一 JSON 改参接口，可改参数要从各 sim 的 *QueryParameters.ts 与 model 类逐个提取（本轮未做，pending）。",
+        "官方发布成品（离线 HTML5）这条路本轮没打通：实测 phet.colorado.edu/sims/html/<sim>/latest/*.zip 两种命名都 404，unzipper.colorado.edu 本机 TLS 直接失败（curl 返回码 000）⇒ 后续要么走官方 bulk 页拿真链接，要么自建 grunt 构建。",
+        "构建链（grunt + perennial + phet brand）本轮一次都没跑过，sims 目前只是源码与种子资源。"
+      ]
+    },
+    {
+      "id": "osp-singapore-ejss",
+      "status": "not_installed",
+      "display_name": "OSP@Singapore / EJSS",
+      "decision_2026-10-19": "不装。",
+      "reason_measured": "找不到权威可克隆的仓库：GitHub 搜索 easy-javascript-simulation / ejss 只返回个人复刻仓库（许可参差：GPL-3.0、CC0-1.0、无声明）；猜测的组织名 wejen、osp-tools、compadre-io 实测均 404；wejen/easy-javascript-simulation 与 compadre-io/osp 的 git ls-remote 都报 Repository not found。",
+      "next_step": "要接的话，先从 sg.iwant2study.org 一侧确认官方源码地址与许可，登记进本文件后再克隆。"
+    },
+    {
+      "id": "3jcn",
+      "status": "not_installed",
+      "display_name": "3JCN Physics Simulations",
+      "decision_2026-10-19": "不装，只作参考素材候选。",
+      "reason": "站点是 Java applet / Flash 时代的资源集合，程序化接口未核实，没有可锁定的仓库与版本。"
     }
   ]
 }

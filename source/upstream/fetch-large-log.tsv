@@ -1,0 +1,6 @@
+step	status	size_kb	files	commit	note	ts
+circuitjs1	OK	8987	798	5a707168778216bb6ed01bfdd62e8bbf7ae0a032	pfalstad/circuitjs1 master 浅克隆	2026-10-19T11:36:46+08:00
+three-sparse	OK	33896	1514	b8219a69eef61962206e78d161911f835cc064e3	filter=blob:none + sparse(src,examples/jsm,build)	2026-10-19T11:36:58+08:00
+webots-trees	OK	647	0	b98cfb89c61f3d3acc9bf31833e044f38d1321fc	只取 commit+trees，未检出工作区	2026-10-19T11:37:02+08:00
+webots-protos	OK	649	0		sparse=resources/projects/protos	2026-10-19T11:37:02+08:00
+webots-worlds	OK	649	0		sparse+=worlds,lidar	2026-10-19T11:37:02+08:00

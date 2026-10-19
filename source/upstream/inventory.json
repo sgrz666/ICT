@@ -1,0 +1,1083 @@
+{
+  "generated_at": "2026-10-19T11:43:26+08:00",
+  "generated_by": "source/upstream/inspect_upstreams.py",
+  "comment": "本文件由脚本生成，数字全部来自磁盘实测。重跑：python source/upstream/inspect_upstreams.py",
+  "totals": {
+    "installed_units": 38,
+    "total_size_kb": 1281191,
+    "total_files": 18473
+  },
+  "probes": {
+    "ray-optics.gallery_scene_items": 86,
+    "ray-optics.gallery_scenes_json": 81,
+    "myphysicslab.sim_html": 71,
+    "myphysicslab.ts_sources": 322,
+    "myphysicslab.compiled_js": 0,
+    "circuitjs1.java_sources": 249,
+    "circuitjs1.built_js_in_war": 4,
+    "circuitjs1.sample_circuits": 0,
+    "three.src_js": 755,
+    "three.examples_jsm": 496,
+    "matter-js.build_js": 2,
+    "rapier-js.js_artifacts": 3,
+    "rapier-js.wasm_artifacts": 0,
+    "stellarium.wasm": 0,
+    "webots.worlds_wbproj": 304,
+    "webots.protos": 853,
+    "webots.controllers_py": 112,
+    "webots.controllers_c": 416,
+    "phet.sims_installed": 20,
+    "phet.libs_installed": 10
+  },
+  "units": [
+    {
+      "path": "ray-optics",
+      "installed": true,
+      "commit": "daf76772c73a85e1a2568c4e2e71613bba1fab77",
+      "branch": "master",
+      "upstream_commit_date": "2026-10-04T19:27:50-04:00",
+      "size_kb": 54610,
+      "files": 3241,
+      "top_extensions": {
+        ".json": 1278,
+        ".html": 771,
+        ".js": 703,
+        ".png": 169,
+        ".csv": 96,
+        ".svg": 79,
+        ".vue": 66,
+        ".woff": 24
+      },
+      "license_files": [
+        "LICENSE",
+        "dist/LICENSE"
+      ],
+      "id": "ray-optics"
+    },
+    {
+      "path": "myphysicslab",
+      "installed": true,
+      "commit": "4b0bb8e1fa3b00889bb20dfa0d238674ac2e0b3c",
+      "branch": "master",
+      "upstream_commit_date": "2024-11-25T09:09:18-08:00",
+      "size_kb": 10208,
+      "files": 530,
+      "top_extensions": {
+        ".ts": 322,
+        ".html": 83,
+        ".png": 28,
+        ".graffle": 23,
+        ".pdf": 17,
+        ".svg": 16,
+        ".md": 14,
+        ".nb": 5
+      },
+      "license_files": [
+        "LICENSE",
+        "src/images/license-fatcow.txt",
+        "src/images/license-kenney.txt"
+      ],
+      "id": "myphysicslab"
+    },
+    {
+      "path": "circuitjs1",
+      "installed": true,
+      "commit": "5a707168778216bb6ed01bfdd62e8bbf7ae0a032",
+      "branch": "master",
+      "upstream_commit_date": "2026-09-23T11:59:14-07:00",
+      "size_kb": 5547,
+      "files": 798,
+      "top_extensions": {
+        ".txt": 445,
+        ".java": 249,
+        ".html": 33,
+        ".js": 8,
+        ".sh": 7,
+        ".prefs": 7,
+        ".png": 7,
+        "(none)": 6
+      },
+      "license_files": [
+        "COPYING.txt",
+        "war/font/LICENSE.txt"
+      ],
+      "id": "circuitjs1"
+    },
+    {
+      "path": "matter-js",
+      "installed": true,
+      "commit": "b8ee71cd7f9b49f53639ddaedd6254f1929bcbe5",
+      "branch": "master",
+      "upstream_commit_date": "2026-09-30T18:14:05+01:00",
+      "size_kb": 2085,
+      "files": 122,
+      "top_extensions": {
+        ".js": 91,
+        ".svg": 7,
+        ".png": 6,
+        ".md": 4,
+        "(none)": 3,
+        ".mjs": 3,
+        ".json": 2,
+        ".yaml": 2
+      },
+      "license_files": [
+        "LICENSE",
+        "src/module/license.js"
+      ],
+      "id": "matter-js"
+    },
+    {
+      "path": "rapier-js",
+      "installed": true,
+      "commit": "9f638c5384c282a8abd22515973ac7c82ccfbc43",
+      "branch": "master",
+      "upstream_commit_date": "2026-07-12T18:55:46+02:00",
+      "size_kb": 2074,
+      "files": 179,
+      "top_extensions": {
+        ".ts": 87,
+        ".rs": 36,
+        ".json": 17,
+        "(none)": 9,
+        ".sh": 9,
+        ".tera": 6,
+        ".md": 4,
+        ".js": 3
+      },
+      "license_files": [
+        "LICENSE",
+        "builds/prepare_builds/templates/LICENSE"
+      ],
+      "id": "rapier-js"
+    },
+    {
+      "path": "three",
+      "installed": true,
+      "commit": "b8219a69eef61962206e78d161911f835cc064e3",
+      "branch": "dev",
+      "upstream_commit_date": "2026-10-18T22:29:00+00:00",
+      "size_kb": 23623,
+      "files": 1514,
+      "top_extensions": {
+        ".js": 1504,
+        ".md": 4,
+        ".wasm": 3,
+        ".cjs": 1,
+        ".txt": 1,
+        ".zip": 1
+      },
+      "license_files": [],
+      "id": "three"
+    },
+    {
+      "path": "stellarium-web-engine",
+      "installed": true,
+      "commit": "7d45c8fec393fbbabadcefa935794290fc39723d",
+      "branch": "master",
+      "upstream_commit_date": "2026-10-13T16:49:52+02:00",
+      "size_kb": 14282,
+      "files": 818,
+      "top_extensions": {
+        ".c": 237,
+        ".webp": 157,
+        ".h": 138,
+        ".svg": 73,
+        ".eph": 56,
+        ".vue": 18,
+        "(none)": 17,
+        ".md": 17
+      },
+      "license_files": [
+        "LICENSE-AGPL-3.0.txt",
+        "ext_src/md4c/LICENSE.md"
+      ],
+      "id": "stellarium-web-engine"
+    },
+    {
+      "path": "webots",
+      "installed": true,
+      "commit": "b98cfb89c61f3d3acc9bf31833e044f38d1321fc",
+      "branch": "master",
+      "upstream_commit_date": "2026-10-15T10:22:12+08:00",
+      "size_kb": 1016232,
+      "files": 7858,
+      "top_extensions": {
+        ".jpg": 2669,
+        ".png": 1109,
+        ".proto": 853,
+        "(none)": 618,
+        ".obj": 443,
+        ".wbproj": 304,
+        ".wbt": 304,
+        ".c": 280
+      },
+      "license_files": [
+        "LICENSE",
+        "projects/robots/robotis/darwin-op/libraries/robotis-op2/robotis/Framework/src/minIni/LICENSE",
+        "projects/robots/robotis/darwin-op/libraries/robotis-op2/robotis/Framework/src/minIni/NOTICE",
+        "projects/samples/robotbenchmark/LICENSE"
+      ],
+      "id": "webots"
+    },
+    {
+      "path": "phet/libs/assert",
+      "installed": true,
+      "commit": "51cb1f03d29ea7ba229d27533e544e789d5a2a31",
+      "branch": "main",
+      "upstream_commit_date": "2026-03-30T18:47:11-06:00",
+      "size_kb": 49,
+      "files": 9,
+      "top_extensions": {
+        "(none)": 3,
+        ".json": 2,
+        ".mjs": 1,
+        ".cjs": 1,
+        ".md": 1,
+        ".js": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-lib-assert"
+    },
+    {
+      "path": "phet/libs/axon",
+      "installed": true,
+      "commit": "8d158fa9163dcb4bc1635bb9cce60bcea2a931c1",
+      "branch": "main",
+      "upstream_commit_date": "2026-07-01T17:58:12-06:00",
+      "size_kb": 535,
+      "files": 90,
+      "top_extensions": {
+        ".ts": 77,
+        "(none)": 3,
+        ".md": 3,
+        ".json": 3,
+        ".html": 1,
+        ".mjs": 1,
+        ".cjs": 1,
+        ".js": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-lib-axon"
+    },
+    {
+      "path": "phet/libs/dot",
+      "installed": true,
+      "commit": "a425976d5f68b74dd99c3cdb5c5388fb88d69282",
+      "branch": "main",
+      "upstream_commit_date": "2026-06-16T08:39:52-06:00",
+      "size_kb": 4219,
+      "files": 127,
+      "top_extensions": {
+        ".ts": 75,
+        ".js": 33,
+        ".html": 6,
+        ".json": 4,
+        "(none)": 3,
+        ".md": 3,
+        ".mjs": 1,
+        ".cjs": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-lib-dot"
+    },
+    {
+      "path": "phet/libs/joist",
+      "installed": true,
+      "commit": "b5e2959d6c74684bd6caf0b4ef09681414ede697",
+      "branch": "main",
+      "upstream_commit_date": "2026-07-01T13:15:29-06:00",
+      "size_kb": 1673,
+      "files": 140,
+      "top_extensions": {
+        ".ts": 103,
+        ".json": 6,
+        ".md": 6,
+        ".js": 5,
+        ".png": 4,
+        ".mp3": 4,
+        "(none)": 3,
+        ".html": 3
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json",
+        "sounds/license.json"
+      ],
+      "id": "phet-lib-joist"
+    },
+    {
+      "path": "phet/libs/kite",
+      "installed": true,
+      "commit": "b7686ed3ecbae95ae93bdbe16b8eec7141e2a013",
+      "branch": "main",
+      "upstream_commit_date": "2026-03-30T18:47:11-06:00",
+      "size_kb": 6077,
+      "files": 52,
+      "top_extensions": {
+        ".ts": 21,
+        ".html": 7,
+        ".js": 7,
+        ".json": 5,
+        "(none)": 3,
+        ".mjs": 3,
+        ".md": 3,
+        ".cjs": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-lib-kite"
+    },
+    {
+      "path": "phet/libs/mobius",
+      "installed": true,
+      "commit": "953876f0f77a64d848d2f6736141d9aae84c02fc",
+      "branch": "main",
+      "upstream_commit_date": "2026-03-30T18:47:11-06:00",
+      "size_kb": 131,
+      "files": 31,
+      "top_extensions": {
+        ".ts": 20,
+        ".json": 4,
+        "(none)": 3,
+        ".mjs": 1,
+        ".cjs": 1,
+        ".html": 1,
+        ".md": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-lib-mobius"
+    },
+    {
+      "path": "phet/libs/phet-core",
+      "installed": true,
+      "commit": "32a5205cb8820e4fb8cee3507d65475cab4345f4",
+      "branch": "main",
+      "upstream_commit_date": "2026-03-30T18:47:11-06:00",
+      "size_kb": 243,
+      "files": 108,
+      "top_extensions": {
+        ".ts": 92,
+        ".json": 4,
+        ".html": 4,
+        "(none)": 3,
+        ".md": 3,
+        ".mjs": 1,
+        ".cjs": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-lib-phet-core"
+    },
+    {
+      "path": "phet/libs/scenery",
+      "installed": true,
+      "commit": "dc92335e32692bdf456d5325cee11a0adb134254",
+      "branch": "main",
+      "upstream_commit_date": "2026-06-29T16:36:32-06:00",
+      "size_kb": 24223,
+      "files": 508,
+      "top_extensions": {
+        ".ts": 258,
+        ".js": 106,
+        ".html": 99,
+        ".svg": 19,
+        ".png": 6,
+        "(none)": 4,
+        ".md": 4,
+        ".json": 3
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-lib-scenery"
+    },
+    {
+      "path": "phet/libs/scenery-phet",
+      "installed": true,
+      "commit": "13a8f59bbd63c1d8aed1cfd9e9ddc73080117ec7",
+      "branch": "main",
+      "upstream_commit_date": "2026-07-07T08:00:53-06:00",
+      "size_kb": 17415,
+      "files": 493,
+      "top_extensions": {
+        ".ts": 390,
+        ".png": 47,
+        ".js": 23,
+        ".ai": 12,
+        ".json": 9,
+        "(none)": 3,
+        ".html": 3,
+        ".md": 2
+      },
+      "license_files": [
+        "LICENSE",
+        "assets/license.json",
+        "images/license.json",
+        "images/speaker/license.json",
+        "mipmaps/license.json"
+      ],
+      "id": "phet-lib-scenery-phet"
+    },
+    {
+      "path": "phet/libs/sun",
+      "installed": true,
+      "commit": "28067b9eaba4778ea98fcaaa7fd69aaf1838a835",
+      "branch": "main",
+      "upstream_commit_date": "2026-06-17T16:20:11-06:00",
+      "size_kb": 1161,
+      "files": 172,
+      "top_extensions": {
+        ".ts": 122,
+        ".png": 18,
+        ".md": 16,
+        ".json": 5,
+        ".js": 4,
+        "(none)": 3,
+        ".html": 2,
+        ".mjs": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-lib-sun"
+    },
+    {
+      "path": "phet/sims/bending-light",
+      "installed": true,
+      "commit": "1f398b5b51a8944b5fbde24bcfc9465e81390231",
+      "branch": "1.2",
+      "upstream_commit_date": "2026-03-27T13:18:23-06:00",
+      "size_kb": 7400,
+      "files": 113,
+      "top_extensions": {
+        ".ts": 75,
+        ".png": 14,
+        ".json": 7,
+        ".ai": 7,
+        "(none)": 3,
+        ".md": 3,
+        ".html": 1,
+        ".mjs": 1
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json",
+        "mipmaps/license.json"
+      ],
+      "id": "phet-sim-bending-light",
+      "phet_probe": {
+        "js_sources": 1,
+        "ts_sources": 68,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/charges-and-fields",
+      "installed": true,
+      "commit": "120e94b2580a563aa65c67b6f1a6256452fcef4d",
+      "branch": "1.0",
+      "upstream_commit_date": "2026-03-27T13:47:58-06:00",
+      "size_kb": 2134,
+      "files": 54,
+      "top_extensions": {
+        ".js": 36,
+        ".json": 5,
+        "(none)": 3,
+        ".md": 3,
+        ".png": 3,
+        ".html": 2,
+        ".ai": 2
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-charges-and-fields",
+      "phet_probe": {
+        "js_sources": 35,
+        "ts_sources": 0,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/circuit-construction-kit-ac",
+      "installed": true,
+      "commit": "3dc3a99cafeabd8777bde7ded9bfec8ddde9ccef",
+      "branch": "1.0",
+      "upstream_commit_date": "2026-03-27T13:50:53-06:00",
+      "size_kb": 5739,
+      "files": 36,
+      "top_extensions": {
+        ".js": 12,
+        ".png": 7,
+        ".json": 6,
+        "(none)": 3,
+        ".md": 3,
+        ".html": 2,
+        ".ts": 2,
+        ".ai": 1
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-circuit-construction-kit-ac",
+      "phet_probe": {
+        "js_sources": 8,
+        "ts_sources": 2,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/circuit-construction-kit-common",
+      "installed": true,
+      "commit": "076adcf7596a32a6187f0fa575d7193578c13888",
+      "branch": "main",
+      "upstream_commit_date": "2026-10-09T09:08:00-06:00",
+      "size_kb": 9,
+      "files": 3,
+      "top_extensions": {
+        ".md": 3
+      },
+      "license_files": [],
+      "id": "phet-sim-circuit-construction-kit-common",
+      "phet_probe": {
+        "js_sources": 0,
+        "ts_sources": 0,
+        "dependencies_json": false,
+        "dev_html": false,
+        "phetio_overrides": false,
+        "stub_main_only": true
+      }
+    },
+    {
+      "path": "phet/sims/circuit-construction-kit-dc",
+      "installed": true,
+      "commit": "0c6cf95e5a742e873601fa3ec9d50be63fb2b144",
+      "branch": "1.5",
+      "upstream_commit_date": "2026-04-10T17:50:44-04:00",
+      "size_kb": 3080,
+      "files": 36,
+      "top_extensions": {
+        ".ts": 11,
+        ".png": 7,
+        ".json": 6,
+        ".md": 4,
+        "(none)": 3,
+        ".yaml": 1,
+        ".html": 1,
+        ".mjs": 1
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-circuit-construction-kit-dc",
+      "phet_probe": {
+        "js_sources": 1,
+        "ts_sources": 10,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/collision-lab",
+      "installed": true,
+      "commit": "c4850c9fead81e3d60fc0f39c70bed673b0dd440",
+      "branch": "1.1",
+      "upstream_commit_date": "2026-03-27T14:08:53-06:00",
+      "size_kb": 1852,
+      "files": 105,
+      "top_extensions": {
+        ".js": 88,
+        ".png": 5,
+        ".json": 4,
+        ".md": 4,
+        "(none)": 3,
+        ".html": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-sim-collision-lab",
+      "phet_probe": {
+        "js_sources": 87,
+        "ts_sources": 0,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/energy-skate-park-basics",
+      "installed": true,
+      "commit": "c769aaefcebd04f8b746962441cb41fdff4fcc44",
+      "branch": "1.5",
+      "upstream_commit_date": "2026-05-14T21:17:18-06:00",
+      "size_kb": 6173,
+      "files": 53,
+      "top_extensions": {
+        ".ts": 24,
+        ".png": 10,
+        ".json": 6,
+        ".md": 4,
+        "(none)": 3,
+        ".yaml": 1,
+        ".html": 1,
+        ".mjs": 1
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-energy-skate-park-basics",
+      "phet_probe": {
+        "js_sources": 1,
+        "ts_sources": 21,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/forces-and-motion-basics",
+      "installed": true,
+      "commit": "6d9faed43bade2086e4395b05422cdf606babc74",
+      "branch": "2.6",
+      "upstream_commit_date": "2026-04-10T18:08:03-04:00",
+      "size_kb": 21327,
+      "files": 360,
+      "top_extensions": {
+        ".ts": 187,
+        ".png": 78,
+        ".svg": 40,
+        ".ai": 26,
+        ".json": 14,
+        ".md": 5,
+        "(none)": 3,
+        ".js": 2
+      },
+      "license_files": [
+        "LICENSE",
+        "images/africa/license.json",
+        "images/asia/license.json",
+        "images/latinAmerica/license.json",
+        "images/license.json",
+        "images/oceania/license.json"
+      ],
+      "id": "phet-sim-forces-and-motion-basics",
+      "phet_probe": {
+        "js_sources": 1,
+        "ts_sources": 78,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/gas-properties",
+      "installed": true,
+      "commit": "5b2034b924f2676307c701d09d4b8b68339aa6d9",
+      "branch": "1.1",
+      "upstream_commit_date": "2026-03-31T11:27:37-04:00",
+      "size_kb": 5230,
+      "files": 164,
+      "top_extensions": {
+        ".ts": 135,
+        ".png": 11,
+        ".json": 6,
+        ".md": 4,
+        "(none)": 3,
+        ".html": 2,
+        ".js": 2,
+        ".ai": 1
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-gas-properties",
+      "phet_probe": {
+        "js_sources": 1,
+        "ts_sources": 134,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/gases-intro",
+      "installed": true,
+      "commit": "4c14a8b365478f843bde333eacb448ef9edda2d9",
+      "branch": "1.1",
+      "upstream_commit_date": "2026-03-27T15:14:48-06:00",
+      "size_kb": 2647,
+      "files": 25,
+      "top_extensions": {
+        ".json": 5,
+        ".png": 5,
+        ".ts": 5,
+        "(none)": 3,
+        ".md": 3,
+        ".html": 2,
+        ".js": 2
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-sim-gases-intro",
+      "phet_probe": {
+        "js_sources": 1,
+        "ts_sources": 5,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/gravity-and-orbits",
+      "installed": true,
+      "commit": "dc2d9c2b901402b153ab3f5370f6eea779849018",
+      "branch": "1.6",
+      "upstream_commit_date": "2026-03-27T15:39:40-06:00",
+      "size_kb": 16152,
+      "files": 100,
+      "top_extensions": {
+        ".ts": 48,
+        ".png": 16,
+        ".js": 12,
+        ".ai": 9,
+        ".json": 7,
+        "(none)": 3,
+        ".md": 3,
+        ".html": 2
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json",
+        "mipmaps/license.json"
+      ],
+      "id": "phet-sim-gravity-and-orbits",
+      "phet_probe": {
+        "js_sources": 3,
+        "ts_sources": 45,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/hookes-law",
+      "installed": true,
+      "commit": "175a41d80a985d910bc6aad872cf79b628f6dd5b",
+      "branch": "1.2",
+      "upstream_commit_date": "2026-03-27T15:52:47-06:00",
+      "size_kb": 1258,
+      "files": 91,
+      "top_extensions": {
+        ".ts": 69,
+        ".png": 7,
+        ".json": 5,
+        "(none)": 3,
+        ".md": 3,
+        ".mjs": 1,
+        ".cjs": 1,
+        ".html": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "phet-sim-hookes-law",
+      "phet_probe": {
+        "js_sources": 1,
+        "ts_sources": 69,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/magnets-and-electromagnets",
+      "installed": true,
+      "commit": "7d62507dfb506b3e56a8af079afe620b6954b644",
+      "branch": "1.0",
+      "upstream_commit_date": "2026-03-27T16:08:38-06:00",
+      "size_kb": 2402,
+      "files": 25,
+      "top_extensions": {
+        ".json": 6,
+        ".png": 6,
+        "(none)": 3,
+        ".md": 3,
+        ".ts": 3,
+        ".js": 2,
+        ".html": 2
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-magnets-and-electromagnets",
+      "phet_probe": {
+        "js_sources": 1,
+        "ts_sources": 3,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/masses-and-springs",
+      "installed": true,
+      "commit": "b33d6bc2e6b77ff9ee8de5fe06c11beb5c994e54",
+      "branch": "1.0",
+      "upstream_commit_date": "2026-03-27T16:10:29-06:00",
+      "size_kb": 3760,
+      "files": 77,
+      "top_extensions": {
+        ".js": 54,
+        ".png": 8,
+        ".json": 5,
+        "(none)": 3,
+        ".md": 3,
+        ".html": 1,
+        ".pdf": 1,
+        ".nb": 1
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-masses-and-springs",
+      "phet_probe": {
+        "js_sources": 53,
+        "ts_sources": 0,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/ohms-law",
+      "installed": true,
+      "commit": "aa9741875d2eaa822d4c68ab34ae90b35cc42392",
+      "branch": "1.4",
+      "upstream_commit_date": "2026-04-20T16:33:17-04:00",
+      "size_kb": 1577,
+      "files": 42,
+      "top_extensions": {
+        ".js": 22,
+        ".json": 5,
+        "(none)": 3,
+        ".md": 3,
+        ".png": 3,
+        ".html": 2,
+        ".wav": 2,
+        ".mp3": 2
+      },
+      "license_files": [
+        "LICENSE",
+        "sounds/license.json"
+      ],
+      "id": "phet-sim-ohms-law",
+      "phet_probe": {
+        "js_sources": 21,
+        "ts_sources": 0,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/pendulum-lab",
+      "installed": true,
+      "commit": "9eadf41faf7c27df90fa3deeec83933a6605b7e2",
+      "branch": "1.0",
+      "upstream_commit_date": "2026-03-27T17:09:30-06:00",
+      "size_kb": 1721,
+      "files": 64,
+      "top_extensions": {
+        ".js": 40,
+        ".png": 7,
+        ".json": 5,
+        ".ai": 4,
+        "(none)": 3,
+        ".md": 3,
+        ".html": 2
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-pendulum-lab",
+      "phet_probe": {
+        "js_sources": 39,
+        "ts_sources": 0,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/projectile-motion",
+      "installed": true,
+      "commit": "edc00622f275e8a7c869ca3bdd996769bb134cf6",
+      "branch": "1.0",
+      "upstream_commit_date": "2026-03-27T17:30:16-06:00",
+      "size_kb": 4732,
+      "files": 93,
+      "top_extensions": {
+        ".js": 50,
+        ".png": 20,
+        ".ai": 11,
+        ".json": 5,
+        "(none)": 3,
+        ".md": 3,
+        ".html": 1
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-projectile-motion",
+      "phet_probe": {
+        "js_sources": 49,
+        "ts_sources": 0,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/wave-interference",
+      "installed": true,
+      "commit": "c76ccf7df94f61d38c12b77cdd13f27bbd4e34dd",
+      "branch": "2.0",
+      "upstream_commit_date": "2026-03-27T18:17:03-06:00",
+      "size_kb": 5136,
+      "files": 149,
+      "top_extensions": {
+        ".js": 90,
+        ".png": 33,
+        ".json": 7,
+        ".mp3": 6,
+        ".ai": 5,
+        "(none)": 3,
+        ".md": 3,
+        ".html": 1
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json",
+        "images/speaker/license.json",
+        "sounds/license.json"
+      ],
+      "id": "phet-sim-wave-interference",
+      "phet_probe": {
+        "js_sources": 89,
+        "ts_sources": 0,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/wave-on-a-string",
+      "installed": true,
+      "commit": "56c16eed6666a3dcade688541eb36c46e7331a1d",
+      "branch": "1.2",
+      "upstream_commit_date": "2026-04-10T18:58:21-04:00",
+      "size_kb": 2781,
+      "files": 66,
+      "top_extensions": {
+        ".ts": 30,
+        ".png": 10,
+        ".json": 6,
+        ".md": 4,
+        "(none)": 3,
+        ".ai": 3,
+        ".html": 2,
+        ".svg": 2
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-wave-on-a-string",
+      "phet_probe": {
+        "js_sources": 1,
+        "ts_sources": 24,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    },
+    {
+      "path": "phet/sims/waves-intro",
+      "installed": true,
+      "commit": "cf538143187e313dd7a172d7ef04a91733ea4f5f",
+      "branch": "1.1",
+      "upstream_commit_date": "2026-04-20T16:36:51-04:00",
+      "size_kb": 1694,
+      "files": 27,
+      "top_extensions": {
+        ".js": 7,
+        ".png": 6,
+        ".json": 5,
+        "(none)": 3,
+        ".md": 3,
+        ".html": 2,
+        ".ai": 1
+      },
+      "license_files": [
+        "LICENSE",
+        "images/license.json"
+      ],
+      "id": "phet-sim-waves-intro",
+      "phet_probe": {
+        "js_sources": 3,
+        "ts_sources": 0,
+        "dependencies_json": true,
+        "dev_html": true,
+        "phetio_overrides": false,
+        "stub_main_only": false
+      }
+    }
+  ]
+}

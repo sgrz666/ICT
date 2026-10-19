@@ -24,10 +24,23 @@ output/eduforge/eduforge.pids
 # 基准评测等运行产物（相对工程根生成，可重新生成）
 code/eduforge/output/
 
-# 上游引擎检出：第三方代码 + 嵌套 .git + node_modules（628M）。
-# 上游身份由 source/upstream/upstream.lock.json 固定（commit daf76772），
-# 需要时按 lock 重新 git clone --depth 1，不在本仓库复制一份。
+# 上游引擎检出：第三方代码 + 嵌套 .git + node_modules。
+# 上游身份由 source/upstream/upstream.lock.json 固定（每条带 commit），
+# 需要时按 lock 重新跑 source/upstream/fetch_*.sh 克隆，不在本仓库复制一份。
 source/upstream/ray-optics/
+source/upstream/myphysicslab/
+source/upstream/circuitjs1/
+source/upstream/matter-js/
+source/upstream/rapier-js/
+source/upstream/three/
+source/upstream/stellarium-web-engine/
+source/upstream/webots/
+source/upstream/phet/
+
+# npm 组件与安装现场：依赖目录不入库，日志类产物不入库
+source/components/node_modules/
+source/upstream/*.log
+source/components/*.log
 
 # DeepSeek Harness 官方源码验证工作区（deep-agent/）。
 # 只入库「验证资产」：报告、驱动脚本、事件日志、上游 overlay 补丁、失败基线副本、UI 冒烟工作区。

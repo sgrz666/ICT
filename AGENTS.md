@@ -36,7 +36,10 @@
 | 新 REA 分析输入 | `input/README.md` |
 | 新产出（reports / candidates / artifacts / research） | `output/eduforge/README.md` 及对应子目录 README |
 | 新计划文档 | `plan/README.md`（只加行，不改旧文档，`plan/` 只追加不回改） |
-| 上游变更（`upstream.lock.json` 更新） | `source/upstream/README.md` |
+| 上游变更（`upstream.lock.json` 更新） | `source/upstream/README.md`（引擎表 + 体积列）|
+| 新增/替换上游引擎克隆、改克隆方式（浅克隆↔稀疏检出） | `source/upstream/upstream.lock.json` + `source/upstream/README.md` + 重跑 `source/upstream/inspect_upstreams.py` |
+| 新增 npm 组件或改钉版本 | `source/components/README.md`（含 `probe_components.mjs` 的可加载性结论） |
+| 新增/修改实验目录条目 | `source/library/README.md` + `source/library/experiments.json`，并跑 `python source/library/check_catalog.py`（missing 必须为 0） |
 | 测试规模变化 | 只改 `code/eduforge/catalog/engines/ray-optics.yaml` 的 `test_totals`（全仓库唯一计数处），各 README 只引用、不重复记数 |
 
 新增目录时，按同一风格为它写一份新 README（见第 3 节），并在父层 README 里登记。
@@ -53,16 +56,18 @@
 ## 4. 不要写 README 的地方
 
 - 依赖与缓存目录：`node_modules/`、`.venv/`、`dist/`、`__pycache__/`、`.pytest_cache/`——由所属层 README 统一说明。
-- 上游源码内部：`source/upstream/ray-optics/` 的各级 README 是上游资产，保持原样；项目侧说明降级写在 [`source/upstream/README.md`](source/upstream/README.md)。
+- **第三方大仓**：`deep-agent/deepseek-harness/`（2.7 GB 上游源码，验证对象本体）内部 README 是上游资产，保持原样；项目侧说明在 [`deep-agent/README.md`](deep-agent/README.md) 与 [`deep-agent/AGENTS.md`](deep-agent/AGENTS.md) 第 3 节。**任何遍历命令都必须先剪枝**（`os.walk` 就地剪 `subdirs`），包括本文第 5 节的校验脚本——用 `pathlib.rglob` 或 `find -not -path` 会先把整棵上游树走一遍，实测卡几分钟，还会把上游的几百份 README 误计进项目侧数字。
+- 上游源码内部：`source/upstream/` 下**每一个引擎克隆**（`ray-optics/`、`myphysicslab/`、`circuitjs1/`、`matter-js/`、`rapier-js/`、`three/`、`stellarium-web-engine/`、`webots/`、`phet/libs/`、`phet/sims/`）的各级 README 都是上游资产，保持原样、不入库；项目侧说明降级写在 [`source/upstream/README.md`](source/upstream/README.md) 的引擎表里，体积与文件数以 [`source/upstream/inventory.json`](source/upstream/inventory.json) 为准。同理：`source/components/node_modules/` 是依赖目录，说明在 [`source/components/README.md`](source/components/README.md)。**遍历时必须先剪掉带 `.git` 的子目录**（这些克隆每个都自带 `.git` 与上万文件，不剪就走不完）。
 - 数据叶子：`output/eduforge/candidates/offline-package/www/`（当前实测 2162 个静态资源文件，随构建内容变化）——模式写在父层 README，不逐叶撰写。模板实例目录（如 `catalog/templates/optics/convex-lens/`）**各配一份短 README**（状态、文件、关系），模板模式说明仍以 `catalog/templates/README.md` 为准。
 
-**反向纪律：入库目录 100% 要有 README，包括只做分组的中间层。** 分组层（`catalog/templates/optics/`、`services/engine-host/src/adapters/`、`tests/adapters/` 这类「只装下一层目录」的目录）最容易被跳过——一旦漏掉，下一层 README 就成了没有父亲的孩子，读者无法判断层级关系。当前实测基线：项目侧 86 份 README 覆盖 85 个目录 + 仓库根，无缺失（2026-10-16）。
+**反向纪律：入库目录 100% 要有 README，包括只做分组的中间层。** 分组层（`catalog/templates/optics/`、`services/engine-host/src/adapters/`、`tests/adapters/` 这类「只装下一层目录」的目录）最容易被跳过——一旦漏掉，下一层 README 就成了没有父亲的孩子，读者无法判断层级关系。当前实测基线：命令 (1) 输出 **`tracked dirs: 100 | missing README: 0`**，磁盘上项目侧 README 共 **108 份**（2026-10-19 资源库安装轮）。与上一基线 101 份（2026-10-18）的差额来源：本轮新增 `source/components/README.md` 与 `source/library/README.md` 两份，其余是并行会话在 `code/eduforge` 一侧同期落盘的 README——本轮没动那些目录，只按实测登记，不改写别人的数字。
 
-不写 README 的目录只有以下 8 类（磁盘实测目录数，截至 2026-10-16；每类都必须由「谁说明它」那份 README 兜住，兜不住就是文档缺陷）：
+不写 README 的目录只有以下 11 类（磁盘实测目录数，截至 2026-10-16，后三类截至 2026-10-18 与 2026-10-19；每类都必须由「谁说明它」那份 README 兜住，兜不住就是文档缺陷）：
 
 | 类别 | 目录数 | 谁说明它 |
 |---|---|---|
-| `source/upstream/ray-optics/` 内部 | 205 | `source/upstream/README.md` |
+| `source/upstream/` 各引擎克隆内部（ray-optics 实测 205，其余 8 类见下条口径） | 不实测（每个克隆自带 `.git`，剪枝要求见上） | `source/upstream/README.md` 引擎表 + `source/upstream/inventory.json` |
+| `source/components/node_modules/` | 不实测（npm 依赖目录） | `source/components/README.md` |
 | `candidates/offline-package/www/` | 89 | `output/eduforge/candidates/README.md` |
 | `output/eduforge/pgdata/` | 26 | `output/eduforge/README.md` |
 | 各类 `dist/` 构建产物 | 8 | `apps/teacher-web/README.md`、`services/engine-host/README.md` |
@@ -70,6 +75,8 @@
 | `code/eduforge/output/` | 3 | `code/eduforge/README.md` 目录地图 |
 | `.workbuddy/` | 2 | 根 `README.md` 版本控制节 |
 | `candidates/offline-package/` | 1 | `output/eduforge/candidates/README.md` |
+| `deep-agent/deepseek-harness/` 内部 | 不实测（剪枝要求见上） | `deep-agent/README.md`、`deep-agent/AGENTS.md` 第 3 节 |
+| `deep-agent/` 运行时目录（`.dsh-home/`、`_corepack/`、`harness-smoke-workspace/`、`_probe/__pycache__/`） | 4 | `deep-agent/README.md` 目录地图（`.dsh-home/` 含 `.credentials.yaml`，敏感，勿复制外发） |
 
 被 `.gitignore` 整目录挡住的类别（candidates、artifacts），若要给它或它的子目录写 README，`.gitignore` 必须写成 `dir/*` + `!dir/README.md` 两行——只写 `dir/` 会让 README 无法入库，README 体系在克隆出来之后就残缺了。
 
@@ -86,21 +93,51 @@
 验证命令（工作区根目录跑，需要 python3）：
 
 ```bash
+# (1) 入库目录 100% 有 README：missing 必须为 0
 python -c "
-import re, pathlib
-root = pathlib.Path('.')
-skip = ('node_modules', '.venv', '.pytest_cache', '.git')
-readmes = [p for p in root.rglob('README.md') if not any(s in p.parts for s in skip) and 'upstream' not in p.parts]
+import subprocess, os
+subprocess.run(['git', 'config', 'core.quotePath', 'false'])
+tracked = subprocess.run(['git', 'ls-files'], capture_output=True, text=True, encoding='utf-8', errors='replace').stdout.splitlines()
+dirs = set()
+for f in tracked:
+    d = os.path.dirname(f)
+    while d:
+        dirs.add(d); d = os.path.dirname(d)
+missing = [d for d in sorted(dirs) if not os.path.exists(os.path.join(d, 'README.md'))]
+print('tracked dirs:', len(dirs), '| missing README:', len(missing), missing)
+"
+
+# (2) 相对链接可解析：broken links 必须为 0（就地剪枝，绝不进入第三方大仓）
+python -c "
+import os, re
+PRUNE = {'node_modules', '.venv', '.pytest_cache', '.git', '__pycache__', 'dist',
+         'deepseek-harness', '_corepack', '.dsh-home', 'harness-smoke-workspace'}
+EXCLUDE_DIRS = ('source/upstream/ray-optics',)   # 上游资产：README 保持原样，不检查其内部链接
+readmes = []
+for base, sub, files in os.walk('.'):
+    # 剪掉固定名单 + 任何「自带 .git 的子目录」：source/upstream 下每个引擎克隆、
+    # deep-agent 的上游大仓、一次性工作区都在这一刀里剪掉，不用逐个点名。
+    sub[:] = [d for d in sub if d not in PRUNE and not os.path.isdir(os.path.join(base, d, '.git'))]
+    rel = os.path.relpath(base, '.').replace(os.sep, '/')
+    if any(rel.startswith(p) for p in EXCLUDE_DIRS):
+        continue
+    if 'README.md' in files:
+        readmes.append(os.path.join(base, 'README.md'))
 bad = []
 for r in readmes:
-    for m in re.finditer(r'\]\(([^)]+)\)', r.read_text(encoding='utf-8')):
+    for m in re.finditer(r'\]\(([^)]+)\)', open(r, encoding='utf-8').read()):
         t = m.group(1).strip().split('#')[0]
-        if t and not t.startswith(('http', 'mailto:')) and not (r.parent / t).resolve().exists():
-            bad.append((str(r), t))
+        if t and not t.startswith(('http', 'mailto:')):
+            if not os.path.exists(os.path.normpath(os.path.join(os.path.dirname(r), t))):
+                bad.append((r, t))
 print('READMEs:', len(readmes), '| broken links:', len(bad))
 for b in bad: print('BROKEN:', b)
 "
 ```
+
+实测基线（2026-10-18）：命令 (1) 输出 `tracked dirs: 98 | missing README: 0 []`（另有 2 个正在写入、尚未 `git add` 的目录 `code/eduforge/catalog/templates/optics/{camera-principle,concave-lens}`，磁盘上也已各有 README，故入库目录 + 待入库目录 = 100 个且缺失为 0）；命令 (2) 输出 `READMEs: 101 | broken links: 0`。
+
+实测基线（2026-10-19，资源库安装轮）：命令 (1) 输出 `tracked dirs: 100 | missing README: 0 []`；命令 (2) 输出 `READMEs: 108 | broken links: 0`。命令 (2) 的剪枝这一轮加了一条通用规则——**任何自带 `.git` 的子目录直接剪掉**，因此 `source/upstream/` 下新装的 8 类引擎克隆（myphysicslab / circuitjs1 / matter-js / rapier-js / three / stellarium-web-engine / webots / phet 的 30 个仓库）不会把上万个上游 README 计进来；不加这一刀，实测会多扫 1.8 万多个文件并把上游 README 误计入项目侧数字。`deep-agent/` 另有自己的更严的门：`python deep-agent/_tools/check_docs.py`（它同时要求该目录下每个含文件的子目录都有 README，2026-10-18 实测 `dirs checked: 9 | README missing: 0 | broken links: 0`）。
 
 ## 6. 与其他纪律的关系
 

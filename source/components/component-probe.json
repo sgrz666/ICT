@@ -1,0 +1,28 @@
+[
+  {
+    "pkg": "three",
+    "result": "pass",
+    "version": "186",
+    "probe": "Vector3.length()",
+    "value": 3
+  },
+  {
+    "pkg": "matter-js",
+    "result": "pass",
+    "version": "0.20.0",
+    "probe": "60 步(1s)后 y",
+    "value": 421.347
+  },
+  {
+    "pkg": "@dimforge/rapier3d",
+    "result": "fail",
+    "error": "Cannot find module 'D:\\codeplus\\ICT\\source\\components\\node_modules\\@dimforge\\rapier3d\\exports' imported from D:\\codeplus\\ICT\\source\\components\\node_modules\\@dimforge\\rapier3d\\rapier.js"
+  },
+  {
+    "pkg": "@dimforge/rapier3d-compat",
+    "result": "pass",
+    "version": "0.21.0",
+    "probe": "自由落体 1s 后 y（理论 15.1 m）",
+    "value": 15.075
+  }
+]
