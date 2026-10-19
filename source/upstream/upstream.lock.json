@@ -635,6 +635,50 @@
           "许可里含 NC（非商业）：成品 HTML 是 CC BY-NC 4.0，与源码的 GPL-3.0 是两套义务 ⇒ 进任何商业或对外分发包之前要先确认赛题性质与授权。",
           "每份文件里有 1 个指向外的 <script src>（cloudflare insights beacon，CDN 下发时注入）⇒ 离线交付前要把这一行剥掉，剥完才算真单文件。"
         ]
+      },
+      "headless_probe_2026-10-19": {
+        "measured_at": "2026-10-19",
+        "tools": [
+          "source/library/phet_headless_probe.mjs",
+          "source/library/phet_a11y_channel_probe.mjs",
+          "source/library/phet_ohms_writeproof.mjs",
+          "source/library/phet_keyboard_channel_probe.mjs"
+        ],
+        "evidence": [
+          "source/library/phet-headless-probe.json",
+          "source/library/phet-a11y-channel-probe.json",
+          "source/library/phet-ohms-writeproof.json",
+          "source/library/phet-keyboard-channel-probe.json"
+        ],
+        "why": "旧的「改不了物理量」是单只样本 + 一条判断句，不是逐只实测。这一轮把 13 份成品全放进无头 chromium（本机 Playwright 缓存里的 chromium，executablePath 必须显式给），每只跑基线 / ?screens=2 / ?locale=es 三次加载，再加定点写与闭环对账。",
+        "offline_boots": "13/13 起得来，window.phet 命名空间齐全（chipper/joist/scenery/axon/…，逐只键清单在证据文件里）",
+        "errors_classified": "13/13 的报错全部是发布包内嵌的 Cloudflare 遥测桩（file:///cdn-cgi/rum + sendBeacon 只允许 HTTP(S)）在 file:// 下的必然失败；按「哪一次加载」归账后，仿真本体报错 0 条 ⇒ 仿真本体干净 13/13。第一版把遥测桩混进总错误数，得出过「0/13 干净」的假阴性，已修。",
+        "phet_io_api": {
+          "data_phetio_id_dom": "0/13（成品页面上没有任何 PhET-iO 插桩节点）",
+          "phetio_callable": "0/13（window.phetio.phetioEngine / session、phet.phetio.phetioClient / dataStream 全不存在）",
+          "window_phetio_present": "7/13，但静态核对发布 HTML 源码，那一行是 `window.phetio=window.phetio||{};window.phetio.PhetioIDUtils={append…}` —— 只给 wrapper 拼 ID 用的字符串工具，不是控制面；`phet.phetio` 反而 0/13 为 undefined",
+          "verdict": "官方成品没有可被外部程序调用的参数 API，这条判断成立且现在是逐只实测的"
+        },
+        "url_parameters": {
+          "screens_2": "11/13 真换屏（整页 PNG 与 body 文本同时变），2/13（ohms-law 1.4.31、charges-and-fields 1.0.67，都是单屏）抛 Error: invalid screen index: 2、画面变空白 ⇒ 判据把这类「变成报错页」从「换屏成功」里排掉（screens_param_rejected_by_sim=2）；第一版报的 13/13 含 2 个假阳性",
+          "locale_es": "13/13 画面改变",
+          "query_parameters_readable": "读得到的是 phet.chipper.queryParameters（6/6 只抽查的全在），项数逐只不同：ohms-law 62、geometric-optics 78、circuit-construction-kit-dc 94、gas-properties 88、wave-interference 95、energy-skate-park-basics 97",
+          "corrected_count": "旧记录「queryParameters 只有 48 项框架级参数」是单只 pendulum-lab 的旧读数，被逐只实测取代；且当时没写清访问器是 phet.chipper.queryParameters（phet.queryParameters 在生产包里读不到）"
+        },
+        "a11y_read_channel": "默认只有 6/13 能从 [aria-valuenow] 读到数值（ohms-law 4.5 V / 500 Ω、geometric-optics 80 / 1.5、wave-interference 0.625 / 0.33、energy-skate-park-basics 62.5 / 0.05、circuit-construction-kit-dc 1e-10 / 1e-4、gas-properties 全 0）；其余 7 只默认一个可读数值都没有",
+        "a11y_write_channel": {
+          "ohms-law": "PASS 6/6：focus 到无障碍 INPUT（实测有尺寸 51×253）后按方向键，电压 4.5→6 V、电阻 500→560 Ω；闭环对账用仿真自己念出的电流（V 档 2/6/9 V × R=500 Ω → 4/12/18 mA，与 V/R 逐位相同；R 档 320/980/220 Ω × V=9 V → 28.1/9.2/40.9 mA vs 解析 28.125/9.184/40.909，最大相对误差 0.18%，就是画面显示位数造成的）。V 与 R 同时有「aria 属性」与「画面文本」两路一致，读数不依赖引擎自报。",
+          "other_five": "同一条定点 focus 在 geometric-optics / wave-interference / energy-skate-park-basics / circuit-construction-kit-dc / gas-properties 上全部 not-focusable：这些 [aria-valuenow] 的 INPUT rect 是 0×0。换两条替代路（点画布中心、关欢迎屏后走 30 步 Tab 环）也拿不到带 aria-valuenow 的焦点元素，Tab 环里只有无标签的 2×2 / 7×3 像素 BUTTON ⇒ 5/5 判 no_focusable_value_target。这句只写「我们的探针没打开键盘写通路」，不写「PhET 不支持键盘」。",
+          "verdict": "无障碍层可以当写通路，但逐只不同（1/6 成立），不能当通用能力；给 Agent 用之前要逐只过这道定点测试"
+        },
+        "instrument_lessons": [
+          "结论文案不许预先写死：第一版把「13 只都拿不到接口」写在 summary.conclusion 里，实测却冒出 7 只带 window.phetio —— 现在 conclusion 由实测计数派生。",
+          "报错要按「哪一次加载」归账：?screens=2 造成的 invalid screen index 记到探针头上，不记到仿真头上。",
+          "画面对照要排掉报错页：画面变了不等于换屏成功。",
+          "「改画了」不能当键盘驱动的证据：动画类仿真不按键也在变画，没做对照组；键盘通道只看数值是否变化。",
+          "读数正则要同时收符号与英文单词：仿真念「40.9 milliamps」而不是「40.9 mA」，第一版因此把明明成立的写通路判成 FAIL。",
+          "page.evaluate 传函数引用而不是调用结果：写成 p.evaluate(TEXT()) 会在 Node 侧执行，5 只全报 ReferenceError: document is not defined——是仪器坏了，不是仿真坏了。"
+        ]
       }
     },
     {

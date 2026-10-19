@@ -1,0 +1,615 @@
+{
+  "measured_at": "2026-10-19T09:09:28.312Z",
+  "tool": "source/library/phet_keyboard_channel_probe.mjs",
+  "sims": [
+    {
+      "sim": "geometric-optics",
+      "version": "1.3.16",
+      "before_click_text": "Geometric Optics Welcome to Geometric Optics. It has 2 interactive screens that you can explore. Choose a screen to star",
+      "welcome_dismissed": null,
+      "text_after_dismiss": "Geometric Optics Welcome to Geometric Optics. It has 2 interactive screens that you can explore. Choose a screen to star",
+      "canvas_center": null,
+      "peer_sizes_after_click": [
+        {
+          "tag": "INPUT",
+          "now": "80",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "80",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "1.5",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "80",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "90",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "180",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "80",
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "tab_ring_first_8": [
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 41,
+            "h": 41
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 122,
+            "h": 46
+          }
+        },
+        {
+          "tag": "BODY",
+          "now": null,
+          "label": null
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        }
+      ],
+      "value_target": null,
+      "verdict": "no_focusable_value_target",
+      "tab_ring_length": 30
+    },
+    {
+      "sim": "wave-interference",
+      "version": "2.1.0",
+      "before_click_text": "Wave Interference Welcome to Wave Interference. It has 4 interactive screens that you can explore. Choose a screen to st",
+      "welcome_dismissed": "Start Stopwatch",
+      "text_after_dismiss": "Wave Interference Welcome to Wave Interference. It has 4 interactive screens that you can explore. Choose a screen to st",
+      "canvas_center": null,
+      "peer_sizes_after_click": [
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0.625",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0.33",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0.5866384130904183",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "8",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "8",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "8",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "tab_ring_first_8": [
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 8,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 11,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 10,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 6,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 11,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        }
+      ],
+      "value_target": null,
+      "verdict": "no_focusable_value_target",
+      "tab_ring_length": 30
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "version": "1.6.0",
+      "before_click_text": "Energy Skate Park: Basics Welcome to Energy Skate Park: Basics. It has 3 interactive screens that you can explore. Choos",
+      "welcome_dismissed": "Playground Screen",
+      "text_after_dismiss": "Energy Skate Park: Basics Welcome to Energy Skate Park: Basics. It has 3 interactive screens that you can explore. Choos",
+      "canvas_center": null,
+      "peer_sizes_after_click": [
+        {
+          "tag": "INPUT",
+          "now": "62.5",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0.05",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "62.5",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0.05",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "62.5",
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "tab_ring_first_8": [
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 9,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 11,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 6,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 11,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BODY",
+          "now": null,
+          "label": null
+        }
+      ],
+      "value_target": null,
+      "verdict": "no_focusable_value_target",
+      "tab_ring_length": 30
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "version": "1.5.2",
+      "before_click_text": "Circuit Construction Kit: DC Welcome to Circuit Construction Kit: DC. It has 2 interactive screens that you can explore.",
+      "welcome_dismissed": null,
+      "text_after_dismiss": "Circuit Construction Kit: DC Welcome to Circuit Construction Kit: DC. It has 2 interactive screens that you can explore.",
+      "canvas_center": null,
+      "peer_sizes_after_click": [
+        {
+          "tag": "INPUT",
+          "now": "0.0000000001",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0.0001",
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "tab_ring_first_8": [
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 6,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 11,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        },
+        {
+          "tag": "BODY",
+          "now": null,
+          "label": null
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 7,
+            "h": 3
+          }
+        }
+      ],
+      "value_target": null,
+      "verdict": "no_focusable_value_target",
+      "tab_ring_length": 30
+    },
+    {
+      "sim": "gas-properties",
+      "version": "1.1.10",
+      "before_click_text": "Gas Properties Welcome to Gas Properties. It has 4 interactive screens that you can explore. Choose a screen to start ex",
+      "welcome_dismissed": null,
+      "text_after_dismiss": "Gas Properties Welcome to Gas Properties. It has 4 interactive screens that you can explore. Choose a screen to start ex",
+      "canvas_center": null,
+      "peer_sizes_after_click": [
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        },
+        {
+          "tag": "INPUT",
+          "now": "0",
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "tab_ring_first_8": [
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 41,
+            "h": 41
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 2,
+            "h": 2
+          }
+        },
+        {
+          "tag": "BUTTON",
+          "now": null,
+          "label": "",
+          "rect": {
+            "w": 122,
+            "h": 46
+          }
+        }
+      ],
+      "value_target": null,
+      "verdict": "no_focusable_value_target",
+      "tab_ring_length": 30
+    }
+  ],
+  "summary": {
+    "sims": 5,
+    "verdicts": {
+      "no_focusable_value_target": 5
+    }
+  }
+}

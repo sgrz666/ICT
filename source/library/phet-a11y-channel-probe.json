@@ -1,0 +1,790 @@
+{
+  "measured_at": "2026-10-19T08:55:36.983Z",
+  "tool": "source/library/phet_a11y_channel_probe.mjs",
+  "sims": [
+    {
+      "sim": "ohms-law",
+      "read": {
+        "globals": {
+          "window_phetio": "object",
+          "phet_phetio": "undefined",
+          "phet_phetioStudio": "undefined",
+          "phet_phetioWrap": "undefined",
+          "window_phetioEngine": "undefined",
+          "window_phetioSession": "undefined",
+          "phet_tandem": "object",
+          "phet_phetcommon": "object"
+        },
+        "phetio_dom_ids": 0,
+        "query_parameters": [
+          {
+            "name": "phet.queryParameters",
+            "present": false,
+            "keys": null
+          },
+          {
+            "name": "phet.chipper.queryParameters",
+            "present": true,
+            "keys": 62
+          },
+          {
+            "name": "phet.phetcommon.queryParameters",
+            "present": false,
+            "keys": null
+          }
+        ],
+        "a11y": [
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "4.5",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 824,
+              "y": 202,
+              "w": 51,
+              "h": 253
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "500",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 939,
+              "y": 202,
+              "w": 51,
+              "h": 253
+            }
+          }
+        ]
+      },
+      "writes": [
+        {
+          "index": 0,
+          "before": "4.5",
+          "gotFocus": "focused",
+          "after_keyboard": "6",
+          "keyboard_changed": true,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "6",
+          "synthetic_changed": true
+        },
+        {
+          "index": 1,
+          "before": "500",
+          "gotFocus": "focused",
+          "after_keyboard": "560",
+          "keyboard_changed": true,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "560",
+          "synthetic_changed": true
+        }
+      ],
+      "writable_any": true
+    },
+    {
+      "sim": "geometric-optics",
+      "read": {
+        "globals": {
+          "window_phetio": "object",
+          "phet_phetio": "undefined",
+          "phet_phetioStudio": "undefined",
+          "phet_phetioWrap": "undefined",
+          "window_phetioEngine": "undefined",
+          "window_phetioSession": "undefined",
+          "phet_tandem": "object",
+          "phet_phetcommon": "object"
+        },
+        "phetio_dom_ids": 0,
+        "query_parameters": [
+          {
+            "name": "phet.queryParameters",
+            "present": false,
+            "keys": null
+          },
+          {
+            "name": "phet.chipper.queryParameters",
+            "present": true,
+            "keys": 78
+          },
+          {
+            "name": "phet.phetcommon.queryParameters",
+            "present": false,
+            "keys": null
+          }
+        ],
+        "a11y": [
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "80",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "80",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "1.5",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "80",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "90",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "180",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          }
+        ]
+      },
+      "writes": [
+        {
+          "index": 0,
+          "before": "80",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "80",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "80",
+          "synthetic_changed": false
+        },
+        {
+          "index": 1,
+          "before": "80",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "80",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "80",
+          "synthetic_changed": false
+        },
+        {
+          "index": 2,
+          "before": "1.5",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "1.5",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "1.5",
+          "synthetic_changed": false
+        },
+        {
+          "index": 3,
+          "before": "80",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "80",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "80",
+          "synthetic_changed": false
+        }
+      ],
+      "writable_any": false
+    },
+    {
+      "sim": "wave-interference",
+      "read": {
+        "globals": {
+          "window_phetio": "undefined",
+          "phet_phetio": "undefined",
+          "phet_phetioStudio": "undefined",
+          "phet_phetioWrap": "undefined",
+          "window_phetioEngine": "undefined",
+          "window_phetioSession": "undefined",
+          "phet_tandem": "object",
+          "phet_phetcommon": "undefined"
+        },
+        "phetio_dom_ids": 0,
+        "query_parameters": [
+          {
+            "name": "phet.queryParameters",
+            "present": false,
+            "keys": null
+          },
+          {
+            "name": "phet.chipper.queryParameters",
+            "present": true,
+            "keys": 95
+          },
+          {
+            "name": "phet.phetcommon.queryParameters",
+            "present": false,
+            "keys": null
+          }
+        ],
+        "a11y": [
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0.625",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0.33",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0.5866384130904183",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "8",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "8",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          }
+        ]
+      },
+      "writes": [
+        {
+          "index": 0,
+          "before": "0",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0",
+          "synthetic_changed": false
+        },
+        {
+          "index": 1,
+          "before": "0.625",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0.625",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0.625",
+          "synthetic_changed": false
+        },
+        {
+          "index": 2,
+          "before": "0.33",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0.33",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0.33",
+          "synthetic_changed": false
+        },
+        {
+          "index": 3,
+          "before": "0.5866384130904183",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0.5866384130904183",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0.5866384130904183",
+          "synthetic_changed": false
+        }
+      ],
+      "writable_any": false
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "read": {
+        "globals": {
+          "window_phetio": "undefined",
+          "phet_phetio": "undefined",
+          "phet_phetioStudio": "undefined",
+          "phet_phetioWrap": "undefined",
+          "window_phetioEngine": "undefined",
+          "window_phetioSession": "undefined",
+          "phet_tandem": "object",
+          "phet_phetcommon": "undefined"
+        },
+        "phetio_dom_ids": 0,
+        "query_parameters": [
+          {
+            "name": "phet.queryParameters",
+            "present": false,
+            "keys": null
+          },
+          {
+            "name": "phet.chipper.queryParameters",
+            "present": true,
+            "keys": 97
+          },
+          {
+            "name": "phet.phetcommon.queryParameters",
+            "present": false,
+            "keys": null
+          }
+        ],
+        "a11y": [
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "62.5",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0.05",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "62.5",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0.05",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "62.5",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          }
+        ]
+      },
+      "writes": [
+        {
+          "index": 0,
+          "before": "62.5",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "62.5",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "62.5",
+          "synthetic_changed": false
+        },
+        {
+          "index": 1,
+          "before": "0.05",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0.05",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0.05",
+          "synthetic_changed": false
+        },
+        {
+          "index": 2,
+          "before": "62.5",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "62.5",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "62.5",
+          "synthetic_changed": false
+        },
+        {
+          "index": 3,
+          "before": "0.05",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0.05",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0.05",
+          "synthetic_changed": false
+        }
+      ],
+      "writable_any": false
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "read": {
+        "globals": {
+          "window_phetio": "undefined",
+          "phet_phetio": "undefined",
+          "phet_phetioStudio": "undefined",
+          "phet_phetioWrap": "undefined",
+          "window_phetioEngine": "undefined",
+          "window_phetioSession": "undefined",
+          "phet_tandem": "object",
+          "phet_phetcommon": "object"
+        },
+        "phetio_dom_ids": 0,
+        "query_parameters": [
+          {
+            "name": "phet.queryParameters",
+            "present": false,
+            "keys": null
+          },
+          {
+            "name": "phet.chipper.queryParameters",
+            "present": true,
+            "keys": 94
+          },
+          {
+            "name": "phet.phetcommon.queryParameters",
+            "present": false,
+            "keys": null
+          }
+        ],
+        "a11y": [
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0.0000000001",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0.0001",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          }
+        ]
+      },
+      "writes": [
+        {
+          "index": 0,
+          "before": "0.0000000001",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0.0000000001",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0.0000000001",
+          "synthetic_changed": false
+        },
+        {
+          "index": 1,
+          "before": "0.0001",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0.0001",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0.0001",
+          "synthetic_changed": false
+        }
+      ],
+      "writable_any": false
+    },
+    {
+      "sim": "gas-properties",
+      "read": {
+        "globals": {
+          "window_phetio": "object",
+          "phet_phetio": "undefined",
+          "phet_phetioStudio": "undefined",
+          "phet_phetioWrap": "undefined",
+          "window_phetioEngine": "undefined",
+          "window_phetioSession": "undefined",
+          "phet_tandem": "object",
+          "phet_phetcommon": "object"
+        },
+        "phetio_dom_ids": 0,
+        "query_parameters": [
+          {
+            "name": "phet.queryParameters",
+            "present": false,
+            "keys": null
+          },
+          {
+            "name": "phet.chipper.queryParameters",
+            "present": true,
+            "keys": 88
+          },
+          {
+            "name": "phet.phetcommon.queryParameters",
+            "present": false,
+            "keys": null
+          }
+        ],
+        "a11y": [
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          },
+          {
+            "tag": "INPUT",
+            "role": null,
+            "now": "0",
+            "tabindex": null,
+            "text": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            }
+          }
+        ]
+      },
+      "writes": [
+        {
+          "index": 0,
+          "before": "0",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0",
+          "synthetic_changed": false
+        },
+        {
+          "index": 1,
+          "before": "0",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0",
+          "synthetic_changed": false
+        },
+        {
+          "index": 2,
+          "before": "0",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0",
+          "synthetic_changed": false
+        },
+        {
+          "index": 3,
+          "before": "0",
+          "gotFocus": "not-focusable",
+          "after_keyboard": "0",
+          "keyboard_changed": false,
+          "synthetic_events": "dispatched",
+          "after_synthetic": "0",
+          "synthetic_changed": false
+        }
+      ],
+      "writable_any": false
+    }
+  ],
+  "summary": {
+    "sims": 6,
+    "query_parameters_readable": 6,
+    "any_write_channel": 1
+  }
+}

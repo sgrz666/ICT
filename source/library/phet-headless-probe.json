@@ -1,0 +1,3333 @@
+{
+  "measured_at": "2026-10-19T09:00:55.975Z",
+  "tool": "source/library/phet_headless_probe.mjs",
+  "chromium": "D:\\temp\\ms-playwright\\chromium-1248\\chrome-win64\\chrome.exe",
+  "note_screens": "只有真有多屏的仿真才会因 ?screens=2 改变画面；单屏仿真这一项为 false 是物理事实，不是失败",
+  "sims": [
+    {
+      "sim": "bending-light",
+      "version": "1.2.5",
+      "bytes": 3734693,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Bending Light‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "bendingLight",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "true ‪Bending Light‬ ‪Intro‬ ‪Prisms‬ ‪More Tools‬ ‪Bending Light‬ ‪Intro‬ ‪Prisms‬ ‪More ",
+        "png_sha1": "32bad4a07672",
+        "png_bytes": 55615
+      },
+      "keyboard_drive": {
+        "a11y_targets": 0,
+        "a11y_before": [],
+        "a11y_after": [],
+        "a11y_changed": false,
+        "picture_changed": false
+      },
+      "screens2": {
+        "title": "‪Bending Light‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "bendingLight",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "true ‪Objects‬ ‪Glass‬ ‪Index of Refraction (n)‬ ‪Air‬ ‪Water‬ ‪Glass‬ ‪What is n?‬ ‪Refle",
+        "png_sha1": "63c6f7a9a4f3",
+        "png_bytes": 50512
+      },
+      "es": {
+        "title": "‪Reflexión y Refracción de la Luz‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "bendingLight",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "true ‪Reflexión y Refracción de la Luz‬ ‪Introducción‬ ‪Prismas‬ ‪Más herramientas‬ ‪Refle",
+        "png_sha1": "0cdaf62316be",
+        "png_bytes": 65085
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": true
+    },
+    {
+      "sim": "geometric-optics",
+      "version": "1.3.16",
+      "bytes": 4095999,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Geometric Optics‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "geometricOptics",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "1.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "90",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "180",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 7,
+        "buttons": 29,
+        "body_text": "Geometric Optics Welcome to Geometric Optics. It has 2 interactive screens that you can ex",
+        "png_sha1": "bc3b4e4989f9",
+        "png_bytes": 36541
+      },
+      "keyboard_drive": {
+        "a11y_targets": 7,
+        "a11y_before": [
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "1.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "90",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "180",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_after": [
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "1.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "90",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "180",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_changed": false,
+        "picture_changed": true
+      },
+      "screens2": {
+        "title": "‪Geometric Optics‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "geometricOptics",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "90",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "180",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 3,
+        "buttons": 14,
+        "body_text": "Geometric Optics — Mirror Geometric Optics is an interactive sim. It changes as you play w",
+        "png_sha1": "168fdf79629b",
+        "png_bytes": 102561
+      },
+      "es": {
+        "title": "‪Óptica Geométrica‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "geometricOptics",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "1.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "90",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "180",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "80",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 7,
+        "buttons": 29,
+        "body_text": "Óptica Geométrica Welcome to Óptica Geométrica. It has 2 interactive screens that you can ",
+        "png_sha1": "835f3a31265a",
+        "png_bytes": 36933
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": true
+    },
+    {
+      "sim": "wave-interference",
+      "version": "2.1.0",
+      "bytes": 3875209,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Wave Interference‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "waveInterference"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.625",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.33",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.5866384130904183",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.625",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.33",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.5866384130904183",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 45,
+        "buttons": 58,
+        "body_text": "Wave Interference Welcome to Wave Interference. It has 4 interactive screens that you can ",
+        "png_sha1": "50d1ae387d4d",
+        "png_bytes": 68911
+      },
+      "keyboard_drive": {
+        "a11y_targets": 12,
+        "a11y_before": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.625",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.33",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.5866384130904183",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.625",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.33",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.5866384130904183",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_after": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.625",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.33",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.5866384130904183",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.625",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.33",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.5866384130904183",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_changed": false,
+        "picture_changed": true
+      },
+      "screens2": {
+        "title": "‪Wave Interference‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "waveInterference"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.625",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.33",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.5866384130904183",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "10",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "10",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "10",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "3",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "200",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "1500",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 11,
+        "buttons": 20,
+        "body_text": "Wave Interference — Interference Wave Interference is an interactive sim. It changes as yo",
+        "png_sha1": "56830a9e103e",
+        "png_bytes": 53614
+      },
+      "es": {
+        "title": "‪Interferencia de Ondas‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "waveInterference"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.625",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.33",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.5866384130904183",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "8",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.625",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.33",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.5866384130904183",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 45,
+        "buttons": 58,
+        "body_text": "Interferencia de Ondas Welcome to Interferencia de Ondas. It has 4 interactive screens tha",
+        "png_sha1": "f76aee8cf206",
+        "png_bytes": 70426
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": false
+    },
+    {
+      "sim": "pendulum-lab",
+      "version": "1.0.35",
+      "bytes": 4191036,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Pendulum Lab‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "pendulumLab",
+          "phetCore",
+          "phetcommon",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "‪Pendulum Lab‬ ‪Intro‬ ‪Energy‬ ‪Lab‬ ‪Pendulum Lab‬ ‪Intro‬ ‪Energy‬ ‪Lab‬",
+        "png_sha1": "18dda4eda47d",
+        "png_bytes": 36474
+      },
+      "keyboard_drive": {
+        "a11y_targets": 0,
+        "a11y_before": [],
+        "a11y_after": [],
+        "a11y_changed": false,
+        "picture_changed": false
+      },
+      "screens2": {
+        "title": "‪Pendulum Lab‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "pendulumLab",
+          "phetCore",
+          "phetcommon",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "0.6786873246503997 0 0 1 1 2 2 ‪Mass 1‬ ‪KE‬ ‪PE‬ ‪E‬ ‪therm‬ ‪E‬ ‪total‬ ‪Energy Graph‬ ‪",
+        "png_sha1": "d97f8265249b",
+        "png_bytes": 56266
+      },
+      "es": {
+        "title": "‪Lab de Péndulo‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "pendulumLab",
+          "phetCore",
+          "phetcommon",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "0.26224629699745317 ‪Lab de Péndulo‬ ‪Introducción‬ ‪Energía‬ ‪Laboratorio‬ ‪Lab de Péndul",
+        "png_sha1": "7c8865c093ef",
+        "png_bytes": 43840
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": false
+    },
+    {
+      "sim": "energy-skate-park-basics",
+      "version": "1.6.0",
+      "bytes": 5332190,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Energy Skate Park: Basics‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "energySkatePark",
+          "energySkateParkBasics",
+          "joist",
+          "kite",
+          "phetCore",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.05",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.05",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 8,
+        "buttons": 47,
+        "body_text": "Energy Skate Park: Basics Welcome to Energy Skate Park: Basics. It has 3 interactive scree",
+        "png_sha1": "f8cf08b8668f",
+        "png_bytes": 68249
+      },
+      "keyboard_drive": {
+        "a11y_targets": 5,
+        "a11y_before": [
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.05",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.05",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_after": [
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.05",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.05",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_changed": false,
+        "picture_changed": true
+      },
+      "screens2": {
+        "title": "‪Energy Skate Park: Basics‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "energySkatePark",
+          "energySkateParkBasics",
+          "joist",
+          "kite",
+          "phetCore",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0.05",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 3,
+        "buttons": 16,
+        "body_text": "Energy Skate Park: Basics — Friction Energy Skate Park: Basics is an interactive sim. It c",
+        "png_sha1": "24c99329580c",
+        "png_bytes": 112570
+      },
+      "es": {
+        "title": "‪Energía en la pista de patinaje: Intro‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "energySkatePark",
+          "energySkateParkBasics",
+          "joist",
+          "kite",
+          "phetCore",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.05",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.05",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "62.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 8,
+        "buttons": 47,
+        "body_text": "Energía en la pista de patinaje: Intro Welcome to Energía en la pista de patinaje: Intro. ",
+        "png_sha1": "288ead8bee82",
+        "png_bytes": 67881
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": false
+    },
+    {
+      "sim": "friction",
+      "version": "1.6.23",
+      "bytes": 4064255,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Friction‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "friction",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 12,
+        "body_text": "Friction Friction is an interactive sim. It changes as you play with it. It has a Play Are",
+        "png_sha1": "2b9e30cb0a2e",
+        "png_bytes": 187226
+      },
+      "keyboard_drive": {
+        "a11y_targets": 0,
+        "a11y_before": [],
+        "a11y_after": [],
+        "a11y_changed": false,
+        "picture_changed": true
+      },
+      "screens2": {
+        "title": "‪Friction‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "friction",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 13,
+        "body_text": "Close false ‪Physics‬ ‪Chemistry‬ ‪Space‬ ‪to‬ ‪Grab‬ ‪or‬ ‪Release‬ ‪Space‬ ‪to‬ ‪Grab‬ ‪",
+        "png_sha1": "4f058e25bc96",
+        "png_bytes": 161975
+      },
+      "es": {
+        "title": "‪Fricción‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "friction",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 12,
+        "body_text": "Fricción Fricción is an interactive sim. It changes as you play with it. It has a Play Are",
+        "png_sha1": "9e129de3e582",
+        "png_bytes": 185494
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": true
+    },
+    {
+      "sim": "circuit-construction-kit-dc",
+      "version": "1.5.2",
+      "bytes": 3926289,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Circuit Construction Kit: DC‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "bamboo",
+          "brand",
+          "chipper",
+          "circuitConstructionKitCommon",
+          "circuitConstructionKitDc",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "twixt",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0.0000000001",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.0001",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 2,
+        "buttons": 65,
+        "body_text": "Circuit Construction Kit: DC Welcome to Circuit Construction Kit: DC. It has 2 interactive",
+        "png_sha1": "63658faa3a9e",
+        "png_bytes": 50883
+      },
+      "keyboard_drive": {
+        "a11y_targets": 2,
+        "a11y_before": [
+          {
+            "role": null,
+            "now": "0.0000000001",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.0001",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_after": [
+          {
+            "role": null,
+            "now": "0.0000000001",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.0001",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_changed": false,
+        "picture_changed": true
+      },
+      "screens2": {
+        "title": "‪Circuit Construction Kit: DC‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "bamboo",
+          "brand",
+          "chipper",
+          "circuitConstructionKitCommon",
+          "circuitConstructionKitDc",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "twixt",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0.0000000001",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.0001",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 2,
+        "buttons": 36,
+        "body_text": "Circuit Construction Kit: DC — Lab Circuit Construction Kit: DC is an interactive sim. It ",
+        "png_sha1": "884a1aa9a085",
+        "png_bytes": 55308
+      },
+      "es": {
+        "title": "‪Kit de Construcción de Circuitos: CD‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "bamboo",
+          "brand",
+          "chipper",
+          "circuitConstructionKitCommon",
+          "circuitConstructionKitDc",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "twixt",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0.0000000001",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0.0001",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 2,
+        "buttons": 65,
+        "body_text": "Kit de Construcción de Circuitos: CD Welcome to Kit de Construcción de Circuitos: CD. It h",
+        "png_sha1": "29e42dfdf22f",
+        "png_bytes": 56801
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": false
+    },
+    {
+      "sim": "ohms-law",
+      "version": "1.4.31",
+      "bytes": 2053558,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Ohm's Law‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "ohmsLaw",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "4.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "500",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 2,
+        "buttons": 4,
+        "body_text": "‪Ohm's Law‬ ‪Ohm's Law‬ is an interactive sim. It changes as you play with it. It has a Pl",
+        "png_sha1": "590ed6b78e87",
+        "png_bytes": 65382
+      },
+      "keyboard_drive": {
+        "a11y_targets": 2,
+        "a11y_before": [
+          {
+            "role": null,
+            "now": "4.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "500",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_after": [
+          {
+            "role": null,
+            "now": "4.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "500",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_changed": false,
+        "picture_changed": false
+      },
+      "screens2": {
+        "title": "‪Ohm's Law‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "ohmsLaw",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": false,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "",
+        "png_sha1": "3c41d5aeeeb8",
+        "png_bytes": 13788
+      },
+      "es": {
+        "title": "‪Ley de Ohm‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "ohmsLaw",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "4.5",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "500",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 2,
+        "buttons": 4,
+        "body_text": "‪Ley de Ohm‬ ‪Ley de Ohm‬ is an interactive sim. It changes as you play with it. It has a ",
+        "png_sha1": "dad203f435e3",
+        "png_bytes": 65291
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "Error: invalid screen index: 2",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "Error: invalid screen index: 2",
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [
+        "Error: invalid screen index: 2"
+      ],
+      "errors_plain_load": [],
+      "errors_screens2_load": [
+        "Error: invalid screen index: 2"
+      ],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": true,
+      "screens_picture_differs": true,
+      "screens_change_picture": false,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": true
+    },
+    {
+      "sim": "capacitor-lab-basics",
+      "version": "1.6.39",
+      "bytes": 1844177,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Capacitor Lab: Basics‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "capacitorLabBasics",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tandem",
+          "twixt"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "0.40162897112918206 ‪Capacitor Lab: Basics‬ ‪Capacitance‬ ‪Light Bulb‬ ‪Capacitor Lab: Bas",
+        "png_sha1": "31cea8b381d4",
+        "png_bytes": 48195
+      },
+      "keyboard_drive": {
+        "a11y_targets": 0,
+        "a11y_before": [],
+        "a11y_after": [],
+        "a11y_changed": false,
+        "picture_changed": false
+      },
+      "screens2": {
+        "title": "‪Capacitor Lab: Basics‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "capacitorLabBasics",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tandem",
+          "twixt"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "0.7228134211572805 ‪1.5 V‬ ‪0 V‬ ‪-1.5 V‬ ‪Separation‬ ‪6.0 mm‬ ‪Plate Area‬ ‪200 mm‬ ‪2‬ ",
+        "png_sha1": "81a20556440e",
+        "png_bytes": 72640
+      },
+      "es": {
+        "title": "‪Lab de condensadores: Intro‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "capacitorLabBasics",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tandem",
+          "twixt"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "0.8558197494058115 ‪Lab de condensadores: Intro‬ ‪Condensador‬ ‪Bombilla‬ ‪Lab de condensa",
+        "png_sha1": "761b6ac43bc5",
+        "png_bytes": 47825
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": false
+    },
+    {
+      "sim": "gas-properties",
+      "version": "1.1.10",
+      "bytes": 3039671,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Gas Properties‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "bamboo",
+          "brand",
+          "chipper",
+          "dot",
+          "gasProperties",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "twixt",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "300",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 18,
+        "buttons": 102,
+        "body_text": "Gas Properties Welcome to Gas Properties. It has 4 interactive screens that you can explor",
+        "png_sha1": "5ec05d54d2f4",
+        "png_bytes": 47740
+      },
+      "keyboard_drive": {
+        "a11y_targets": 12,
+        "a11y_before": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "300",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_after": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "300",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "a11y_changed": false,
+        "picture_changed": true
+      },
+      "screens2": {
+        "title": "‪Gas Properties‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "bamboo",
+          "brand",
+          "chipper",
+          "dot",
+          "gasProperties",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "twixt",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 3,
+        "buttons": 24,
+        "body_text": "Gas Properties — Explore Gas Properties is an interactive sim. It changes as you play with",
+        "png_sha1": "01568c8a1bf2",
+        "png_bytes": 66988
+      },
+      "es": {
+        "title": "‪Propiedades de los Gases‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "bamboo",
+          "brand",
+          "chipper",
+          "dot",
+          "gasProperties",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "twixt",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "300",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          },
+          {
+            "role": null,
+            "now": "0",
+            "min": null,
+            "max": null,
+            "label": ""
+          }
+        ],
+        "sliders": 18,
+        "buttons": 102,
+        "body_text": "Propiedades de los Gases Welcome to Propiedades de los Gases. It has 4 interactive screens",
+        "png_sha1": "0e6006698e05",
+        "png_bytes": 52226
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": true
+    },
+    {
+      "sim": "states-of-matter",
+      "version": "1.2.23",
+      "bytes": 2925367,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪States of Matter‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "nitroglycerin",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "statesOfMatter",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "0.536474732401933 ‪States of Matter‬ ‪States‬ ‪Phase Changes‬ ‪Interaction‬ ‪States of Mat",
+        "png_sha1": "76dc809ca757",
+        "png_bytes": 56210
+      },
+      "keyboard_drive": {
+        "a11y_targets": 0,
+        "a11y_before": [],
+        "a11y_after": [],
+        "a11y_changed": false,
+        "picture_changed": false
+      },
+      "screens2": {
+        "title": "‪States of Matter‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "nitroglycerin",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "statesOfMatter",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "0.5296931295647798 ‪Pressure‬ 0.0 ‪atm‬ ‪14 ‪K‬‬ ‪14 ‪K‬‬ ‪-259 ‪℃‬‬ ‪Heat‬ ‪Cool‬ ‪Return",
+        "png_sha1": "194130ca7769",
+        "png_bytes": 116596
+      },
+      "es": {
+        "title": "‪Estados de la materia‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "nitroglycerin",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "statesOfMatter",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "0.18245325668159273 ‪Estados de la materia‬ ‪Estado‬ ‪Cambios de Fase‬ ‪Interacción‬ ‪Esta",
+        "png_sha1": "77d636efbf1f",
+        "png_bytes": 56817
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": true
+    },
+    {
+      "sim": "gravity-and-orbits",
+      "version": "1.6.28",
+      "bytes": 4985481,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪Gravity and Orbits‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "gravityAndOrbits",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "false ‪Gravity and Orbits‬ ‪Model‬ ‪To Scale‬ ‪Gravity and Orbits‬ ‪Model‬ ‪To Scale‬",
+        "png_sha1": "b4579d2648ce",
+        "png_bytes": 72186
+      },
+      "keyboard_drive": {
+        "a11y_targets": 0,
+        "a11y_before": [],
+        "a11y_after": [],
+        "a11y_changed": false,
+        "picture_changed": false
+      },
+      "screens2": {
+        "title": "‪Gravity and Orbits‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "gravityAndOrbits",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "false ‪Star‬ ‪333 ‪thousand Earth masses‬‬ ‪Planet‬ ‪1 ‪Earth mass‬‬ ‪V‬ ‪V‬ ‪0 ‪Earth Day",
+        "png_sha1": "3392958afb3b",
+        "png_bytes": 73181
+      },
+      "es": {
+        "title": "‪Gravedad y Órbitas‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chipper",
+          "dot",
+          "gravityAndOrbits",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "preloads",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tambo",
+          "tandem",
+          "utteranceQueue"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": true,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "true ‪Gravedad y Órbitas‬ ‪Modelo‬ ‪A escala‬ ‪Gravedad y Órbitas‬ ‪Modelo‬ ‪A escala‬",
+        "png_sha1": "417252dc3e67",
+        "png_bytes": 74466
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [],
+      "errors_plain_load": [],
+      "errors_screens2_load": [],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": false,
+      "screens_picture_differs": true,
+      "screens_change_picture": true,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": true
+    },
+    {
+      "sim": "charges-and-fields",
+      "version": "1.0.67",
+      "bytes": 1523322,
+      "license_line": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4",
+      "plain": {
+        "title": "‪‪Charges and Fields‬ 1.0.67‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chargesAndFields",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "‪1 meter‬ 0.0 ‪V‬ ‪Electric Field‬ ‪Direction only‬ ‪Voltage‬ ‪Values‬ ‪Grid‬ ‪+1 nC‬ ‪-1 ",
+        "png_sha1": "70e25ad52fff",
+        "png_bytes": 35659
+      },
+      "keyboard_drive": {
+        "a11y_targets": 0,
+        "a11y_before": [],
+        "a11y_after": [],
+        "a11y_changed": false,
+        "picture_changed": false
+      },
+      "screens2": {
+        "title": "‪Charges and Fields‬ 1.0.67",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chargesAndFields",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": false,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "",
+        "png_sha1": "97133396da36",
+        "png_bytes": 3878
+      },
+      "es": {
+        "title": "‪‪Cargas y campos‬ 1.0.67‬",
+        "has_phet_ns": true,
+        "phetio_dom_ids": 0,
+        "phet_ns_keys": [
+          "axon",
+          "brand",
+          "chargesAndFields",
+          "chipper",
+          "dot",
+          "joist",
+          "kite",
+          "phetCore",
+          "phetcommon",
+          "scenery",
+          "sceneryPhet",
+          "sun",
+          "tandem"
+        ],
+        "phetio_ns_keys": null,
+        "phetio_global": false,
+        "phetio_callable": false,
+        "qp_keys": null,
+        "joist_sim": true,
+        "a11y_sliders": [],
+        "sliders": 0,
+        "buttons": 0,
+        "body_text": "‪1 m‬ 0.0 ‪V‬ ‪Campo eléctrico‬ ‪Mostrar solo dirección‬ ‪Voltaje‬ ‪Valores‬ ‪Grilla‬ ‪+1 ",
+        "png_sha1": "90c4292ecaa2",
+        "png_bytes": 37367
+      },
+      "errors_all": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "Error: invalid screen index: 2",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_by_load": {
+        "plain": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "screens2": [
+          "Error: invalid screen index: 2",
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ],
+        "es": [
+          "REQ file:///D:/cdn-cgi/rum?",
+          "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+        ]
+      },
+      "errors_telemetry": [
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S).",
+        "REQ file:///D:/cdn-cgi/rum?",
+        "TypeError: Failed to execute 'sendBeacon' on 'Navigator': Beacons are only supported over HTTP(S)."
+      ],
+      "errors_sim": [
+        "Error: invalid screen index: 2"
+      ],
+      "errors_plain_load": [],
+      "errors_screens2_load": [
+        "Error: invalid screen index: 2"
+      ],
+      "load_clean": false,
+      "sim_body_clean": true,
+      "screens2_is_error_page": true,
+      "screens_picture_differs": true,
+      "screens_change_picture": false,
+      "locale_change_picture": true,
+      "instrumented_for_phetio": false
+    }
+  ],
+  "summary": {
+    "sims": 13,
+    "load_clean_no_error_at_all": 0,
+    "screens_param_picture_differs_raw": 13,
+    "screens_param_rejected_by_sim": 2,
+    "sim_body_clean": 13,
+    "telemetry_stub_only_failures": 13,
+    "with_phet_namespace": 13,
+    "phetio_namespaced": 7,
+    "phetio_callable": 0,
+    "instrumented_for_phetio": 7,
+    "screens_param_changes_picture": 11,
+    "locale_param_changes_picture": 13,
+    "keyboard_moves_a11y_state": 0,
+    "keyboard_changes_picture": 6,
+    "has_a11y_values": 6,
+    "note_keyboard_changes_picture": "这一项只作记录、不作判据：动画类仿真不按键也在变画，没做「不按键」对照组，所以 picture_changed 不能当键盘驱动成功的证据；键盘通道的证据只看 a11y_changed，定点写另见 phet_a11y_channel_probe.mjs / phet_ohms_writeproof.mjs",
+    "conclusion": "URL 参数只到框架层（?screens=2 / ?locale=es 改变画面 11/13、13/13），而可被外部程序调用的 PhET-iO 接口（phetio_callable）实测 0/13；phet.phetio 命名空间存在 7/13 但 data-phetio-id 全为 0——存在不等于可用；键盘能推动无障碍数值的 0/13，说明「Agent 靠模拟操作驱动」这条替代通道是否成立要看这一项，不能靠断言。"
+  },
+  "result": "PASS"
+}

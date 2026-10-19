@@ -148,8 +148,8 @@
         "license_of_published_html": "Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)（实测从每份文件头的许可注释块读到）",
         "license_of_source": "GPL-3.0（sim 仓库）+ MIT（共享库）",
         "corrected_claim": "撤销旧结论「PhET 官方发布成品装不上」：旧记录试的是 *.zip 与 unzipper 两条下载路径加三条元数据路径，全部 404 就判了不可得。真形态是单文件 <sim>_all.html，本轮 13 份全部 200 OK 并落盘。",
-        "browser_measured_control_surface": {
-          "how": "内置浏览器里以 file:// 打开 pendulum-lab_all.html?screens=2（离线，无网络）",
+        "browser_measured_control_surface_one_sample": {
+          "how": "内置浏览器里以 file:// 打开 pendulum-lab_all.html?screens=2（离线，无网络）。**这一节的键名带 one_sample 是有原因的：它只是单只样本，本轮已被逐只实测（见下面的 headless_probe_2026-10-19）取代，保留只为留痕。**",
           "sim_boots": true,
           "namespaces_present": [
             "chipper",
@@ -167,18 +167,33 @@
             "brand"
           ],
           "query_parameters_total": 48,
+          "query_parameters_total_note": "旧单只读数，且当时没写清访问器。逐只实测读到的项数是 ohms-law 62 / geometric-optics 78 / gas-properties 88 / circuit-construction-kit-dc 94 / wave-interference 95 / energy-skate-park-basics 97，访问器是 phet.chipper.queryParameters（phet.queryParameters 在生产包里读不到）⇒ 以 62~97 这个区间为准，48 不再单独引用。",
           "query_parameters_are_framework_level": true,
           "screen_switch_works": "是：?screens=2 → queryParameters.screenIndex=1，页面只挂第二屏（body 文本从 220 字降到 75 字）",
           "physics_parameters_exposed": false,
           "phet_io_root_tandem": false
         },
+        "headless_probe_2026-10-19": {
+          "measured_at": "2026-10-19",
+          "tools": ["source/library/phet_headless_probe.mjs", "source/library/phet_a11y_channel_probe.mjs", "source/library/phet_ohms_writeproof.mjs", "source/library/phet_keyboard_channel_probe.mjs"],
+          "evidence": ["source/library/phet-headless-probe.json", "source/library/phet-a11y-channel-probe.json", "source/library/phet-ohms-writeproof.json", "source/library/phet-keyboard-channel-probe.json"],
+          "offline_boots": "13/13（无头 chromium 直开 file://，window.phet 命名空间齐全）",
+          "sim_body_clean": "13/13 —— 之前报的「0/13 干净」是仪器假阴性：报错全部来自发布包内嵌的 Cloudflare 遥测桩（file:///cdn-cgi/rum、sendBeacon 只允许 HTTP(S)），不是仿真本体",
+          "phet_io_callable": "0/13（data-phetio-id 全 0；window.phetio 存在 7/13 但静态核对只是 PhetioIDUtils 这个拼 ID 的工具，没有 client/engine/session）⇒ 成品确实没有参数 API",
+          "url_params": "?screens=2 真换屏 11/13（ohms-law 与 charges-and-fields 是单屏，抛 invalid screen index 并把画面变空白，已从『换屏成功』排掉）；?locale=es 改画 13/13 ⇒ URL 只到框架层，这句现在是逐只实测的",
+          "a11y_readable_values": "默认 6/13 能从 [aria-valuenow] 读到数值（ohms-law 4.5 V / 500 Ω、geometric-optics 1.5 折射率、wave-interference 0.625、energy-skate 62.5 / 0.05、circuit-construction-kit-dc 1e-10 / 1e-4、gas-properties 全 0），其余 7 只一个都读不到",
+          "a11y_writable": "ohms-law 1/1 闭环成立：focus 无障碍 INPUT（实测 51×253 有尺寸）+ 方向键把电压 4.5→6 V、电阻 500→560 Ω，仿真自己念出的电流与 I=V/R 对账 6/6 pass（V 档 2/6/9 V × 500 Ω → 4/12/18 mA 逐位相同；R 档 320/980/220 Ω × 9 V → 28.1/9.2/40.9 mA vs 解析 28.125/9.184/40.909，最大 0.18% = 画面显示位数）；另外 5 只同类 INPUT 的 rect 是 0×0，focus 不进去，换「点画布中心」与「关欢迎屏 + 走 30 步 Tab 环」两条路也拿不到带 aria-valuenow 的焦点元素 ⇒ 判 no_focusable_value_target 5/5",
+          "verdict_by_tier": ["展示级：13/13 离线能起、能换屏换语言", "可读级：6/13 默认能读到物理量数值", "可写级：1/13（ohms-law）实测可用无障碍层改参并与解析式对账", "API 级：0/13 有可调用 PhET-iO"],
+          "not_claimed": "不写「PhET 不支持键盘」——本轮只证明了我们的探针没打开那 5 只的键盘写通路（Tab 环里只有无标签的 2×2 / 7×3 像素 BUTTON）",
+          "instrument_lessons": ["结论文案要由实测派生，第一版预先写死「13 只都拿不到接口」而实测冒出 7 只带 window.phetio", "报错按加载次数归账，?screens=2 引发的错误记在探针头上", "画面对照要排掉『变成报错页』", "动画仿真不按键也在变画，改画不能当驱动证据", "单位正则要同时收 mA 与 milliamps，否则明明成立的写通路会被判 FAIL", "page.evaluate 要传函数引用，写成 TEXT() 会在 Node 侧执行，5 只全报 ReferenceError"]
+        },
         "blockers": [
-          "改不了物理参数：published 构建的 queryParameters 只有框架级 48 项（locale/screens/rootRenderer/accessibility…），没有 PhET-iO rootTandem ⇒ 要按教师要求改摆长、电阻这类量，只能自建 PhET-iO wrapper 或用源码（GPL-3.0 义务）重编译，两条路本轮都没走。",
+          "没有参数 API：published 构建的 queryParameters 只到框架层（逐项实测 62~97 项，locale/screens/rootRenderer/accessibility…），PhET-iO 可调用接口 0/13 ⇒ 想按教师要求改摆长、电阻这类量，正经路子仍是自建 PhET-iO wrapper 或用源码（GPL-3.0 义务）重编译，两条本轮都没走。**但旧那句「物理参数改不了」已被实测推翻一半**：ohms-law 可以用无障碍层焦点+方向键改到 4.5→6 V、500→560 Ω，并且仿真自己念出的电流与 I=V/R 对上（6/6 pass）；这条通道逐只不同（1/6 成立），不能当通用能力。",
           "许可里含 NC（非商业）：成品 HTML 是 CC BY-NC 4.0，与源码的 GPL-3.0 是两套义务 ⇒ 进任何商业或对外分发包之前要先确认赛题性质与授权。",
           "每份文件里有 1 个指向外的 <script src>（cloudflare insights beacon，CDN 下发时注入）⇒ 离线交付前要把这一行剥掉，剥完才算真单文件。"
         ]
       },
-      "agent_control_surface": "已实测（2026-10-19，file:// 离线）：官方发布成品能起、能选屏（?screens=2 → screenIndex=1），但 queryParameters 只有 48 项框架级参数，没有 PhET-iO rootTandem ⇒ 物理参数改不了。简报里那句「不是所有实验都能直接通过统一 JSON 接口改参」在这批成品上是**可测量的事实**，不是猜测。",
+      "agent_control_surface": "2026-10-19 逐只实测（无头 chromium，13 份成品各三次加载 + 定点写）分四档：① 展示级 13/13 离线能起、?screens=2 真换屏 11/13、?locale=es 改画 13/13；② 可读级 6/13 默认能从 [aria-valuenow] 读到物理量数值；③ 可写级 1/13 —— ohms-law 经无障碍层 focus+方向键改到电压与电阻，并用仿真自己念出的电流对 I=V/R 验过 6/6 pass（最大偏差 0.18%，是画面显示位数）；④ API 级 0/13 —— 没有可调用的 PhET-iO 接口。所以简报里那句「不是所有实验都能直接通过统一 JSON 接口改参」成立，但「成品改不了物理量」这句过头了：至少 ohms-law 这条无 API 的替代通道是真的，其余各只要逐只重跑定点测试才知道（5 只已实测打不开）。",
       "known_pits": [
         "旧结论「官方发布成品装不上」是查错了路径：真形态是 sims/html/<sim>/latest/<sim>_all.html，13 份 200 OK。教训与 OSP 那条一样——「查不到」必须是查过的结果。",
         "成品 HTML 是 CC BY-NC 4.0（含非商业条款），源码是 GPL-3.0：两套义务不同，别把「能下载」说成「能随便分发」。"
@@ -869,6 +884,7 @@
       ],
       "measured_evidence": "source/library/circuit-lab-evidence.json",
       "measured_note": "同源浏览器里 importCircuit 后读 ResistorElm：R=100 Ω ⇒ I = 50 mA、Vd = 5 V、P = 250 mW；把 R 改成 470 Ω ⇒ getCurrent() = 0.010638297872340425 A，与 5/470 在双精度下逐位相同 ⇒ 「改参→引擎跟着变」成立",
+      "alt_channel_phet_published_2026-10-19": "同一条 I=U/R 在 PhET 官方成品 ohms-law 上也实测成立，而且是「无 API 走无障碍层」这条路：focus 到 [aria-valuenow] 的 INPUT + 方向键改电压（4.5→2/6/9 V）与电阻（500→320/980/220 Ω），仿真自己念出的电流（4/12/18、28.1/9.2/40.9 mA）与 U/R 对账 6/6 pass、最大偏差 0.18%（画面显示位数）。证据 source/library/phet-ohms-writeproof.json。注意这只是单只成品的结果，同法在另外 5 只上打不开（元素 0×0），不能当 PhET 通用能力。",
       "harness": "python source/library/serve_circuitjs.py 8767 → http://127.0.0.1:8767/circuit_harness.html"
     },
     {
@@ -1255,6 +1271,10 @@
   "verification_log": {
     "component_probe": "source/components/component-probe.json",
     "inventory": "source/upstream/inventory.json",
+    "phet_headless_probe": "source/library/phet-headless-probe.json",
+    "phet_a11y_channel_probe": "source/library/phet-a11y-channel-probe.json",
+    "phet_ohms_writeproof": "source/library/phet-ohms-writeproof.json",
+    "phet_keyboard_channel_probe": "source/library/phet-keyboard-channel-probe.json",
     "fetch_logs": [
       "source/upstream/fetch-log.tsv",
       "source/upstream/fetch-phet-log.tsv",

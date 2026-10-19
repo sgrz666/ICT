@@ -1,0 +1,234 @@
+{
+  "measured_at": "2026-10-19T08:59:52.759Z",
+  "tool": "source/library/phet_ohms_writeproof.mjs",
+  "sim": "ohms-law",
+  "version": "1.4.31",
+  "steps": [
+    {
+      "element": 0,
+      "focusable": true,
+      "target": 2,
+      "presses": 5,
+      "read": {
+        "text": "‪Ohm's Law‬ ‪Ohm's Law‬ is an interactive sim. It changes as you play with it. It has a Play Area and a Control Area. In the Play Area you find the equation for Ohm's Law, V equals I times R, and a circuit. Voltage and resistance sliders allow changes to the equation and circuit. In the Control Area, a button allows users to reset the sim. Right now, voltage, V, is 2.0 volts resistance, R, is 500 ",
+        "values": [
+          "2",
+          "500"
+        ],
+        "volt": [
+          2,
+          2
+        ],
+        "ohm": [
+          500
+        ],
+        "milliamp": [
+          4,
+          4
+        ],
+        "amp": []
+      },
+      "V": 2,
+      "R": 500,
+      "I_expected_A": 0.004,
+      "I_shown_A": 0.004,
+      "rel_error": 0,
+      "text_V": 2,
+      "text_R": 500,
+      "obeys_ohm": true
+    },
+    {
+      "element": 0,
+      "focusable": true,
+      "target": 6,
+      "presses": 8,
+      "read": {
+        "text": "‪Ohm's Law‬ ‪Ohm's Law‬ is an interactive sim. It changes as you play with it. It has a Play Area and a Control Area. In the Play Area you find the equation for Ohm's Law, V equals I times R, and a circuit. Voltage and resistance sliders allow changes to the equation and circuit. In the Control Area, a button allows users to reset the sim. Right now, voltage, V, is 6.0 volts resistance, R, is 500 ",
+        "values": [
+          "6",
+          "500"
+        ],
+        "volt": [
+          6,
+          6
+        ],
+        "ohm": [
+          500
+        ],
+        "milliamp": [
+          12,
+          12
+        ],
+        "amp": []
+      },
+      "V": 6,
+      "R": 500,
+      "I_expected_A": 0.012,
+      "I_shown_A": 0.012,
+      "rel_error": 0,
+      "text_V": 6,
+      "text_R": 500,
+      "obeys_ohm": true
+    },
+    {
+      "element": 0,
+      "focusable": true,
+      "target": 9,
+      "presses": 6,
+      "read": {
+        "text": "‪Ohm's Law‬ ‪Ohm's Law‬ is an interactive sim. It changes as you play with it. It has a Play Area and a Control Area. In the Play Area you find the equation for Ohm's Law, V equals I times R, and a circuit. Voltage and resistance sliders allow changes to the equation and circuit. In the Control Area, a button allows users to reset the sim. Right now, voltage, V, is 9.0 volts resistance, R, is 500 ",
+        "values": [
+          "9",
+          "500"
+        ],
+        "volt": [
+          9,
+          9
+        ],
+        "ohm": [
+          500
+        ],
+        "milliamp": [
+          18,
+          18
+        ],
+        "amp": []
+      },
+      "V": 9,
+      "R": 500,
+      "I_expected_A": 0.018,
+      "I_shown_A": 0.018,
+      "rel_error": 0,
+      "text_V": 9,
+      "text_R": 500,
+      "obeys_ohm": true
+    },
+    {
+      "element": 1,
+      "focusable": true,
+      "target": 300,
+      "presses": 9,
+      "read": {
+        "text": "‪Ohm's Law‬ ‪Ohm's Law‬ is an interactive sim. It changes as you play with it. It has a Play Area and a Control Area. In the Play Area you find the equation for Ohm's Law, V equals I times R, and a circuit. Voltage and resistance sliders allow changes to the equation and circuit. In the Control Area, a button allows users to reset the sim. Right now, voltage, V, is 9.0 volts resistance, R, is 320 ",
+        "values": [
+          "9",
+          "320"
+        ],
+        "volt": [
+          9,
+          9
+        ],
+        "ohm": [
+          320
+        ],
+        "milliamp": [
+          28.1,
+          28.1
+        ],
+        "amp": []
+      },
+      "V": 9,
+      "R": 320,
+      "I_expected_A": 0.028125,
+      "I_shown_A": 0.0281,
+      "rel_error": 0.0008888888888889143,
+      "text_V": 9,
+      "text_R": 320,
+      "obeys_ohm": true
+    },
+    {
+      "element": 1,
+      "focusable": true,
+      "target": 1000,
+      "presses": 33,
+      "read": {
+        "text": "‪Ohm's Law‬ ‪Ohm's Law‬ is an interactive sim. It changes as you play with it. It has a Play Area and a Control Area. In the Play Area you find the equation for Ohm's Law, V equals I times R, and a circuit. Voltage and resistance sliders allow changes to the equation and circuit. In the Control Area, a button allows users to reset the sim. Right now, voltage, V, is 9.0 volts resistance, R, is 980 ",
+        "values": [
+          "9",
+          "980"
+        ],
+        "volt": [
+          9,
+          9
+        ],
+        "ohm": [
+          980
+        ],
+        "milliamp": [
+          9.2,
+          9.2
+        ],
+        "amp": []
+      },
+      "V": 9,
+      "R": 980,
+      "I_expected_A": 0.009183673469387756,
+      "I_shown_A": 0.0092,
+      "rel_error": 0.0017777777777776705,
+      "text_V": 9,
+      "text_R": 980,
+      "obeys_ohm": true
+    },
+    {
+      "element": 1,
+      "focusable": true,
+      "target": 200,
+      "presses": 38,
+      "read": {
+        "text": "‪Ohm's Law‬ ‪Ohm's Law‬ is an interactive sim. It changes as you play with it. It has a Play Area and a Control Area. In the Play Area you find the equation for Ohm's Law, V equals I times R, and a circuit. Voltage and resistance sliders allow changes to the equation and circuit. In the Control Area, a button allows users to reset the sim. Right now, voltage, V, is 9.0 volts resistance, R, is 220 ",
+        "values": [
+          "9",
+          "220"
+        ],
+        "volt": [
+          9,
+          9
+        ],
+        "ohm": [
+          220
+        ],
+        "milliamp": [
+          40.9,
+          40.9
+        ],
+        "amp": []
+      },
+      "V": 9,
+      "R": 220,
+      "I_expected_A": 0.04090909090909091,
+      "I_shown_A": 0.0409,
+      "rel_error": 0.000222222222222244,
+      "text_V": 9,
+      "text_R": 220,
+      "obeys_ohm": true
+    }
+  ],
+  "baseline": {
+    "text": "‪Ohm's Law‬ ‪Ohm's Law‬ is an interactive sim. It changes as you play with it. It has a Play Area and a Control Area. In the Play Area you find the equation for Ohm's Law, V equals I times R, and a circuit. Voltage and resistance sliders allow changes to the equation and circuit. In the Control Area, a button allows users to reset the sim. Right now, voltage, V, is 4.5 volts resistance, R, is 500 ",
+    "values": [
+      "4.5",
+      "500"
+    ],
+    "volt": [
+      4.5,
+      4.5
+    ],
+    "ohm": [
+      500
+    ],
+    "milliamp": [
+      9,
+      9
+    ],
+    "amp": []
+  },
+  "summary": {
+    "elements_focusable": [
+      0,
+      1
+    ],
+    "write_steps": 6,
+    "ohm_checks_passed": 6
+  },
+  "result": "PASS"
+}
