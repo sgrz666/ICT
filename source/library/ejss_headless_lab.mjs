@@ -99,7 +99,7 @@ function check(name, ok, detail) {
 /** 在同一个浏览器里把一个包跑起来，返回运行时控制面与轨迹。
  *  四个通用判据不需要知道模型物理：能否无异常加载、控制面是否真在、
  *  step 是否确定性推进、unserialize 写入是否真的改变后续状态。 */
-export async function probePackage(browser, pagePath, { steps = 10, inject = null, injectFirst = false, primaryOverride = null } = {}) {
+export async function probePackage(browser, pagePath, { steps = 10, inject = null, injectFirst = false, primaryOverride = null, fullTrace = false } = {}) {
   const ctx = await browser.newContext();
   const p = await ctx.newPage();
   const errors = [];
@@ -181,6 +181,14 @@ export async function probePackage(browser, pagePath, { steps = 10, inject = nul
     out.t_after_steps = lastState?.t ?? null;
     out.advanced = out.t_after_steps > 0;
     out.trace_head = primary ? first.trace.slice(0, 4).map((s) => at(s, primary)) : null;
+    if (fullTrace) {
+      out.trace_ts = first.trace.map((s) => s.t);
+      out.trace_primary = primary ? first.trace.map((s) => at(s, primary)) : null;
+      out.trace_accel_candidates = Object.keys(first.start)
+        .filter((k) => !/^(t|dt)/.test(k) && (typeof first.start[k] === "number"
+          || (Array.isArray(first.start[k]) && first.start[k].every((x) => typeof x === "number"))))
+        .reduce((acc, k) => { acc[k] = first.trace.map((s) => s[k]); return acc; }, {});
+    }
     out.start_keys = Object.keys(first.start).length;
     if (inject && primary) out.write = await writeTest(inject);
   } catch (e) {

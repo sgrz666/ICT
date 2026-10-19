@@ -395,6 +395,12 @@
           ],
           "measured": "25 个 EJS 6.02 包无头逐个跑：25/25 零异常加载 + 全套 8 个方法 + 推进时间 + 重载后轨迹逐点相同；写值 24/25 落地（23 个同时改变后续轨迹）",
           "pending": "另外两个包不是不可控，是探针选中了派生量（a、x_hill）；逐包对解析式的数值验收目前只做了 Illustration2_6 与 Problem2_18 两个"
+        },
+        "kinematics_selfcheck": {
+          "tool": "source/library/ejss_kinematics_selfcheck.mjs",
+          "evidence": "source/library/ejss-kinematics-selfcheck.json",
+          "measured": "25 个 EJS 6.02 包：13 个运动学自洽（6 匀速 + 7 匀加速），5 个抛物线但找不到对应恒定加速度量，4 个非匀加速，3 个窗口内没动",
+          "criterion": "二次拟合残差/跨度 ≤1e-6 且加速度与引擎自报常量相符；或梯形差分链 p→v→a 成立（错开半步用均值）"
         }
       }
     },
@@ -1279,6 +1285,8 @@
     "ejss_headless_sweep": "source/library/ejss_headless_sweep.mjs",
     "ejss_headless_sweep_evidence": "source/library/ejss-headless-sweep.json",
     "ejss_headless_lab_evidence_illustration26": "source/library/ejss-headless-lab-evidence-Illustration2_6.json",
-    "circuit_headless_lab": "source/library/circuit_headless_lab.mjs"
+    "circuit_headless_lab": "source/library/circuit_headless_lab.mjs",
+    "ejss_kinematics_selfcheck": "source/library/ejss_kinematics_selfcheck.mjs",
+    "ejss_kinematics_selfcheck_evidence": "source/library/ejss-kinematics-selfcheck.json"
   }
 }

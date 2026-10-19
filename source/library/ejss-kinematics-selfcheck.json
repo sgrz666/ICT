@@ -1,0 +1,678 @@
+{
+  "measured_at": "2026-10-19T08:23:41.390Z",
+  "tool": "source/library/ejss_kinematics_selfcheck.mjs",
+  "steps": 40,
+  "criterion": "p(t) 二次拟合的最大残差 / p 的取值范围 ≤ 1e-6，且拟合二次项×2 与引擎自报的某个恒定变量对得上（绝对容差 1e-9 兜底，所以 a=0 的匀速模型也算——上一版要求 |a|>0，把 14 个残差 1e-15 的包误判成不自洽）",
+  "packages": [
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_1.zip",
+      "title": "Illustration 2.1: Position and Displacement",
+      "primary": "x[0]",
+      "primary_span": 19.5,
+      "kinematic_chains": [],
+      "residual_rel": 7.287617802667694e-15,
+      "fitted_accel": 9.041029604813198e-14,
+      "accel_vars": [],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "parabolic_but_no_matching_constant_accel_var",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_2.zip",
+      "title": "Illustration 2.2: Average Velocity",
+      "primary": "x",
+      "primary_span": 15.990000000000007,
+      "kinematic_chains": [
+        {
+          "p": "x",
+          "v": "v",
+          "acc": "a",
+          "accel": 2
+        }
+      ],
+      "residual_rel": 1.1109173479676358e-15,
+      "fitted_accel": 2.0000000000000084,
+      "accel_vars": [
+        {
+          "name": "a",
+          "value": 2
+        }
+      ],
+      "motion_mode": "匀加速",
+      "class": "kinematics_selfconsistent",
+      "via": "二次拟合+运动学链都过",
+      "chain_example": {
+        "p": "x",
+        "v": "v",
+        "acc": "a",
+        "accel": 2
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_3.zip",
+      "title": "Illustration 2.3: Average and Instantaneous Velocity",
+      "primary": "x",
+      "primary_span": 15.990000000000007,
+      "kinematic_chains": [
+        {
+          "p": "x",
+          "v": "v",
+          "acc": "a",
+          "accel": 2
+        }
+      ],
+      "residual_rel": 1.1109173479676358e-15,
+      "fitted_accel": 2.0000000000000084,
+      "accel_vars": [
+        {
+          "name": "a",
+          "value": 2
+        }
+      ],
+      "motion_mode": "匀加速",
+      "class": "kinematics_selfconsistent",
+      "via": "二次拟合+运动学链都过",
+      "chain_example": {
+        "p": "x",
+        "v": "v",
+        "acc": "a",
+        "accel": 2
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_4.zip",
+      "title": "Illustration 2.4: Constant Acceleration and Measurement",
+      "primary": "x",
+      "primary_span": 0.7800000000000004,
+      "kinematic_chains": [
+        {
+          "p": "x",
+          "v": "v",
+          "acc": "a",
+          "accel": 0
+        }
+      ],
+      "residual_rel": 0,
+      "fitted_accel": 0,
+      "accel_vars": [
+        {
+          "name": "a",
+          "value": 0
+        }
+      ],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "kinematics_selfconsistent",
+      "via": "二次拟合+运动学链都过",
+      "chain_example": {
+        "p": "x",
+        "v": "v",
+        "acc": "a",
+        "accel": 0
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_5.zip",
+      "title": "Illustration 2.5: Motion on a Ramp",
+      "primary": "x",
+      "primary_span": 6.252173060655353,
+      "kinematic_chains": [
+        {
+          "p": "x",
+          "v": "vx",
+          "acc": "ax",
+          "accel": 1.6758987022957765
+        },
+        {
+          "p": "y",
+          "v": "vy",
+          "acc": "ay",
+          "accel": -0.29550615814904885
+        },
+        {
+          "p": "vx",
+          "v": "ax",
+          "acc": "dx",
+          "accel": 0
+        },
+        {
+          "p": "vx",
+          "v": "ax",
+          "acc": "dy",
+          "accel": 0
+        },
+        {
+          "p": "vy",
+          "v": "ay",
+          "acc": "dx",
+          "accel": 0
+        },
+        {
+          "p": "vy",
+          "v": "ay",
+          "acc": "dy",
+          "accel": 0
+        }
+      ],
+      "residual_rel": 1.846769010404095e-15,
+      "fitted_accel": 1.6758987022957454,
+      "accel_vars": [
+        {
+          "name": "ax",
+          "value": 1.6758987022957765
+        }
+      ],
+      "motion_mode": "匀加速",
+      "class": "kinematics_selfconsistent",
+      "via": "二次拟合+运动学链都过",
+      "chain_example": {
+        "p": "x",
+        "v": "vx",
+        "acc": "ax",
+        "accel": 1.6758987022957765
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Illustration2_6.zip",
+      "title": "Illustration 2.6: Free Fall",
+      "primary": "y",
+      "primary_span": 72.1497680665926,
+      "kinematic_chains": [],
+      "residual_rel": 5.908898294206174e-16,
+      "fitted_accel": -9.99999999999996,
+      "accel_vars": [
+        {
+          "name": "a",
+          "value": -10
+        }
+      ],
+      "motion_mode": "匀加速",
+      "class": "kinematics_selfconsistent",
+      "via": "二次拟合",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_01.zip",
+      "title": "Problem 2.1: Position Vs. Time",
+      "primary": "v",
+      "primary_span": 1.9500000000000013,
+      "kinematic_chains": [
+        {
+          "p": "v",
+          "v": "a",
+          "acc": "a_plot",
+          "accel": 0
+        },
+        {
+          "p": "x_plot",
+          "v": "v_plot",
+          "acc": "a_plot",
+          "accel": 0
+        }
+      ],
+      "residual_rel": 4.554761126667306e-16,
+      "fitted_accel": 3.2074606136809843e-14,
+      "accel_vars": [
+        {
+          "name": "a_plot",
+          "value": 0
+        }
+      ],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "kinematics_selfconsistent",
+      "via": "二次拟合+运动学链都过",
+      "chain_example": {
+        "p": "v",
+        "v": "a",
+        "acc": "a_plot",
+        "accel": 0
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_02.zip",
+      "title": "Problem 2.2:  Sliding Hockey Puck",
+      "primary": "x",
+      "primary_span": 3.899999999999986,
+      "kinematic_chains": [],
+      "residual_rel": 1.275333115466851e-14,
+      "fitted_accel": 1.1917720842708306e-13,
+      "accel_vars": [],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "parabolic_but_no_matching_constant_accel_var",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_03.zip",
+      "title": "Problem 2.3: Matching Helicopter Flight",
+      "primary": "x",
+      "primary_span": 5.1701250000000005,
+      "kinematic_chains": [],
+      "residual_rel": 0.009010457510721402,
+      "fitted_accel": 0.032675534991323994,
+      "accel_vars": [],
+      "motion_mode": "匀加速",
+      "class": "not_uniformly_accelerated_in_window",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_04.zip",
+      "title": "Problem 2.4:  Golf Balls Putt Comparison",
+      "primary": "b_acc[0]",
+      "primary_span": 4.604493841850951,
+      "kinematic_chains": [
+        {
+          "p": "r_pos[0]",
+          "v": "r_vel[0]",
+          "acc": "r_vel[1]",
+          "accel": 0
+        },
+        {
+          "p": "r_pos[0]",
+          "v": "r_vel[0]",
+          "acc": "r_acc[0]",
+          "accel": 0
+        },
+        {
+          "p": "r_pos[0]",
+          "v": "r_vel[0]",
+          "acc": "r_acc[1]",
+          "accel": 0
+        }
+      ],
+      "residual_rel": 0.49505917702323343,
+      "fitted_accel": 162.38393269234095,
+      "accel_vars": [],
+      "motion_mode": "匀加速",
+      "class": "kinematics_selfconsistent",
+      "via": "运动学链",
+      "chain_example": {
+        "p": "r_pos[0]",
+        "v": "r_vel[0]",
+        "acc": "r_vel[1]",
+        "accel": 0
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_05.zip",
+      "title": "Problem 2.5: Puck Bounces Between Two Walls",
+      "primary": "x",
+      "primary_span": 14.039999999999988,
+      "kinematic_chains": [],
+      "residual_rel": 7.844310829260372e-15,
+      "fitted_accel": 1.957678597217394e-12,
+      "accel_vars": [],
+      "motion_mode": "匀加速",
+      "class": "parabolic_but_no_matching_constant_accel_var",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_06.zip",
+      "title": "Problem 2.6: Constant Velocity Putt-Putt",
+      "primary": "xi",
+      "primary_span": 0,
+      "kinematic_chains": [],
+      "residual_rel": null,
+      "fitted_accel": 1.1276228719972193e-13,
+      "accel_vars": [
+        {
+          "name": "vi",
+          "value": 0
+        },
+        {
+          "name": "v",
+          "value": 0
+        }
+      ],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "no_motion_in_window",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_07.zip",
+      "title": "Problem 2.7: Acceleration of Carts",
+      "primary": "v",
+      "primary_span": 0.7800000000000004,
+      "kinematic_chains": [
+        {
+          "p": "x",
+          "v": "v",
+          "acc": "a",
+          "accel": 2
+        }
+      ],
+      "residual_rel": 0,
+      "fitted_accel": 0,
+      "accel_vars": [],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "kinematics_selfconsistent",
+      "via": "运动学链",
+      "chain_example": {
+        "p": "x",
+        "v": "v",
+        "acc": "a",
+        "accel": 2
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_08.zip",
+      "title": "Problem 2.8: Purple Truck Catching Yellow Truck",
+      "primary": "x[0]",
+      "primary_span": 4.059899999999995,
+      "kinematic_chains": [
+        {
+          "p": "x[0]",
+          "v": "v[0]",
+          "acc": "a[0]",
+          "accel": -0.5
+        },
+        {
+          "p": "x[1]",
+          "v": "v[1]",
+          "acc": "a[1]",
+          "accel": 0
+        },
+        {
+          "p": "v[0]",
+          "v": "a[0]",
+          "acc": "a[1]",
+          "accel": 0
+        }
+      ],
+      "residual_rel": 6.563056378483161e-16,
+      "fitted_accel": -0.49999999999997063,
+      "accel_vars": [
+        {
+          "name": "a[0]",
+          "value": -0.5
+        }
+      ],
+      "motion_mode": "匀加速",
+      "class": "kinematics_selfconsistent",
+      "via": "二次拟合+运动学链都过",
+      "chain_example": {
+        "p": "x[0]",
+        "v": "v[0]",
+        "acc": "a[0]",
+        "accel": -0.5
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_09.zip",
+      "title": "Problem 2.9: Simulation of a Helium Balloon",
+      "primary": "v",
+      "primary_span": 0.07800000000000006,
+      "kinematic_chains": [
+        {
+          "p": "y",
+          "v": "v",
+          "acc": "a",
+          "accel": 0.05
+        }
+      ],
+      "residual_rel": 5.3709707621589565e-15,
+      "fitted_accel": 1.7557929918793439e-15,
+      "accel_vars": [],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "kinematics_selfconsistent",
+      "via": "运动学链",
+      "chain_example": {
+        "p": "y",
+        "v": "v",
+        "acc": "a",
+        "accel": 0.05
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_10.zip",
+      "title": "Problem 2.10: Rope Holding a Hot Air Balloon Cargo",
+      "primary": "y_cargo",
+      "primary_span": 7.799999999999982,
+      "kinematic_chains": [
+        {
+          "p": "y_balloon",
+          "v": "v_balloon",
+          "acc": "a_cargo",
+          "accel": 0
+        },
+        {
+          "p": "y_balloon",
+          "v": "v_cargo",
+          "acc": "a_cargo",
+          "accel": 0
+        },
+        {
+          "p": "y_cargo",
+          "v": "v_balloon",
+          "acc": "a_cargo",
+          "accel": 0
+        },
+        {
+          "p": "y_cargo",
+          "v": "v_cargo",
+          "acc": "a_cargo",
+          "accel": 0
+        }
+      ],
+      "residual_rel": 3.1883327886671234e-15,
+      "fitted_accel": -1.2842371597746393e-13,
+      "accel_vars": [
+        {
+          "name": "a_cargo",
+          "value": 0
+        }
+      ],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "kinematics_selfconsistent",
+      "via": "二次拟合+运动学链都过",
+      "chain_example": {
+        "p": "y_balloon",
+        "v": "v_balloon",
+        "acc": "a_cargo",
+        "accel": 0
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_11.zip",
+      "title": "Problem 2.11: Golf Ball on a Wet Green",
+      "primary": "x",
+      "primary_span": 8.19425969195747,
+      "kinematic_chains": [],
+      "residual_rel": 0.06506502047563442,
+      "fitted_accel": 1.3208169700603793,
+      "accel_vars": [],
+      "motion_mode": "匀加速",
+      "class": "not_uniformly_accelerated_in_window",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_12.zip",
+      "title": "Problem 2.12: Car with Two Springs",
+      "primary": "a",
+      "primary_span": 319.66729659045404,
+      "kinematic_chains": [],
+      "residual_rel": 0.5555530471159462,
+      "fitted_accel": 526.1002418304308,
+      "accel_vars": [],
+      "motion_mode": "匀加速",
+      "class": "not_uniformly_accelerated_in_window",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_13.zip",
+      "title": "Problem 2.13: Golf Ball Putted Up a Steep Hill on a Green",
+      "primary": "x_hill",
+      "primary_span": 6.348622907904593,
+      "kinematic_chains": [
+        {
+          "p": "x",
+          "v": "vx",
+          "acc": "ax",
+          "accel": 1.6758987022957765
+        },
+        {
+          "p": "y",
+          "v": "vy",
+          "acc": "ay",
+          "accel": -0.29550615814904885
+        }
+      ],
+      "residual_rel": 2.7980191376440553e-15,
+      "fitted_accel": 1.7017521411358705,
+      "accel_vars": [],
+      "motion_mode": "匀加速",
+      "class": "kinematics_selfconsistent",
+      "via": "运动学链",
+      "chain_example": {
+        "p": "x",
+        "v": "vx",
+        "acc": "ax",
+        "accel": 1.6758987022957765
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_14.zip",
+      "title": "Problem 2.14: Golf Ball on a Sloping Green",
+      "primary": "x",
+      "primary_span": 5.319377551116681,
+      "kinematic_chains": [],
+      "residual_rel": 0.01126298801995428,
+      "fitted_accel": 2.2706556676522975,
+      "accel_vars": [],
+      "motion_mode": "匀加速",
+      "class": "not_uniformly_accelerated_in_window",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_15.zip",
+      "title": "Problem 2.15: Constant Acceleration Putt-Putt",
+      "primary": "xi",
+      "primary_span": 0,
+      "kinematic_chains": [],
+      "residual_rel": null,
+      "fitted_accel": 1.1276228719972193e-13,
+      "accel_vars": [
+        {
+          "name": "vi",
+          "value": 0
+        },
+        {
+          "name": "v",
+          "value": 0
+        },
+        {
+          "name": "a",
+          "value": 0
+        }
+      ],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "no_motion_in_window",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_16.zip",
+      "title": "Problem 2.16: Constant Acceleration Putt-Putt",
+      "primary": "xi",
+      "primary_span": 0,
+      "kinematic_chains": [],
+      "residual_rel": null,
+      "fitted_accel": 1.1276228719972193e-13,
+      "accel_vars": [
+        {
+          "name": "vi",
+          "value": 0
+        },
+        {
+          "name": "v",
+          "value": 0
+        },
+        {
+          "name": "a",
+          "value": 0
+        }
+      ],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "no_motion_in_window",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_17.zip",
+      "title": "Problem 2.17: Find Velocity from Position",
+      "primary": "v_ball",
+      "primary_span": 1.5600000000000012,
+      "kinematic_chains": [],
+      "residual_rel": 0,
+      "fitted_accel": 0,
+      "accel_vars": [],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "parabolic_but_no_matching_constant_accel_var",
+      "via": "—",
+      "chain_example": null
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_18.zip",
+      "title": "Problem 2.18: Tennis Ball Launcher",
+      "primary": "v_r",
+      "primary_span": 7.800000000000004,
+      "kinematic_chains": [
+        {
+          "p": "y_g",
+          "v": "v_g",
+          "acc": "a",
+          "accel": -10
+        },
+        {
+          "p": "y_r",
+          "v": "v_r",
+          "acc": "a",
+          "accel": -10
+        }
+      ],
+      "residual_rel": 1.151642182872216e-15,
+      "fitted_accel": -1.5661428777739152e-13,
+      "accel_vars": [],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "kinematics_selfconsistent",
+      "via": "运动学链",
+      "chain_example": {
+        "p": "y_g",
+        "v": "v_g",
+        "acc": "a",
+        "accel": -10
+      }
+    },
+    {
+      "zip": "source/upstream/resources/docs/PP/Ch02/js_ejs_model_Problem2_19.zip",
+      "title": "Problem 2.19: Tennis Ball Launcher",
+      "primary": "v",
+      "primary_span": 7.799999999999878,
+      "kinematic_chains": [],
+      "residual_rel": 1.5372318802502407e-15,
+      "fitted_accel": -2.3492143166608784e-13,
+      "accel_vars": [],
+      "motion_mode": "匀速（退化的二次，a=0）",
+      "class": "parabolic_but_no_matching_constant_accel_var",
+      "via": "—",
+      "chain_example": null
+    }
+  ],
+  "summary": {
+    "run": 25,
+    "kinematics_selfconsistent": 13,
+    "no_motion_in_window": 3,
+    "not_uniformly_accelerated": 4,
+    "parabolic_but_accel_not_found": 5,
+    "of_which_uniform_velocity": 6,
+    "of_which_accelerated": 7,
+    "of_which_via_chain_only": 5,
+    "chains_total": 27
+  }
+}
