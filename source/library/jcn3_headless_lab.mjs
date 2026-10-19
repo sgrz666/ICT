@@ -1,0 +1,117 @@
+/** 3JCN 演示页的控制面实测：那些 <input type=range> 是不是 Agent 真能用的改参通道。
+ *
+ * 结构探针（../upstream/3jcn/probe_3jcn_demo_interfaces.py）已经量出：抓下来的 14 页里
+ * 14/14 都有 range 滑块，而且是**带名字带量程的物理量**（tempSlider 0~600、massMetalSlider 300~700、
+ * density1 1~3 step 0.1…）。这比 PhET 成品清楚得多，但简报里那句警告正是针对这种情况：
+ * 「控件存在」不等于「改了引擎跟着变」。所以这里跑三档判据，全在同一页里对照：
+ *   ① readback —— 写值后 input.value 是否真变成新值（防被页面逻辑当场改回去）；
+ *   ② observable —— 页面上的**数字读数**（body 文本里的数）是否跟着变；
+ *   ③ control  —— 用同一个值再派发一次事件，读数必须**不变**：
+ *      没有这一条，「任何事件都重绘/读数抖动」也会被我判成「改参生效」（老规矩：判据要能失败）。
+ * 再加 reverse：把值改回原值，读数必须回到原来那一组——证明这是随参数走的，不是一次性噪声。
+ *
+ * 用法：node source/library/jcn3_headless_lab.mjs [--demo <本地 html 路径>] [--json <证据路径>]
+ */
+import fs from "node:fs";
+import path from "node:path";
+import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
+import { findChromium } from "./ejss_headless_lab.mjs";
+
+const require = createRequire(path.join(process.cwd(), "noop.js"));
+const ROOT = process.cwd();
+const { chromium } = require("playwright-core");
+const argv = process.argv;
+const opt = (k, d) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : d);
+const demo = opt("--demo", "source/upstream/3jcn/demos/Phyc140__buoyant_force_exp.html");
+const out = opt("--json", "source/library/jcn3-headless-lab-evidence.json");
+const exec = findChromium();
+
+const READ = () => {
+  const nums = ((document.body.innerText || "").match(/-?\d+(?:[.,]\d+)?/g) || []).map((x) => parseFloat(x.replace(",", ".")));
+  return {
+    sliders: [...document.querySelectorAll('input[type=range]')].map((e) => ({ id: e.id, min: +e.min, max: +e.max, step: +e.step, value: +e.value })),
+    number_tokens: nums,
+    text: (document.body.innerText || "").replace(/\s+/g, " ").slice(0, 260),
+    has_canvas: document.querySelectorAll("canvas").length,
+  };
+};
+// 只比「读数指纹」：滑块自身 value 的变动当然会进 innerText，读数取的是滑块之外的数字
+const fingerprint = (r) => r.number_tokens.join("|");
+
+const report = { measured_at: new Date().toISOString(), tool: "source/library/jcn3_headless_lab.mjs", demo, chromium: exec, checks: [] };
+const browser = await chromium.launch({ executablePath: exec, headless: true, args: ["--no-sandbox", "--allow-file-access-from-files"] });
+const p = await (await browser.newContext({ viewport: { width: 1280, height: 820 } })).newPage();
+const errs = [];
+p.on("pageerror", (e) => errs.push(String(e).slice(0, 140)));
+try {
+  await p.goto(pathToFileURL(path.join(ROOT, demo)).href, { waitUntil: "load", timeout: 90000 });
+  await p.waitForTimeout(6000);                     // 演示页要等 three.js 与 CDN 脚本就位
+  const base = await p.evaluate(READ);
+  report.baseline = base;
+  console.log("基线：滑块 %d 个，读数 %d 个数字，canvas %d；文本 %s",
+    base.sliders.length, base.number_tokens.length, base.has_canvas, base.text.slice(0, 90));
+  if (!base.sliders.length) throw new Error("页面里没有 range 控件，判据不成立");
+
+  const write = async (id, v) => p.evaluate(([id, v]) => {
+    const e = document.getElementById(id);
+    if (!e) return false;
+    e.value = String(v);
+    e.dispatchEvent(new Event("input", { bubbles: true }));
+    e.dispatchEvent(new Event("change", { bubbles: true }));
+    if (window.jQuery) window.jQuery(e).trigger("input").trigger("change");   // 这批改用 jQuery 绑事件
+    return true;
+  }, [id, v]);
+
+  for (const s of base.sliders) {
+    const row = { slider: s.id, range: [s.min, s.max, s.step], value: s.value };
+    // ③ 对照组：同值再派发一次事件，读数不许变
+    await write(s.id, s.value); await p.waitForTimeout(700);
+    const ctrl = await p.evaluate(READ);
+    row.control_noop = fingerprint(ctrl) === fingerprint(base);
+
+    // ①② 写一个新值（往量程内侧取，避免撞端点）
+    const target = s.value > s.min ? s.min : s.min + (s.max - s.min) * 0.25;
+    const nv = Math.round(target / s.step) * s.step;
+    const okSet = await write(s.id, nv);
+    await p.waitForTimeout(900);
+    const after = await p.evaluate(READ);
+    const s2 = after.sliders.find((x) => x.id === s.id) || {};
+    row.write = { attempted: nv, applied: okSet, readback: s2.value, readback_matches: Math.abs((s2.value ?? NaN) - nv) < 1e-9 };
+    row.numbers_before = base.number_tokens;
+    row.numbers_after = after.number_tokens;
+    row.readout_changed = fingerprint(after) !== fingerprint(base);
+    row.text_changed = after.text.slice(0, 200) !== base.text.slice(0, 200);
+
+    // reverse：改回原值，读数应回到基线那一组
+    await write(s.id, s.value); await p.waitForTimeout(900);
+    const back = await p.evaluate(READ);
+    row.reverts_to_baseline = fingerprint(back) === fingerprint(base);
+
+    row.verdict = row.write.readback_matches && row.control_noop && row.readout_changed && row.reverts_to_baseline
+      ? "agent_writable_and_observable"
+      : row.write.readback_matches && row.control_noop ? "accepted_but_no_observable_change"
+      : row.write.readback_matches ? "readback_ok_but_control_group_fails"
+      : "rejected";
+    report.checks.push(row);
+    console.log("  %s [%s..%s step %s] 写 %s→%s 回读=%s 匹配=%s 对照组不变=%s 读数变=%s 改回原值=%s => %s" % (
+      s.id, s.min, s.max, s.step, s.value, row.write.attempted, row.write.readback,
+      row.write.readback_matches, row.control_noop, row.readout_changed, row.reverts_to_baseline, row.verdict));
+  }
+} catch (e) {
+  report.load_error = String(e).slice(0, 220);
+} finally {
+  report.page_errors = errs.slice(0, 6);
+  await p.context().close();
+  await browser.close();
+}
+const c = (f) => report.checks.filter(f).length;
+report.summary = {
+  sliders: report.checks.length,
+  agent_writable_and_observable: c((r) => r.verdict === "agent_writable_and_observable"),
+  accepted_but_no_observable_change: c((r) => r.verdict === "accepted_but_no_observable_change"),
+  rejected: c((r) => r.verdict === "rejected"),
+};
+report.result = report.summary.agent_writable_and_observable > 0 ? "PASS" : report.checks.length ? "FAIL" : "ERROR";
+fs.writeFileSync(path.join(ROOT, out), JSON.stringify(report, null, 2), "utf-8");
+console.log("\n汇总:", JSON.stringify(report.summary), report.result, "| 页面异常", errs.length, "\n写入", out);

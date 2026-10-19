@@ -20,3 +20,9 @@
 2. **别把 90 条链接当 90 个可用实验**。本轮只验证了「目录抓得下来」；单个演示是否可被 Agent 改参一个都没验（pending）。简报里「程序化接口尚未核实」这句至今仍然成立。
 3. 无 commit 可锁 ⇒ 可复现性靠「抓取时间 + 页面字节数」，脚本重跑若发现某页大小变了，要在 lock 的 `facts_measured` 里更新数字，不要静默覆盖。
 4. `pages/` 是第三方内容，**本目录只在这一层写项目侧说明**，不逐文件登记（与 `phet/`、`ray-optics/` 的口径一致，见 [`../../README.md`](../../README.md) 与 [`../README.md`](../README.md)）。
+
+## 2026-10-19 程序化接口实测
+
+结构面已量、运行时未证实（2026-10-19）：镜像分类页里共 **54 条演示链接**（Phyc140 19 / Phyc240 25 / Simulation 9 / thermodynamics 1），抓下 14 份演示页（14~30 KB）后 **14/14 都带具名 `<input type=range>` 滑块且有 min/max/step/value**（`tempSlider` 0~600、`massMetalSlider` 300~700、`density1` 1~3 step 0.1、`liquidVolSlider` 1500~2900…），11/14 用 three.js，13/14 页可直接改的数值常量共 65 个 —— 控制面比 PhET 成品显式得多。但运行时**没**证实：`../library/jcn3_headless_lab.mjs` 在 `buoyant_force_exp` 上页面 0 异常却 canvas 恒 0（补 `--use-gl=angle --use-angle=swiftshader` 后 WebGL 可用仍是 0，three.js 场景没初始化），而我拿去当「读数指纹」的 6 个数字其实是滑块量程标注（100/200、1500/3000、10/100）——**是对照组（同值再派发一次事件、读数本该不变）先把这条判据打死的**，所以记 FAIL，不写「能改参」。缺的依赖也定位了：页内引用 `../css/final.css`、`../css/main3.css` 与 jQuery 3.2.1 / bootstrap 3.3.7 CDN，镜像一个都没取（three.js 出处也还没查）⇒ 离线不成立。证据 `3jcn/3jcn-demo-interface-probe.json` 与 `../library/jcn3-headless-lab-evidence.json`。
+
+新增两份项目侧文件：`probe_3jcn_demo_interfaces.py`（结构面探针）与驱动台 `../../library/jcn3_headless_lab.mjs`。`demos/` 与 `pages/` 一样被 `.gitignore` 挡住不入库——里面全是第三方 HTML，站点未声明开源许可，只作本机分析用。

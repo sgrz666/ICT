@@ -1277,6 +1277,8 @@
     "phet_ohms_writeproof": "source/library/phet-ohms-writeproof.json",
     "phet_keyboard_channel_probe": "source/library/phet-keyboard-channel-probe.json",
     "phet_a11y_enable_probe": "source/library/phet-a11y-enable-probe.json",
+    "jcn3_demo_probe": "source/upstream/3jcn/3jcn-demo-interface-probe.json",
+    "jcn3_headless_lab": "source/library/jcn3-headless-lab-evidence.json",
     "fetch_logs": [
       "source/upstream/fetch-log.tsv",
       "source/upstream/fetch-phet-log.tsv",

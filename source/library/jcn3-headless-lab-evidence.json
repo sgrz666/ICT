@@ -1,0 +1,159 @@
+{
+  "measured_at": "2026-10-19T09:29:14.680Z",
+  "tool": "source/library/jcn3_headless_lab.mjs",
+  "demo": "source/upstream/3jcn/demos/Phyc140__buoyant_force_exp.html",
+  "chromium": "D:\\temp\\ms-playwright\\chromium-1248\\chrome-win64\\chrome.exe",
+  "checks": [
+    {
+      "slider": "volSlider",
+      "range": [
+        100,
+        200,
+        1
+      ],
+      "value": 150,
+      "control_noop": true,
+      "write": {
+        "attempted": 100,
+        "applied": true,
+        "readback": 100,
+        "readback_matches": true
+      },
+      "numbers_before": [
+        100,
+        200,
+        1500,
+        3000,
+        10,
+        100
+      ],
+      "numbers_after": [
+        100,
+        200,
+        1500,
+        3000,
+        10,
+        100
+      ],
+      "readout_changed": false,
+      "text_changed": false,
+      "reverts_to_baseline": true,
+      "verdict": "accepted_but_no_observable_change"
+    },
+    {
+      "slider": "liquidVolSlider",
+      "range": [
+        1500,
+        2900,
+        10
+      ],
+      "value": 2500,
+      "control_noop": true,
+      "write": {
+        "attempted": 1500,
+        "applied": true,
+        "readback": 1500,
+        "readback_matches": true
+      },
+      "numbers_before": [
+        100,
+        200,
+        1500,
+        3000,
+        10,
+        100
+      ],
+      "numbers_after": [
+        100,
+        200,
+        1500,
+        3000,
+        10,
+        100
+      ],
+      "readout_changed": false,
+      "text_changed": false,
+      "reverts_to_baseline": true,
+      "verdict": "accepted_but_no_observable_change"
+    },
+    {
+      "slider": "tempLiquidSlider",
+      "range": [
+        10,
+        100,
+        1
+      ],
+      "value": 20,
+      "control_noop": true,
+      "write": {
+        "attempted": 10,
+        "applied": true,
+        "readback": 10,
+        "readback_matches": true
+      },
+      "numbers_before": [
+        100,
+        200,
+        1500,
+        3000,
+        10,
+        100
+      ],
+      "numbers_after": [
+        100,
+        200,
+        1500,
+        3000,
+        10,
+        100
+      ],
+      "readout_changed": false,
+      "text_changed": false,
+      "reverts_to_baseline": true,
+      "verdict": "accepted_but_no_observable_change"
+    }
+  ],
+  "baseline": {
+    "sliders": [
+      {
+        "id": "volSlider",
+        "min": 100,
+        "max": 200,
+        "step": 1,
+        "value": 150
+      },
+      {
+        "id": "liquidVolSlider",
+        "min": 1500,
+        "max": 2900,
+        "step": 10,
+        "value": 2500
+      },
+      {
+        "id": "tempLiquidSlider",
+        "min": 10,
+        "max": 100,
+        "step": 1,
+        "value": 20
+      }
+    ],
+    "number_tokens": [
+      100,
+      200,
+      1500,
+      3000,
+      10,
+      100
+    ],
+    "text": "Buoyant Force Object: Wood Plastic Cork Foam Unknown Object Volume (cm³): 100 200 Reset Buoyant Force (N): Liquid: Lamp Oil Ethanol Water Unknown Liquid Volume (cm³): 1500 3000 Liquid Temp (°C): 10 100 What is Buoyant Force? Simulation Home",
+    "has_canvas": 0
+  },
+  "page_errors": [],
+  "summary": {
+    "sliders": 3,
+    "agent_writable_and_observable": 0,
+    "accepted_but_no_observable_change": 3,
+    "rejected": 0
+  },
+  "result": "FAIL"
+}

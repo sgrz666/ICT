@@ -44,6 +44,7 @@ source/upstream/osp_ejs/
 source/upstream/STP/
 source/upstream/csm/
 source/upstream/3jcn/pages/
+source/upstream/3jcn/demos/
 # EJSS/WebEJS 离线拼装实验台（第三方运行时与解包产物，一律不入库；说明见 source/upstream/README.md）
 source/upstream/.webejs-offline/
 
