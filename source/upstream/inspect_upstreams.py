@@ -77,6 +77,8 @@ UNITS = [
     ("resources", "resources"),
     ("STP", "STP"),
     ("csm", "csm"),
+    # PhET 官方发布的 HTML5 成品（单文件、可离线），2026-10-19 由 fetch_phet_published.py 下载
+    ("phet-published-html5", "phet/published"),
 ]
 for d in sorted(os.listdir(os.path.join(BASE, "phet", "libs"))) if os.path.isdir(os.path.join(BASE, "phet", "libs")) else []:
     if os.path.isdir(os.path.join(BASE, "phet", "libs", d, ".git")):
@@ -134,6 +136,7 @@ probes = {
     "webejs.wasm_artifacts": count_files("webejs", ".wasm"),
     "resources.html_pages": count_files("resources", ".html"),
     "3jcn.pages_mirrored": count_files("3jcn/pages", ".html"),
+    "phet.published_html5_sims": count_files("phet/published", "_all.html"),
     "3jcn.catalog_links": len(json.load(open(os.path.join(BASE, "3jcn/3jcn-inventory.json"), encoding="utf-8"))["entries"])
         if os.path.exists(os.path.join(BASE, "3jcn/3jcn-inventory.json")) else 0,
 }

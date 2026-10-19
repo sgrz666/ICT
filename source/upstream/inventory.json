@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-19T13:38:50+08:00",
+  "generated_at": "2026-10-19T15:20:58+08:00",
   "generated_by": "source/upstream/inspect_upstreams.py",
   "comment": "本文件由脚本生成，数字全部来自磁盘实测。重跑：python source/upstream/inspect_upstreams.py",
   "totals": {
-    "installed_units": 44,
-    "total_size_kb": 2015455,
-    "total_files": 25583
+    "installed_units": 45,
+    "total_size_kb": 2059977,
+    "total_files": 25596
   },
   "probes": {
     "ray-optics.gallery_scene_items": 86,
@@ -72,6 +72,7 @@
     "webejs.wasm_artifacts": 0,
     "resources.html_pages": 201,
     "3jcn.pages_mirrored": 8,
+    "phet.published_html5_sims": 13,
     "3jcn.catalog_links": 90
   },
   "units": [
@@ -399,6 +400,20 @@
         "LICENSE"
       ],
       "id": "csm"
+    },
+    {
+      "path": "phet/published",
+      "installed": true,
+      "commit": "2364c9839e8583cb950b8b846bd05c60c8650d69",
+      "branch": "main",
+      "upstream_commit_date": "2026-10-19T14:35:43+08:00",
+      "size_kb": 44522,
+      "files": 13,
+      "top_extensions": {
+        ".html": 13
+      },
+      "license_files": [],
+      "id": "phet-published-html5"
     },
     {
       "path": "phet/libs/assert",
