@@ -60,3 +60,5 @@
 * 驱动台另外补了两处自查：`--offline` 的「被拦」按运行期/排版分档（`.css`/`.ico` 拦掉只是排版塌，`.js/.json/.gltf/.png` 拦掉才是场景出不来），以及新增控制台与 `requestfailed` 采集——上一版这两样都没有，所以「0 异常」被误读过一次。
 * **仍未做的一半**照旧：这一页 `readout_tokens` 为空（读数画在 3D 文字里），「Agent 改参 → 解析式对账」还是空白，状态只到 **UI 可驱动 + canvas 可观测**，不标 `engine_*_verified`。证据 `../../library/jcn3-apparent-weight-offline.json`、`diag-offline-neton.json`、`diag-offline-netoff.json`。
 
+十 pass（同日，进行中）：`jcn3_batch_probe.mjs` 已按三条重写（打 `offline/` 派生树 + 脚本自起同源伺服 + 掐掉非本机请求；画面只取 `<canvas>` 元素像素，没有 canvas 记 `canvas_absent`；`--repeat` 连跑多趟，只有趟趟一致才算稳定，否则单列 `*_unstable`）。**逐页新分档尚未落进本文件**——跑完再写，命令是 `node source/library/jcn3_batch_probe.mjs --tree offline --repeat 2`（约 31 页 × 2 趟）。在此之前，上面第七 pass 那批「12 份画面可驱动」只能按作废口径读；`3jcn-offline-ab-vendor.json` 与 `jcn3-offline-ab-vendor.json`（若有）留的是收紧判据后的现场，画面那一项写的是 `usable=false` 而不是「变化」。
+
