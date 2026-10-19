@@ -1,0 +1,199 @@
+{
+  "model_file": "source\\upstream\\resources\\docs\\CollectionTest\\webejs_model_MultislitDiffraction.zip",
+  "source_member": "_source.ejss",
+  "title": "Multislit Diffraction",
+  "author": "W. Christian",
+  "copyright": "",
+  "library": "无",
+  "frames_per_second": "20",
+  "steps_per_display": "1",
+  "use_interpreter": "true",
+  "variables_total": 22,
+  "variables_public": 22,
+  "public_variables": [
+    {
+      "name": "font",
+      "type": "String",
+      "domain": "public",
+      "dimension": "",
+      "value": "\"normal normal 1.1vw \"",
+      "comment": ""
+    },
+    {
+      "name": "xscale",
+      "type": "int",
+      "domain": "public",
+      "dimension": "",
+      "value": "2*Math.PI",
+      "comment": ""
+    },
+    {
+      "name": "width",
+      "type": "int",
+      "domain": "public",
+      "dimension": "",
+      "value": "700",
+      "comment": ""
+    },
+    {
+      "name": "height",
+      "type": "int",
+      "domain": "public",
+      "dimension": "",
+      "value": "300",
+      "comment": ""
+    },
+    {
+      "name": "n",
+      "type": "int",
+      "domain": "public",
+      "dimension": "",
+      "value": "4*1024",
+      "comment": "scale of x-axis; proportional to distance to screen"
+    },
+    {
+      "name": "unitvec",
+      "type": "double",
+      "domain": "public",
+      "dimension": "[n]",
+      "value": "1",
+      "comment": ""
+    },
+    {
+      "name": "xvec",
+      "type": "double",
+      "domain": "public",
+      "dimension": "[n]",
+      "value": "0",
+      "comment": ""
+    },
+    {
+      "name": "yvec",
+      "type": "double",
+      "domain": "public",
+      "dimension": "[n]",
+      "value": "0",
+      "comment": "diffraction intensity values"
+    },
+    {
+      "name": "uvec",
+      "type": "double",
+      "domain": "public",
+      "dimension": "[n]",
+      "value": "0",
+      "comment": "single slit envelope"
+    },
+    {
+      "name": "colors",
+      "type": "Object",
+      "domain": "public",
+      "dimension": "[n]",
+      "value": "'rgb(0, 0, 0)'",
+      "comment": ""
+    },
+    {
+      "name": "layout",
+      "type": "Object",
+      "domain": "public",
+      "dimension": "",
+      "value": "null",
+      "comment": ""
+    },
+    {
+      "name": "showEnvelope",
+      "type": "boolean",
+      "domain": "public",
+      "dimension": "",
+      "value": "true",
+      "comment": ""
+    },
+    {
+      "name": "intensityTrace",
+      "type": "Object",
+      "domain": "public",
+      "dimension": "",
+      "value": "null",
+      "comment": ""
+    },
+    {
+      "name": "envelopeTrace",
+      "type": "Object",
+      "domain": "public",
+      "dimension": "",
+      "value": "null",
+      "comment": ""
+    },
+    {
+      "name": "traces",
+      "type": "Object",
+      "domain": "public",
+      "dimension": "",
+      "value": "null",
+      "comment": ""
+    },
+    {
+      "name": "",
+      "type": "double",
+      "domain": "public",
+      "dimension": "",
+      "value": "",
+      "comment": ""
+    },
+    {
+      "name": "N",
+      "type": "double",
+      "domain": "public",
+      "dimension": "",
+      "value": "3",
+      "comment": "number of slits"
+    },
+    {
+      "name": "D",
+      "type": "double",
+      "domain": "public",
+      "dimension": "",
+      "value": "10",
+      "comment": "slit width in microns between 1 and 100"
+    },
+    {
+      "name": "d",
+      "type": "double",
+      "domain": "public",
+      "dimension": "",
+      "value": "100",
+      "comment": "slit separation in microns between 120% of slit width and 300"
+    },
+    {
+      "name": "lambda",
+      "type": "double",
+      "domain": "public",
+      "dimension": "",
+      "value": "0.40",
+      "comment": "wavelength in microns between 0.1 and 1"
+    },
+    {
+      "name": "L",
+      "type": "double",
+      "domain": "public",
+      "dimension": "",
+      "value": "100",
+      "comment": "distance to screen"
+    },
+    {
+      "name": "",
+      "type": "double",
+      "domain": "public",
+      "dimension": "",
+      "value": "",
+      "comment": ""
+    }
+  ],
+  "internal_or_private_variables": [],
+  "code_blocks": {
+    "Osejs.Model.Initialization": "MathJax.Hub.Queue([\"Typeset\",MathJax.Hub]);\n\nlet delta =xscale/(n-1);\nlet xi=-xscale/2;\nfor (let i = 0; i < n; i++) {\n  xvec[i]=xi;\n  let yi=getMultiSlitAmp(xi);\n  yvec[i]=yi*yi;\n  let ui=getSingleSlitAmp(xi);\n  uvec[i]=ui*ui;\n  xi+=delta;\n}\nvar newColors=intensityToRGBScale(yvec);\nfor (let i = 0; i < n; i++) {\n  colors[i]=newColors[i];\n}\nlayout = {\n  margin: {\n    l: 0,\n    r: 0,\n    b: 0,\n    t: 0\n  } ,\n  xaxis: {\n    visible: false\n  } ,\n  yaxis: {\n    visible: false\n  } ,\n  bargap: 0,\n  plot_bgcolor: '#000000',\n  //paper_bgcolor:\"white\",\n  width: width, // Set fixed width\n  height: height, // Set fixed height\n  showlegend: false, // Hide the legend\n  yaxis: { range: [0, 1]}\n} ;\n\nintensityTrace={\n    x: xvec,\n    y: yvec,\n    mode: \"lines\",\n    line: {\n      color: \"red\",\n      width: 2\n    }\n}\n\nenvelopeTrace={\n    x: xvec,\n    y: uvec,\n    mode: \"lines\",\n    line: {\n      color: \"purple\",\n      width: 2,\n      shape: 'spline'\n    }\n} \n\ntraces =[ {\n    x: xvec,\n    y: unitvec,\n    type: 'bar',\n    marker:{color:colors}\n  },\n  intensityTrace,\n  envelopeTrace\n]\n\n// Create plot\nPlotly.newPlot(\"plotlyPanel\",traces, layout);",
+    "Osejs.Model.Evolution": "",
+    "Osejs.Model.Constraints": "",
+    "Osejs.Model.Library": "function intensityToRGBScale(intensities) {\n  const normalizedValues = intensities.map(value => value / Math.max(...intensities));\n  vals=lightPalette(lambda);\n  r=vals[0];\n  g=vals[1];\n  b=vals[2];\n  //return normalizedValues.map(value => `rgb(${Math.floor(value * r)}, ${Math.floor(value * g)}, ${Math.floor(value * b)})`);\n  return normalizedValues.map(value => `rgb(${Math.floor(Math.sqrt(value) * r)}, ${Math.floor(Math.sqrt(value) * g)}, ${Math.floor(Math.sqrt(value) * b)})`);\n}\n\nfunction getSingleSlitAmp(x){\n  alpha=Math.PI*x*D/L/lambda;\n  if(alpha==0){\n    return 1;\n  }else{\n    return Math.sin(alpha)/alpha;\n  } \n}\n\nfunction getMultiSlitAmp(x){\n  if (N==1){\n    return getSingleSlitAmp(x);\n  }\n  beta=Math.PI*x*d/L/lambda;\n  return getSingleSlitAmp(x)*Math.sin(N*beta)/Math.sin(beta)/N;\n}\nconst HSBToRGB = (h, s, b) => {\n  s /= 100;\n  b /= 100;\n  const k = (n) => (n + h / 60) % 6;\n  const f = (n) => b * (1 - s * Math.max(0, Math.min(k(n), 4 - k(n), 1)));\n  return [255 * f(5), 255 * f(3), 255 * f(1)];\n};\n\nfunction lightPalette(wavelength) {\n    var h=(-2.5*wavelength+1.625);\n    var s=1;\n    if(wavelength>=0.65){\n      h=0;\n      s=(1-wavelength)/0.35;\n     }\n    if(wavelength<=0.35){\n      h=0.75;\n      s=(wavelength/0.35);\n    }\n   return HSBToRGB(360*h, 100*s, 100);\n}\nfunction redrawTraces() {   // assumes xvec has not changed\n  for (let i = 0; i < n; i++) {\n    let xi=xvec[i];\n    yi=getMultiSlitAmp(xi);\n    yvec[i]=yi*yi;\n    let ui=getSingleSlitAmp(xi);\n    uvec[i]=ui*ui;\n  }\n  var newColors=intensityToRGBScale(yvec);\n  for (let i = 0; i < n; i++) {\n    colors[i]=newColors[i];\n  }\n  // Update the y trace with new data\n  Plotly.restyle(\"plotlyPanel\", 'y', [yvec], [1]); // 0 refers to the index of the trace\n}\n\nfunction showTraces(show){\n  traces[1].visible=show;\n  traces[2].visible=show;\n  redrawTraces();\n}",
+    "Osejs.Description": "./MultipleSlitDiffraction/MultipleSlitDiffraction.html"
+  }
+}

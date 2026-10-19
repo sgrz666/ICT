@@ -1,0 +1,215 @@
+{
+  "generated_at": "2026-10-19T06:16:46.489Z",
+  "engine": "上游 EJSS 模型原文函数（Multislit Diffraction，作者 W. Christian；从 webejs_model_MultislitDiffraction.zip 的 _source.ejss 抽出 Osejs.Model.Library 里的 getSingleSlitAmp/getMultiSlitAmp 后在 Node 执行）；参数取模型自带的 public 变量 {\"width\":700,\"height\":300,\"unitvec\":1,\"xvec\":0,\"yvec\":0,\"uvec\":0,\"N\":3,\"D\":10,\"d\":100,\"lambda\":0.4,\"L\":100}",
+  "run_command": "node source/library/interference_lab.mjs --json",
+  "extraction_tool": "source/upstream/probe_ejss_model.py",
+  "pass": 5,
+  "fail": 0,
+  "results": [
+    {
+      "id": "interference-fringe-spacing",
+      "title": "多缝主极大间距 = λL/d（模型自己的 getMultiSlitAmp 跑出来的曲线）",
+      "engine": {
+        "model": "Multislit Diffraction",
+        "author": "W. Christian",
+        "params": {
+          "width": 700,
+          "height": 300,
+          "unitvec": 1,
+          "xvec": 0,
+          "yvec": 0,
+          "uvec": 0,
+          "N": 3,
+          "D": 10,
+          "d": 100,
+          "lambda": 0.4,
+          "L": 100
+        },
+        "peaks_found": 9,
+        "first_peaks": [
+          -1.59803,
+          -1.1991,
+          -0.79863,
+          -0.3997,
+          -0.00077
+        ],
+        "mean_spacing": 0.399508
+      },
+      "formula": "d·sinθ = mλ，小角下 x_m = mλL/d ⇒ Δx = λL/d",
+      "checks": [
+        {
+          "metric": "主极大间距 (模型单位)",
+          "measured": 0.3995078,
+          "analytic": 0.4,
+          "rel_error_pct": 0.123,
+          "tolerance_pct": 2,
+          "verdict": "pass"
+        },
+        {
+          "metric": "中央主极大在 x=0",
+          "measured": 0.0007671777,
+          "analytic": 0,
+          "rel_error_pct": 0.001,
+          "tolerance_pct": 100,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "interference-single-slit-envelope",
+      "title": "单缝包络第一极小 = λL/D，且它正好把第 d/D 级干涉主极大「吃掉」（缺级）",
+      "engine": {
+        "env_zero_measured": 4.001465,
+        "env_zero_analytic": 4,
+        "missing_order": 10,
+        "x_of_missing_order": 4,
+        "I_at_that_order": 1.34e-7,
+        "envelope_at_that_order": 1.34e-7,
+        "note": "模型绘图窗 ±3.14 装不下 x=4，这条把取样范围放宽到 ±6（函数是纯的，不改模型）"
+      },
+      "formula": "D·sinθ = λ ⇒ 包络第一极小 x = λL/D；当 d/D 为整数时第 d/D 级主极大恰落在该处 ⇒ 缺级",
+      "checks": [
+        {
+          "metric": "包络第一极小位置",
+          "measured": 4.001465,
+          "analytic": 4,
+          "rel_error_pct": 0.037,
+          "tolerance_pct": 3,
+          "verdict": "pass"
+        },
+        {
+          "metric": "第 10 级主极大消失：I < 1e-4",
+          "value": 1.34e-7,
+          "tolerance": 0.0001,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "interference-secondary-maxima",
+      "title": "次极大个数 = N−2（改缝数立刻跟着变）",
+      "engine": [
+        {
+          "N": 1,
+          "maxima_in_first_gap": 0,
+          "expected": 0,
+          "total_strong_maxima": 1
+        },
+        {
+          "N": 2,
+          "maxima_in_first_gap": 0,
+          "expected": 0,
+          "total_strong_maxima": 15
+        },
+        {
+          "N": 3,
+          "maxima_in_first_gap": 1,
+          "expected": 1,
+          "total_strong_maxima": 31
+        },
+        {
+          "N": 5,
+          "maxima_in_first_gap": 3,
+          "expected": 3,
+          "total_strong_maxima": 63
+        }
+      ],
+      "formula": "N 缝：相邻主极大之间有 N−2 个次极大、N−1 个极小",
+      "checks": [
+        {
+          "metric": "N=1：两主极大之间次极大数 = N−2",
+          "found": 0,
+          "analytic": 0,
+          "verdict": "pass"
+        },
+        {
+          "metric": "N=2：两主极大之间次极大数 = N−2",
+          "found": 0,
+          "analytic": 0,
+          "verdict": "pass"
+        },
+        {
+          "metric": "N=3：两主极大之间次极大数 = N−2",
+          "found": 1,
+          "analytic": 1,
+          "verdict": "pass"
+        },
+        {
+          "metric": "N=5：两主极大之间次极大数 = N−2",
+          "found": 3,
+          "analytic": 3,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "interference-parameter-response",
+      "title": "改参与读数跟着变：λ×2 ⇒ 间距×2；d×2 ⇒ 间距÷2",
+      "engine": {
+        "base_spacing": 0.399508,
+        "lambda_x2_spacing": 0.799143,
+        "d_x2_spacing": 0.199946
+      },
+      "formula": "Δx = λL/d",
+      "checks": [
+        {
+          "metric": "λ 翻倍后的间距比",
+          "measured": 2.00032,
+          "analytic": 2,
+          "rel_error_pct": 0.016,
+          "tolerance_pct": 3,
+          "verdict": "pass"
+        },
+        {
+          "metric": "d 翻倍后的间距比",
+          "measured": 0.5004801,
+          "analytic": 0.5,
+          "rel_error_pct": 0.096,
+          "tolerance_pct": 3,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "interference-normalisation-trap",
+      "title": "模型把多缝振幅除以 N 归一化 ⇒ 中央主极大恒为 1，不能拿它当「强度 ∝ N²」的证据",
+      "engine": [
+        {
+          "N": 1,
+          "central_I": 1
+        },
+        {
+          "N": 2,
+          "central_I": 0.999964
+        },
+        {
+          "N": 5,
+          "central_I": 0.999709
+        },
+        {
+          "N": 12,
+          "central_I": 0.998271
+        }
+      ],
+      "formula": "上游原文：getMultiSlitAmp = getSingleSlitAmp(x)·sin(Nβ)/sin(β)/N（末尾除 N）",
+      "checks": [
+        {
+          "metric": "各 N 下中央强度都是 1（±1%）",
+          "values": [
+            1,
+            0.999964,
+            0.999709,
+            0.998271
+          ],
+          "verdict": "pass"
+        }
+      ],
+      "note": "教学上真要讲「缝越多主越亮」，得自己按未归一化的 (sin Nβ/sin β)² 出数，或在读数时乘 N²。这条是模板必须写清楚的坑，不是模型的错。",
+      "verdict": "pass"
+    }
+  ]
+}

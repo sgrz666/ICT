@@ -4,7 +4,7 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
 
 ## 内容
 
-- `upstream.lock.json` — 上游的权威记录，**这里记的每一条要么是从上游文件里读到的，要么是本机真实跑过的输出**；未跑的一律标 `pending`，不写成已完成。2026-10-19 资源库安装轮之后共 **11 条**：`ray-optics`（已接通）、`myphysicslab`（**已实测 tsc 构建 + 无头单摆周期与解析式吻合**）、`rapier`（**已实测无头自由落体与解析式吻合**的 3D 引擎）、`matter-js`/`three`（组件已在 Node 跑通步进/几何）、`circuitjs1`/`stellarium-web-engine`/`webots`/`phet`（源码已装，构建或本体 pending）、`osp-singapore-ejss`（**本轮新装，6 个仓库/1.0 GB**，见下表）、`3jcn`（**本轮新装目录镜像**，无可运行产物）。逐条要点：
+- `upstream.lock.json` — 上游的权威记录，**这里记的每一条要么是从上游文件里读到的，要么是本机真实跑过的输出**；未跑的一律标 `pending`，不写成已完成。2026-10-19 资源库安装轮之后共 **11 条**：`ray-optics`（已接通）、`myphysicslab`（**已实测 tsc 构建 + 无头单摆周期与解析式吻合**）、`rapier`（**已实测无头自由落体与解析式吻合**的 3D 引擎）、`matter-js`/`three`（组件已在 Node 跑通步进/几何）、`circuitjs1`/`stellarium-web-engine`/`webots`/`phet`（源码已装，构建或本体 pending）、`osp-singapore-ejss`（**本轮新装，6 个仓库/1.0 GB**，见下表；控制面已用 `probe_ejss_model.py` 实测走通**一个**模型，其余仍 pending）、`3jcn`（**本轮新装目录镜像**，无可运行产物）。逐条要点：
   - `ray-optics`（**已接通，首批唯一**）：Ray Optics Simulation 5.5.0，Apache-2.0，master @ `daf76772`（与 `git ls-remote` 一致），浅克隆 20M / 1080 文件。含安装（901 包 / 56 s / 324M）、构建（`dist-node/rayOptics.js` 1,715,044 字节；静态完整构建产物含全量 81 个案例场景 JSON 与 770 个多语言页面）、无头调用方式、序列化与对象身份实测、已知坑（optionalDependencies 静默失败、webpack 构建必须在目录内跑、`updateSimulation` 必须显式调、浅克隆 buildPages 需要退化静态贡献者兜底等）。
   - 其余各条按上面的口径逐条记录 fetch 命令、commit、许可证实测首行、体积、以及「为什么这么装」（Webots 4.2 GB 与 three.js 1.7 GB 走稀疏检出，Rapier 的 wasm 只在 npm 里，PhET 的 main 已空心化，OSP 家族只浅克隆单个分支）。
   - `osp-singapore-ejss` 这一条**推翻了自己上一轮的结论**：旧记录写「找不到权威可克隆的仓库」，实际是搜索方式错了（猜组织名 wejen / osp-tools / compadre-io 全 404）。本轮 `GET /orgs/OpenSourcePhysics/repos` 实测返回 13 个仓库，随即装了 6 个。教训写进下面的纪律节。
@@ -17,6 +17,8 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
   - `3jcn/fetch_3jcn_index.py` — 抓 3JCN 的 8 个目录页存 `3jcn/pages/`（`.gitignore` 挡住），抽 `<a>` 生成 `3jcn/3jcn-inventory.json`（实测 8/8 页、90 条链接）。只证明「目录抓得下来」，不证明演示可改参。
   - `inspect_upstreams.py` — 扫描已装引擎生成 `inventory.json`（**2026-10-19 本轮重跑：44 个安装单元 / 25,583 文件 / 2,015,455 KB，工作区体积不含 `.git`**，所以比 `du` 小；上一次的 38 / 18,473 / 1,281,191 是构建产物落盘前的数）。新装的 6 个仓库已进 UNITS，探针另记 `.java`/`.js`/`.wasm`/`.html` 数量与 STP 热学包目录清单。
   - `probe_myphysicslab.mjs` / `probe_myphysicslab_spring.mjs` + 两份 `probe-myphysicslab*.json` — myPhysicsLab 无头可控性实测与落盘结果（单摆周期、弹簧振子的胡克定律与周期）。前置：`cd source/upstream/myphysicslab && npm install --no-save typescript && npx tsc`（`build/` 是生成物，不入库）；跑法 `node source/upstream/probe_myphysicslab.mjs`。实测：上游自己的 `PendulumSim`（L=1 m、g=9.8、θ0=0.1 rad、dt=0.001 s，跑 30 s）测得周期 **2.00835 s**，一级大角度解析值 **2.00834 s**（偏差 0.0000%）、小角度值 2.00709 s（偏差 +0.0625%，正是 θ0²/16 的修正量）。⇒ myPhysicsLab 是第二个能无头出数、并能与解析式独立对照的引擎。
+  - `probe_ejss_model.py` — 2026-10-19 新增：**EJSS/OSP 模型的控制面探针**。`python source/upstream/probe_ejss_model.py <模型或zip路径> --json` 会解压 `.zip`、按文件头判断编码（`_source.ejss` 实测是 **UTF-16**，头两字节 `0xff 0xfe`；按 UTF-8 读只得到乱码），读 `_metadata.txt` 的键值，再解析 `Osejs.Model.Variables` 下的 `<Variable>` 块（名称/值/类型/Domain/Comment，即 Agent 能改的参数表）与 `Osejs.Model.*` 的明文代码块。对 `resources/docs/CollectionTest/webejs_model_MultislitDiffraction.zip`（382,210 字节，在 **resources** 仓不是 webejs 仓）实测：`_source.ejss` 解压后 49,802 字节，public 变量 **22 个**（N=3、D=10、d=100、lambda=0.4、L=100、width/height 等），`Osejs.Model.Library` 代码块 1,841 字符（`getSingleSlitAmp` / `getMultiSlitAmp` 就在这里），`Osejs.Model.Evolution` 与 `Constraints` 均为空；结果落 `ejss-multislit-probe.json`。
+  - **同一份实测里还有一个反常识的坑**：`_metadata.txt` 声明 `source: _source.json`、`main-script:`（空），而压缩包里**只有 `_source.ejss`，没有 `_source.json`** ⇒ 这个"可部署包"对自己的运行时是不完整的，浏览器里打不开。所以"iframe 能打开"在这里连表象都没有，能走的只有"读参数表 + 执行模型自带函数"这条：下游 `../library/interference_lab.mjs` 正是这么做的，5/5 对上了 `d·sinθ=mλ`、`D·sinθ=λ`、缺级与 `N−2` 次极大。
 - **引擎目录**（引擎本体全部由 `.gitignore` 挡住不入库，内部 README 属上游资产，保持原样；例外是 `3jcn/`——里面的抓取脚本、`3jcn-inventory.json` 与本目录 README 是项目侧资产，入库，只有 `3jcn/pages/` 的第三方 HTML 被挡）。体积为 `inventory.json` 实测：
 
 | 目录 | 引擎 / 许可 | 装法 | 工作区体积 | 文件数 | 状态 |
@@ -33,8 +35,8 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
 | `phet/sims/`（20 个） | PhET 仿真，GPL-3.0 | 按最新发行分支 `--depth 1` | 96,804 KB | 1,683 | 19 个有源码，`circuit-construction-kit-common` 实测仍是空壳 |
 | `osp/` | OSP 核心库，**无 LICENSE 文件**（实测 `license_files` 为空） | `--depth 1 --single-branch` | 185,194 KB | 1,293 | 只读参考；`.java` 807 个；许可未定 ⇒ 禁止进交付包 |
 | `osp_ejs/` | EJS 编译器内核，**无 LICENSE 文件** | 同上 | 15,353 KB | 636 | 只读参考；`.java` 567 个：改参 = 改 `.ejs` 再重新编译 |
-| `webejs/` | Web EJS 静态运行时，GPL-3.0 | 同上 | 74,006 KB | 2,282 | `.js` 925 个、`.wasm` 0 个、`.html` 26 个：EJSS 模型在浏览器里跑的那层，装上了但控制面未验 |
-| `resources/` | OSP 文档与收藏页，GPL-3.0 | 同上 | 297,553 KB | 865 | `.html` 201 个（docs/ 按会议与收藏分目录）；不是可直接改参的实验源 |
+| `webejs/` | Web EJS 静态运行时，GPL-3.0 | 同上 | 74,006 KB | 2,282 | `.js` 925 个、`.wasm` 0 个、`.html` 26 个：EJSS 模型在浏览器里跑的那层。本轮实测**没用到它**——`interference_lab.mjs` 走的是「读 `.ejss` 参数表 + 执行模型自带函数」，不经过这层运行时 |
+| `resources/` | OSP 文档与收藏页，GPL-3.0 | 同上 | 297,553 KB | 865 | `.html` 201 个（docs/ 按会议与收藏分目录）。**双缝干涉那条实验的种子就在这里**（`docs/CollectionTest/webejs_model_MultislitDiffraction.zip`，382 KB），已用 `probe_ejss_model.py` 读出参数表并执行其物理函数；其余模型仍只是文件 |
 | `STP/` | Statistical and Thermal Physics，GPL-3.0 | 同上 | 12,570 KB | 140 | `.java` 123 个；`stp/` 下实测有 idealgas、idealgasintegrals、thermalcontact、carnot、entropy、diffusion、boltzmann 等包 ⇒ 热学终于有上游真代码可对照 |
 | `csm/` | Computer Simulation Methods，GPL-3.0 | 同上 | 752 KB | 198 | `.java` 195 个：MD/Ising 的独立参考实现，可当热学的第二个意见 |
 | `3jcn/` | 3JCN 目录镜像，**站点未声明开源许可** | `3jcn/fetch_3jcn_index.py` 抓页 | 205 KB（pages/） | 8 页 + 清单 | 只有 90 条链接的检索清单，无产物、控制面 pending |
@@ -52,8 +54,8 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
 - 升级上游 = 重新克隆 + 更新 lock 文件的 commit 与实测记录，**不**在旧检出上打补丁。
 - lock 文件里的「实测」条目必须可复现；写新条目时把命令和输出一起记。
 - **稀疏检出的仓库必须把 LICENSE/NOTICE 一并检出**。three.js 第一次稀疏只取了 `src / examples/jsm / build`，仓库根 LICENSE 不在盘上——MIT 组件缺许可证文本是合规缺陷，不是小事（已补，见 lock 里 three 的 known_pits）。
-- **别把「装上了」写成「接通了」**。本目录现在的状态分四层：① Ray Optics 已接通（有模板、有适配器、出过离线包），并已用 `../library/optics_hall.mjs` 把平面镜/折射/全反射/凹透镜/三棱镜五项对了解析式（5/5 pass）；② myPhysicsLab、Rapier、Matter 已实测「无头能出数、数值能与解析式对照」（myPhysicsLab：单摆、弹簧、**绳波（PDE `sims/pde/StringSim`）5/5**、**牛顿摆（`NewtonsCradleApp.make` + `ContactSim` 事件式碰撞）5/5**；Rapier：自由落体、带电粒子、弹性碰撞、**理想气体压强与三条状态律 6/6**、**开普勒三定律 6/6**；Matter：抛体、碰撞），但还没有模板与适配器；③ Matter/three 的 npm 组件在本机 Node 里跑通了步进与几何；CircuitJS1 走的是「同源浏览器 + 官方 JS 接口」这条第四类路径（能改参能读数，但不是无头，进不了 CI）；④ 其余引擎只是源码或目录落盘（OSP 家族 6 仓、3JCN 镜像、Webots 本体、Stellarium 构建、PhET 生产包），构建或控制面仍 pending。对外描述资源库进度时按这四层说。
+- **别把「装上了」写成「接通了」**。本目录现在的状态分四层：① Ray Optics 已接通（有模板、有适配器、出过离线包），并已用 `../library/optics_hall.mjs` 把平面镜/折射/全反射/凹透镜/三棱镜五项对了解析式（5/5 pass）；② myPhysicsLab、Rapier、Matter 已实测「无头能出数、数值能与解析式对照」（myPhysicsLab：单摆、弹簧、**绳波（PDE `sims/pde/StringSim`）5/5**、**牛顿摆（`NewtonsCradleApp.make` + `ContactSim` 事件式碰撞）5/5**；Rapier：自由落体、带电粒子、弹性碰撞、**理想气体压强与三条状态律 6/6**、**开普勒三定律 6/6**；Matter：抛体、碰撞），但还没有模板与适配器；③ Matter/three 的 npm 组件在本机 Node 里跑通了步进与几何；CircuitJS1 走的是「同源浏览器 + 官方 JS 接口」这条第四类路径（能改参能读数，但不是无头，进不了 CI）；④ 其余引擎只是源码或目录落盘（3JCN 镜像、Webots 本体、Stellarium 构建、PhET 生产包），构建或控制面仍 pending；OSP 家族 6 仓里**只有双缝干涉这一个模型**的控制面被实测走通（`probe_ejss_model.py` 读参数表 + 执行模型自带函数，5/5），其余模型/仓库仍属这一层。对外描述资源库进度时按这四层说。
 - **上游没装成之前，别急着写「找不到权威来源」**。本轮两条旧结论都被推翻了：OSP 的组织名是 `OpenSourcePhysics`（旧记录猜 wejen/osp-tools/compadre-io 全 404 就判「不装」），3JCN 是静态站（旧记录判「Java applet 时代不可锁定」）。正确动作是先打 `api.github.com/orgs/<候选>/repos`、`api.github.com/search/repositories?q=…` 与站点 HTTP 头，拿到返回再下结论；结论被推翻时在 lock 里写明撤销了哪句（本轮已写）。
 - **仓库根没有 LICENSE 文件 = 许可未定，不是「默认可以用」**。`osp/` 与 `osp_ejs/` 实测无 LICENSE/COPYING，只能只读参考；要进任何交付包，先取得书面授权说明并登记进 lock。
-- 改过上游清单（增删目录、换分支、换克隆方式）后，**重跑 `inspect_upstreams.py` 与 `python source/library/check_catalog.py`**，两边数字与路径要一致；后者 missing 不为 0 就不算装完。本轮实测：65 条路径 / missing 0，44 个安装单元。
+- 改过上游清单（增删目录、换分支、换克隆方式）后，**重跑 `inspect_upstreams.py` 与 `python source/library/check_catalog.py`**，两边数字与路径要一致；后者 missing 不为 0 就不算装完。本轮实测：68 条路径 / missing 0，44 个安装单元。
 - 遍历本目录的脚本必须先剪枝：`phet/`、`webots/`、`three/` 等每个引擎目录都自带 `.git`，文件总数上万，用 `rglob`/`find` 全走一遍会明显变慢（AGENTS.md 第 4 节同一口径）。

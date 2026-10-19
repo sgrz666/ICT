@@ -227,8 +227,8 @@
       "upstream": "https://github.com/OpenSourcePhysics/{osp,osp_ejs,webejs,resources,STP,csm}",
       "commit": "ed085a921f61de653ad48570d2d566268049df63",
       "version": "6 个仓库分别锁 commit，见 upstream.lock.json 的 osp-singapore-ejss.repos[]",
-      "headless": "pending：本机 Java 23 已装（实测 java -version 输出 java version \"23\" 2024-09-17），但 OSP/STP 的 Ant + SwingJS 构建一次都没跑过；webejs 是纯静态资源（实测 .js 925 个、.wasm 0 个），没有可在 Node 里 import 的入口",
-      "agent_control_surface": "EJSS 线的改参 = 改 .ejs 模型定义再用 osp_ejs 重新编译；Web EJS 侧运行时参数面未实测 ⇒ pending。装上了不等于 Agent 能控，别和 ray-optics 的原生场景 JSON 混为一谈",
+      "headless": "已实测第一条通路（2026-10-19）：probe_ejss_model.py 能把 .ejss/.ejs/打包 zip 的参数表与代码块解析出来，interference_lab.mjs 直接拿模型原文的振幅函数在 Node 里出数并对解析式（5/5）；但模型自带的浏览器运行时（webejs + Plotly 视图）仍没跑过",
+      "agent_control_surface": "EJSS 模型的改参通路已实测：XML 的 public 变量表就是参数面（多缝衍射那一份实测 22 个 public 变量，含 N/D/d/lambda/L 及注释里写明的取值范围），代码块是 Osejs.Model.Library / Initialization；不必再猜「EJSS 能不能被 Agent 改」",
       "resource_seeds": {
         "STP_java_sources": 123,
         "csm_java_sources": 195,
@@ -239,6 +239,8 @@
       },
       "known_pits": [
         "上一轮「找不到权威仓库」的结论是错的：组织名是 OpenSourcePhysics，实测 GET /orgs/OpenSourcePhysics/repos 返回 13 个仓库。教训：找不到来源时先查组织与搜索 API，再下「不装」的结论。",
+        "ejss 存盘是 UTF-16（实测首字节 0xff 0xfe），按 utf-8 读会直接 UnicodeDecodeError ⇒ probe_ejss_model.py 里 utf-16 优先",
+        "模型可能只给 .ejss 源码而不给编译产物（这份多缝模型的 _metadata.txt 里 main-script 为空）⇒ 别假设能当静态网页直接交付",
         "osp 与 osp_ejs 无 LICENSE ⇒ 任何分发/嵌入前必须先取得授权说明，否则就是合规窟窿。",
         "这批是 Java 桌面系（Swing/SwingJS）+ 静态 CDN 资源，形态与「浏览器离线交付包」不同路；webejs 只有 74 MB 工作区静态资源，模型本体不在里面。",
         "resources/ 的 201 个 html 是文档与收藏页，不是可直接改参的实验源。"
@@ -855,6 +857,7 @@
       "form": "2D",
       "priority": "P1",
       "engines": [
+        "osp-ejss",
         "phet",
         "ray-optics"
       ],
@@ -865,29 +868,45 @@
       ],
       "agent_params": [
         {
-          "name": "slit_spacing",
-          "kind": "缝间距"
+          "name": "N",
+          "kind": "缝数（模型默认 3）"
         },
         {
-          "name": "wavelength",
-          "kind": "波长"
+          "name": "d",
+          "kind": "缝间距 µm（默认 100）"
         },
         {
-          "name": "screen_distance",
-          "kind": "屏距"
+          "name": "D",
+          "kind": "单缝宽度 µm（默认 10）"
+        },
+        {
+          "name": "lambda",
+          "kind": "波长 µm（默认 0.40）"
+        },
+        {
+          "name": "L",
+          "kind": "到屏距离（默认 100）"
+        },
+        {
+          "name": "showEnvelope",
+          "kind": "是否画单缝包络（boolean）"
         }
       ],
-      "readback": "屏上强度分布（亮纹位置）",
+      "readback": "I(x) 强度曲线（4096 点）、单缝包络 u(x)、主极大/次极大/缺级位置；全部由模型自己的函数算出",
       "acceptance": {
-        "formula": "亮纹 d·sin θ = mλ，屏上间距 Δy ≈ λL/d",
-        "tolerance": "≤5%（离散采样）",
-        "independent_reference": "Python 叠加求和（两点源相位差）"
+        "formula": "d·sinθ=mλ ⇒ Δx=λL/d；D·sinθ=λ ⇒ 包络第一极小 x=λL/D；两主极大之间次极大数 = N−2；d/D 为整数时该级主极大缺级",
+        "tolerance": "≤3%",
+        "independent_reference": "干涉理论解析式（脚本里独立实现，不读模型自画的图）"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
-        "几何光学引擎不做波动叠加，这条只能靠 PhET 或自建二维波动求解器；先标 pending",
-        "本轮在装好的 OSP resources 里找到一份上游多缝衍射模型（WebEJS 生成，_source.ejss 49,802 B 的 XML 模型定义 + _simulation.xhtml，作者 W. Christian，33 个文件 663,117 B）；它没有编译产物（_metadata.txt 的 main-script 为空），要跑起来得走 webejs 运行时 + 浏览器，因此这条的改参与读数仍未验，状态保持 resource_installed"
-      ]
+        "模型自带绘图窗只有 ±xscale/2 ≈ ±3.14，装不下包络第一极小 x=4 ⇒ 验包络与缺级必须把取样范围放宽（函数是纯的，放宽取样不改模型），模板里 xscale 与绘图范围要单独交代",
+        "上游把多缝振幅除了 N 归一化 ⇒ 中央主极大恒等于 1，不能拿这条曲线讲「缝越多主极大越亮（∝N²）」；要讲得自己按未归一化的 (sin Nβ/sin β)² 出数或乘 N²（已作为一条判据钉在 interference-lab 里）",
+        "本轮执行的是模型的物理函数，视图层（Plotly/MathJax/webejs 运行时）没有跑；也就是说「读数对」已证，「原样网页渲染」未证"
+      ],
+      "harness": "source/library/interference_lab.mjs",
+      "measured_evidence": "source/library/interference-lab-evidence.json",
+      "measured_note": "2026-10-19 无头 5/5 pass。物理取自上游 EJSS 模型原文（resources/docs/CollectionTest/webejs_model_MultislitDiffraction.zip 的 _source.ejss → Osejs.Model.Library 里的 getSingleSlitAmp/getMultiSlitAmp，用 probe_ejss_model.py 抽出来在 Node 里执行，参数用模型自带 public 值 N=3、D=10、d=100、λ=0.40、L=100）：主极大间距 0.3995078 vs λL/d=0.4（0.123%）、包络第一极小 4.001465 vs 4（0.037%）、第 10 级（d/D）主极大 I=1.34e-7 ⇒ 缺级成立、次极大个数在 N=1/2/3/5 下分别是 0/0/1/3 = N−2、λ×2 ⇒ 间距比 2.00032、d×2 ⇒ 0.5004801"
     },
     {
       "id": "thermal-ideal-gas",
@@ -1098,6 +1117,9 @@
     "circuit_lab": "source/library/circuit-lab-evidence.json",
     "wave_lab": "source/library/wave-lab-evidence.json",
     "kepler_lab": "source/library/kepler-lab-evidence.json",
-    "cradle_lab": "source/library/cradle-lab-evidence.json"
+    "cradle_lab": "source/library/cradle-lab-evidence.json",
+    "interference_lab": "source/library/interference-lab-evidence.json",
+    "ejss_probe_tool": "source/upstream/probe_ejss_model.py",
+    "ejss_multislit_probe": "source/upstream/ejss-multislit-probe.json"
   }
 }

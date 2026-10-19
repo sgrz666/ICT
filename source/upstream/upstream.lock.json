@@ -1,6 +1,6 @@
 {
   "comment": "上游源码记录。本文件是 source/upstream 下唯一的自有文件；这里记的每一条要么是上游文件里读到的，要么是本机真实跑过的输出。未跑的一律标 pending，不写成已完成。",
-  "updated_at": "2026-10-19T14:13:30+08:00",
+  "updated_at": "2026-10-19T14:17:00+08:00",
   "upstreams": [
     {
       "id": "ray-optics",
@@ -666,9 +666,15 @@
       "toolchain_measured": "本机 Java 已装：java version \"23\" 2024-09-17（build 23+37-2369）⇒ 这批 Java 工程不是「装了解不开」，编译链在；但 OSP/STP 用 Ant + SwingJS + 自带 jars，实跑仍 pending，本轮没编译",
       "blockers": [
         "osp 与 osp_ejs 两个仓库没有 LICENSE 文件，许可未定 ⇒ 只读参考，不进任何交付包",
-        "EJSS 的「Agent 改参」路径本轮未验证：改 .ejs 定义 → osp_ejs 编译 → webejs 运行时加载，这三步一个都没跑过（pending）",
-        "resources/ 里的演示是否可批量改参未知，只有目录级实测"
-      ]
+        "resources/ 里的演示是否可批量改参未知，只有目录级实测",
+        "webejs 视图层（Plotly/MathJax 与页面加载链）仍没跑过：已证的是「参数面可读、模型物理函数可执行」，未证的是「原样网页渲染与交互」"
+      ],
+      "ejss_control_surface_2026-10-19": {
+        "status": "pass",
+        "measured": "probe_ejss_model.py 解析 resources 里那份 WebEJS 多缝衍射模型：22 个 public 变量（N=3、D=10、d=100、lambda=0.40、L=100、xscale=2π、n=4*1024…，注释里连取值范围都写了），Osejs.Model.Library 里是纯 JS 的 getSingleSlitAmp/getMultiSlitAmp。把这两个原文函数在 Node 里执行并对解析式：主极大间距 0.3995078 vs λL/d=0.4、包络第一极小 4.001465 vs 4、第 10 级缺级 I=1.34e-7、N=1/2/3/5 的次极大数 0/0/1/3 = N−2 ⇒ node source/library/interference_lab.mjs --json 5/5",
+        "corrected_claim": "撤销本文件 blockers 里「EJSS 的 Agent 改参路径本轮未验证」这一句的一半：参数面读取与模型物理函数执行都已经实测通；剩下的缺口是 webejs 浏览器运行时（视图层）没跑。",
+        "encoding_pit": "_source.ejss 是 UTF-16（首字节 0xff 0xfe），utf-8 读直接崩；_metadata.txt 的 main-script 为空 ⇒ 这类模型常常只有源码没有编译产物"
+      }
     },
     {
       "id": "3jcn",

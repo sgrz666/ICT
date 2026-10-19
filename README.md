@@ -68,13 +68,13 @@
 - [`output/`](output/README.md) — 运行产物与证据 → [`eduforge/`](output/eduforge/README.md) → [`reports/`](output/eduforge/reports/README.md) **验证证据** · [`artifacts/`](output/eduforge/artifacts/README.md) 运行期落盘 · [`candidates/`](output/eduforge/candidates/README.md) 离线包候选 · [`research/`](output/eduforge/research/README.md)（预留）
 - [`plan/`](plan/README.md) — 计划、排期与逐轮记录（只追加不回改）
 - [`scripts/`](scripts/README.md) — 工作区统一操作脚本（`eduforge.ps1`）
-- [`source/`](source/README.md) — 实验资源库三层 → [`upstream/`](source/upstream/README.md) 上游引擎源码（38 个安装单元，9 类引擎）· [`components/`](source/components/README.md) npm 组件与可加载性实测 · [`library/`](source/library/README.md) 实验目录（18 个优先实验映射到引擎与验收公式）
+- [`source/`](source/README.md) — 实验资源库三层 → [`upstream/`](source/upstream/README.md) 上游引擎源码（44 个安装单元，16 个引擎/资源目录）· [`components/`](source/components/README.md) npm 组件与可加载性实测 · [`library/`](source/library/README.md) 实验目录（18 个优先实验映射到引擎与验收公式）
 - [`task/`](task/README.md) — 赛题原件 · [`agent/`](agent/README.md) — 预留，当前只有一份 README
 
 ## 三条工作线
 
 1. **EduForge 主工程**（`code/eduforge`）：pnpm workspace（TypeScript 侧：engine-host / teacher-web / contracts）+ Python 包（agent / api / application / worker / validation / entrypoints）。模板与引擎描述在 `catalog/`，实测证据在 `output/eduforge/reports/`，排期闸门在 `plan/`。
-2. **实验资源库**（`source/`）：上游引擎本地化 + 组件安装 + 实验目录三层。`source/upstream` 已装 **16 个引擎/资源目录、44 个安装单元**（工作区文件 2,015,455 KB ≈ 1.9 GB，含 `.git` 实测 4,024,957 KB ≈ 3.8 GB），身份与构建结论锁在 `upstream.lock.json`；2026-10-19 本轮把简报里七项平台**全部落到磁盘**（新增 OSP 家族 6 仓 `osp/`、`osp_ejs/`、`webejs/`、`resources/`、`STP/`、`csm/` 与 3JCN 目录镜像 `3jcn/`），同时撤销了上一轮「这两项找不到权威来源所以不装」的结论——实测组织名是 `OpenSourcePhysics`、3JCN 是可抓的静态站；`source/components` 用 npm 钉版本装 three / Rapier / Matter.js（Rapier 的 wasm 只在 npm 里发布）；`source/library/experiments.json` 把 18 个优先实验映射到引擎、种子文件、可改参数与独立验收公式，其中 **17 条已在真引擎里跑出与解析式对账的读数**（本轮新增：理想气体 6/6、绳波 5/5、开普勒 6/6、牛顿摆 5/5——最后这条是换用上游 myPhysicsLab 的事件式碰撞引擎才成立的，Matter/Rapier 两条线复现不了 n 进 n 出）。仍在 `not_installed` 的只剩 PhET 官方发布成品一条；「装上了」与「Agent 能改参」是两件事，OSP 与 3JCN 的控制面都标 pending。
+2. **实验资源库**（`source/`）：上游引擎本地化 + 组件安装 + 实验目录三层。`source/upstream` 已装 **16 个引擎/资源目录、44 个安装单元**（工作区文件 2,015,455 KB ≈ 1.9 GB，含 `.git` 实测 4,024,957 KB ≈ 3.8 GB），身份与构建结论锁在 `upstream.lock.json`；2026-10-19 本轮把简报里七项平台**全部落到磁盘**（新增 OSP 家族 6 仓 `osp/`、`osp_ejs/`、`webejs/`、`resources/`、`STP/`、`csm/` 与 3JCN 目录镜像 `3jcn/`），同时撤销了上一轮「这两项找不到权威来源所以不装」的结论——实测组织名是 `OpenSourcePhysics`、3JCN 是可抓的静态站；`source/components` 用 npm 钉版本装 three / Rapier / Matter.js（Rapier 的 wasm 只在 npm 里发布）；`source/library/experiments.json` 把 18 个优先实验映射到引擎、种子文件、可改参数与独立验收公式，简报里这 **18 条已全部在真引擎里跑出与解析式对账的读数**（本轮新增：理想气体 6/6、绳波 5/5、开普勒 6/6、牛顿摆 5/5——最后这条是换用上游 myPhysicsLab 的事件式碰撞引擎才成立的，Matter/Rapier 两条线复现不了 n 进 n 出；双缝干涉 5/5，走的是 EJSS 模型自己的函数）。仍在 `not_installed` 的只剩 PhET 官方发布成品一条。**但这 18 条只到「物理验证」这一层**：模板三件套与 engine-host 适配器仍只有凸透镜那条线接了，教师的一句话定制与离线包交付还没打通；「装上了」与「Agent 能改参」也仍是两件事——OSP 家族 6 仓里只有双缝干涉这一个模型的控制面被实测走通（读 `.ejss` 参数表 + 执行模型自带 JS，不需要编译），官方那条 `.ejs → 编译 → webejs 加载` 链路一步没跑，3JCN 只有目录清单。
 3. **REA 逆向分析**（根 `package.json` + `input/`）：`rea-agents@6.5.0` 项目内与全局双安装，CLI 与 MCP 服务器均可用；冒烟样本在 `input/rea-smoke-test`，分析产物在 `output/rea-smoke-test.json`。
 
 ## 当前状态（2026-10-16 基线；3D 动量实验室于 2026-10-18 追加）
