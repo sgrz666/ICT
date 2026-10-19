@@ -62,3 +62,12 @@
 
 十 pass（同日，进行中）：`jcn3_batch_probe.mjs` 已按三条重写（打 `offline/` 派生树 + 脚本自起同源伺服 + 掐掉非本机请求；画面只取 `<canvas>` 元素像素，没有 canvas 记 `canvas_absent`；`--repeat` 连跑多趟，只有趟趟一致才算稳定，否则单列 `*_unstable`）。**逐页新分档尚未落进本文件**——跑完再写，命令是 `node source/library/jcn3_batch_probe.mjs --tree offline --repeat 2`（约 31 页 × 2 趟）。在此之前，上面第七 pass 那批「12 份画面可驱动」只能按作废口径读；`3jcn-offline-ab-vendor.json` 与 `jcn3-offline-ab-vendor.json`（若有）留的是收紧判据后的现场，画面那一项写的是 `usable=false` 而不是「变化」。
 
+### 十 pass 实况（同日跑完）：31 页 × 2 趟，离线口径的逐页分档
+
+`node source/library/jcn3_batch_probe.mjs --tree offline --repeat 2` 跑完（同源伺服 + 掐掉非本机请求 + 画面只取 `<canvas>` 元素像素），**31 页两趟全部同档（`unstable: 0`）**，所以这批数可以入账：**writable_and_readout 1、writable_and_picture 2、writable_only 5、canvas_absent 7、no_control 14、rejected 1、load_failed 1**；离线时画面真起来的页面 **19/31**。
+
+* **对上一批数的更正幅度比预想大**：旧口径那句「画面可驱动 12 份」在新口径只剩 **2 份**（`Phyc140/apparent_weight_exp`、`Simulation/projectile_motion_exp`）——其余靠 canvas 像素判据直接掉档；7 份连 canvas 都没有（旧口径却给过它们「画面变了」）。这正是把判据作废重测的价值。
+* **可读数量数的那一份换页面了**：旧口径是 `Simulation/sun_earth_distance.html`，新口径是 **`Phyc140/seesaw2.html`**（杠杆/力矩，DOM 里真出现「数字+单位」且写值后跟着变）；而 `sun_earth_distance` 在新口径下判 **rejected**（写进去的值回读对不上，旧那档是假阳性）。⇒ 要做「改参→解析式对账」，下一只该拿 seesaw2 试，别再盯 sun_earth_distance。
+* **一条让「离线已做成」这句话必须收窄的实测**：`any_blocked_runtime_left = 28` —— 31 页里只有 2 页（apparent_weight、buoyant_force）真做到断网被拦 0，其余 **28 页各自仍有被拦的外部运行期资源**，另有若干本地 404（`center_mass_3d`、`center_of_mass` 等）。根因与九 pass 同源：资源路径拼在各页自己的 JS 字符串里，而 `audit_offline_gaps.mjs` 目前只对我逐页跑过的那几只补过。**所以整棵 `offline/` 树现在的诚实说法是「一只页面离线可用」，不是「整批离线可用」**；逐页补闭包是剩下的机械活（每页一遍 audit，需要联网）。
+* 29/31 页有控制台错误，但内容基本是 `net::ERR_FAILED`（被我掐掉的外部请求）与 404 —— 这类**不能与「页面坏了」混为一谈**，也不能反过来说「有错就是没测」；分档看的是 canvas 与读数这两条独立可观测量。
+

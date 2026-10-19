@@ -1,22 +1,32 @@
 {
-  "measured_at": "2026-10-19T10:16:09.149Z",
+  "measured_at": "2026-10-19T10:50:23.012Z",
   "tool": "source/library/jcn3_batch_probe.mjs",
+  "tree": "offline",
+  "serve": "http://127.0.0.1:8137/",
+  "network": "blocked_except_localhost",
+  "repeat": 2,
+  "canvas_only_picture_hash": true,
   "pages": [
     {
       "page": "Phyc140/angular_momentum_collision.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 1,
       "readouts": [],
+      "blocked_external": 5,
       "render_static": true,
       "writes": [],
       "verdict": "no_control",
       "page_errors": [
-        "TypeError: THREE.OrbitControls is not a constructor"
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
       ]
     },
     {
       "page": "Phyc140/apparent_weight_exp.html",
+      "pass": 1,
       "sliders": [
         "posSlider[-10..15]",
         "massMetalSlider[300..700]",
@@ -25,8 +35,9 @@
         "tempLiquidSlider[10..100]"
       ],
       "slider_count": 5,
-      "canvas": 0,
+      "canvas": 1,
       "readouts": [],
+      "blocked_external": 0,
       "render_static": true,
       "writes": [
         {
@@ -51,6 +62,7 @@
     },
     {
       "page": "Phyc140/block_spring.html",
+      "pass": 1,
       "sliders": [
         "massSlider[0.1..0.3]",
         "kSlider[1..3]"
@@ -61,6 +73,7 @@
         "20kg",
         "20kg"
       ],
+      "blocked_external": 2,
       "render_static": true,
       "writes": [
         {
@@ -68,7 +81,7 @@
           "wrote": 0.2,
           "readback": 0.2,
           "readout_changed": false,
-          "picture_changed": true,
+          "picture_changed": false,
           "picture_reverted": true
         },
         {
@@ -76,24 +89,30 @@
           "wrote": 1,
           "readback": 1,
           "readout_changed": false,
-          "picture_changed": true,
+          "picture_changed": false,
           "picture_reverted": true
         }
       ],
-      "verdict": "writable_and_picture",
-      "page_errors": []
+      "verdict": "writable_only",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/buoyant_force_exp.html",
+      "pass": 1,
       "sliders": [
         "volSlider[100..200]",
         "liquidVolSlider[1500..2900]",
         "tempLiquidSlider[10..100]"
       ],
       "slider_count": 3,
-      "canvas": 0,
+      "canvas": 1,
       "readouts": [],
-      "render_static": true,
+      "blocked_external": 0,
+      "render_static": false,
       "writes": [
         {
           "slider": "volSlider",
@@ -101,7 +120,7 @@
           "readback": 100,
           "readout_changed": false,
           "picture_changed": true,
-          "picture_reverted": true
+          "picture_reverted": false
         },
         {
           "slider": "liquidVolSlider",
@@ -109,14 +128,15 @@
           "readback": 1500,
           "readout_changed": false,
           "picture_changed": true,
-          "picture_reverted": true
+          "picture_reverted": false
         }
       ],
-      "verdict": "writable_and_picture",
+      "verdict": "writable_only",
       "page_errors": []
     },
     {
       "page": "Phyc140/center_mass_3d.html",
+      "pass": 1,
       "sliders": [
         "mass1[1..3]",
         "mass2[1..3]",
@@ -125,30 +145,35 @@
       "slider_count": 3,
       "canvas": 0,
       "readouts": [],
-      "render_static": true,
+      "blocked_external": 1,
+      "render_static": false,
       "writes": [
         {
           "slider": "mass1",
           "wrote": 1,
           "readback": 1,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         },
         {
           "slider": "mass2",
           "wrote": 1,
           "readback": 1,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         }
       ],
-      "verdict": "writable_and_picture",
-      "page_errors": []
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/center_of_mass.html",
+      "pass": 1,
       "sliders": [
         "mass1[1..3]",
         "mass2[1..3]"
@@ -156,62 +181,73 @@
       "slider_count": 2,
       "canvas": 0,
       "readouts": [],
-      "render_static": true,
+      "blocked_external": 1,
+      "render_static": false,
       "writes": [
         {
           "slider": "mass1",
           "wrote": 1,
           "readback": 1,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         },
         {
           "slider": "mass2",
           "wrote": 1,
           "readback": 1,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         }
       ],
-      "verdict": "writable_and_picture",
-      "page_errors": []
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/centripetal_force_formula.html",
+      "pass": 1,
       "sliders": [
         "massSlider[0.2..5]",
         "radiusSlider[1..6]",
         "speedSlider[0.5..6]"
       ],
       "slider_count": 3,
-      "canvas": 1,
+      "canvas": 0,
       "readouts": [],
-      "render_static": true,
+      "blocked_external": 4,
+      "render_static": false,
       "writes": [
         {
           "slider": "massSlider",
           "wrote": 0.2,
           "readback": 0.2,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         },
         {
           "slider": "radiusSlider",
           "wrote": 1,
           "readback": 1,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         }
       ],
-      "verdict": "writable_and_picture",
-      "page_errors": []
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/circular_shm.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 1,
@@ -219,30 +255,43 @@
         "20N",
         "20kg"
       ],
+      "blocked_external": 2,
       "render_static": true,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/earth_circumference.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 2,
       "readouts": [],
+      "blocked_external": 2,
       "render_static": true,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/flat_mirror_prob.html",
+      "pass": 1,
       "sliders": [
         "xSlider[2..4]"
       ],
       "slider_count": 1,
       "canvas": 1,
       "readouts": [],
+      "blocked_external": 3,
       "render_static": true,
       "writes": [
         {
@@ -255,21 +304,32 @@
         }
       ],
       "verdict": "writable_only",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/galileo_gravity.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 0,
       "readouts": [],
-      "render_static": true,
+      "blocked_external": 2,
+      "render_static": false,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
     },
     {
       "page": "Phyc140/gravity_force.html",
+      "pass": 1,
       "sliders": [
         "posObj1[-60..-15]",
         "posObj2[15..60]",
@@ -282,30 +342,36 @@
         "20m",
         "20N"
       ],
-      "render_static": true,
+      "blocked_external": 2,
+      "render_static": false,
       "writes": [
         {
           "slider": "posObj1",
           "wrote": -60,
           "readback": -60,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         },
         {
           "slider": "posObj2",
           "wrote": 15,
           "readback": 15,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         }
       ],
-      "verdict": "writable_and_picture",
-      "page_errors": []
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/mass-on-spring.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 0,
@@ -318,16 +384,22 @@
         "10cm",
         "5.77cm"
       ],
-      "render_static": true,
+      "blocked_external": 2,
+      "render_static": false,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/measure_earth_radius.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
-      "canvas": 3,
+      "canvas": 2,
       "readouts": [
         "007A",
         "003A",
@@ -350,24 +422,36 @@
         "000A",
         "000A"
       ],
-      "render_static": false,
+      "blocked_external": 3,
+      "render_static": true,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/moon_distance.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 2,
       "readouts": [],
+      "blocked_external": 2,
       "render_static": false,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
     },
     {
       "page": "Phyc140/newton_cooling_law.html",
+      "pass": 1,
       "sliders": [
         "massMetalSlider[300..700]",
         "tempMetalSlider[80..200]",
@@ -377,84 +461,109 @@
       "slider_count": 4,
       "canvas": 0,
       "readouts": [],
-      "render_static": true,
+      "blocked_external": 3,
+      "render_static": false,
       "writes": [
         {
           "slider": "massMetalSlider",
           "wrote": 300,
           "readback": 300,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         },
         {
           "slider": "tempMetalSlider",
           "wrote": 80,
           "readback": 80,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         }
       ],
-      "verdict": "writable_and_picture",
-      "page_errors": []
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
     },
     {
       "page": "Phyc140/rolling_faster.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 1,
       "readouts": [],
+      "blocked_external": 2,
       "render_static": true,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/rolling_objects.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 1,
       "readouts": [],
+      "blocked_external": 2,
       "render_static": true,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
     },
     {
       "page": "Phyc140/seesaw2.html",
+      "pass": 1,
       "sliders": [
         "leftPosSlider[-20..0]",
         "leftMassSlider[1..5]",
         "pivotSlider[-10..-2]"
       ],
       "slider_count": 3,
-      "canvas": 0,
-      "readouts": [],
+      "canvas": 1,
+      "readouts": [
+        "10.00m",
+        "2.00kg"
+      ],
+      "blocked_external": 1,
       "render_static": true,
       "writes": [
         {
           "slider": "leftPosSlider",
           "wrote": -20,
           "readback": -20,
-          "readout_changed": false,
+          "readout_changed": true,
           "picture_changed": true,
-          "picture_reverted": true
+          "picture_reverted": false
         },
         {
           "slider": "leftMassSlider",
           "wrote": 1,
           "readback": 1,
-          "readout_changed": false,
+          "readout_changed": true,
           "picture_changed": true,
           "picture_reverted": true
         }
       ],
-      "verdict": "writable_and_picture",
-      "page_errors": []
+      "verdict": "writable_and_readout",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/shm.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 1,
@@ -462,48 +571,66 @@
         "20N",
         "20kg"
       ],
+      "blocked_external": 2,
       "render_static": true,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Phyc140/star-planet.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 1,
       "readouts": [],
+      "blocked_external": 2,
       "render_static": false,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
     },
     {
       "page": "Phyc140/sun_distance.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 3,
       "readouts": [
-        "177.71°",
+        "174.84°",
         "90°",
-        "177.71°",
+        "174.84°",
         "90°",
         "90°",
-        "87.71°",
-        "100.0%",
-        "1.91°",
+        "84.84°",
+        "99.9%",
+        "4.31°",
         "90°",
-        "88.09°",
+        "85.69°",
         "50%",
         "98.70%"
       ],
+      "blocked_external": 2,
       "render_static": false,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
     },
     {
       "page": "Simulation/least_action.html",
+      "pass": 1,
       "sliders": [
         "pathsSlider[5..30]",
         "gSlider[0..20]",
@@ -511,7 +638,7 @@
         "ampSlider[0.2..4]"
       ],
       "slider_count": 4,
-      "canvas": 2,
+      "canvas": 1,
       "readouts": [
         "007A",
         "007A",
@@ -534,43 +661,53 @@
         "000A",
         "000A"
       ],
-      "render_static": false,
+      "blocked_external": 4,
+      "render_static": true,
       "writes": [
         {
           "slider": "pathsSlider",
           "wrote": 5,
           "readback": 5,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": false
+          "picture_changed": false,
+          "picture_reverted": true
         },
         {
           "slider": "gSlider",
           "wrote": 0,
           "readback": 0,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": false
+          "picture_changed": false,
+          "picture_reverted": true
         }
       ],
-      "verdict": "dynamic_render",
-      "page_errors": []
+      "verdict": "writable_only",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Simulation/loop.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 0,
       "readouts": [],
-      "render_static": true,
+      "blocked_external": 0,
+      "render_static": false,
       "writes": [],
       "verdict": "no_control",
       "page_errors": [
-        "ReferenceError: Physijs is not defined"
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
       ]
     },
     {
       "page": "Simulation/Newton-Cannon.html",
+      "pass": 1,
       "sliders": [
         "scale[-2..2]"
       ],
@@ -580,23 +717,36 @@
         "7,300m/s",
         "7,300m/s"
       ],
-      "render_static": true,
+      "blocked_external": 1,
+      "render_static": false,
       "verdict": "load_failed",
-      "error": "Error: page.evaluate: ReferenceError: updateTextInput is not defined\n    at HTMLInputElement.onchange (file:///D:/codeplus/ICT/source/upstre"
+      "error": "Error: page.evaluate: ReferenceError: updateTextInput is not defined\n    at HTMLInputElement.onchange (http://127.0.0.1:8137/Simulation/Newt",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
     },
     {
       "page": "Simulation/Newton_Gravity.html",
+      "pass": 1,
       "sliders": [],
       "slider_count": 0,
       "canvas": 0,
       "readouts": [],
-      "render_static": true,
+      "blocked_external": 2,
+      "render_static": false,
       "writes": [],
       "verdict": "no_control",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Simulation/projectile_motion_exp.html",
+      "pass": 1,
       "sliders": [
         "angleSlider[10..70]",
         "speedSlider[17..27]",
@@ -605,8 +755,9 @@
         "resSlider[0..0.5]"
       ],
       "slider_count": 5,
-      "canvas": 0,
+      "canvas": 1,
       "readouts": [],
+      "blocked_external": 1,
       "render_static": true,
       "writes": [
         {
@@ -627,16 +778,21 @@
         }
       ],
       "verdict": "writable_and_picture",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Simulation/rescue.html",
+      "pass": 1,
       "sliders": [
         "vSlider[50..300]",
         "hSlider[50..400]"
       ],
       "slider_count": 2,
-      "canvas": 1,
+      "canvas": 0,
       "readouts": [
         "003A",
         "006A",
@@ -659,6 +815,7 @@
         "5888g",
         "5888g"
       ],
+      "blocked_external": 10,
       "render_static": false,
       "writes": [
         {
@@ -666,7 +823,7 @@
           "wrote": 50,
           "readback": 50,
           "readout_changed": false,
-          "picture_changed": true,
+          "picture_changed": false,
           "picture_reverted": false
         },
         {
@@ -674,22 +831,26 @@
           "wrote": 50,
           "readback": 50,
           "readout_changed": false,
-          "picture_changed": true,
+          "picture_changed": false,
           "picture_reverted": false
         }
       ],
-      "verdict": "dynamic_render",
-      "page_errors": []
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     },
     {
       "page": "Simulation/simple-pendulum.html",
+      "pass": 1,
       "sliders": [
         "lengthSlider[20..28]"
       ],
       "slider_count": 1,
       "canvas": 1,
       "readouts": [
-        "15°",
         "007A",
         "006A",
         "006A",
@@ -708,8 +869,10 @@
         "007A",
         "006A",
         "8g",
-        "8g"
+        "8g",
+        "006A"
       ],
+      "blocked_external": 4,
       "render_static": true,
       "writes": [
         {
@@ -717,17 +880,20 @@
           "wrote": 20,
           "readback": 20,
           "readout_changed": false,
-          "picture_changed": true,
+          "picture_changed": false,
           "picture_reverted": true
         }
       ],
-      "verdict": "writable_and_picture",
+      "verdict": "writable_only",
       "page_errors": [
-        "TypeError: THREE.OrbitControls is not a constructor"
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
       ]
     },
     {
       "page": "Simulation/soccer.html",
+      "pass": 1,
       "sliders": [
         "speedSlider[10..20]",
         "angleSlider[20..34]",
@@ -736,8 +902,6 @@
       "slider_count": 3,
       "canvas": 0,
       "readouts": [
-        "20°",
-        "34°",
         "007A",
         "007A",
         "007A",
@@ -755,22 +919,131 @@
         "007A",
         "007A",
         "006A",
-        "007A"
+        "007A",
+        "007A",
+        "9g"
       ],
-      "render_static": true,
+      "blocked_external": 1,
+      "render_static": false,
       "writes": [
         {
           "slider": "speedSlider",
           "wrote": 10,
           "readback": 10,
           "readout_changed": false,
-          "picture_changed": true,
-          "picture_reverted": true
+          "picture_changed": false,
+          "picture_reverted": false
         },
         {
           "slider": "angleSlider",
           "wrote": 20,
           "readback": 20,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Simulation/sun_earth_distance.html",
+      "pass": 1,
+      "sliders": [
+        "angleSlider[87..89.85]"
+      ],
+      "slider_count": 1,
+      "canvas": 1,
+      "readouts": [
+        "90°",
+        "003A",
+        "003A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A"
+      ],
+      "blocked_external": 5,
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "angleSlider",
+          "wrote": 88.425,
+          "readback": 88.43,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "rejected",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/angular_momentum_collision.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [],
+      "blocked_external": 5,
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/apparent_weight_exp.html",
+      "pass": 2,
+      "sliders": [
+        "posSlider[-10..15]",
+        "massMetalSlider[300..700]",
+        "tempMetalSlider[10..100]",
+        "massLiquidSlider[1200..2000]",
+        "tempLiquidSlider[10..100]"
+      ],
+      "slider_count": 5,
+      "canvas": 1,
+      "readouts": [],
+      "blocked_external": 0,
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "posSlider",
+          "wrote": -10,
+          "readback": -10,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "massMetalSlider",
+          "wrote": 300,
+          "readback": 300,
           "readout_changed": false,
           "picture_changed": true,
           "picture_reverted": true
@@ -780,26 +1053,359 @@
       "page_errors": []
     },
     {
-      "page": "Simulation/sun_earth_distance.html",
+      "page": "Phyc140/block_spring.html",
+      "pass": 2,
       "sliders": [
-        "angleSlider[87..89.85]"
+        "massSlider[0.1..0.3]",
+        "kSlider[1..3]"
+      ],
+      "slider_count": 2,
+      "canvas": 1,
+      "readouts": [
+        "20kg",
+        "20kg"
+      ],
+      "blocked_external": 2,
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "massSlider",
+          "wrote": 0.2,
+          "readback": 0.2,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": true
+        },
+        {
+          "slider": "kSlider",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_only",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/buoyant_force_exp.html",
+      "pass": 2,
+      "sliders": [
+        "volSlider[100..200]",
+        "liquidVolSlider[1500..2900]",
+        "tempLiquidSlider[10..100]"
+      ],
+      "slider_count": 3,
+      "canvas": 1,
+      "readouts": [],
+      "blocked_external": 0,
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "volSlider",
+          "wrote": 100,
+          "readback": 100,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": false
+        },
+        {
+          "slider": "liquidVolSlider",
+          "wrote": 1500,
+          "readback": 1500,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "writable_only",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/center_mass_3d.html",
+      "pass": 2,
+      "sliders": [
+        "mass1[1..3]",
+        "mass2[1..3]",
+        "mass3[1..3]"
+      ],
+      "slider_count": 3,
+      "canvas": 0,
+      "readouts": [],
+      "blocked_external": 1,
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "mass1",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        },
+        {
+          "slider": "mass2",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/center_of_mass.html",
+      "pass": 2,
+      "sliders": [
+        "mass1[1..3]",
+        "mass2[1..3]"
+      ],
+      "slider_count": 2,
+      "canvas": 0,
+      "readouts": [],
+      "blocked_external": 1,
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "mass1",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        },
+        {
+          "slider": "mass2",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/centripetal_force_formula.html",
+      "pass": 2,
+      "sliders": [
+        "massSlider[0.2..5]",
+        "radiusSlider[1..6]",
+        "speedSlider[0.5..6]"
+      ],
+      "slider_count": 3,
+      "canvas": 0,
+      "readouts": [],
+      "blocked_external": 4,
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "massSlider",
+          "wrote": 0.2,
+          "readback": 0.2,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        },
+        {
+          "slider": "radiusSlider",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/circular_shm.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [
+        "20N",
+        "20kg"
+      ],
+      "blocked_external": 2,
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/earth_circumference.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 2,
+      "readouts": [],
+      "blocked_external": 2,
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/flat_mirror_prob.html",
+      "pass": 2,
+      "sliders": [
+        "xSlider[2..4]"
       ],
       "slider_count": 1,
+      "canvas": 1,
+      "readouts": [],
+      "blocked_external": 3,
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "xSlider",
+          "wrote": 3,
+          "readback": 3,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "writable_only",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/galileo_gravity.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 0,
+      "readouts": [],
+      "blocked_external": 2,
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/gravity_force.html",
+      "pass": 2,
+      "sliders": [
+        "posObj1[-60..-15]",
+        "posObj2[15..60]",
+        "massObj1[10..1000]",
+        "massObj2[10..1000]"
+      ],
+      "slider_count": 4,
+      "canvas": 0,
+      "readouts": [
+        "20m",
+        "20N"
+      ],
+      "blocked_external": 2,
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "posObj1",
+          "wrote": -60,
+          "readback": -60,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        },
+        {
+          "slider": "posObj2",
+          "wrote": 15,
+          "readback": 15,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/mass-on-spring.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 0,
+      "readouts": [
+        "2kg",
+        "1kg",
+        "1N",
+        "5.77cm",
+        "3.33cm",
+        "10cm",
+        "5.77cm"
+      ],
+      "blocked_external": 2,
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/measure_earth_radius.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
       "canvas": 2,
       "readouts": [
-        "89.00°",
-        "90°",
-        "90°",
-        "89.00°",
-        "90°",
-        "90°",
-        "1.00°",
-        "52.3%",
-        "87°",
-        "85.28%",
-        "90°",
+        "007A",
         "003A",
+        "000A",
+        "000A",
+        "007A",
+        "007A",
+        "000A",
+        "000A",
         "003A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
         "000A",
         "000A",
         "003A",
@@ -808,30 +1414,1086 @@
         "000A",
         "000A"
       ],
+      "blocked_external": 3,
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/moon_distance.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 2,
+      "readouts": [],
+      "blocked_external": 2,
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/newton_cooling_law.html",
+      "pass": 2,
+      "sliders": [
+        "massMetalSlider[300..700]",
+        "tempMetalSlider[80..200]",
+        "massLiquidSlider[1200..2000]",
+        "tempLiquidSlider[6..25]"
+      ],
+      "slider_count": 4,
+      "canvas": 0,
+      "readouts": [],
+      "blocked_external": 3,
       "render_static": false,
       "writes": [
         {
-          "slider": "angleSlider",
-          "wrote": 87,
-          "readback": 87,
-          "readout_changed": true,
-          "picture_changed": true,
+          "slider": "massMetalSlider",
+          "wrote": 300,
+          "readback": 300,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        },
+        {
+          "slider": "tempMetalSlider",
+          "wrote": 80,
+          "readback": 80,
+          "readout_changed": false,
+          "picture_changed": false,
           "picture_reverted": false
         }
       ],
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/rolling_faster.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [],
+      "blocked_external": 2,
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/rolling_objects.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [],
+      "blocked_external": 2,
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/seesaw2.html",
+      "pass": 2,
+      "sliders": [
+        "leftPosSlider[-20..0]",
+        "leftMassSlider[1..5]",
+        "pivotSlider[-10..-2]"
+      ],
+      "slider_count": 3,
+      "canvas": 1,
+      "readouts": [
+        "10.00m",
+        "2.00kg"
+      ],
+      "blocked_external": 1,
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "leftPosSlider",
+          "wrote": -20,
+          "readback": -20,
+          "readout_changed": true,
+          "picture_changed": true,
+          "picture_reverted": false
+        },
+        {
+          "slider": "leftMassSlider",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": true,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
       "verdict": "writable_and_readout",
-      "page_errors": []
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/shm.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [
+        "20N",
+        "20kg"
+      ],
+      "blocked_external": 2,
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/star-planet.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [],
+      "blocked_external": 2,
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/sun_distance.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 3,
+      "readouts": [
+        "174.84°",
+        "90°",
+        "174.84°",
+        "90°",
+        "90°",
+        "84.84°",
+        "99.9%",
+        "4.31°",
+        "90°",
+        "85.69°",
+        "50%",
+        "98.70%"
+      ],
+      "blocked_external": 2,
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Simulation/least_action.html",
+      "pass": 2,
+      "sliders": [
+        "pathsSlider[5..30]",
+        "gSlider[0..20]",
+        "timeSlider[1..8]",
+        "ampSlider[0.2..4]"
+      ],
+      "slider_count": 4,
+      "canvas": 1,
+      "readouts": [
+        "007A",
+        "007A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "000A"
+      ],
+      "blocked_external": 4,
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "pathsSlider",
+          "wrote": 5,
+          "readback": 5,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": true
+        },
+        {
+          "slider": "gSlider",
+          "wrote": 0,
+          "readback": 0,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_only",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/loop.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 0,
+      "readouts": [],
+      "blocked_external": 0,
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Simulation/Newton-Cannon.html",
+      "pass": 2,
+      "sliders": [
+        "scale[-2..2]"
+      ],
+      "slider_count": 1,
+      "canvas": 0,
+      "readouts": [
+        "7,300m/s",
+        "7,300m/s"
+      ],
+      "blocked_external": 1,
+      "render_static": false,
+      "verdict": "load_failed",
+      "error": "Error: page.evaluate: ReferenceError: updateTextInput is not defined\n    at HTMLInputElement.onchange (http://127.0.0.1:8137/Simulation/Newt",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Simulation/Newton_Gravity.html",
+      "pass": 2,
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 0,
+      "readouts": [],
+      "blocked_external": 2,
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/projectile_motion_exp.html",
+      "pass": 2,
+      "sliders": [
+        "angleSlider[10..70]",
+        "speedSlider[17..27]",
+        "highSlider[0..10]",
+        "gSlider[5..16]",
+        "resSlider[0..0.5]"
+      ],
+      "slider_count": 5,
+      "canvas": 1,
+      "readouts": [],
+      "blocked_external": 1,
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "angleSlider",
+          "wrote": 10,
+          "readback": 10,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "speedSlider",
+          "wrote": 17,
+          "readback": 17,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/rescue.html",
+      "pass": 2,
+      "sliders": [
+        "vSlider[50..300]",
+        "hSlider[50..400]"
+      ],
+      "slider_count": 2,
+      "canvas": 0,
+      "readouts": [
+        "003A",
+        "006A",
+        "003A",
+        "006A",
+        "003A",
+        "006A",
+        "5888g",
+        "007A",
+        "003A",
+        "006A",
+        "006A",
+        "007A",
+        "11g",
+        "007A",
+        "11g",
+        "007A",
+        "11g",
+        "007A",
+        "5888g",
+        "5888g"
+      ],
+      "blocked_external": 10,
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "vSlider",
+          "wrote": 50,
+          "readback": 50,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        },
+        {
+          "slider": "hSlider",
+          "wrote": 50,
+          "readback": 50,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/simple-pendulum.html",
+      "pass": 2,
+      "sliders": [
+        "lengthSlider[20..28]"
+      ],
+      "slider_count": 1,
+      "canvas": 1,
+      "readouts": [
+        "007A",
+        "006A",
+        "006A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "9g",
+        "9g",
+        "007A",
+        "006A",
+        "8g",
+        "8g",
+        "006A"
+      ],
+      "blocked_external": 4,
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "lengthSlider",
+          "wrote": 20,
+          "readback": 20,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_only",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/soccer.html",
+      "pass": 2,
+      "sliders": [
+        "speedSlider[10..20]",
+        "angleSlider[20..34]",
+        "lrSlider[-23..29]"
+      ],
+      "slider_count": 3,
+      "canvas": 0,
+      "readouts": [
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "005A",
+        "007A",
+        "007A",
+        "007A",
+        "2g",
+        "2g",
+        "006A",
+        "006A",
+        "423g",
+        "423g",
+        "007A",
+        "007A",
+        "006A",
+        "007A",
+        "007A",
+        "9g"
+      ],
+      "blocked_external": 1,
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "speedSlider",
+          "wrote": 10,
+          "readback": 10,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        },
+        {
+          "slider": "angleSlider",
+          "wrote": 20,
+          "readback": 20,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "canvas_absent",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Simulation/sun_earth_distance.html",
+      "pass": 2,
+      "sliders": [
+        "angleSlider[87..89.85]"
+      ],
+      "slider_count": 1,
+      "canvas": 1,
+      "readouts": [
+        "90°",
+        "003A",
+        "003A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A"
+      ],
+      "blocked_external": 5,
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "angleSlider",
+          "wrote": 88.425,
+          "readback": 88.43,
+          "readout_changed": false,
+          "picture_changed": false,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "rejected",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
     }
   ],
   "summary": {
     "pages": 31,
+    "passes": 2,
     "writable_and_readout": 1,
-    "writable_and_picture": 12,
-    "writable_only": 1,
-    "dynamic_render": 2,
+    "writable_and_picture": 2,
+    "writable_only": 5,
+    "canvas_absent": 7,
     "no_control": 14,
-    "rejected": 0,
+    "rejected": 1,
     "load_failed": 1,
-    "pages_with_dom_readouts": 13
-  }
+    "unstable": 0,
+    "pages_with_dom_readouts": 1,
+    "pages_rendering_offline": 19,
+    "any_blocked_runtime_left": 28
+  },
+  "per_page": [
+    {
+      "page": "Phyc140/angular_momentum_collision.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 1,
+      "sliders": 0,
+      "blocked_external": "5/5",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/apparent_weight_exp.html",
+      "verdict": "writable_and_picture",
+      "passes": [
+        "writable_and_picture",
+        "writable_and_picture"
+      ],
+      "canvas": 1,
+      "sliders": 5,
+      "blocked_external": "0/0",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/block_spring.html",
+      "verdict": "writable_only",
+      "passes": [
+        "writable_only",
+        "writable_only"
+      ],
+      "canvas": 1,
+      "sliders": 2,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/buoyant_force_exp.html",
+      "verdict": "writable_only",
+      "passes": [
+        "writable_only",
+        "writable_only"
+      ],
+      "canvas": 1,
+      "sliders": 3,
+      "blocked_external": "0/0",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/center_mass_3d.html",
+      "verdict": "canvas_absent",
+      "passes": [
+        "canvas_absent",
+        "canvas_absent"
+      ],
+      "canvas": 0,
+      "sliders": 3,
+      "blocked_external": "1/1",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/center_of_mass.html",
+      "verdict": "canvas_absent",
+      "passes": [
+        "canvas_absent",
+        "canvas_absent"
+      ],
+      "canvas": 0,
+      "sliders": 2,
+      "blocked_external": "1/1",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/centripetal_force_formula.html",
+      "verdict": "canvas_absent",
+      "passes": [
+        "canvas_absent",
+        "canvas_absent"
+      ],
+      "canvas": 0,
+      "sliders": 3,
+      "blocked_external": "4/4",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/circular_shm.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 1,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/earth_circumference.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 2,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/flat_mirror_prob.html",
+      "verdict": "writable_only",
+      "passes": [
+        "writable_only",
+        "writable_only"
+      ],
+      "canvas": 1,
+      "sliders": 1,
+      "blocked_external": "3/3",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/galileo_gravity.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 0,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/gravity_force.html",
+      "verdict": "canvas_absent",
+      "passes": [
+        "canvas_absent",
+        "canvas_absent"
+      ],
+      "canvas": 0,
+      "sliders": 4,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/mass-on-spring.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 0,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/measure_earth_radius.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 2,
+      "sliders": 0,
+      "blocked_external": "3/3",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/moon_distance.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 2,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/newton_cooling_law.html",
+      "verdict": "canvas_absent",
+      "passes": [
+        "canvas_absent",
+        "canvas_absent"
+      ],
+      "canvas": 0,
+      "sliders": 4,
+      "blocked_external": "3/3",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/rolling_faster.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 1,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/rolling_objects.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 1,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/seesaw2.html",
+      "verdict": "writable_and_readout",
+      "passes": [
+        "writable_and_readout",
+        "writable_and_readout"
+      ],
+      "canvas": 1,
+      "sliders": 3,
+      "blocked_external": "1/1",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/shm.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 1,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Phyc140/star-planet.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 1,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Phyc140/sun_distance.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 3,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Simulation/least_action.html",
+      "verdict": "writable_only",
+      "passes": [
+        "writable_only",
+        "writable_only"
+      ],
+      "canvas": 1,
+      "sliders": 4,
+      "blocked_external": "4/4",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/loop.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 0,
+      "sliders": 0,
+      "blocked_external": "0/0",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Simulation/Newton-Cannon.html",
+      "verdict": "load_failed",
+      "passes": [
+        "load_failed",
+        "load_failed"
+      ],
+      "canvas": 0,
+      "sliders": 1,
+      "blocked_external": "1/1",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Simulation/Newton_Gravity.html",
+      "verdict": "no_control",
+      "passes": [
+        "no_control",
+        "no_control"
+      ],
+      "canvas": 0,
+      "sliders": 0,
+      "blocked_external": "2/2",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/projectile_motion_exp.html",
+      "verdict": "writable_and_picture",
+      "passes": [
+        "writable_and_picture",
+        "writable_and_picture"
+      ],
+      "canvas": 1,
+      "sliders": 5,
+      "blocked_external": "1/1",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/rescue.html",
+      "verdict": "canvas_absent",
+      "passes": [
+        "canvas_absent",
+        "canvas_absent"
+      ],
+      "canvas": 0,
+      "sliders": 2,
+      "blocked_external": "10/10",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/simple-pendulum.html",
+      "verdict": "writable_only",
+      "passes": [
+        "writable_only",
+        "writable_only"
+      ],
+      "canvas": 1,
+      "sliders": 1,
+      "blocked_external": "4/4",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    },
+    {
+      "page": "Simulation/soccer.html",
+      "verdict": "canvas_absent",
+      "passes": [
+        "canvas_absent",
+        "canvas_absent"
+      ],
+      "canvas": 0,
+      "sliders": 3,
+      "blocked_external": "1/1",
+      "page_errors": [
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console Failed to load resource: the server responded with a status of 404 (File not found)"
+      ]
+    },
+    {
+      "page": "Simulation/sun_earth_distance.html",
+      "verdict": "rejected",
+      "passes": [
+        "rejected",
+        "rejected"
+      ],
+      "canvas": 1,
+      "sliders": 1,
+      "blocked_external": "5/5",
+      "page_errors": [
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED",
+        "console Failed to load resource: net::ERR_FAILED"
+      ]
+    }
+  ]
 }
