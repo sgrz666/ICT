@@ -1,0 +1,185 @@
+{
+  "generated_at": "2026-10-19T05:30:53.661Z",
+  "engine": "@dimforge/rapier3d-compat 0.21.0（6 面刚性墙 + 120 个 restitution=1 小球；球间碰撞用 collisionGroups 关掉 ⇒ 真理想气体；dt=0.0002s，跑 12s）",
+  "run_command": "node source/library/gas_lab.mjs --json",
+  "pass": 6,
+  "fail": 0,
+  "results": [
+    {
+      "id": "gas-kinetic-theory",
+      "title": "理想气体压强来自分子撞墙：p = N·m·⟨v²⟩/(3V)（有限半径修正后）",
+      "engine": {
+        "N": 120,
+        "L": 0.6,
+        "speed": 2,
+        "radius": 0.03,
+        "freePath": 0.54,
+        "seconds": 12,
+        "perParticleBounces": 71.1,
+        "meanV2": 4,
+        "hits": 8533,
+        "p_Pa": 0.85508,
+        "pAxis": {
+          "x": 0.84517,
+          "y": 0.85932,
+          "z": 0.86077
+        }
+      },
+      "formula": "逐分量取引擎碰撞前后速度差算冲量；p_墙 = F_墙/A（A=L²），三轴平均 = p；对照式 p = N m⟨v²⟩/(3·(L−2R)·L²)",
+      "checks": [
+        {
+          "metric": "p (Pa) vs 有限半径修正式",
+          "measured": 0.855085,
+          "analytic": 0.823045,
+          "rel_error_pct": 3.893,
+          "tolerance_pct": 5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "三个方向压强各向同性（x/z 与 y 的比）",
+          "measured": 0.992606,
+          "analytic": 1,
+          "rel_error_pct": 0.739,
+          "tolerance_pct": 5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "弹性撞墙前后 ⟨v²⟩ 不漂（引擎解算没吃能量）",
+          "drift_pct": 0,
+          "tolerance_pct": 0.5,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "gas-point-particle-limit",
+      "title": "质点极限与偏差归因：R→0 回到课本式；R=3 cm 时高出的倍数 = L/(L−2R)",
+      "engine": {
+        "R_tiny": 0.004,
+        "p_tiny_Pa": 0.77699,
+        "p_point_Pa": 0.74074,
+        "p_base_over_p_point": 1.15436,
+        "geometric_prediction": 1.11111
+      },
+      "formula": "R→0 ⇒ ℓ→L ⇒ p = N m⟨v²⟩/(3L³)；有限 R ⇒ p/p_质点 = L/ℓ",
+      "checks": [
+        {
+          "metric": "小球的 p vs 质点式 (Pa)",
+          "measured": 0.776992,
+          "analytic": 0.740741,
+          "rel_error_pct": 4.894,
+          "tolerance_pct": 5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "基准超出质点式的倍数 = L/(L−2R)",
+          "measured": 1.15436,
+          "analytic": 1.11111,
+          "rel_error_pct": 3.893,
+          "tolerance_pct": 5,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "gas-boyle",
+      "title": "玻意耳定律：等温压缩到一半体积 ⇒ 压强翻倍",
+      "engine": {
+        "V_ratio": 0.5,
+        "p_ratio": 2.08236,
+        "L_small": 0.4762,
+        "freePath_small": 0.4162,
+        "corrected_expectation": 2.05948
+      },
+      "formula": "pV = const（N、⟨v²⟩ 不变）；有限半径版 p ∝ 1/((L−2R)·L²)",
+      "checks": [
+        {
+          "metric": "p(小箱)/p(大箱) vs 质点式 V 比",
+          "measured": 2.08236,
+          "analytic": 2,
+          "rel_error_pct": 4.118,
+          "tolerance_pct": 5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "p(小箱)/p(大箱) vs 有限半径修正式",
+          "measured": 2.08236,
+          "analytic": 2.05948,
+          "rel_error_pct": 1.111,
+          "tolerance_pct": 3,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "gas-amontons",
+      "title": "等容升温：⟨v²⟩ 翻倍（速率 ×√2）⇒ 压强翻倍",
+      "engine": {
+        "meanV2_ratio": 2,
+        "p_ratio": 1.99666
+      },
+      "formula": "p = N m⟨v²⟩/(3·ℓ·L²)，V、N、R 不变 ⇒ p ∝ ⟨v²⟩ ∝ T",
+      "checks": [
+        {
+          "metric": "p(热)/p(冷)",
+          "measured": 1.99666,
+          "analytic": 2,
+          "rel_error_pct": 0.167,
+          "tolerance_pct": 5,
+          "verdict": "pass"
+        },
+        {
+          "metric": "⟨v²⟩ 比",
+          "measured": 2,
+          "analytic": 2,
+          "rel_error_pct": 0,
+          "tolerance_pct": 3,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "gas-avogadro",
+      "title": "等温等容加料：分子数翻倍 ⇒ 压强翻倍",
+      "engine": {
+        "N_before": 120,
+        "N_after": 240,
+        "p_ratio": 2.00013
+      },
+      "formula": "p ∝ N",
+      "checks": [
+        {
+          "metric": "p(2N)/p(N)",
+          "measured": 2.00013,
+          "analytic": 2,
+          "rel_error_pct": 0.007,
+          "tolerance_pct": 5,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "gas-gravity-control",
+      "title": "对照组：开重力后 y 轴总受力必须明显偏离无重力（静压差）",
+      "engine": {
+        "force_y_no_gravity": 0.30936,
+        "force_y_with_gravity": 0.62762,
+        "p_with_gravity_Pa": 1.1498
+      },
+      "checks": [
+        {
+          "metric": "开重力后 y 轴受力变化 > 1%",
+          "ratio": 2.0288,
+          "verdict": "pass"
+        }
+      ],
+      "note": "注意：这里只验「读数能感觉到重力」，不做流体静力学定量——那需要按面分别记冲量（本脚本按轴合并了两面墙）",
+      "verdict": "pass"
+    }
+  ]
+}

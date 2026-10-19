@@ -1,0 +1,460 @@
+{
+  "source": "https://www.new3jcn.com/",
+  "fetched_at": "2026-10-19T13:36:39+0800",
+  "pages_fetched": 8,
+  "pages_expected": 8,
+  "links": 90,
+  "note": "3JCN 是静态站点，无仓库、无 API：这里只能拿到「有哪些演示」的目录与链接。单个演示是否可被 Agent 改参并未由本脚本证实（多为 applet/自研 3D 页面），所以只作为资源检索候选，不进引擎清单。",
+  "entries": [
+    {
+      "page": "index.html",
+      "title": "Home",
+      "href": "https://www.new3jcn.com/index.html"
+    },
+    {
+      "page": "index.html",
+      "title": "US Patent",
+      "href": "https://www.new3jcn.com/patent.html"
+    },
+    {
+      "page": "index.html",
+      "title": "Try 3JCN",
+      "href": "https://www.new3jcn.com/3jcn-score.html"
+    },
+    {
+      "page": "index.html",
+      "title": "Song Examples",
+      "href": "https://www.new3jcn.com/example.html"
+    },
+    {
+      "page": "index.html",
+      "title": "Practice Songs",
+      "href": "https://www.new3jcn.com/practice-songs.html"
+    },
+    {
+      "page": "index.html",
+      "title": "About",
+      "href": "https://www.new3jcn.com/about_3jcn.html"
+    },
+    {
+      "page": "index.html",
+      "title": "Background",
+      "href": "https://www.new3jcn.com/background.html"
+    },
+    {
+      "page": "index.html",
+      "title": "3D Physics",
+      "href": "https://www.new3jcn.com/simulation.html"
+    },
+    {
+      "page": "index.html",
+      "title": "Contact",
+      "href": "https://www.new3jcn.com/contact-form/index.html"
+    },
+    {
+      "page": "index.html",
+      "title": "Timeline of Music Notation (143 &amp; 170)",
+      "href": "https://silpayamanant.wordpress.com/timeline-of-music-notation/#:~:text=3JCN%20Music%20Notation.%20Created%20by%20Thomas%20Nguyen"
+    },
+    {
+      "page": "index.html",
+      "title": "3JCNGUYEN MUSIC NOTATION",
+      "href": "https://musicnotation.org/systems/more-notation-systems/#none"
+    },
+    {
+      "page": "index.html",
+      "title": "3JCN Music Software",
+      "href": "https://silpayamanant.wordpress.com/music-notation-software/#:~:text=3JCN%20Notation%20Builder"
+    },
+    {
+      "page": "index.html",
+      "title": "The Stars & Stripes Forever - Comparison",
+      "href": "https://www.new3jcn.com/comparison.html"
+    },
+    {
+      "page": "index.html",
+      "title": "Drumset Example",
+      "href": "https://www.new3jcn.com/lessons/3jcn_drumset.html"
+    },
+    {
+      "page": "index.html",
+      "title": "3JCN Notation Builder",
+      "href": "https://www.new3jcn.com/3jcn-score.html"
+    },
+    {
+      "page": "index.html",
+      "title": "Share your thoughts about 3JCN",
+      "href": "https://www.new3jcn.com/contact-form/index.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "Home",
+      "href": "https://www.new3jcn.com/index.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "US Patent",
+      "href": "https://www.new3jcn.com/patent.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "About Us",
+      "href": "https://www.new3jcn.com/about_3jcn.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "CC BY 4.0 license",
+      "href": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "page": "simulation.html",
+      "title": "Motion, Work & Energy Simulations on kinematics, forces, projectiles, springs, energy, and SHM.",
+      "href": "https://www.new3jcn.com/motion_category.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "Heat & Thermodynamics Explore heat transfer, gas laws, PV diagrams, engines, and thermal physics.",
+      "href": "https://www.new3jcn.com/thermo_category.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "Electricity & Magnetism Circuits, charges, fields, inductance, EM waves, and magnetic effects.",
+      "href": "https://www.new3jcn.com/electricity_category.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "Light & Optics Lenses, mirrors, reflection, refraction, diffraction, and wave optics demos.",
+      "href": "https://www.new3jcn.com/optics_category.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "Modern Physics Relativity, quantum mechanics, photoelectric effect, nuclear reactions, and more.",
+      "href": "https://www.new3jcn.com/modern_category.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "Physics Labs Interactive labs to simulate experiments: mechanics, E&amp;M, optics, thermo, and more.",
+      "href": "https://www.new3jcn.com/labs_category.html"
+    },
+    {
+      "page": "simulation.html",
+      "title": "Send a report",
+      "href": "https://www.new3jcn.com/contact-form/index.html"
+    },
+    {
+      "page": "motion_category.html",
+      "title": "Simulation Home",
+      "href": "https://www.new3jcn.com/simulation.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Snell's Law",
+      "href": "https://www.new3jcn.com/Phyc240/snell-law.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Plane Mirror",
+      "href": "https://www.new3jcn.com/Phyc140/flat_mirror_prob.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Huygen's Prin.",
+      "href": "https://www.new3jcn.com/Phyc240/huygen_principle.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Fermat Principle",
+      "href": "https://www.new3jcn.com/Simulation/fermat_principle.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Newton Prism",
+      "href": "https://www.new3jcn.com/Phyc140/newton-spectrum.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Lifeguard & Victim",
+      "href": "https://www.new3jcn.com/Simulation/least_time_principle.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Refraction 3 Layers",
+      "href": "https://www.new3jcn.com/Phyc140/three_layers.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Internal Reflection",
+      "href": "https://www.new3jcn.com/Phyc140/internal_reflection.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Convex Mirror",
+      "href": "https://www.new3jcn.com/Phyc240/convex-mirror.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Concave Mirror",
+      "href": "https://www.new3jcn.com/Phyc240/concave-mirror.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Convex Lens",
+      "href": "https://www.new3jcn.com/Phyc240/convex-lens.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Concave Lens",
+      "href": "https://www.new3jcn.com/Phyc240/concave-lens.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Magnifying Glass",
+      "href": "https://www.new3jcn.com/Phyc240/magnifying_glass.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "2 Convex Lenses",
+      "href": "https://www.new3jcn.com/Phyc240/two-lenses.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Lens and Mirror",
+      "href": "https://www.new3jcn.com/Phyc240/lens-mirror.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Keplerian Telescope",
+      "href": "https://www.new3jcn.com/Phyc240/telescope.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Galilean Telescope",
+      "href": "https://www.new3jcn.com/Phyc240/telescope_galilean.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Marlus' Law",
+      "href": "https://www.new3jcn.com/Phyc240/polarized_light.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Gravitational Lensing",
+      "href": "https://www.new3jcn.com/Simulation/bh.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Light Diffraction",
+      "href": "https://www.new3jcn.com/Phyc240/light-diffraction.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Standing Wave",
+      "href": "https://www.new3jcn.com/Phyc140/standing_wave.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Water Interference",
+      "href": "https://www.new3jcn.com/Phyc140/water-interference.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Wave Interference",
+      "href": "https://www.new3jcn.com/Simulation/wave-interference.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Doppler Effect",
+      "href": "https://www.new3jcn.com/Phyc240/doppler_effect.html"
+    },
+    {
+      "page": "optics_category.html",
+      "title": "Sound Intensity",
+      "href": "https://www.new3jcn.com/Phyc240/intensity_sound.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Torricelli's Theorem",
+      "href": "https://www.new3jcn.com/Phyc140/torricelli.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Pascal's Principle",
+      "href": "https://www.new3jcn.com/Phyc240/pascal_principle.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Archimedes Prin.",
+      "href": "https://www.new3jcn.com/Simulation/buoyancy.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Absolute Zero Temp.",
+      "href": "https://www.new3jcn.com/Phyc140/absolute_zero.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Measure Abs Zero T",
+      "href": "https://www.new3jcn.com/Phyc240/abs_zero_temp.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Thermometer",
+      "href": "https://www.new3jcn.com/Phyc140/thermometer.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Buoyant Force 1",
+      "href": "https://www.new3jcn.com/Phyc240/buoyant_force.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Buoyant Force 2",
+      "href": "https://www.new3jcn.com/Phyc140/buoyant_force_exp.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Fluid Density",
+      "href": "https://www.new3jcn.com/Phyc140/fluid_density.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Density - Water - Ice",
+      "href": "https://www.new3jcn.com/Simulation/water_ice.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Measure Density",
+      "href": "https://www.new3jcn.com/Simulation/density.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Apparent Weight 1",
+      "href": "https://www.new3jcn.com/Phyc240/apparent_weight.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Apparent Weight 2",
+      "href": "https://www.new3jcn.com/Phyc140/apparent_weight_exp.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Overflow Volume",
+      "href": "https://www.new3jcn.com/thermodynamics/buoyancy-lab.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Fluid Pressure",
+      "href": "https://www.new3jcn.com/Phyc140/fluid_pressure.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Bernoulli's Principle",
+      "href": "https://www.new3jcn.com/Phyc140/bernoulli_equation.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Ideal Gas",
+      "href": "https://www.new3jcn.com/Phyc240/ideal_gas_law.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Brownian Motion",
+      "href": "https://www.new3jcn.com/Simulation/brownian_motion.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Supercooling",
+      "href": "https://www.new3jcn.com/Simulation/supercooling.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Heat Transfer (metal)",
+      "href": "https://www.new3jcn.com/Phyc140/heat_metal.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Heat Transfer (gas)",
+      "href": "https://www.new3jcn.com/Phyc140/heat_transfer_gas.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Heat Transfer (liquid)",
+      "href": "https://www.new3jcn.com/Phyc140/heat_liquid.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Mix Ice & Water",
+      "href": "https://www.new3jcn.com/Phyc240/ice_water_mixing.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Isothermal Process",
+      "href": "https://www.new3jcn.com/Phyc240/isothermal.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Isovolumetric Pro",
+      "href": "https://www.new3jcn.com/Phyc240/isovolumetric.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Isobaric Process",
+      "href": "https://www.new3jcn.com/Phyc240/isobaric.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Adiabatic Process",
+      "href": "https://www.new3jcn.com/Phyc240/adiabatic.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "T in Adiabatic Proc.",
+      "href": "https://www.new3jcn.com/Phyc140/temp_adiabatic.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "A Cyclic Process",
+      "href": "https://www.new3jcn.com/Phyc240/cyclic.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Heat Engine",
+      "href": "https://www.new3jcn.com/Simulation/heat_engine.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Heat Pump",
+      "href": "https://www.new3jcn.com/Simulation/air_conditioner.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Viscosity",
+      "href": "https://www.new3jcn.com/Phyc140/viscosity.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Carnot Engine",
+      "href": "https://www.new3jcn.com/Phyc240/carnot_engine.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "4-Stroke Engine",
+      "href": "https://www.new3jcn.com/Phyc240/cylinder_engine.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Diffusion",
+      "href": "https://www.new3jcn.com/Phyc140/diffusion.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "Water Phases",
+      "href": "https://www.new3jcn.com/Phyc140/water_3_phases.html"
+    },
+    {
+      "page": "thermo_category.html",
+      "title": "PV Dia - Refrig",
+      "href": "https://www.new3jcn.com/Phyc240/refrigerator.html"
+    }
+  ]
+}

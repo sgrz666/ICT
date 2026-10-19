@@ -70,6 +70,13 @@ UNITS = [
     ("three", "three"),
     ("stellarium-web-engine", "stellarium-web-engine"),
     ("webots", "webots"),
+    # Open Source Physics 家族（EJSS 线），2026-10-19 由 fetch_osp_family.sh 浅克隆
+    ("osp", "osp"),
+    ("osp_ejs", "osp_ejs"),
+    ("webejs", "webejs"),
+    ("resources", "resources"),
+    ("STP", "STP"),
+    ("csm", "csm"),
 ]
 for d in sorted(os.listdir(os.path.join(BASE, "phet", "libs"))) if os.path.isdir(os.path.join(BASE, "phet", "libs")) else []:
     if os.path.isdir(os.path.join(BASE, "phet", "libs", d, ".git")):
@@ -114,6 +121,21 @@ probes = {
     "webots.controllers_c": count_files("webots/projects", ".c") + count_files("webots/projects", ".cpp"),
     "phet.sims_installed": sum(1 for u in units if u["id"].startswith("phet-sim-")),
     "phet.libs_installed": sum(1 for u in units if u["id"].startswith("phet-lib-")),
+    # Open Source Physics 家族 + 3JCN 目录镜像（2026-10-19）
+    "osp.java_sources": count_files("osp", ".java"),
+    "osp_ejs.java_sources": count_files("osp_ejs", ".java"),
+    "STP.java_sources": count_files("STP", ".java"),
+    "STP.thermal_packages": sorted(
+        d for d in os.listdir(os.path.join(BASE, "STP/src/org/opensourcephysics/stp"))
+        if os.path.isdir(os.path.join(BASE, "STP/src/org/opensourcephysics/stp", d))
+    ) if os.path.isdir(os.path.join(BASE, "STP/src/org/opensourcephysics/stp")) else [],
+    "csm.java_sources": count_files("csm", ".java"),
+    "webejs.js_artifacts": count_files("webejs", ".js"),
+    "webejs.wasm_artifacts": count_files("webejs", ".wasm"),
+    "resources.html_pages": count_files("resources", ".html"),
+    "3jcn.pages_mirrored": count_files("3jcn/pages", ".html"),
+    "3jcn.catalog_links": len(json.load(open(os.path.join(BASE, "3jcn/3jcn-inventory.json"), encoding="utf-8"))["entries"])
+        if os.path.exists(os.path.join(BASE, "3jcn/3jcn-inventory.json")) else 0,
 }
 for u in units:
     if u["id"].startswith("phet-sim-"):

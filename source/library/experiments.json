@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
   "title": "启智AGENT / EduForge 物理虚拟实验资源库 · 安装实况目录",
-  "generated_at": "2026-10-19T11:46:00+08:00",
+  "generated_at": "2026-10-19T13:38:50+08:00",
   "ground_rule": "本文件只登记磁盘上真实存在的东西。engine_install_path / seed 全部是相对仓库根的路径，能用 ls 验证；没装的写进 not_installed 并给出实测原因；没跑过的验证一律标 pending，不写成已完成。",
   "status_words": {
     "template_connected": "引擎已接通 + 模板三件套齐备 + 已实测出离线包（当前全库只有 optics-convex-lens 这一条）",
     "resource_installed": "上游源码已在 source/upstream 落盘，但没有适配器，Agent 还改不动",
     "component_headless_verified": "组件已装且在本机 Node 里真跑通了物理量（见 source/components/component-probe.json）",
-    "reference_only": "只作为资源候选登记，本轮没装（原因写在 not_installed）",
+    "reference_only": "只作为资源候选登记；本轮 3JCN 走的是「目录镜像已落盘、控制面未验」这条最轻的路（见 engines 里的 3jcn-catalog）",
     "engine_headless_verified": "上游引擎已构建出能在本机 Node 里 import 的产物，并用它自己的积分器跑出一个可与独立解析式对照的物理量",
     "engine_browser_verified": "上游产物已构建并在同源浏览器里经官方 JavaScript 接口改参、读数，与解析式对照通过；不是无头路径，暂时进不了 CI"
   },
@@ -214,6 +214,50 @@
       },
       "blocker_measured": "场景文件（.wbproj/.proto）已落盘，但仿真本体要装 Webots 桌面程序才能跑（本机未装）；且 .wbo 扩展名已在上游改成 .proto，实测仓库内 .wbo 为 0、.proto 为 853",
       "status": "resource_installed"
+    },
+    {
+      "id": "osp-ejss",
+      "name": "Open Source Physics / EJSS / Web EJS",
+      "domain": "力学·波动·热学·电磁·统计物理（教学演示集）",
+      "form": "2D/3D + Java/浏览器",
+      "license": "分层实测：webejs/resources/csm/STP 仓库内 LICENSE 首行 = GNU GENERAL PUBLIC LICENSE Version 3；osp 与 osp_ejs 仓库根没有 LICENSE 文件 ⇒ 许可未定，只读参考、不进交付包",
+      "install_path": "source/upstream/webejs",
+      "upstream": "https://github.com/OpenSourcePhysics/{osp,osp_ejs,webejs,resources,STP,csm}",
+      "commit": "ed085a921f61de653ad48570d2d566268049df63",
+      "version": "6 个仓库分别锁 commit，见 upstream.lock.json 的 osp-singapore-ejss.repos[]",
+      "headless": "pending：本机 Java 23 已装（实测 java -version 输出 java version \"23\" 2024-09-17），但 OSP/STP 的 Ant + SwingJS 构建一次都没跑过；webejs 是纯静态资源（实测 .js 925 个、.wasm 0 个），没有可在 Node 里 import 的入口",
+      "agent_control_surface": "EJSS 线的改参 = 改 .ejs 模型定义再用 osp_ejs 重新编译；Web EJS 侧运行时参数面未实测 ⇒ pending。装上了不等于 Agent 能控，别和 ray-optics 的原生场景 JSON 混为一谈",
+      "resource_seeds": {
+        "STP_java_sources": 123,
+        "csm_java_sources": 195,
+        "osp_java_sources": 807,
+        "osp_ejs_java_sources": 567,
+        "resources_html_pages": 201,
+        "note": "STP/src/org/opensourcephysics/stp 下实测含 idealgas、idealgasintegrals、thermalcontact、carnot、entropy、diffusion、boltzmann 等包目录（完整清单见 inventory.json probes.STP_thermal_packages）"
+      },
+      "known_pits": [
+        "上一轮「找不到权威仓库」的结论是错的：组织名是 OpenSourcePhysics，实测 GET /orgs/OpenSourcePhysics/repos 返回 13 个仓库。教训：找不到来源时先查组织与搜索 API，再下「不装」的结论。",
+        "osp 与 osp_ejs 无 LICENSE ⇒ 任何分发/嵌入前必须先取得授权说明，否则就是合规窟窿。",
+        "这批是 Java 桌面系（Swing/SwingJS）+ 静态 CDN 资源，形态与「浏览器离线交付包」不同路；webejs 只有 74 MB 工作区静态资源，模型本体不在里面。",
+        "resources/ 的 201 个 html 是文档与收藏页，不是可直接改参的实验源。"
+      ],
+      "status": "resource_installed"
+    },
+    {
+      "id": "3jcn-catalog",
+      "name": "3JCN Physics Simulations（仅目录镜像）",
+      "domain": "3D 演示集（力学/光学/热学/电磁/近代/实验）",
+      "form": "静态站点目录，非引擎",
+      "license": "站点未声明开源许可（实测页面只有版权与 patent 链接）⇒ 只做参考素材候选，禁止打进交付包",
+      "install_path": "source/upstream/3jcn",
+      "upstream": "https://www.new3jcn.com/",
+      "commit": "无仓库可锁；锁抓取时间 + 页面字节数，见 upstream.lock.json",
+      "headless": "不适用：没有可运行产物",
+      "agent_control_surface": "未核实（pending）——本轮只证明目录抓得下来（实测 8/8 页、90 条链接），不证明演示可改参",
+      "known_pits": [
+        "「装了目录」≠「装了引擎」：90 条链接只是检索清单，Agent 控制面一个都没验。"
+      ],
+      "status": "reference_only"
     }
   ],
   "experiments": [
@@ -841,6 +885,7 @@
       "form": "2D",
       "priority": "P1",
       "engines": [
+        "rapier",
         "phet"
       ],
       "seed": [
@@ -865,15 +910,20 @@
           "kind": "等温/等压/等容/绝热"
         }
       ],
-      "readback": "P、V、T 与压强读数",
+      "readback": "P、V、T 与压强读数；Rapier 无头路线另给逐轴墙受力、每分子平均撞墙次数、⟨v²⟩ 漂移",
       "acceptance": {
-        "formula": "PV = nRT；等温 P-V 双曲线",
-        "tolerance": "≤2%",
-        "independent_reference": "解析式 + 独立动理论估算"
+        "formula": "PV = nRT；等温 P-V 双曲线；分子动理论 p = N·m·⟨v²⟩/(3V)，有限半径修正版 p = N·m·⟨v²⟩/(3·(L−2R)·L²)",
+        "tolerance": "≤5%（统计量：撞墙次数不够就漂，实测下限见 measured_note）",
+        "independent_reference": "解析式 + 独立动理论估算（冲量只取引擎自己给出的碰撞前后速度差）"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
+      "harness": "source/library/gas_lab.mjs",
+      "measured_evidence": "source/library/gas-lab-evidence.json",
+      "measured_note": "2026-10-19 无头 6/6 pass：基准 p 0.855085 Pa vs 有限半径修正式 0.823045（误差 3.893%）、三轴各向同性 0.992606（0.739%）、弹性撞墙前后 ⟨v²⟩ 漂移 0%；质点极限 R=4 mm 对课本式 p=Nm⟨v²⟩/(3L³) 偏 4.894%，R=3 cm 时高出的倍数 1.15436 ≈ 几何预测 L/(L−2R)=1.11111（⇒ 偏差是分子体积，不是解算器吃能量）；玻意耳 p 比 2.08236（对 V 比 2 偏 4.118%、对修正式 2.05948 偏 1.111%）、等容升温 1.99666、分子数翻倍 2.00013、开重力对照 y 轴受力比 2.0288",
       "blockers": [
-        "gas-properties 是这批里源码量最大的 sim（实测 js/*.ts 134 个），参数面大，要限定首批可控参数白名单"
+        "gas-properties 是这批里源码量最大的 sim（实测 js/*.ts 134 个），参数面大，要限定首批可控参数白名单",
+        "本轮通的是自写 Rapier 箱（分子动理论路线），PhET 那条线还没接通",
+        "p 的绝对精度受统计噪声限制：N=120、跑 12 s ⇒ 每分子约 33 次撞墙才有 4% 级误差；模板要把 N 与 T_RUN 当下限写死，别拿 0.6 s 的短跑读数判 pass（实测那种配置偏 +31%）"
       ]
     },
     {
@@ -1004,22 +1054,10 @@
   ],
   "not_installed": [
     {
-      "name": "OSP@Singapore / EJSS",
-      "intended_form": "2D/3D（双摆、摆波、电磁场、波动）",
-      "reason": "未找到权威可克隆的仓库：GitHub 搜索与多个猜测组织名（wejen、osp-tools、compadre-io）实测均 404；EJSS 搜索结果里只有个人复刻仓库，许可证参差（GPL-3.0 / CC0 / 无声明）。按「上游只读参考、许可先审」的纪律，不装无权威来源的东西。",
-      "next_step": "若要接，先从 sg.iwant2study.org 侧确认官方源码仓库地址与许可，再登记进 upstream.lock.json"
-    },
-    {
-      "name": "3JCN Physics Simulations",
-      "intended_form": "3D 演示集",
-      "reason": "站点为 Java applet / Flash 时代的资源集合，程序化接口未核实；本轮未装。",
-      "next_step": "只做参考素材候选，不进引擎清单"
-    },
-    {
       "name": "PhET 官方发布成品（离线 HTML5）",
       "intended_form": "可直接分发的单文件仿真",
-      "reason": "两条下载路径实测失败：phet.colorado.edu/sims/html/<sim>/latest/*.zip 返回 404（试了 2 种命名），unzipper.colorado.edu 本机 TLS 握手直接失败（curl 000）。",
-      "next_step": "改走 PhET 官方 bulk download 页拿真实链接，或用本地 sim 源码 + grunt 自行构建（构建链 pending）"
+      "reason": "两条下载路径 + 三条元数据路径实测全部失败：phet.colorado.edu/sims/html/<sim>/latest/*.zip 404、unzipper.colorado.edu 本机 TLS 握手失败（curl 000）；本轮再试 <sim>_all_in_one.html、/services/simulations/index.en.json、/api/v1/releases/simulations/latest-version.json，三种都是 404（返回体同为 16,485 B 的 404 页）。仓库自带的 <sim>_en.html 是开发用 HTML（实测头写 generated by 'grunt generate-development-html'、<meta name=\"phet-sim-level\" content=\"development\">、5,611 B 且靠相对路径拉散包 JS），不能当离线成品交付。",
+      "next_step": "走官方 bulk 页拿真链接，或用本地 sim 源码 + grunt 自建生产包（构建链 pending）"
     }
   ],
   "verification_log": {
@@ -1028,10 +1066,17 @@
     "fetch_logs": [
       "source/upstream/fetch-log.tsv",
       "source/upstream/fetch-phet-log.tsv",
-      "source/upstream/fetch-large-log.tsv"
+      "source/upstream/fetch-large-log.tsv",
+      "source/upstream/osp-family-log.tsv",
+      "source/upstream/3jcn/3jcn-inventory.json"
     ],
-    "installed_units": 38,
-    "installed_size_kb": 1281191,
-    "installed_files": 18473
+    "installed_units": 44,
+    "installed_size_kb": 2015455,
+    "installed_files": 25583,
+    "gas_lab": "source/library/gas-lab-evidence.json",
+    "collisions_lab": "source/library/collisions-lab-evidence.json",
+    "field3d_lab": "source/library/field3d-lab-evidence.json",
+    "projectile_lab": "source/library/projectile-lab-evidence.json",
+    "circuit_lab": "source/library/circuit-lab-evidence.json"
   }
 }

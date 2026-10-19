@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-19T11:43:26+08:00",
+  "generated_at": "2026-10-19T13:38:50+08:00",
   "generated_by": "source/upstream/inspect_upstreams.py",
   "comment": "本文件由脚本生成，数字全部来自磁盘实测。重跑：python source/upstream/inspect_upstreams.py",
   "totals": {
-    "installed_units": 38,
-    "total_size_kb": 1281191,
-    "total_files": 18473
+    "installed_units": 44,
+    "total_size_kb": 2015455,
+    "total_files": 25583
   },
   "probes": {
     "ray-optics.gallery_scene_items": 86,
@@ -27,7 +27,52 @@
     "webots.controllers_py": 112,
     "webots.controllers_c": 416,
     "phet.sims_installed": 20,
-    "phet.libs_installed": 10
+    "phet.libs_installed": 10,
+    "osp.java_sources": 807,
+    "osp_ejs.java_sources": 567,
+    "STP.java_sources": 123,
+    "STP.thermal_packages": [
+      "approach",
+      "binomial",
+      "boltzmann",
+      "carnot",
+      "centralLimit",
+      "cointoss",
+      "demon",
+      "diffusion",
+      "einsteinsolid",
+      "entropy",
+      "estimation",
+      "extremeValue",
+      "fpu",
+      "harddisk",
+      "hdmc",
+      "idealgas",
+      "idealgasintegrals",
+      "ising",
+      "isinglg",
+      "lj",
+      "ljmc",
+      "numOfStates",
+      "oscillatornh",
+      "partfunccalc",
+      "percolation",
+      "productprocess",
+      "qmc",
+      "randomwalk",
+      "secondvirial",
+      "sensitive",
+      "thermalcontact",
+      "util",
+      "widom",
+      "xymodel"
+    ],
+    "csm.java_sources": 195,
+    "webejs.js_artifacts": 925,
+    "webejs.wasm_artifacts": 0,
+    "resources.html_pages": 201,
+    "3jcn.pages_mirrored": 8,
+    "3jcn.catalog_links": 90
   },
   "units": [
     {
@@ -60,17 +105,17 @@
       "commit": "4b0bb8e1fa3b00889bb20dfa0d238674ac2e0b3c",
       "branch": "master",
       "upstream_commit_date": "2024-11-25T09:09:18-08:00",
-      "size_kb": 10208,
-      "files": 530,
+      "size_kb": 12445,
+      "files": 853,
       "top_extensions": {
+        ".js": 323,
         ".ts": 322,
         ".html": 83,
         ".png": 28,
         ".graffle": 23,
         ".pdf": 17,
         ".svg": 16,
-        ".md": 14,
-        ".nb": 5
+        ".md": 14
       },
       "license_files": [
         "LICENSE",
@@ -85,20 +130,21 @@
       "commit": "5a707168778216bb6ed01bfdd62e8bbf7ae0a032",
       "branch": "master",
       "upstream_commit_date": "2026-09-23T11:59:14-07:00",
-      "size_kb": 5547,
-      "files": 798,
+      "size_kb": 152119,
+      "files": 2148,
       "top_extensions": {
-        ".txt": 445,
+        ".txt": 1227,
+        ".class": 399,
         ".java": 249,
-        ".html": 33,
-        ".js": 8,
-        ".sh": 7,
-        ".prefs": 7,
-        ".png": 7,
-        "(none)": 6
+        ".html": 65,
+        ".h": 32,
+        ".js": 29,
+        ".png": 28,
+        "(none)": 17
       },
       "license_files": [
         "COPYING.txt",
+        "site/font/LICENSE.txt",
         "war/font/LICENSE.txt"
       ],
       "id": "circuitjs1"
@@ -157,17 +203,22 @@
       "commit": "b8219a69eef61962206e78d161911f835cc064e3",
       "branch": "dev",
       "upstream_commit_date": "2026-10-18T22:29:00+00:00",
-      "size_kb": 23623,
-      "files": 1514,
+      "size_kb": 23650,
+      "files": 1537,
       "top_extensions": {
         ".js": 1504,
-        ".md": 4,
+        ".md": 23,
         ".wasm": 3,
+        "(none)": 2,
+        ".json": 2,
         ".cjs": 1,
         ".txt": 1,
         ".zip": 1
       },
-      "license_files": [],
+      "license_files": [
+        "LICENSE",
+        "examples/fonts/LICENSE"
+      ],
       "id": "three"
     },
     {
@@ -219,6 +270,135 @@
         "projects/samples/robotbenchmark/LICENSE"
       ],
       "id": "webots"
+    },
+    {
+      "path": "osp",
+      "installed": true,
+      "commit": "37b7072414f290d2ab2dd1a38ee8e96939d27d68",
+      "branch": "master",
+      "upstream_commit_date": "2026-09-13T10:06:53-04:00",
+      "size_kb": 185194,
+      "files": 1293,
+      "top_extensions": {
+        ".java": 807,
+        ".gif": 212,
+        ".properties": 148,
+        ".html": 21,
+        ".txt": 19,
+        ".zip": 15,
+        ".xml": 14,
+        "(none)": 12
+      },
+      "license_files": [],
+      "id": "osp"
+    },
+    {
+      "path": "osp_ejs",
+      "installed": true,
+      "commit": "230a790562b753de21fd2de55b440d51a5a0150f",
+      "branch": "master",
+      "upstream_commit_date": "2021-12-20T07:34:56-06:00",
+      "size_kb": 15353,
+      "files": 636,
+      "top_extensions": {
+        ".java": 567,
+        ".gif": 35,
+        ".properties": 9,
+        ".zip": 6,
+        "(none)": 5,
+        ".xml": 5,
+        ".html": 2,
+        ".jar": 2
+      },
+      "license_files": [],
+      "id": "osp_ejs"
+    },
+    {
+      "path": "webejs",
+      "installed": true,
+      "commit": "ed085a921f61de653ad48570d2d566268049df63",
+      "branch": "main",
+      "upstream_commit_date": "2026-08-30T21:30:46+02:00",
+      "size_kb": 74006,
+      "files": 2282,
+      "top_extensions": {
+        ".gif": 1013,
+        ".js": 925,
+        ".png": 152,
+        ".css": 53,
+        ".svg": 39,
+        ".json": 34,
+        ".html": 26,
+        "(none)": 10
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "webejs"
+    },
+    {
+      "path": "resources",
+      "installed": true,
+      "commit": "3b07d46711a6f9669d0b98197066feceecd76fc8",
+      "branch": "main",
+      "upstream_commit_date": "2026-08-07T16:19:13-07:00",
+      "size_kb": 297553,
+      "files": 865,
+      "top_extensions": {
+        ".html": 201,
+        ".mp4": 136,
+        ".jpg": 114,
+        ".png": 65,
+        ".zip": 63,
+        ".gif": 56,
+        ".trz": 56,
+        ".pdf": 52
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "resources"
+    },
+    {
+      "path": "STP",
+      "installed": true,
+      "commit": "ade9b85077e0735b5f8d845e864f112240802cf9",
+      "branch": "master",
+      "upstream_commit_date": "2020-07-28T11:44:05-04:00",
+      "size_kb": 12570,
+      "files": 140,
+      "top_extensions": {
+        ".java": 123,
+        "(none)": 6,
+        ".txt": 4,
+        ".jar": 3,
+        ".html": 2,
+        ".xml": 1,
+        ".zip": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "STP"
+    },
+    {
+      "path": "csm",
+      "installed": true,
+      "commit": "bae4c340790f7a8c6969555030b53b77daea838c",
+      "branch": "master",
+      "upstream_commit_date": "2015-04-10T20:08:40-04:00",
+      "size_kb": 752,
+      "files": 198,
+      "top_extensions": {
+        ".java": 195,
+        "(none)": 1,
+        ".txt": 1,
+        ".qda": 1
+      },
+      "license_files": [
+        "LICENSE"
+      ],
+      "id": "csm"
     },
     {
       "path": "phet/libs/assert",

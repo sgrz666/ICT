@@ -36,6 +36,14 @@ source/upstream/three/
 source/upstream/stellarium-web-engine/
 source/upstream/webots/
 source/upstream/phet/
+# Open Source Physics 家族（EJSS 线）与 3JCN 镜像页面：都是第三方树，按 lock 里的 commit 可重装
+source/upstream/webejs/
+source/upstream/resources/
+source/upstream/osp/
+source/upstream/osp_ejs/
+source/upstream/STP/
+source/upstream/csm/
+source/upstream/3jcn/pages/
 
 # npm 组件与安装现场：依赖目录不入库，日志类产物不入库
 source/components/node_modules/
