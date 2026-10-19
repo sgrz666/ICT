@@ -1,0 +1,837 @@
+{
+  "measured_at": "2026-10-19T10:16:09.149Z",
+  "tool": "source/library/jcn3_batch_probe.mjs",
+  "pages": [
+    {
+      "page": "Phyc140/angular_momentum_collision.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "TypeError: THREE.OrbitControls is not a constructor"
+      ]
+    },
+    {
+      "page": "Phyc140/apparent_weight_exp.html",
+      "sliders": [
+        "posSlider[-10..15]",
+        "massMetalSlider[300..700]",
+        "tempMetalSlider[10..100]",
+        "massLiquidSlider[1200..2000]",
+        "tempLiquidSlider[10..100]"
+      ],
+      "slider_count": 5,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "posSlider",
+          "wrote": -10,
+          "readback": -10,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "massMetalSlider",
+          "wrote": 300,
+          "readback": 300,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/block_spring.html",
+      "sliders": [
+        "massSlider[0.1..0.3]",
+        "kSlider[1..3]"
+      ],
+      "slider_count": 2,
+      "canvas": 1,
+      "readouts": [
+        "20kg",
+        "20kg"
+      ],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "massSlider",
+          "wrote": 0.2,
+          "readback": 0.2,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "kSlider",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/buoyant_force_exp.html",
+      "sliders": [
+        "volSlider[100..200]",
+        "liquidVolSlider[1500..2900]",
+        "tempLiquidSlider[10..100]"
+      ],
+      "slider_count": 3,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "volSlider",
+          "wrote": 100,
+          "readback": 100,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "liquidVolSlider",
+          "wrote": 1500,
+          "readback": 1500,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/center_mass_3d.html",
+      "sliders": [
+        "mass1[1..3]",
+        "mass2[1..3]",
+        "mass3[1..3]"
+      ],
+      "slider_count": 3,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "mass1",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "mass2",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/center_of_mass.html",
+      "sliders": [
+        "mass1[1..3]",
+        "mass2[1..3]"
+      ],
+      "slider_count": 2,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "mass1",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "mass2",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/centripetal_force_formula.html",
+      "sliders": [
+        "massSlider[0.2..5]",
+        "radiusSlider[1..6]",
+        "speedSlider[0.5..6]"
+      ],
+      "slider_count": 3,
+      "canvas": 1,
+      "readouts": [],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "massSlider",
+          "wrote": 0.2,
+          "readback": 0.2,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "radiusSlider",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/circular_shm.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [
+        "20N",
+        "20kg"
+      ],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/earth_circumference.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 2,
+      "readouts": [],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/flat_mirror_prob.html",
+      "sliders": [
+        "xSlider[2..4]"
+      ],
+      "slider_count": 1,
+      "canvas": 1,
+      "readouts": [],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "xSlider",
+          "wrote": 3,
+          "readback": 3,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "writable_only",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/galileo_gravity.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/gravity_force.html",
+      "sliders": [
+        "posObj1[-60..-15]",
+        "posObj2[15..60]",
+        "massObj1[10..1000]",
+        "massObj2[10..1000]"
+      ],
+      "slider_count": 4,
+      "canvas": 0,
+      "readouts": [
+        "20m",
+        "20N"
+      ],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "posObj1",
+          "wrote": -60,
+          "readback": -60,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "posObj2",
+          "wrote": 15,
+          "readback": 15,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/mass-on-spring.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 0,
+      "readouts": [
+        "2kg",
+        "1kg",
+        "1N",
+        "5.77cm",
+        "3.33cm",
+        "10cm",
+        "5.77cm"
+      ],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/measure_earth_radius.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 3,
+      "readouts": [
+        "007A",
+        "003A",
+        "000A",
+        "000A",
+        "007A",
+        "007A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "000A"
+      ],
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/moon_distance.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 2,
+      "readouts": [],
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/newton_cooling_law.html",
+      "sliders": [
+        "massMetalSlider[300..700]",
+        "tempMetalSlider[80..200]",
+        "massLiquidSlider[1200..2000]",
+        "tempLiquidSlider[6..25]"
+      ],
+      "slider_count": 4,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "massMetalSlider",
+          "wrote": 300,
+          "readback": 300,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "tempMetalSlider",
+          "wrote": 80,
+          "readback": 80,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/rolling_faster.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/rolling_objects.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/seesaw2.html",
+      "sliders": [
+        "leftPosSlider[-20..0]",
+        "leftMassSlider[1..5]",
+        "pivotSlider[-10..-2]"
+      ],
+      "slider_count": 3,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "leftPosSlider",
+          "wrote": -20,
+          "readback": -20,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "leftMassSlider",
+          "wrote": 1,
+          "readback": 1,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/shm.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [
+        "20N",
+        "20kg"
+      ],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/star-planet.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 1,
+      "readouts": [],
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Phyc140/sun_distance.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 3,
+      "readouts": [
+        "177.71°",
+        "90°",
+        "177.71°",
+        "90°",
+        "90°",
+        "87.71°",
+        "100.0%",
+        "1.91°",
+        "90°",
+        "88.09°",
+        "50%",
+        "98.70%"
+      ],
+      "render_static": false,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Simulation/least_action.html",
+      "sliders": [
+        "pathsSlider[5..30]",
+        "gSlider[0..20]",
+        "timeSlider[1..8]",
+        "ampSlider[0.2..4]"
+      ],
+      "slider_count": 4,
+      "canvas": 2,
+      "readouts": [
+        "007A",
+        "007A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "000A",
+        "000A"
+      ],
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "pathsSlider",
+          "wrote": 5,
+          "readback": 5,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": false
+        },
+        {
+          "slider": "gSlider",
+          "wrote": 0,
+          "readback": 0,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "dynamic_render",
+      "page_errors": []
+    },
+    {
+      "page": "Simulation/loop.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": [
+        "ReferenceError: Physijs is not defined"
+      ]
+    },
+    {
+      "page": "Simulation/Newton-Cannon.html",
+      "sliders": [
+        "scale[-2..2]"
+      ],
+      "slider_count": 1,
+      "canvas": 0,
+      "readouts": [
+        "7,300m/s",
+        "7,300m/s"
+      ],
+      "render_static": true,
+      "verdict": "load_failed",
+      "error": "Error: page.evaluate: ReferenceError: updateTextInput is not defined\n    at HTMLInputElement.onchange (file:///D:/codeplus/ICT/source/upstre"
+    },
+    {
+      "page": "Simulation/Newton_Gravity.html",
+      "sliders": [],
+      "slider_count": 0,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [],
+      "verdict": "no_control",
+      "page_errors": []
+    },
+    {
+      "page": "Simulation/projectile_motion_exp.html",
+      "sliders": [
+        "angleSlider[10..70]",
+        "speedSlider[17..27]",
+        "highSlider[0..10]",
+        "gSlider[5..16]",
+        "resSlider[0..0.5]"
+      ],
+      "slider_count": 5,
+      "canvas": 0,
+      "readouts": [],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "angleSlider",
+          "wrote": 10,
+          "readback": 10,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "speedSlider",
+          "wrote": 17,
+          "readback": 17,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Simulation/rescue.html",
+      "sliders": [
+        "vSlider[50..300]",
+        "hSlider[50..400]"
+      ],
+      "slider_count": 2,
+      "canvas": 1,
+      "readouts": [
+        "003A",
+        "006A",
+        "003A",
+        "006A",
+        "003A",
+        "006A",
+        "5888g",
+        "007A",
+        "003A",
+        "006A",
+        "006A",
+        "007A",
+        "11g",
+        "007A",
+        "11g",
+        "007A",
+        "11g",
+        "007A",
+        "5888g",
+        "5888g"
+      ],
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "vSlider",
+          "wrote": 50,
+          "readback": 50,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": false
+        },
+        {
+          "slider": "hSlider",
+          "wrote": 50,
+          "readback": 50,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "dynamic_render",
+      "page_errors": []
+    },
+    {
+      "page": "Simulation/simple-pendulum.html",
+      "sliders": [
+        "lengthSlider[20..28]"
+      ],
+      "slider_count": 1,
+      "canvas": 1,
+      "readouts": [
+        "15°",
+        "007A",
+        "006A",
+        "006A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "9g",
+        "9g",
+        "007A",
+        "006A",
+        "8g",
+        "8g"
+      ],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "lengthSlider",
+          "wrote": 20,
+          "readback": 20,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": [
+        "TypeError: THREE.OrbitControls is not a constructor"
+      ]
+    },
+    {
+      "page": "Simulation/soccer.html",
+      "sliders": [
+        "speedSlider[10..20]",
+        "angleSlider[20..34]",
+        "lrSlider[-23..29]"
+      ],
+      "slider_count": 3,
+      "canvas": 0,
+      "readouts": [
+        "20°",
+        "34°",
+        "007A",
+        "007A",
+        "007A",
+        "007A",
+        "005A",
+        "007A",
+        "007A",
+        "007A",
+        "2g",
+        "2g",
+        "006A",
+        "006A",
+        "423g",
+        "423g",
+        "007A",
+        "007A",
+        "006A",
+        "007A"
+      ],
+      "render_static": true,
+      "writes": [
+        {
+          "slider": "speedSlider",
+          "wrote": 10,
+          "readback": 10,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        },
+        {
+          "slider": "angleSlider",
+          "wrote": 20,
+          "readback": 20,
+          "readout_changed": false,
+          "picture_changed": true,
+          "picture_reverted": true
+        }
+      ],
+      "verdict": "writable_and_picture",
+      "page_errors": []
+    },
+    {
+      "page": "Simulation/sun_earth_distance.html",
+      "sliders": [
+        "angleSlider[87..89.85]"
+      ],
+      "slider_count": 1,
+      "canvas": 2,
+      "readouts": [
+        "89.00°",
+        "90°",
+        "90°",
+        "89.00°",
+        "90°",
+        "90°",
+        "1.00°",
+        "52.3%",
+        "87°",
+        "85.28%",
+        "90°",
+        "003A",
+        "003A",
+        "000A",
+        "000A",
+        "003A",
+        "000A",
+        "000A",
+        "000A",
+        "000A"
+      ],
+      "render_static": false,
+      "writes": [
+        {
+          "slider": "angleSlider",
+          "wrote": 87,
+          "readback": 87,
+          "readout_changed": true,
+          "picture_changed": true,
+          "picture_reverted": false
+        }
+      ],
+      "verdict": "writable_and_readout",
+      "page_errors": []
+    }
+  ],
+  "summary": {
+    "pages": 31,
+    "writable_and_readout": 1,
+    "writable_and_picture": 12,
+    "writable_only": 1,
+    "dynamic_render": 2,
+    "no_control": 14,
+    "rejected": 0,
+    "load_failed": 1,
+    "pages_with_dom_readouts": 13
+  }
+}
