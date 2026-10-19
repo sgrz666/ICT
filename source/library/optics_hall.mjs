@@ -176,6 +176,108 @@ const baseY = straight.detectors.find((d) => d.name === "screen")?.centroid?.y ?
   });
 }
 
+
+// ---------- 5) 三棱镜：折射 + 色散（解析式用自写的矢量斯涅尔追迹，与引擎完全无关） ----------
+{
+  const vadd = (a, b) => ({ x: a.x + b.x, y: a.y + b.y });
+  const vscale = (a, k) => ({ x: a.x * k, y: a.y * k });
+  const vdot = (a, b) => a.x * b.x + a.y * b.y;
+  const vlen = (a) => Math.hypot(a.x, a.y);
+  const vnorm = (a) => vscale(a, 1 / vlen(a));
+
+  // 折射：eta = n1/n2，n 为界面法向（已取成与入射方向相反的一侧）
+  function refract(d, n, eta) {
+    const cosi = -vdot(n, d);
+    const sin2t = eta * eta * (1 - cosi * cosi);
+    if (sin2t > 1) return null;                       // 全反射
+    const cost = Math.sqrt(1 - sin2t);
+    return vnorm(vadd(vscale(d, eta), vscale(n, eta * cosi - cost)));
+  }
+
+  // 与线段 p→q 的最近正向交点（光线从 o 沿 dir 前进）
+  function hitSeg(o, dir, a, b, eps) {
+    const e = { x: b.x - a.x, y: b.y - a.y };
+    const den = dir.x * e.y - dir.y * e.x;
+    if (Math.abs(den) < 1e-12) return null;
+    const ox = a.x - o.x, oy = a.y - o.y;
+    const t = (ox * e.y - oy * e.x) / den;
+    const u = (ox * dir.y - oy * dir.x) / den;
+    if (t <= eps || u < 0 || u > 1) return null;
+    return { t, point: vadd(o, vscale(dir, t)), edge: [a, b] };
+  }
+
+  const TRI = [{ x: 0, y: 200 }, { x: -173.2050808, y: -100 }, { x: 173.2050808, y: -100 }];
+  const CENTROID = { x: 0, y: 33.3333 };
+  const edgesOf = () => [[TRI[0], TRI[1]], [TRI[1], TRI[2]], [TRI[2], TRI[0]]];
+  const outNormal = (a, b) => {
+    const n1 = { x: -(b.y - a.y), y: b.x - a.x }, n2 = vscale(n1, -1);
+    const mid = vscale(vadd(a, b), 0.5);
+    return vdot(vscale(vadd(CENTROID, vscale(mid, -1)), 1), n1) < 0 ? vnorm(n1) : vnorm(n2);
+  };
+
+  // 入射点取左面（TRI[0]→TRI[1]）中点，入射角 45°
+  const M = vscale(vadd(TRI[0], TRI[1]), 0.5);
+  const nOut = outNormal(TRI[0], TRI[1]);
+  const rot = (v, phi) => ({ x: v.x * Math.cos(phi) - v.y * Math.sin(phi), y: v.x * Math.sin(phi) + v.y * Math.cos(phi) });
+  const dirIn = rot(vscale(nOut, -1), 45 * Math.PI / 180);
+  const src = vadd(M, vscale(dirIn, -250));
+
+  // 解析追迹：空气→玻璃→空气，再直线延长到屏 x = SCREEN
+  function analytic(nGlass, screenX) {
+    let o = src, dir = dirIn, inside = false, edgeHit = null;
+    for (let step = 0; step < 8; step++) {
+      let best = null;
+      for (const [a, b] of edgesOf()) {
+        if (inside && edgeHit && a === edgeHit[0] && b === edgeHit[1]) continue;
+        const h = hitSeg(o, dir, a, b, 1e-6);
+        if (h && (!best || h.t < best.t)) best = h;
+      }
+      if (!best) return null;
+      const nrm = outNormal(best.edge[0], best.edge[1]);
+      const fromN = inside ? nGlass : 1.0, toN = inside ? 1.0 : nGlass;
+      const nn = vdot(dir, nrm) < 0 ? nrm : vscale(nrm, -1);      // 取与入射方向相反的法的侧
+      const nd = refract(dir, nn, fromN / toN);
+      if (nd === null) return null;
+      o = best.point; dir = nd; inside = !inside; edgeHit = best.edge;
+      if (!inside) break;
+    }
+    const t = (screenX - o.x) / dir.x;
+    return { exit_point: M, screen_y: o.y + dir.y * t, exit_dir: dir };
+  }
+
+  const SCREEN_X2 = 600;
+  const prismObjs = (n) => [
+    { type: "Glass", name: "prism", path: TRI.map((q) => ({ x: q.x, y: q.y, arc: false })), refIndex: n },
+    { type: "SingleRay", name: "ray", p1: src, p2: vadd(src, vscale(dirIn, 100)) },
+    screen("screen", SCREEN_X2, 700),
+  ];
+
+  const runs = [];
+  for (const n of [1.50, 1.52]) {
+    let got;
+    try {
+      got = await runScene(prismObjs(n));
+    } catch (e) {
+      runs.push({ refIndex: n, error: String(e.message).slice(0, 200) });
+      continue;
+    }
+    const y = got.detectors[0].centroid?.y ?? null;
+    const pred = analytic(n, SCREEN_X2);
+    runs.push({ refIndex: n, engine_screen_y: y, analytic_screen_y: pred?.screen_y ?? null,
+                err: (y !== null && pred) ? Number((y - pred.screen_y).toFixed(3)) : null });
+  }
+  const sep_engine = runs[1].engine_screen_y !== null && runs[0].engine_screen_y !== null ? runs[1].engine_screen_y - runs[0].engine_screen_y : null;
+  const sep_pred = runs[1].analytic_screen_y !== null && runs[0].analytic_screen_y !== null ? runs[1].analytic_screen_y - runs[0].analytic_screen_y : null;
+  const allOK = runs.every((r) => r.err !== null && Math.abs(r.err) <= 3) && sep_engine !== null && Math.abs(sep_engine) > 0.5;
+  results.push({
+    id: "optics-prism-dispersion", title: "三棱镜折射与色散（自写矢量斯涅尔追迹做对照）",
+    setup: { prism_apex_deg: 60, incidence_deg: 45, screen_x: SCREEN_X2, wavelengths_emulated: "用 n=1.50 与 n=1.52 两次运行代表两种色散介质值" },
+    runs, separation: { engine: sep_engine, analytic: sep_pred },
+    verdict: allOK ? "pass" : "fail",
+    check: { metric: "每种 n 的屏上落点 vs 自写追迹", tolerance_units: 3 },
+  });
+}
+
 const summary = {
   generated_at: new Date().toISOString(),
   engine: "ray-optics 5.5.0 dist-node/rayOptics.js（真实光线追迹；解析式独立于引擎）",

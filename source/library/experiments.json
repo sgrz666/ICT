@@ -393,10 +393,14 @@
         "tolerance": "分离方向正确 + 偏向角误差 ≤1°",
         "independent_reference": "Cauchy 公式 n(λ)=A+B/λ² 的独立实现"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
-        "Scene.simulateColors 默认 false，模板必须显式开启并纳入版本校验（实测默认值清单在 upstream.lock.json）"
-      ]
+        "色散目前是用两个 refIndex 代表两种介质值来验的；引擎真正的 Cauchy/多波长色散（simulateColors + cauchyB）还没单独验过",
+        "缺 catalog/templates/optics/prism 模板三件套与适配器接线"
+      ],
+      "measured_evidence": "source/library/optics-hall-evidence.json",
+      "measured_note": "入射 45°、顶角 60°、n=1.50/1.52 两次运行：屏上落点 -165.5 vs 自写矢量斯涅尔追迹 -165.82（差 0.315）、-186.5 vs -186.61（差 0.109）；两色差 engine -21.0 vs 解析 -20.79",
+      "harness": "node source/library/optics_hall.mjs --json"
     },
     {
       "id": "mechanics-pendulum",

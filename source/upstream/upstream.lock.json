@@ -134,12 +134,13 @@
         "场景 JSON 里的点必须是 {x,y} 对象（上游 data/galleryScenes/*.json 就是这个形状）。写成 [x,y] 数组时 loadJSON **不报错**，但坐标变 undefined，光线走一步就没了——静默失败，最难查。",
         "PlaneGlass 的 p1/p2 都是界面上的点（源码注释 'A point on the boundary'），不是法线方向；玻璃落在 p1→p2 的**左手侧**——实测：p1=(0,-200) p2=(0,200) 时玻璃在 x<0，因此从 x=-300 入射是「玻璃→空气」。写折射/全反射模板前必须先确认这一条，否则光源放错侧，全反射实验会退化成「光在空气里直走」而看起来仍然通过。",
         "Detector 在没有光线命中时 power = -1（哨兵值），不是 0；有 irradMap 时 binData 长度固定为 探测器长度/binSize，所以 bins 长度非 0 也不代表收到光。判「有没有光」要同时看 power 与 binData 是否全零。",
-        "探测器亮度分布的分辨率由 binSize 决定（binSize=1 ⇒ 约 1 个场景单位），所以解析对照的容差不应小于它：本轮实测偏差 0.5 单位就是量化误差而不是物理误差。"
+        "探测器亮度分布的分辨率由 binSize 决定（binSize=1 ⇒ 约 1 个场景单位），所以解析对照的容差不应小于它：本轮实测偏差 0.5 单位就是量化误差而不是物理误差。",
+        "三棱镜/任意多边形玻璃要写 type:\"Glass\" + path（官方 data/galleryScenes/prisms.json 就是这么存的）；CustomGlass 是「按方程 eqn1/eqn2 定义的玻璃」，喂 path 会得到 scene.error='Unknown key: \"path\" in object of type \"CustomGlass\"'。"
       ],
       "optics_hall_verified_2026_10_19": {
         "harness": "source/library/optics_hall.mjs（证据落盘 source/library/optics-hall-evidence.json）",
         "run_command": "node source/library/optics_hall.mjs --json",
-        "summary": "4/4 pass，全部用与引擎无关的解析式判对错；引擎侧只负责真实光线追迹",
+        "summary": "5/5 pass（新增三棱镜），全部用与引擎无关的解析式判对错",
         "cases": {
           "plane-mirror": {
             "metric": "屏上亮斑 y",
@@ -168,6 +169,22 @@
             "measured": 100.00000000000037,
             "analytic": 100,
             "formula": "w(L) = h*(L+|f|)/|f| ⇒ |f| = (w1·L2 − w2·L1)/(w2 − w1)，完全不读引擎自报焦距"
+          },
+          "prism-dispersion": {
+            "metric": "屏上落点 + 两 n 的分离量",
+            "measured": [
+              -165.5,
+              -186.5
+            ],
+            "analytic": [
+              -165.815,
+              -186.609
+            ],
+            "separation": {
+              "engine": -21.0,
+              "analytic": -20.793
+            },
+            "formula": "自写的矢量斯涅尔追迹（refract() + 逐面求交），与引擎完全无关"
           }
         }
       }

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-19T04:12:34.752Z",
+  "generated_at": "2026-10-19T04:25:23.328Z",
   "engine": "ray-optics 5.5.0 dist-node/rayOptics.js（真实光线追迹；解析式独立于引擎）",
-  "pass": 4,
+  "pass": 5,
   "fail": 0,
   "results": [
     {
@@ -181,6 +181,39 @@
         "tolerance": 15
       },
       "verdict": "pass"
+    },
+    {
+      "id": "optics-prism-dispersion",
+      "title": "三棱镜折射与色散（自写矢量斯涅尔追迹做对照）",
+      "setup": {
+        "prism_apex_deg": 60,
+        "incidence_deg": 45,
+        "screen_x": 600,
+        "wavelengths_emulated": "用 n=1.50 与 n=1.52 两次运行代表两种色散介质值"
+      },
+      "runs": [
+        {
+          "refIndex": 1.5,
+          "engine_screen_y": -165.5,
+          "analytic_screen_y": -165.81537290254593,
+          "err": 0.315
+        },
+        {
+          "refIndex": 1.52,
+          "engine_screen_y": -186.5,
+          "analytic_screen_y": -186.60882090148237,
+          "err": 0.109
+        }
+      ],
+      "separation": {
+        "engine": -21,
+        "analytic": -20.793447998936443
+      },
+      "verdict": "pass",
+      "check": {
+        "metric": "每种 n 的屏上落点 vs 自写追迹",
+        "tolerance_units": 3
+      }
     }
   ]
 }
