@@ -22,7 +22,7 @@ const argv = process.argv;
 const opt = (k, d) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : d);
 const url = opt("--url", null);
 if (!url) { console.error("必须给 --url（页面是 ES module，file:// 会被 CORS 挡）"); process.exit(2); }
-const out = opt("--json", "source/upstream/3jcn/offline-load-diagnosis.json");
+const out = opt("--json", "source/upstream/3jcn/3jcn-offline-diagnosis.json");
 const exec = findChromium();
 const WEBGL_NOTE = "headless chromium 若无 WebGL，画面判据在这台机器上先天为 0，要先排除这一条再谈离线包";
 

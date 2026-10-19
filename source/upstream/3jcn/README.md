@@ -58,7 +58,7 @@
 * 构建实况（`3jcn-offline-build.json`）：扫描 83 个文件、改写跨域引用 155 处、其中非 HTML 1 处、three 改指包内 1 处、根绝对改相对 2 处、代理 4 个 CDN 文件、仍剩跨域 283 种（正文 `<a href>` 外链，不是运行依赖）。
 * **断网驱动复跑（`--offline`，只放行 127.0.0.1）+ 画面判据收紧**（`shot()` 只取 `<canvas>` 元素像素；没有 canvas 就记 `no-canvas-…` 且 `usable=false`，整页变化不再算画面证据）：`Phyc140/apparent_weight_exp.html` canvas=1（1280×820，WebGL 可用）、**被拦（运行期/总）= 0/0**、页面异常与控制台错各 0。五只具名滑块连跑两遍：**第一遍 4/5、第二遍 5/5**，其中 `tempMetalSlider` 一遍「改回原值画面没回基线」、一遍回了 ⇒ 记作**边界样本**，不写「5/5 稳定」。4 只（`posSlider`、`massMetalSlider`、`massLiquidSlider`、`tempLiquidSlider`）两遍都稳定通过「回读一致 + 同值再派发事件画面不变（对照组）+ canvas 像素变 + 改回原值回基线帧」。温度那一条的物理成因还没查：这页金属温度是随时间积分的量，复原本来就可能不回原帧，与平面镜那只「要靠页面 Reset 才回得去」可能是同一类现象。
 * 驱动台另外补了两处自查：`--offline` 的「被拦」按运行期/排版分档（`.css`/`.ico` 拦掉只是排版塌，`.js/.json/.gltf/.png` 拦掉才是场景出不来），以及新增控制台与 `requestfailed` 采集——上一版这两样都没有，所以「0 异常」被误读过一次。
-* **仍未做的一半**照旧：这一页 `readout_tokens` 为空（读数画在 3D 文字里），「Agent 改参 → 解析式对账」还是空白，状态只到 **UI 可驱动 + canvas 可观测**，不标 `engine_*_verified`。证据 `../../library/jcn3-apparent-weight-offline.json`、`diag-offline-neton.json`、`diag-offline-netoff.json`。
+* **仍未做的一半**照旧：这一页 `readout_tokens` 为空（读数画在 3D 文字里），「Agent 改参 → 解析式对账」还是空白，状态只到 **UI 可驱动 + canvas 可观测**，不标 `engine_*_verified`。证据 `../../library/jcn3-offline-apparent-weight.json`、`3jcn-offline-diag-neton.json`、`3jcn-offline-diag-netoff.json`。
 
 十 pass（同日，进行中）：`jcn3_batch_probe.mjs` 已按三条重写（打 `offline/` 派生树 + 脚本自起同源伺服 + 掐掉非本机请求；画面只取 `<canvas>` 元素像素，没有 canvas 记 `canvas_absent`；`--repeat` 连跑多趟，只有趟趟一致才算稳定，否则单列 `*_unstable`）。**逐页新分档尚未落进本文件**——跑完再写，命令是 `node source/library/jcn3_batch_probe.mjs --tree offline --repeat 2`（约 31 页 × 2 趟）。在此之前，上面第七 pass 那批「12 份画面可驱动」只能按作废口径读；`3jcn-offline-ab-vendor.json` 与 `jcn3-offline-ab-vendor.json`（若有）留的是收紧判据后的现场，画面那一项写的是 `usable=false` 而不是「变化」。
 
