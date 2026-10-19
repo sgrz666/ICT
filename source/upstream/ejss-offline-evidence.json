@@ -1,0 +1,91 @@
+{
+  "measured_at": "2026-10-19T07:33Z",
+  "title": "EJSS/WebEJS 模型离线拼装 + 浏览器实测：改参数真的会改到画面里的曲线",
+  "tool": "source/upstream/webejs_offline_try.py",
+  "model": "Multislit Diffraction (W. Christian) @ source/upstream/resources/docs/CollectionTest/webejs_model_MultislitDiffraction.zip",
+  "assembly": {
+    "command": "python source/upstream/webejs_offline_try.py --param N=5 --param lambda=0.6 --param d=40 --param D=8 --param L=80",
+    "scratch_dir": "source/upstream/.webejs-offline/multislit/（不入库）",
+    "cdns_replaced": 5,
+    "local_runtime_copied": {
+      "ejsS.v1.min.js": 655795,
+      "textresizedetector.js": 3654,
+      "ejss.css": "css/ejss.css"
+    },
+    "third_party_downloaded": {
+      "plotly": {
+        "url": "https://cdn.plot.ly/plotly-1.58.5.min.js",
+        "bytes": 3478174
+      }
+    },
+    "remaining_external_refs": 32,
+    "remaining_external_refs_note": "多数是文案里的链接与 plotly 内置地图归属；渲染必需的四条已本地化，实测不再走网"
+  },
+  "browser_measurement": {
+    "how": "内置浏览器 file:// 打开 _simulation.xhtml；无网络、无上游 CDN",
+    "runtime_loaded_locally": {
+      "EJSS_CORE": "object",
+      "Plotly": "object"
+    },
+    "script_srcs": [
+      "assets/vendor/plotly-latest.min.js",
+      "assets/vendor/mathjax-wrapper.js",
+      "assets/_ejs_library/scripts/textresizedetector.js",
+      "assets/_ejs_library/ejsS.v1.min.js"
+    ],
+    "controls_built": {
+      "sliders": 5,
+      "checkboxes": 1,
+      "ids": [
+        "nSlider.slider",
+        "lambdaSlider.slider",
+        "separationSlider.slider",
+        "widthSlider.slider",
+        "distanceSlider.slider",
+        "envelopeCheck.checkbox"
+      ]
+    },
+    "baked_params_seen_by_page": {
+      "N": 5,
+      "lambda": 0.6,
+      "d": 40,
+      "D": 8,
+      "L": 80
+    },
+    "plotly_traces": 3,
+    "points_per_trace": 4096,
+    "x_range": [
+      -3.141592653589793,
+      3.1415926535899326
+    ],
+    "principal_maxima": [
+      -1.1976,
+      -0.0008,
+      1.1976
+    ],
+    "checks": [
+      {
+        "metric": "相邻主极大间距",
+        "measured": 1.1976,
+        "analytic": "λL/d = 0.6×80/40 = 1.2",
+        "rel_error_pct": 0.2
+      },
+      {
+        "metric": "两主极大之间的次极大个数",
+        "measured": 3,
+        "analytic": "N−2 = 5−2 = 3",
+        "exact": true
+      }
+    ]
+  },
+  "pitfalls_found_this_round": [
+    "薄的 MathJax 替身会把整条绘图链打断：模型在 _simulation.xhtml 第 324 行调 MathJax.Hub.Queue(...)，只给空对象 ⇒ 抛 'Hub.Queue is not a function'，plotly 永远不初始化。替身必须真的执行排进队列的回调。",
+    "plotly 必须钉在 1.x（本轮 1.58.5）。上游写的是 plotly-latest.min.js（1.x 时代的别名），拿 2.x 会在 line 8 反复抛 'Cannot read properties of undefined (reading length)'。",
+    "plotlyPanel 的 CSS 高度在这个包里算出来是 0，直接开会让图不出来；本轮是脚本外手动把三个面板设成 400px 才画的 ⇒ 交付时得带一个正确的外层页面（_main.html）或补 CSS，别把这次的成功当成开箱即用。"
+  ],
+  "not_yet_verified": [
+    "只做了 webejs 导出这一个模型；EJS 6.02 导出的 27 个包的 HTML 引用的路径本身就坏（survey 实测），要按同样思路先修路径",
+    "没有可见视口下的视觉确认（截图不可得），画面正确性是靠 Plotly 数据 + 解析式两条独立证据判的",
+    "面板高度为 0 的根因（ejss.css 缺项还是外层页面缺）没定位"
+  ]
+}

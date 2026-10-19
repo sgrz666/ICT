@@ -291,7 +291,7 @@
       "commit": "ed085a921f61de653ad48570d2d566268049df63",
       "version": "6 个仓库分别锁 commit，见 upstream.lock.json 的 osp-singapore-ejss.repos[]",
       "headless": "已实测第一条通路（2026-10-19）：probe_ejss_model.py 能把 .ejss/.ejs/打包 zip 的参数表与代码块解析出来，interference_lab.mjs 直接拿模型原文的振幅函数在 Node 里出数并对解析式（5/5）；但模型自带的浏览器运行时（webejs + Plotly 视图）仍没跑过；28 个模型的参数面已用 survey_ejss_models.py 逐个量出来（见 resource_inventory）",
-      "agent_control_surface": "EJSS 模型的改参通路已实测：XML 的 public 变量表就是参数面（多缝衍射那一份实测 22 个 public 变量，含 N/D/d/lambda/L 及注释里写明的取值范围），代码块是 Osejs.Model.Library / Initialization；不必再猜「EJSS 能不能被 Agent 改」",
+      "agent_control_surface": "EJSS 模型的改参通路已实测：XML 的 public 变量表就是参数面（多缝衍射那一份实测 22 个 public 变量，含 N/D/d/lambda/L 及注释里写明的取值范围），代码块是 Osejs.Model.Library / Initialization；不必再猜「EJSS 能不能被 Agent 改」 2026-10-19 追加：浏览器侧也通了——把 webejs 导出的 CDN 换成本地资源后，file:// 打开能出 Plotly 曲线，且把烘焙参数改成 N=5/λ=0.6/d=40/D=8/L=80 之后，曲线的主极大间距 1.1976（λL/d=1.2）与次极大 3 个（N−2）都跟着变 ⇒ 「Agent 改参数 → 可操作实验真的变」第一次拿到画面内证据。",
       "resource_seeds": {
         "STP_java_sources": 123,
         "csm_java_sources": 195,
@@ -333,7 +333,8 @@
         "zip_without_model": 55,
         "measured_note": "6 仓里 84 个 zip 扫下来只有 28 个带 .ejss 模型源码（其余 55 个是文档/图片/网页壳）；其中 26 个能程序化读出可改参数表（7~29 个，中位 13），28 个能取到模型自己的代码块，27 个自带 ejsS.v1.min.js 运行时。",
         "measured_negative": "但「自带运行时 = 能在浏览器里打开」这条不成立：28 个包里有 28 个的 HTML 引用了包外路径（例：MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css），27 个还引用了包内根本没有的文件（生成器把标题拼进了目录名，例：Ch2Ill.xhtml -> \"One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml\"）。实测缺的那个 ejss.css 不在模型包里，而在另一个仓库 webejs/static/assets/_ejs_library/css/ejss.css ⇒ 要跑视图层必须把模型包与 webejs 的静态资源树拼起来部署，本轮没有拼、也没在浏览器里验证过，所以这条标 pending，不许写成「离线可打开」。"
-      }
+      },
+      "offline_view_evidence": "source/upstream/ejss-offline-evidence.json"
     },
     {
       "id": "3jcn-catalog",
@@ -988,9 +989,8 @@
       },
       "status": "engine_headless_verified",
       "blockers": [
-        "模型自带绘图窗只有 ±xscale/2 ≈ ±3.14，装不下包络第一极小 x=4 ⇒ 验包络与缺级必须把取样范围放宽（函数是纯的，放宽取样不改模型），模板里 xscale 与绘图范围要单独交代",
         "上游把多缝振幅除了 N 归一化 ⇒ 中央主极大恒等于 1，不能拿这条曲线讲「缝越多主极大越亮（∝N²）」；要讲得自己按未归一化的 (sin Nβ/sin β)² 出数或乘 N²（已作为一条判据钉在 interference-lab 里）",
-        "本轮执行的是模型的物理函数，视图层（Plotly/MathJax/webejs 运行时）没有跑；也就是说「读数对」已证，「原样网页渲染」未证"
+        "离线视图已在一个模型上跑通（间距与次极大数都跟着烘焙参数变），但面板高度要外部补、交付形态未定；其余 27 个 EJS 包要先修内部路径。"
       ],
       "harness": "source/library/interference_lab.mjs",
       "measured_evidence": "source/library/interference-lab-evidence.json",
@@ -1206,6 +1206,8 @@
     "ejss_survey": "source/upstream/ejss-survey.json",
     "phet_published_tool": "source/upstream/fetch_phet_published.py",
     "phet_published_manifest": "source/upstream/phet-published.json",
-    "phet_published_log": "source/upstream/phet-published-log.tsv"
+    "phet_published_log": "source/upstream/phet-published-log.tsv",
+    "ejss_offline_tool": "source/upstream/webejs_offline_try.py",
+    "ejss_offline_evidence": "source/upstream/ejss-offline-evidence.json"
   }
 }

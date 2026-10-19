@@ -727,7 +727,7 @@
         "osp 与 osp_ejs 两个仓库没有 LICENSE 文件，许可未定 ⇒ 只读参考，不进任何交付包",
         "resources/ 里的演示是否可批量改参未知，只有目录级实测",
         "webejs 视图层（Plotly/MathJax 与页面加载链）仍没跑过：已证的是「参数面可读、模型物理函数可执行」，未证的是「原样网页渲染与交互」",
-        "视图层未验证：模型包的 HTML 引用包外 CSS 与包内不存在的目录名，需要与 webejs/static/assets 拼树后才能实测离线打开（2026-10-19 未做，标 pending）。"
+        "视图层已在 webejs 那一个模型上跑通（见 webejs_offline_assembly_2026-10-19），但 EJS 6.02 导出的 27 个包内部路径本身就是坏的，要按同法修完再逐个验；且面板高度要外部补，交付形态还没定。"
       ],
       "ejss_control_surface_2026-10-19": {
         "status": "pass",
@@ -753,6 +753,18 @@
         "zip_without_model": 55,
         "measured_note": "6 仓里 84 个 zip 扫下来只有 28 个带 .ejss 模型源码（其余 55 个是文档/图片/网页壳）；其中 26 个能程序化读出可改参数表（7~29 个，中位 13），28 个能取到模型自己的代码块，27 个自带 ejsS.v1.min.js 运行时。",
         "measured_negative": "但「自带运行时 = 能在浏览器里打开」这条不成立：28 个包里有 28 个的 HTML 引用了包外路径（例：MultipleSlitDiffraction/MultipleSlitDiffraction.html -> ../resources/ejss.css），27 个还引用了包内根本没有的文件（生成器把标题拼进了目录名，例：Ch2Ill.xhtml -> \"One-Dimensional Kinematics Illustrations./ch2_illustrations.xhtml\"）。实测缺的那个 ejss.css 不在模型包里，而在另一个仓库 webejs/static/assets/_ejs_library/css/ejss.css ⇒ 要跑视图层必须把模型包与 webejs 的静态资源树拼起来部署，本轮没有拼、也没在浏览器里验证过，所以这条标 pending，不许写成「离线可打开」。"
+      },
+      "webejs_offline_assembly_2026-10-19": {
+        "command": "python source/upstream/webejs_offline_try.py --param N=5 --param lambda=0.6 --param d=40 --param D=8 --param L=80",
+        "tool": "source/upstream/webejs_offline_try.py",
+        "evidence": "source/upstream/ejss-offline-evidence.json",
+        "result": "视图层第一次真跑通：5 处 CDN 换成本地、plotly 1.58.5 与 MathJax 替身齐备 ⇒ file:// 离线打开后 Plotly 出 3 条曲线（4096 点/条），主极大间距 1.1976 vs λL/d=1.2（0.2%）、两主极大之间次极大 3 个 = N−2（N 被改成 5）",
+        "meaning": "「教师提需求 → Agent 改参数 → 浏览器里那个可操作实验真的跟着变」这条闭环在 EJSS 上第一次拿到画面内的数值证据（之前只有无头函数那条路）",
+        "blockers_remaining": [
+          "面板高度需外部补（plotlyPanel 实测 0），交付要带外层页面或修 CSS",
+          "EJS 6.02 导出的 27 个包仍要先修坏掉的内部路径",
+          "无可见视口，截图级视觉确认没做"
+        ]
       }
     },
     {

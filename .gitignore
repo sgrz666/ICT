@@ -44,6 +44,8 @@ source/upstream/osp_ejs/
 source/upstream/STP/
 source/upstream/csm/
 source/upstream/3jcn/pages/
+# EJSS/WebEJS 离线拼装实验台（第三方运行时与解包产物，一律不入库；说明见 source/upstream/README.md）
+source/upstream/.webejs-offline/
 
 # npm 组件与安装现场：依赖目录不入库，日志类产物不入库
 source/components/node_modules/
