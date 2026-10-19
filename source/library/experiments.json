@@ -114,7 +114,12 @@
       "headless_probe": "pass：Engine.update 步进 60 次（1s）后圆心 y = 421.347（默认重力尺度需模板标定）；抛体已实测对解析式（source/library/projectile-lab-evidence.json，5/5 pass）",
       "blocker_measured": "Matter.Runner 依赖 window.requestAnimationFrame，无头验证必须走 Engine.update",
       "status": "component_headless_verified",
-      "harness": "node source/library/projectile_lab.mjs --json"
+      "harness": "node source/library/projectile_lab.mjs --json",
+      "known_pits": [
+        "自由-自由的弹性正碰不守恒动能（实测 10 J → 1.21 J，两球碰后以 0.543/1.457 m/s 一起走），牛顿摆「一进一出」完全不成立（末端球 0 m/s）⇒ Matter 适合「有静态接触面」的落地/斜面场景，不适合做动量与动能定量的碰撞实验（同题 Rapier 全中）",
+        "body.velocity 是「每 baseDelta(16.667 ms) 的位移」⇒ v_phys = velocity×60；而 (position − positionPrev)/dt 只在自由飞行时等于它，接触期间会被解算器的位置修正污染"
+      ],
+      "collision_lab": "node source/library/collisions_lab.mjs（matter 组 2/4 pass，弹性正碰与牛顿摆不如预期）"
     },
     {
       "id": "three",
@@ -158,8 +163,10 @@
       "harness": "node source/library/field3d_lab.mjs --json",
       "known_pits": [
         "无碰撞体时 rb.mass() 报 0，但 setAdditionalMass 的值确实参与动力学（实测 Δv=F·dt/0.5）⇒ 质量必须以单步实测反算，别读自报值",
-        "world.timestep 默认 1/60，要按物理周期细分才能压住离散漂移"
-      ]
+        "world.timestep 默认 1/60，要按物理周期细分才能压住离散漂移",
+        "createCollider 之后 rb.mass() 仍是 0，必须 world.step() 一次才算出惯性质量 ⇒ 守恒量必须在第一个 step 之后取"
+      ],
+      "collision_lab": "node source/library/collisions_lab.mjs（rapier 组 4/5 pass：等质量交换速度、2 kg 撞 1 kg、斜碰 90°、非弹性对照全中；仅牛顿摆 n 进 n 出不成立）"
     },
     {
       "id": "stellarium-web-engine",
@@ -590,8 +597,13 @@
       },
       "status": "resource_installed",
       "blockers": [
-        "牛顿摆对 restitution 极敏感，需先实测引擎默认弹性系数（未做，pending）"
-      ]
+        "冲量式引擎复现不了「n 进 n 出」（实测见 measured_note）：要么改用一维硬球解析模型（专用碰撞求解器），要么接 myPhysicsLab 的碰撞 demo；不能直接拿 Matter/Rapier 的接触解当定量交付",
+        "Matter 的自由-自由正碰不满足动能守恒（实测 10 J → 1.21 J），只能用于「有静态接触面」的场景（球撞地面、斜面），不能用来做动量守恒定量实验",
+        "缺 catalog/templates 下的动量模板三件套与适配器接线"
+      ],
+      "measured_evidence": "source/library/collisions-lab-evidence.json",
+      "measured_note": "实测是「不达预期」的那一类：6/9 通过。Rapier 的弹性碰撞全中（等质量 4/−2 → −2/4 精确、2 kg 撞 1 kg 得 1.66667/6.66667、弹性斜碰出射夹角 90.000° 且 |vA|²+|vB|²=25.000、restitution=0.5 时动量守恒而动能掉 37.5%）；但「n 进 n 出」两个引擎都不成立——Rapier 5 球排成一列被 1 球撞后 4 个球在动、末端只拿到 1.588 m/s（应为 3），Matter 更糟：自由-自由弹性正碰把动能从 10 J 吃到 1.21 J，牛顿摆末端球速度 0",
+      "harness": "node source/library/collisions_lab.mjs --json"
     },
     {
       "id": "circuits-ohms-law",
@@ -884,7 +896,8 @@
       "blockers": [
         "渲染侧 three 只装了稀疏源码，浏览器端预览与离线包组装还没接；无头读数已可用，是这条线最快的落地路径"
       ],
-      "measured_note": "（rapier3d-compat 0.21.0，pass）"
+      "measured_note": "自由落体：rapier3d-compat 15.075 vs 15.095（≤0.5%）。碰撞部分已另跑验收台 source/library/collisions_lab.mjs：等质量弹性正碰 −2/4 精确、2 kg 撞 1 kg 得 1.66667/6.66667、弹性斜碰出射夹角 90.000°、restitution=0.5 时动量守恒且动能掉 37.5%（4/5 pass，唯一不过的是牛顿摆 n 进 n 出）",
+      "harness": "node source/library/collisions_lab.mjs --json"
     },
     {
       "id": "em3d-charged-particle-in-b",

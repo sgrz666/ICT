@@ -257,7 +257,7 @@
     },
     {
       "id": "circuitjs1",
-      "status": "installed_readonly",
+      "status": "source_built_gwt",
       "decision_2026-10-15": "不进首批；其构建需要 Java/GWT 工具链，且控制页与模拟器必须同源，本机 Docker 守护进程当前未运行。",
       "decision_2026-10-19": "源码已装为只读参考；构建与许可证义务仍未解除，不能打进离线交付包。",
       "display_name": "CircuitJS1 (Falstad Circuit)",
@@ -323,6 +323,15 @@
           "local_deviation": "改的是克隆内的 wrapper 版本。source/upstream/circuitjs1/ 整体被 .gitignore 挡住，不入库；但重跑必须知道这一步（另一条路是装 JDK 17 配 Gradle 8.7）"
         },
         "next_step": "找 gwt-compiler 插件的模块输出目录（build.gradle 里 apply plugin: 'gwt-compiler'，且 line 78 注释提到 circuitjs1.gwt.xml），或走仓库自带 dist.sh；拿到 dist 后才谈「浏览器里改电路→读数→对欧姆定律」"
+      },
+      "gwt_build_2026_10_19": {
+        "command": "cd source/upstream/circuitjs1 && ~/.gradle/wrapper/dists/gradle-8.14.3-bin/*/gradle-8.14.3/bin/gradle --no-daemon --console=plain compileGwt",
+        "result": "BUILD SUCCESSFUL in 58 s（2 actionable tasks: 1 executed, 1 up-to-date）；日志 source/upstream/circuitjs1/build-gwtcompile2.log",
+        "output": "source/upstream/circuitjs1/build/gwt/out/circuitjs1/（实测 12.4 MB，含 5 个 permutation 的 *.cache.js、circuitjs1.nocache.js、circuits/、img/、locale_*.txt）",
+        "key_point": "任务名是 compileGwt（不是 gwtCompile —— 上一次用错名字得到 \"Task gwtCompile not found\"，那条失败现场仍留在 build-gwtcompile.log）",
+        "toolchain_note": "不碰上游也能跑：直接调用 ~/.gradle/wrapper/dists 里已下载的 gradle-8.14.3 可执行文件即可绕开 wrapper 钉的 8.7（8.7 与 Java 23 不兼容，实测 Unsupported class file major version 67）。此前为跑通而改过的 gradle/wrapper/gradle-wrapper.properties 已 checkout 还原，上游工作区实测只剩未跟踪的 *.log。",
+        "still_pending": "dist.sh 未跑通：脚本自带 md5 校验，实测报 client/TestManager.java has unexpected md5（上游文件漂移）；site/ 目录也未产出。可部署的 war 需要手工把 build/gwt/out/circuitjs1 与 war/ 的静态资源拼起来。",
+        "license_note": "build.gradle 头部声明 GPLv3（E:A 的脚本）而应用本体是 GPL-2.0-or-later —— 用这个 gradle 脚本产出的产物时，两份许可证文本都要带走。"
       }
     },
     {
@@ -351,14 +360,17 @@
         "单位律（实测）：a[单位/s²] = gravity.y × gravity.scale × 1e6，与步长无关；配置 9.8 × 1e-6 自由落体反解得 9.80000 m/s²。默认 gravity={y:1,scale:0.001} ⇒ 1000 单位/s²，直接把「像素」当米用一定错。",
         "velocity 的单位是「每个 baseDelta(16.667 ms) 的位移」，不是每秒也不是每步；手写 positionPrev 求初速度会被首步 correction = dt/baseDelta 再乘一次（1/240 s 步长下初速度缩水 4 倍、射程短 75%，实测），必须走 Body.setVelocity(v_phys/60)。",
         "frictionAir 默认 0.01（每步按 dt/baseDelta 衰减），不显式置 0 的「抛体实验」其实是有阻力运动：实测同一场景射程偏离理想解析式 56.5%。",
-        "离散式是 y_n = ½·a·(n²+n)·dt²（比连续 ½at² 多半步相位），所以与连续公式对照时 0.1–0.3% 的残差是方案本身的量级，容差压到 0.1% 以下会把数值格式问题当成物理错误。"
+        "离散式是 y_n = ½·a·(n²+n)·dt²（比连续 ½at² 多半步相位），所以与连续公式对照时 0.1–0.3% 的残差是方案本身的量级，容差压到 0.1% 以下会把数值格式问题当成物理错误。",
+        "自由-自由弹性正碰不守恒动能：实测 10 J → 1.21 J（碰后两球 0.543/1.457 m/s 一起走），牛顿摆「一进一出」末端球 0 m/s ⇒ Matter 只适合有静态接触面的场景，动量/动能定量实验要交给 Rapier。",
+        "body.velocity 是「每 baseDelta(16.667 ms) 的位移」⇒ v_phys = velocity×60；(position − positionPrev)/dt 只在自由飞行时等于它，接触期间被解算器位置修正污染（实测分离量恒 0.9395 < 2r 却读出两个不同差值速度）。"
       ],
       "lab_verified_2026_10_19": {
         "harness": "source/library/projectile_lab.mjs",
         "evidence": "source/library/projectile-lab-evidence.json",
         "run_command": "node source/library/projectile_lab.mjs --json",
         "summary": "5/5 pass：平抛 2.0182 s/30.2733 m vs 2.0203/30.3046；斜抛 40.7574/10.1746 vs 40.8163/10.2041；互补角射程比 0.9991；对照组开阻力偏离 56.5%"
-      }
+      },
+      "collision_lab": "node source/library/collisions_lab.mjs（matter 组 2/4：速度读数定律 + 完全非弹性共速 pass；弹性正碰与牛顿摆 fail，如实记录）"
     },
     {
       "id": "rapier",
@@ -396,14 +408,16 @@
         "无头一律用 -compat 变体；裸包只适合浏览器/打包器环境。",
         "world.step() 的默认步长要与教学时间对齐（上面用的是引擎默认步长跑 60 次≈1 s，模板里要把 dt 写明确再谈误差）。",
         "没挂碰撞体时 rb.mass() 报 0，但 RigidBodyDesc.setAdditionalMass(m, true) 的值确实参与动力学（实测单步 Δv = F·dt/0.5 对应 m=0.5）⇒ 质量必须以单步实测反算，不能读自报值。",
-        "world.timestep 默认 1/60 s；做圆周/轨道类实验要按物理周期细分步长，否则显式施加的向心力会累积成漂移（实测 qv×B 每步施加在 dt=1/240 时 |v| 每圈 +1.58%，dt/4 降到 0.394%，与步长成正比）。"
+        "world.timestep 默认 1/60 s；做圆周/轨道类实验要按物理周期细分步长，否则显式施加的向心力会累积成漂移（实测 qv×B 每步施加在 dt=1/240 时 |v| 每圈 +1.58%，dt/4 降到 0.394%，与步长成正比）。",
+        "createCollider 之后 rb.mass() 仍报 0，必须 world.step() 一次才算出惯性质量 ⇒ 守恒量要在第一个 step 之后取。"
       ],
       "lab_verified_2026_10_19": {
         "harness": "source/library/field3d_lab.mjs",
         "evidence": "source/library/field3d-lab-evidence.json",
         "run_command": "node source/library/field3d_lab.mjs --json",
         "summary": "5/5 pass：半径拟合 3.3597 vs mv/(|q|B)=3.3333、角速度 1.19999 vs 1.2、转角反出周期 5.23603 vs 5.23599、圆拟合残差/半径 0.285%、q 反号旋向反号、螺旋螺距 7.8566 vs 7.8540、q=0 侧向偏移 0"
-      }
+      },
+      "collision_lab": "node source/library/collisions_lab.mjs（rapier 组 4/5：等质量交换速度 −2/4 精确、2 kg 撞 1 kg 得 1.66667/6.66667、弹性斜碰出射 90.000° 且末速率平方和 25.000、restitution=0.5 时动量守恒动能掉 37.5%；仅牛顿摆 n 进 n 出不成立——4 球同动、末端 1.588/3）"
     },
     {
       "id": "three",

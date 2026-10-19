@@ -8,7 +8,8 @@
 - `optics_hall.mjs` + `optics-hall-evidence.json` — 光学实验馆的验收台（`node source/library/optics_hall.mjs --json`）。五个场景（平面镜 / 折射 / 全反射临界角扫描 / 凹透镜焦距反解 / 三棱镜色散）全部用与引擎无关的解析式判对错，2026-10-19 实测 **5/5 pass**。凹透镜那条从两个屏的束宽反解出 |f| = 100.00000000000037（设定 −100），全程不读引擎自报的焦距；三棱镜那条由脚本自写一套矢量斯涅尔追迹（refract + 逐面求交）作对照，两个折射率下屏上落点 −165.5 / −186.5 vs 解析 −165.815 / −186.609，两色差 −21.0 vs −20.793。
 - `projectile_lab.mjs` + `projectile-lab-evidence.json` — 抛体验收台（`node source/library/projectile_lab.mjs --json`），引擎是 npm 组件 matter-js。先做**单位标定**（实测律 `a = gravity.y × gravity.scale × 1e6`，自由落体反解 9.80000 m/s²），再拿解析式判平抛（时间 2.0182 s vs 2.0203、射程 30.2733 vs 30.3046）、斜抛 45°（射程 40.7574 vs 40.8163、最高点 10.1746 vs 10.2041）、互补角等射程（30°/60° = 0.9991，**判据里不含 g**，单位标定错了也瞒不过去）。2026-10-19 实测 **5/5 pass**。
 - `field3d_lab.mjs` + `field3d-lab-evidence.json` — 3D 电磁验收台（`node source/library/field3d_lab.mjs --json`），引擎是 `@dimforge/rapier3d-compat`。Rapier 不懂洛伦兹力，所以力由脚本每步 `qv×B` 施加，验收用**自写最小二乘圆拟合**（不读引擎自报的任何量）：半径 3.3597 vs `mv/(|q|B)`=3.3333、角速度 1.19999 vs 1.2、由累积转角反出的周期 5.23603 vs 5.23599、拟合残差/半径 0.285%、q 反号则旋向反号、螺旋螺距 7.8566 vs `v∥·T`=7.8540、q=0 时侧向偏移 0。2026-10-19 实测 **5/5 pass**。
-- `check_catalog.py` — 校验器。除了把 `install_path`/`seed`/`npm_component`/`measured_evidence`/证据路径逐条拿去 `os.path.exists`（**missing 必须为 0），还做三项自检：状态词必须在 `status_words` 里有定义、实验引用的 engine id 必须存在于 `engines`、标 `*verified` 的实验必须带 `measured_evidence`（防「口头已验证」）。2026-10-19 实测：`paths checked: 54 | missing: 0`，三项自检各 0 项问题（「measured_evidence 混进中文括注导致路径不可查」这一条就是它先逮出来的，已拆成 `measured_evidence` + `measured_note`）。
+- `collisions_lab.mjs` + `collisions-lab-evidence.json` — 碰撞/动量验收台（`node source/library/collisions_lab.mjs --json`），**同一套解析式分别喂给 matter-js 与 Rapier**。结论 6/9 pass，而且败的那三条比赢的更有用：Rapier 的弹性碰撞全中（等质量 4/−2 → −2/4 精确、2 kg 撞 1 kg 得 1.66667/6.66667、弹性斜碰出射夹角 90.000° 且 |vA|²+|vB|² = 25.000、restitution=0.5 时动量守恒而动能掉 37.5%）；Matter 的自由-自由弹性正碰把 10 J 吃到 1.21 J，「n 进 n 出」的牛顿摆两个引擎都不成立（Rapier 5 球排一列被撞后 4 球同动、末端只拿到 1.588 m/s）。⇒ 动量守恒定量交付只能用 Rapier 或专用一维硬球模型，牛顿摆这条**不许**标成已验证。
+- `check_catalog.py` — 校验器。除了把 `install_path`/`seed`/`npm_component`/`measured_evidence`/证据路径逐条拿去 `os.path.exists`（**missing 必须为 0），还做三项自检：状态词必须在 `status_words` 里有定义、实验引用的 engine id 必须存在于 `engines`、标 `*verified` 的实验必须带 `measured_evidence`（防「口头已验证」）。2026-10-19 实测：`paths checked: 55 | missing: 0`，三项自检各 0 项问题（「measured_evidence 混进中文括注导致路径不可查」这一条就是它先逮出来的，已拆成 `measured_evidence` + `measured_note`）。
 
 跑校验（仓库根目录）：
 
@@ -30,4 +31,5 @@ python source/library/check_catalog.py   # 退出码 0 = 路径全通
 4. **许可义务要在装的时候就写清楚**，不要等到分发前。GPL-2.0（circuitjs1）、GPL-3.0（PhET 仿真源码）、AGPL-3.0（Stellarium Web Engine）三条各有不同的触发条件，已分别登记在 `experiments.json` 的 `license_obligation` 里。
 5. **没权威来源就不装**。OSP@Singapore（EJSS）与 3JCN 记在 `not_installed`：GitHub 上找不到可确认的官方仓库（猜测的 wejen/osp-tools/compadre-io 实测均 404），搜到的都是个人复刻、许可参差。宁可留候选记录，也不把来路不明的代码请进工作区。
 6. **改完这个 JSON 必须重跑校验**。路径写错在肉眼 review 时最难发现，而 Agent 取种子时必然踩。
-7. 调研阶段那份 44 项候选清单（Markdown + JSON）**在本仓库磁盘上不存在**（2026-10-19 全库搜过），这里落的是其中 18 项 P0/P1/P2 的可核对版本；其余候选要接的时候再补条目，不要凭记忆扩写。
+7. **负结果也要落盘**。collisions_lab 里 Matter 的弹性正碰与两个引擎的牛顿摆都是 fail，证据文件照写不误；把「引擎能跑出画面」写成「这条实验已可交付」是本目录最严重的一类错误。
+8. 调研阶段那份 44 项候选清单（Markdown + JSON）**在本仓库磁盘上不存在**（2026-10-19 全库搜过），这里落的是其中 18 项 P0/P1/P2 的可核对版本；其余候选要接的时候再补条目，不要凭记忆扩写。

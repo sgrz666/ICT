@@ -1,0 +1,321 @@
+{
+  "generated_at": "2026-10-19T04:46:38.735Z",
+  "run_command": "node source/library/collisions_lab.mjs --json",
+  "dt_s": 0.004166666666666667,
+  "pass": 6,
+  "fail": 3,
+  "groups": [
+    {
+      "engine": "matter-js 0.20.0",
+      "results": [
+        {
+          "id": "matter-velocity-law",
+          "title": "Matter 速度读数定律：v_phys = body.velocity × 60",
+          "engine": {
+            "body_velocity_x": 0.1,
+            "per_step_displacement": 0.025,
+            "via_field_x60": 6,
+            "via_position_delta": 6
+          },
+          "checks": [
+            {
+              "metric": "body.velocity×60 (m/s)",
+              "measured": 6,
+              "analytic": 6,
+              "rel_error_pct": 0,
+              "tolerance_pct": 0.5,
+              "verdict": "pass"
+            },
+            {
+              "metric": "自由飞行时位移差/dt (m/s)",
+              "measured": 6,
+              "analytic": 6,
+              "rel_error_pct": 0,
+              "tolerance_pct": 0.5,
+              "verdict": "pass"
+            }
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "matter-head-on-equal-elastic",
+          "title": "Matter：等质量弹性正碰（解析式：4/−2 → −2/4 交换速度）",
+          "engine": {
+            "vA": 0.54311,
+            "vB": 1.45689,
+            "separation": 0.9395,
+            "ke_before": 10,
+            "ke_after": 1.2087
+          },
+          "checks": [
+            {
+              "metric": "碰后 vA (m/s)",
+              "measured": 0.54311,
+              "analytic": -2,
+              "rel_error_pct": 127.156,
+              "tolerance_pct": 2,
+              "verdict": "fail"
+            },
+            {
+              "metric": "碰后 vB (m/s)",
+              "measured": 1.45689,
+              "analytic": 4,
+              "rel_error_pct": 63.578,
+              "tolerance_pct": 2,
+              "verdict": "fail"
+            },
+            {
+              "metric": "动量守恒",
+              "before": 2,
+              "after": 2,
+              "rel_drift_pct": 0,
+              "tolerance_rel": 0.0001,
+              "verdict": "pass"
+            },
+            {
+              "metric": "动能守恒",
+              "before": 10,
+              "after": 1.208745,
+              "rel_drift_pct": 87.912548,
+              "tolerance_rel": 0.001,
+              "verdict": "fail"
+            }
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "matter-perfectly-inelastic",
+          "title": "Matter：restitution=0 的完全非弹性碰撞（共速 = m1u1/(m1+m2)）",
+          "engine": {
+            "vA": 2.39999,
+            "vB": 2.40001
+          },
+          "checks": [
+            {
+              "metric": "共速 (m/s)",
+              "measured": 2.4,
+              "analytic": 2.4,
+              "rel_error_pct": 0,
+              "tolerance_pct": 2,
+              "verdict": "pass"
+            },
+            {
+              "metric": "动量守恒",
+              "before": 6,
+              "after": 6,
+              "rel_drift_pct": 0,
+              "tolerance_rel": 0.0001,
+              "verdict": "pass"
+            }
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "matter-newtons-cradle",
+          "title": "Matter：牛顿摆「一进一出」",
+          "engine": {
+            "per_ball_vx": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "last_ball": 0,
+            "moving_balls": 0,
+            "in_speed": 3
+          },
+          "checks": [
+            {
+              "metric": "末端球出射速度 (m/s)",
+              "measured": 0,
+              "analytic": 3,
+              "rel_error_pct": 100,
+              "tolerance_pct": 10,
+              "verdict": "fail"
+            },
+            {
+              "metric": "只有末端 1 球在动",
+              "moving_balls": 0,
+              "expected": 1,
+              "verdict": "fail"
+            }
+          ],
+          "note": "解析式：动量与动能同时守恒的唯一解就是 n 进 n 出、其余静止",
+          "verdict": "fail"
+        }
+      ],
+      "summary": "2/4 pass"
+    },
+    {
+      "engine": "@dimforge/rapier3d-compat 0.21.0",
+      "results": [
+        {
+          "id": "rapier-head-on-equal-elastic",
+          "title": "Rapier：等质量弹性正碰（交换速度）",
+          "engine": {
+            "vA": -2,
+            "vB": 4,
+            "ke_before": 10,
+            "ke_after": 10,
+            "mass_reported": [
+              1,
+              1
+            ]
+          },
+          "checks": [
+            {
+              "metric": "碰后 vA (m/s)",
+              "measured": -2,
+              "analytic": -2,
+              "rel_error_pct": 0,
+              "tolerance_pct": 2,
+              "verdict": "pass"
+            },
+            {
+              "metric": "碰后 vB (m/s)",
+              "measured": 4,
+              "analytic": 4,
+              "rel_error_pct": 0,
+              "tolerance_pct": 2,
+              "verdict": "pass"
+            },
+            {
+              "metric": "动量守恒",
+              "before": 2,
+              "after": 2,
+              "rel_drift_pct": 0,
+              "tolerance_rel": 0.0001,
+              "verdict": "pass"
+            },
+            {
+              "metric": "动能守恒",
+              "before": 10,
+              "after": 10,
+              "rel_drift_pct": 0,
+              "tolerance_rel": 0.002,
+              "verdict": "pass"
+            }
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "rapier-head-on-unequal-elastic",
+          "title": "Rapier：2 kg 撞 1 kg 静止（一维弹性解析解）",
+          "engine": {
+            "v1": 1.66667,
+            "v2": 6.66667
+          },
+          "formula": "v1' = ((m1−m2)u1)/(m1+m2) = 1.6667，v2' = 2m1u1/(m1+m2) = 6.6667",
+          "checks": [
+            {
+              "metric": "碰后 v1 (m/s)",
+              "measured": 1.66667,
+              "analytic": 1.66667,
+              "rel_error_pct": 0,
+              "tolerance_pct": 2,
+              "verdict": "pass"
+            },
+            {
+              "metric": "碰后 v2 (m/s)",
+              "measured": 6.66667,
+              "analytic": 6.66667,
+              "rel_error_pct": 0,
+              "tolerance_pct": 2,
+              "verdict": "pass"
+            }
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "rapier-oblique-90-degrees",
+          "title": "Rapier：等质量弹性斜碰出射应成 90°（台球开球）",
+          "engine": {
+            "angA": 69.528,
+            "angB": -20.472,
+            "separation_deg": 90
+          },
+          "formula": "等质量 + 弹性 + 一球静止 ⇒ vA'·vB' = 0；且 |vA'|²+|vB'|² = v0²",
+          "checks": [
+            {
+              "metric": "两出射速度夹角 (°)",
+              "measured": 90,
+              "analytic": 90,
+              "rel_error_pct": 0,
+              "tolerance_pct": 6,
+              "verdict": "pass"
+            },
+            {
+              "metric": "末速率平方和 (m²/s²)",
+              "measured": 25,
+              "analytic": 25,
+              "rel_error_pct": 0,
+              "tolerance_pct": 2,
+              "verdict": "pass"
+            }
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "rapier-newtons-cradle",
+          "title": "Rapier：牛顿摆「一进一出」",
+          "engine": {
+            "per_ball_vx": [
+              0,
+              0.14876,
+              0.898,
+              1.24496,
+              1.58751
+            ],
+            "last_ball": 1.58751,
+            "moving_balls": 4,
+            "in_speed": 3
+          },
+          "checks": [
+            {
+              "metric": "末端球出射速度 (m/s)",
+              "measured": 1.58751,
+              "analytic": 3,
+              "rel_error_pct": 47.083,
+              "tolerance_pct": 10,
+              "verdict": "fail"
+            },
+            {
+              "metric": "只有末端 1 球在动",
+              "moving_balls": 4,
+              "expected": 1,
+              "verdict": "fail"
+            }
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "rapier-dissipation-control",
+          "title": "Rapier 对照组：restitution=0.5 时动量守恒、动能必须明显损失",
+          "engine": {
+            "ke_before": 8,
+            "ke_after": 5
+          },
+          "checks": [
+            {
+              "metric": "动量守恒",
+              "before": 4,
+              "after": 4,
+              "rel_drift_pct": 0.000003,
+              "tolerance_rel": 0.0001,
+              "verdict": "pass"
+            },
+            {
+              "metric": "动能损失 > 10%",
+              "ke_lost_pct": 37.5,
+              "rule": "> 10%",
+              "verdict": "pass"
+            }
+          ],
+          "verdict": "pass"
+        }
+      ],
+      "summary": "4/5 pass"
+    }
+  ]
+}
