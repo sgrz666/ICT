@@ -1,0 +1,251 @@
+{
+  "measured_at": "2026-10-19T10:36:30.284Z",
+  "tool": "source/library/jcn3_headless_lab.mjs",
+  "demo": "source/upstream/3jcn/site/Phyc140/buoyant_force_exp.html",
+  "chromium": "D:\\temp\\ms-playwright\\chromium-1248\\chrome-win64\\chrome.exe",
+  "checks": [
+    {
+      "slider": "posSlider",
+      "range": [
+        -10,
+        15,
+        1
+      ],
+      "value": 15,
+      "control_noop": true,
+      "write": {
+        "attempted": -10,
+        "applied": true,
+        "readback": -10,
+        "readback_matches": true
+      },
+      "numbers_before": [],
+      "numbers_after": [],
+      "readout_changed": false,
+      "picture": {
+        "baseline": "7c2cc30ca0ea",
+        "after_write": "4c4c6a1c00c6",
+        "changed": true,
+        "usable": true,
+        "reverted_to_baseline": true
+      },
+      "text_changed": false,
+      "reverts_to_baseline": true,
+      "reset": {
+        "button": "Reset",
+        "frame": "7c2cc30ca0ea",
+        "back_to_baseline": true
+      },
+      "interpretation": "写值改到画面、Reset 能回基线 ⇒ 复原是路径问题，画面通道成立",
+      "observable_channel": "static_canvas",
+      "verdict": "agent_writable_and_observable"
+    },
+    {
+      "slider": "massMetalSlider",
+      "range": [
+        300,
+        700,
+        10
+      ],
+      "value": 500,
+      "control_noop": true,
+      "write": {
+        "attempted": 300,
+        "applied": true,
+        "readback": 300,
+        "readback_matches": true
+      },
+      "numbers_before": [],
+      "numbers_after": [],
+      "readout_changed": false,
+      "picture": {
+        "baseline": "7c2cc30ca0ea",
+        "after_write": "c48929e61bc8",
+        "changed": true,
+        "usable": true,
+        "reverted_to_baseline": true
+      },
+      "text_changed": false,
+      "reverts_to_baseline": true,
+      "reset": {
+        "button": "Reset",
+        "frame": "7c2cc30ca0ea",
+        "back_to_baseline": true
+      },
+      "interpretation": "写值改到画面、Reset 能回基线 ⇒ 复原是路径问题，画面通道成立",
+      "observable_channel": "static_canvas",
+      "verdict": "agent_writable_and_observable"
+    },
+    {
+      "slider": "tempMetalSlider",
+      "range": [
+        10,
+        100,
+        1
+      ],
+      "value": 20,
+      "control_noop": true,
+      "write": {
+        "attempted": 10,
+        "applied": true,
+        "readback": 10,
+        "readback_matches": true
+      },
+      "numbers_before": [],
+      "numbers_after": [],
+      "readout_changed": false,
+      "picture": {
+        "baseline": "7c2cc30ca0ea",
+        "after_write": "105a176b8089",
+        "changed": true,
+        "usable": true,
+        "reverted_to_baseline": true
+      },
+      "text_changed": false,
+      "reverts_to_baseline": true,
+      "reset": {
+        "button": "Reset",
+        "frame": "7c2cc30ca0ea",
+        "back_to_baseline": true
+      },
+      "interpretation": "写值改到画面、Reset 能回基线 ⇒ 复原是路径问题，画面通道成立",
+      "observable_channel": "static_canvas",
+      "verdict": "agent_writable_and_observable"
+    },
+    {
+      "slider": "massLiquidSlider",
+      "range": [
+        1200,
+        2000,
+        10
+      ],
+      "value": 1500,
+      "control_noop": true,
+      "write": {
+        "attempted": 1200,
+        "applied": true,
+        "readback": 1200,
+        "readback_matches": true
+      },
+      "numbers_before": [],
+      "numbers_after": [],
+      "readout_changed": false,
+      "picture": {
+        "baseline": "7c2cc30ca0ea",
+        "after_write": "10790b10359b",
+        "changed": true,
+        "usable": true,
+        "reverted_to_baseline": true
+      },
+      "text_changed": false,
+      "reverts_to_baseline": true,
+      "reset": {
+        "button": "Reset",
+        "frame": "7c2cc30ca0ea",
+        "back_to_baseline": true
+      },
+      "interpretation": "写值改到画面、Reset 能回基线 ⇒ 复原是路径问题，画面通道成立",
+      "observable_channel": "static_canvas",
+      "verdict": "agent_writable_and_observable"
+    },
+    {
+      "slider": "tempLiquidSlider",
+      "range": [
+        10,
+        100,
+        1
+      ],
+      "value": 20,
+      "control_noop": true,
+      "write": {
+        "attempted": 10,
+        "applied": true,
+        "readback": 10,
+        "readback_matches": true
+      },
+      "numbers_before": [],
+      "numbers_after": [],
+      "readout_changed": false,
+      "picture": {
+        "baseline": "7c2cc30ca0ea",
+        "after_write": "d56b1b3f831b",
+        "changed": true,
+        "usable": true,
+        "reverted_to_baseline": true
+      },
+      "text_changed": false,
+      "reverts_to_baseline": true,
+      "reset": {
+        "button": "Reset",
+        "frame": "7c2cc30ca0ea",
+        "back_to_baseline": true
+      },
+      "interpretation": "写值改到画面、Reset 能回基线 ⇒ 复原是路径问题，画面通道成立",
+      "observable_channel": "static_canvas",
+      "verdict": "agent_writable_and_observable"
+    }
+  ],
+  "network": "blocked_except_localhost",
+  "target": "http://127.0.0.1:8801/Phyc140/apparent_weight_exp.html",
+  "baseline": {
+    "sliders": [
+      {
+        "id": "posSlider",
+        "min": -10,
+        "max": 15,
+        "step": 1,
+        "value": 15
+      },
+      {
+        "id": "massMetalSlider",
+        "min": 300,
+        "max": 700,
+        "step": 10,
+        "value": 500
+      },
+      {
+        "id": "tempMetalSlider",
+        "min": 10,
+        "max": 100,
+        "step": 1,
+        "value": 20
+      },
+      {
+        "id": "massLiquidSlider",
+        "min": 1200,
+        "max": 2000,
+        "step": 10,
+        "value": 1500
+      },
+      {
+        "id": "tempLiquidSlider",
+        "min": 10,
+        "max": 100,
+        "step": 1,
+        "value": 20
+      }
+    ],
+    "number_tokens": [],
+    "readout_tokens": [],
+    "text": "Apparent Weight Lower the Metal: -10 15 Metal: Aluminum Copper Unknown Mass (g): 300 700 Temperature (掳C): 10 100 Reset Apparent Weight: Liquid: Coconut Oil Olive Oil Water Unknown Mass (g): 1200 2000 Temp (掳C): 10 100 What is Apparent Weight? Simulation Home",
+    "has_canvas": 0
+  },
+  "render_control": {
+    "frame_a": "7c2cc30ca0ea",
+    "frame_b": "7c2cc30ca0ea",
+    "render_is_static": true,
+    "note": "render_is_static=false 时画面差异一律不作判据（动画本底），只能靠 DOM 读数"
+  },
+  "page_errors": [],
+  "blocked_external_requests": 1,
+  "blocked_sample": [
+    "https://threejs.org/build/three.module.js"
+  ],
+  "summary": {
+    "sliders": 5,
+    "agent_writable_and_observable": 5,
+    "accepted_but_no_observable_change": 0,
+    "rejected": 0
+  },
+  "result": "PASS"
+}

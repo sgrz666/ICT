@@ -62,6 +62,18 @@ const browser = await chromium.launch({ executablePath: exec, headless: true, ar
 const p = await (await browser.newContext({ viewport: { width: 1280, height: 820 } })).newPage();
 const errs = [];
 p.on("pageerror", (e) => errs.push(String(e).slice(0, 140)));
+// --offline：把所有非本机的请求掐掉，用来证明「离线真的能跑」而不是「本机恰好还有网」。
+// A/B 就在这条开关上：同一只页面对 site/（仍指 CDN）与 offline/（CDN 已落到 _vendor/）各跑一遍。
+const blocked = [];
+if (argv.includes("--offline")) {
+  report.network = "blocked_except_localhost";
+  await p.route("**/*", (route) => {
+    const host = new URL(route.request().url()).hostname;
+    if (host === "127.0.0.1" || host === "localhost") return route.continue();
+    blocked.push(route.request().url().slice(0, 90));
+    return route.abort();
+  });
+}
 try {
   const target = urlArg || pathToFileURL(path.join(ROOT, demo)).href;
   report.target = target;
@@ -162,6 +174,8 @@ try {
   await p.context().close();
   await browser.close();
 }
+report.blocked_external_requests = blocked.length;
+report.blocked_sample = blocked.slice(0, 6);
 const c = (f) => report.checks.filter(f).length;
 report.summary = {
   sliders: report.checks.length,
