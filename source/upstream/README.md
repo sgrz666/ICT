@@ -19,7 +19,7 @@ EduForge「复用成熟实验环境」的原料库。原则：**上游原样克�
 |---|---|---|---|---|---|
 | `ray-optics/` | Ray Optics，Apache-2.0 | `--depth 1` 全仓 | 54,610 KB | 3,241 | 已接通（唯一）；另有 4 项光学验收台 `../library/optics_hall.mjs` 4/4 pass |
 | `myphysicslab/` | myPhysicsLab，Apache-2.0 | `--depth 1` 全仓 | 10,208 KB | 530 | 已实测：`npx tsc` 出 322 个 ESM，无头单摆周期与解析式吻合 |
-| `circuitjs1/` | CircuitJS1，GPL-2.0 | `--depth 1` 全仓（**官方仓是 `pfalstad/circuitjs1`**） | 5,547 KB | 798 | 源码在，GWT 构建 pending |
+| `circuitjs1/` | CircuitJS1，GPL-2.0 | `--depth 1` 全仓（**官方仓是 `pfalstad/circuitjs1`**） | 5,547 KB | 798 | Java 编译已打通（Gradle 8.14.3；8.7 与 Java 23 不兼容）；可运行 dist 仍未产出 |
 | `matter-js/` | Matter.js，MIT | `--depth 1` 全仓 | 2,085 KB | 122 | 无头步进已实测 pass |
 | `rapier-js/` | Rapier JS 绑定，Apache-2.0 | `--depth 1` 全仓 | 2,074 KB | 179 | 仓库内 0 个 .wasm，可用产物走 `../components` |
 | `three/` | three.js，MIT | `--filter=blob:none` + sparse（src、examples/jsm、build、LICENSE…） | 23,623 KB | 1,514 | 稀疏检出，纯数学已 pass |

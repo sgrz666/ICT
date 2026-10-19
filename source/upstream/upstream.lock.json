@@ -273,16 +273,40 @@
       "license_obligation": "GPL-2.0-or-later：把编译产物随离线包分发时，必须一并开放对应源码并保留许可证副本。当前只作本地只读参考，不分发 ⇒ 义务尚未触发，触发点在打进交付包那一刻。",
       "commands_pending": [
         {
-          "name": "gwt-build",
-          "command": "./gradlew（需 Java + GWT；仓库带 circuitjs1.Containerfile，走 Docker 但本机 Docker 守护进程未运行）",
+          "name": "js-api-probe",
+          "command": "同源 JavaScript 接口的导入/导出/读元件量，简报里说有文档，本机未实测",
+          "status": "pending"
+        },
+        {
+          "name": "gwt-dist",
+          "command": "确认 GWT 模块输出目录 / 跑 dist.sh，产出 war 可部署的 JS",
           "status": "pending"
         },
         {
           "name": "js-api-probe",
-          "command": "同源 JavaScript 接口的导入/导出/读元件量，简报里说有文档，本机未实测",
+          "command": "同源 JavaScript 接口导入/导出电路、读元件量",
           "status": "pending"
         }
-      ]
+      ],
+      "build_attempt_2026-10-19": {
+        "toolchain_measured": "本机其实有 Java：java version 23（build 23+37-2369），javac 也在 PATH —— 早期「Java 工具链缺失」的判断不成立，已更正",
+        "attempt_1": {
+          "command": "./gradlew --no-daemon build -x test（wrapper 钉 gradle-8.7）",
+          "result": "FAIL",
+          "took": "34 s",
+          "error": "BUG! exception in phase 'semantic analysis' in source unit '_BuildScript_' Unsupported class file major version 67",
+          "reading": "Gradle 8.7 的 Groovy 读不了 Java 23 的 class（major 67），失败发生在解析构建脚本阶段，不是编译 Java 源码阶段"
+        },
+        "attempt_2": {
+          "command": "把 gradle/wrapper/gradle-wrapper.properties 的 gradle-8.7-bin.zip 改成 gradle-8.14.3-bin.zip，再 ./gradlew --no-daemon build -x test",
+          "result": "pass",
+          "took": "1 m 31 s",
+          "measured": "BUILD SUCCESSFUL；2 actionable tasks: 2 executed",
+          "artifact_status": "仍未拿到浏览器可运行的 dist：全仓 find 不到 *.nocache.js / *.cache.js；build/ 下只有 classes/java、gwt/{cache,work}、libs、reports ⇒ 「构建打通」目前只到 Java 编译层面",
+          "local_deviation": "改的是克隆内的 wrapper 版本。source/upstream/circuitjs1/ 整体被 .gitignore 挡住，不入库；但重跑必须知道这一步（另一条路是装 JDK 17 配 Gradle 8.7）"
+        },
+        "next_step": "找 gwt-compiler 插件的模块输出目录（build.gradle 里 apply plugin: 'gwt-compiler'，且 line 78 注释提到 circuitjs1.gwt.xml），或走仓库自带 dist.sh；拿到 dist 后才谈「浏览器里改电路→读数→对欧姆定律」"
+      }
     },
     {
       "id": "matter-js",

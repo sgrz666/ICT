@@ -44,9 +44,26 @@ prio = {}
 for x in data["experiments"]:
     prio[x["priority"]] = prio.get(x["priority"], 0) + 1
 
+# 自检：状态词必须在 status_words 里有定义；引用的引擎必须真的在 engines 里；
+# 声明 verified 的实验必须带 measured_evidence（防止「口头已验证」）
+declared = set(data["status_words"])
+engine_ids = {e["id"] for e in data["engines"]}
+bad_status, bad_engine, no_evidence = [], [], []
+for x in data["experiments"]:
+    if x["status"] not in declared:
+        bad_status.append((x["id"], x["status"]))
+    for eid in x.get("engines", []):
+        if eid not in engine_ids:
+            bad_engine.append((x["id"], eid))
+    if x["status"].endswith("verified") and not x.get("measured_evidence"):
+        no_evidence.append(x["id"])
+
 print("engines:", len(data["engines"]), "| experiments:", n_exp, "| not_installed:", len(data["not_installed"]))
 print("priority:", prio, "| status:", by_status)
 print("paths checked:", len(dict.fromkeys(paths)), "| missing:", len(missing))
 for m in missing:
     print("  MISSING:", m)
-sys.exit(1 if missing else 0)
+print("undeclared status:", len(bad_status), bad_status)
+print("unknown engine refs:", len(bad_engine), bad_engine)
+print("verified-but-no-evidence:", len(no_evidence), no_evidence)
+sys.exit(0 if not (missing or bad_status or bad_engine or no_evidence) else 1)
