@@ -652,15 +652,15 @@
         "tolerance": "动量漂移 ≤0.5%",
         "independent_reference": "Python 独立动量核算 + Rapier 3D 作为第二实现"
       },
-      "status": "resource_installed",
+      "status": "engine_headless_verified",
       "blockers": [
-        "冲量式引擎复现不了「n 进 n 出」（实测见 measured_note）：要么改用一维硬球解析模型（专用碰撞求解器），要么接 myPhysicsLab 的碰撞 demo；不能直接拿 Matter/Rapier 的接触解当定量交付",
-        "Matter 的自由-自由正碰不满足动能守恒（实测 10 J → 1.21 J），只能用于「有静态接触面」的场景（球撞地面、斜面），不能用来做动量守恒定量实验",
-        "缺 catalog/templates 下的动量模板三件套与适配器接线"
+        "Matter 与 Rapier 两条线复现不了「n 进 n 出」（collisions-lab 实测：Matter 10 J → 1.21 J、Rapier 5 球被撞后 4 球同动）⇒ 交付只能用 myPhysicsLab 的 ContactSim，或改用显式一维硬球模型；不许拿前两个引擎的碰撞凑这条",
+        "EventJump 类实现细节会咬人：sim.setElasticity() 必须在摆好体之后调用（早调报 setElasticity: no bodies）、步进方法是 advance.advance(dt) 而不是把对象当函数、getBody('pendulumN') 对不存在的球是抛异常而不是返回 null（三处都是本轮实测踩到的）",
+        "上游摆的读数口径是 VarsList 每体 6 个变量（+4=θ、+5=θ̇，与上游 graphSetup 同一口径），而 EnergyInfo 的总量要用 getTotalEnergy()，没有 .total 字段"
       ],
-      "measured_evidence": "source/library/collisions-lab-evidence.json",
-      "measured_note": "实测是「不达预期」的那一类：6/9 通过。Rapier 的弹性碰撞全中（等质量 4/−2 → −2/4 精确、2 kg 撞 1 kg 得 1.66667/6.66667、弹性斜碰出射夹角 90.000° 且 |vA|²+|vB|²=25.000、restitution=0.5 时动量守恒而动能掉 37.5%）；但「n 进 n 出」两个引擎都不成立——Rapier 5 球排成一列被 1 球撞后 4 个球在动、末端只拿到 1.588 m/s（应为 3），Matter 更糟：自由-自由弹性正碰把动能从 10 J 吃到 1.21 J，牛顿摆末端球速度 0",
-      "harness": "node source/library/collisions_lab.mjs --json"
+      "measured_evidence": "source/library/cradle-lab-evidence.json",
+      "measured_note": "2026-10-19 无头 5/5 pass，用的是上游自带的摆模型（build/sims/engine2D/NewtonsCradleApp.make + ContactSim + CollisionAdvance 事件式碰撞）：末球峰值角/释放角 = 0.999984（0.002%）、交接后首球与中间三球的残余角全是 0、末球出射 |ω|/首球入射 |ω| = 0.999954、二进二出时末两颗都到 0.78539 而中间那颗仍是 0、elasticity 1→0.5 后末球只剩 0.3091 倍释放角且中间球被带到 0.15322（对照组：证明判据真的跟着参数变）；前置校验是同一条摆的大角/小角周期比 1.03966 vs 解析 1.03855（0.106%）",
+      "harness": "source/library/cradle_lab.mjs"
     },
     {
       "id": "circuits-ohms-law",
@@ -860,7 +860,8 @@
       ],
       "seed": [
         "source/upstream/phet/sims/wave-interference",
-        "source/upstream/ray-optics"
+        "source/upstream/ray-optics",
+        "source/upstream/resources/docs/CollectionTest/webejs_model_MultislitDiffraction.zip"
       ],
       "agent_params": [
         {
@@ -884,7 +885,8 @@
       },
       "status": "resource_installed",
       "blockers": [
-        "几何光学引擎不做波动叠加，这条只能靠 PhET 或自建二维波动求解器；先标 pending"
+        "几何光学引擎不做波动叠加，这条只能靠 PhET 或自建二维波动求解器；先标 pending",
+        "本轮在装好的 OSP resources 里找到一份上游多缝衍射模型（WebEJS 生成，_source.ejss 49,802 B 的 XML 模型定义 + _simulation.xhtml，作者 W. Christian，33 个文件 663,117 B）；它没有编译产物（_metadata.txt 的 main-script 为空），要跑起来得走 webejs 运行时 + 浏览器，因此这条的改参与读数仍未验，状态保持 resource_installed"
       ]
     },
     {
@@ -1095,6 +1097,7 @@
     "projectile_lab": "source/library/projectile-lab-evidence.json",
     "circuit_lab": "source/library/circuit-lab-evidence.json",
     "wave_lab": "source/library/wave-lab-evidence.json",
-    "kepler_lab": "source/library/kepler-lab-evidence.json"
+    "kepler_lab": "source/library/kepler-lab-evidence.json",
+    "cradle_lab": "source/library/cradle-lab-evidence.json"
   }
 }

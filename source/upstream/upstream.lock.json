@@ -1,6 +1,6 @@
 {
   "comment": "上游源码记录。本文件是 source/upstream 下唯一的自有文件；这里记的每一条要么是上游文件里读到的，要么是本机真实跑过的输出。未跑的一律标 pending，不写成已完成。",
-  "updated_at": "2026-10-19T14:06:00+08:00",
+  "updated_at": "2026-10-19T14:13:30+08:00",
   "upstreams": [
     {
       "id": "ray-optics",
@@ -259,7 +259,20 @@
         "measured": "build/sims/pde/StringSim 可在 Node 里无头驱动：左端由 'block' PointMass 的位移强制、右端 advance() 里 wNew[N]=0 固定。L=13.5 m、N=1001、Δt=0.0025 s、T=10 N、μ=1 kg/m ⇒ 测得波速 3.179644 m/s vs √(T/μ)=3.162278（0.549%），μ=4 时速度比 0.494186；固定端反射峰 +0.063536 → −0.063533；扫频峰值落 f₁ = v/(2L)；上游 getStability() = v·Δt/Δx = 0.8282 合规，Δt 翻倍到 1.6563 立即发散",
         "run_command": "node source/library/wave_lab.mjs --json",
         "pit": "getPoint(idx, point) 要的是带 setTo 的可变点，这一版 Vector 没有 setTo（全仓 grep 只有调用侧）⇒ 脚本自带最小 shim；中点是二次模态的节点，共振判据必须用全绳最大位移"
-      }
+      },
+      "newtons_cradle_2026-10-19": {
+        "status": "pass",
+        "measured": "NewtonsCradleApp.make（上游静态工厂，不碰 DOM）+ ContactSim + CollisionAdvance 在无头 Node 里跑出教科书行为：末球峰值角/释放角 0.999984、交接后首球与中间球残余 0、末球出射/首球入射角速度比 0.999954、二进二出成立；elasticity=0.5 时末球 0.3091 倍、中间球 0.15322 倍（对照组）；同摆大角/小角周期比 1.03966 vs 1+θ0²/16=1.03855",
+        "run_command": "node source/library/cradle_lab.mjs --json",
+        "why_this_engine": "Matter 与 Rapier 用离散步进的接触求解都复现不了 n 进 n 出；myPhysicsLab 的 2D 引擎是「先求碰撞时刻、再按冲量解」的事件式（CollisionAdvance），这才是牛顿摆教学模型该有的解法",
+        "pits": [
+          "setElasticity 必须在摆好体之后（早调抛 setElasticity: no bodies）",
+          "步进是 advance.advance(dt)",
+          "getBody 对缺失的球抛异常而非返回 null ⇒ 摆体要在建模后一次性缓存",
+          "EnergyInfo 没有 .total，取 getTotalEnergy()"
+        ]
+      },
+      "found_2026-10-19": "resources 侧另有一份上游 WebEJS 多缝衍射模型（无编译产物），已登记为 waves-double-slit 的 seed"
     },
     {
       "id": "circuitjs1",

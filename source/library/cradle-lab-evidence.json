@@ -1,0 +1,175 @@
+{
+  "generated_at": "2026-10-19T06:12:25.582Z",
+  "engine": "myPhysicsLab ContactSim + CollisionAdvance（事件式碰撞）+ 上游 NewtonsCradleApp.make（原函数）；g=32、stickLength=3、radius=0.6、elasticity 默认 1、dt=1/240 s",
+  "run_command": "node source/library/cradle_lab.mjs --json",
+  "pass": 5,
+  "fail": 0,
+  "results": [
+    {
+      "id": "cradle-pendulum-isochrony",
+      "title": "先验摆：θ0=45° 的周期比小角只长 1 + θ0²/16（碰撞判据的前提）",
+      "engine": {
+        "T_small_angle": 1.94375,
+        "T_45deg": 2.020833,
+        "crossings": [
+          4,
+          4
+        ],
+        "ratio_measured": 1.039657
+      },
+      "formula": "T(θ0)/T(0) ≈ 1 + θ0²/16；θ0 = π/4 ⇒ 1.015421（不读引擎自报的周期或惯量）",
+      "checks": [
+        {
+          "metric": "大角/小角周期比",
+          "measured": 1.03966,
+          "analytic": 1.03855,
+          "rel_error_pct": 0.106,
+          "tolerance_pct": 3,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "cradle-one-in-one-out",
+      "title": "牛顿摆「一进一出」：末球峰值角回到释放角，交接后首球与中间球停在原位",
+      "engine": {
+        "startAngle": -0.7854,
+        "peaks": [
+          0.7854,
+          0,
+          0,
+          0,
+          0.78539
+        ],
+        "transfer_at_s": 0.675,
+        "residual_after_transfer": {
+          "ball1": 0,
+          "mids": [
+            0,
+            0,
+            0
+          ]
+        },
+        "energy_start": 28.11775,
+        "energy_max": 28.11775
+      },
+      "formula": "等质量弹性碰撞链 ⇒ 末球带走全部动量与动能 ⇒ 峰值角 = 释放角，其余球碰撞后速度归零",
+      "checks": [
+        {
+          "metric": "末球峰值角 / 释放角",
+          "measured": 0.999984,
+          "analytic": 1,
+          "rel_error_pct": 0.002,
+          "tolerance_pct": 8,
+          "verdict": "pass"
+        },
+        {
+          "metric": "交接后 0.35 s 内首球几乎不动（<5% 释放角）",
+          "ball1": 0,
+          "verdict": "pass"
+        },
+        {
+          "metric": "交接后中间三球几乎不动（<5% 释放角）",
+          "mids": [
+            0,
+            0,
+            0
+          ],
+          "verdict": "pass"
+        },
+        {
+          "metric": "总能量不增（elasticity=1 也不能凭空长能量）",
+          "max_over_start": 1,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "cradle-velocity-transfer",
+      "title": "碰撞交接：首球最大入射角速度与末球出射角速度相当",
+      "engine": {
+        "incident_omega": 2.474868,
+        "at_s": 0.5042,
+        "outgoing_omega": 2.474754
+      },
+      "formula": "等质量弹性正碰交换速度 ⇒ |ω_out| ≈ |ω_in|（摆长相同 ⇒ 线速度同量纲）",
+      "checks": [
+        {
+          "metric": "|ω_末球| / |ω_首球|",
+          "measured": 0.999954,
+          "analytic": 1,
+          "rel_error_pct": 0.005,
+          "tolerance_pct": 6,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "cradle-two-in-two-out",
+      "title": "「二进二出」：释放两颗 ⇒ 只有末两颗摆出去",
+      "engine": {
+        "released": 2,
+        "peaks": [
+          0.7854,
+          0.7854,
+          0,
+          0.78539,
+          0.78539
+        ],
+        "out_ratio": 1,
+        "middle_peak": 0
+      },
+      "formula": "动量与动能同时守恒 ⇒ n 进必 n 出（这就是为什么 1 进 5 出不存在）",
+      "checks": [
+        {
+          "metric": "末两颗都摆到接近释放角（>75%）",
+          "last_two": [
+            0.78539,
+            0.78539
+          ],
+          "verdict": "pass"
+        },
+        {
+          "metric": "中间那颗留在原位（<25%）",
+          "middle": 0,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "id": "cradle-elasticity-control",
+      "title": "对照组：elasticity 1→0.5 ⇒ 末球峰值掉到释放角的一小半、中间球不再静止",
+      "engine": {
+        "elasticity": 0.5,
+        "peaks": [
+          0.16566,
+          0.15322,
+          0.15322,
+          0.15322,
+          0.24276
+        ],
+        "last_peak_ratio_vs_release": 0.3091,
+        "middle_max_ratio": 0.1951,
+        "compare_elastic_1": "同一场景 elasticity=1 时中间球峰值恒为 0（见结果 ②）"
+      },
+      "formula": "非弹性碰撞动能不守恒 ⇒ 末球拿不满速度、中间球必然跟着动",
+      "checks": [
+        {
+          "metric": "末球峰值角 < 80% 释放角",
+          "ratio": 0.3091,
+          "verdict": "pass"
+        },
+        {
+          "metric": "中间球不再静止（>2% 释放角；弹性=1 时实测是 0）",
+          "middle_max": 0.15322,
+          "verdict": "pass"
+        }
+      ],
+      "verdict": "pass"
+    }
+  ]
+}
