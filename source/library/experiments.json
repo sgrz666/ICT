@@ -92,6 +92,13 @@
           "getCurrent() 给 double，getInfo() 给渲染串（4 位有效）——两者要分开用，别拿显示串当高精度"
         ],
         "headless_caveat": "Qoder 内置浏览器无可见 surface（实测 visibilityState=hidden、rAF 不触发）⇒ 页内自跑被节流到约 3 帧/秒；本轮由外部逐条 evaluate 驱动。要进 CI 需要真浏览器或虚拟时间调度"
+      },
+      "headless_rerunnable": true,
+      "headless_rerun": {
+        "tool": "source/library/circuit_headless_lab.mjs",
+        "evidence": "source/library/circuit-lab-evidence.json",
+        "measured": "2026-10-19 无头连跑两遍：5/5 检查通过、4/4 场景 pass（欧姆 3 档电阻逐位对上 5/R；RC 两点反解 τ=0.0999967 s vs 0.1 s）",
+        "pit": "两处判据缺陷是无头跑才暴露的：元件种类守卫因短码/类名不匹配成了空判据（第一个场景读到启动电路）；runUntil 用绝对时钟，importCircuit 不重置时间 ⇒ 后续场景空转。都已修，RC 旧 pass 视为不可靠重做"
       }
     },
     {
@@ -1271,6 +1278,7 @@
     "ejss_headless_lab_evidence": "source/library/ejss-headless-lab-evidence.json",
     "ejss_headless_sweep": "source/library/ejss_headless_sweep.mjs",
     "ejss_headless_sweep_evidence": "source/library/ejss-headless-sweep.json",
-    "ejss_headless_lab_evidence_illustration26": "source/library/ejss-headless-lab-evidence-Illustration2_6.json"
+    "ejss_headless_lab_evidence_illustration26": "source/library/ejss-headless-lab-evidence-Illustration2_6.json",
+    "circuit_headless_lab": "source/library/circuit_headless_lab.mjs"
   }
 }

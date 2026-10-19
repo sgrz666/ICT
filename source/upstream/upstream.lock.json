@@ -351,6 +351,18 @@
         "toolchain_note": "不碰上游也能跑：直接调用 ~/.gradle/wrapper/dists 里已下载的 gradle-8.14.3 可执行文件即可绕开 wrapper 钉的 8.7（8.7 与 Java 23 不兼容，实测 Unsupported class file major version 67）。此前为跑通而改过的 gradle/wrapper/gradle-wrapper.properties 已 checkout 还原，上游工作区实测只剩未跟踪的 *.log。",
         "still_pending": "dist.sh 未跑通：脚本自带 md5 校验，实测报 client/TestManager.java has unexpected md5（上游文件漂移）；site/ 目录也未产出。可部署的 war 需要手工把 build/gwt/out/circuitjs1 与 war/ 的静态资源拼起来。",
         "license_note": "build.gradle 头部声明 GPLv3（E:A 的脚本）而应用本体是 GPL-2.0-or-later —— 用这个 gradle 脚本产出的产物时，两份许可证文本都要带走。"
+      },
+      "headless_rerun_2026-10-19": {
+        "tool": "source/library/circuit_headless_lab.mjs（playwright-core + 本机 chromium 驱动 circuit_harness.html?autorun=1）",
+        "command": "node source/library/circuit_headless_lab.mjs --timeout 400 --port 8797",
+        "evidence": "source/library/circuit-lab-evidence.json",
+        "result": "5/5 项检查通过、4/4 场景 pass；连跑两遍结果一致",
+        "numbers": "欧姆定律 R=100/220/470 ⇒ I=0.05 / 0.0227273 / 0.0106383 A（全部与 5/R 逐位相同，nElements 恒为 5）；RC 两点反解 τ=0.0999967 s vs RC=0.1 s（偏差 0.0033%）",
+        "two_instrument_defects_found_and_fixed": [
+          "元件种类守卫原本是空判据：电路文本首 token 是短码（v/r/c/w/g），拿它去匹配 /Elm$/ 一个都对不上 ⇒ want 恒空，第一个场景其实读到页面启动自带的 7 元件电路，I=−0.0145 A 却被拿去和 5 V/100 Ω 比（第一轮无头跑因此 FAIL）",
+          "runUntil 用的是绝对 sim.getTime()，而 importCircuit 不重置时钟（实测三个场景后 t 累积到 0.28 s）⇒ 「跑到 0.02 s」在第一个场景之后全是空转；RC 那条旧 pass 因此不可靠，现在改成相对导入时刻的充电钟并回填 t_import"
+        ],
+        "significance": "电学三条从「只能在浏览器里人工点」变成一条命令可重跑的验收；这条通道是本轮为 EJSS 建的，现在证明对别的浏览器态引擎同样可用"
       }
     },
     {

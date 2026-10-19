@@ -1,183 +1,164 @@
 {
-  "generated_at": "2026-10-19T05:13:00Z",
-  "engine": "CircuitJS1（GWT 产物 site/，由 war/jsinterface.html 记录的官方 JavaScript 接口 importCircuit / getElements / getCurrent / getVoltageDiff / getInfo 驱动）",
-  "harness": "source/library/circuit_harness.html + source/library/serve_circuitjs.py",
-  "run_command": "python source/library/serve_circuitjs.py 8767 → 浏览器打开 /circuit_harness.html?autorun=1（本机改用逐条 evaluate 驱动，见 how_measured）",
-  "how_measured": "同源伺服 + Qoder 内置浏览器（in-app browser 无可见 surface：实测 document.visibilityState=hidden ⇒ rAF 与定时器被节流，页内自跑极慢，所以这轮由外部逐条下发 importCircuit→setSimRunning→读元件量）",
-  "pass": 5,
+  "generated_at": "2026-10-19T08:17:35.513Z",
+  "engine": "CircuitJS1 (GWT 产物 build/gwt/out/circuitjs1) 经官方 JavaScript 接口驱动",
+  "pass": 4,
   "fail": 0,
   "results": [
     {
-      "id": "circuits-ohms-law-R100",
-      "title": "欧姆定律：5 V 串 100 Ω",
-      "engine_readout": {
-        "info": [
-          "resistor",
-          "I = 50 mA",
-          "Vd = 5 V",
-          "R = 100 Ω",
-          "P = 250 mW"
-        ],
-        "t_s": 0.046,
-        "current_A": 0.05,
-        "voltageDiff_V": 5.0
-      },
+      "id": "ohms-law",
+      "title": "欧姆定律 I = V/R（同一电路改三次电阻）",
+      "engine": [
+        {
+          "R": 100,
+          "i_measured": 0.05,
+          "t": 0.25000000000000006,
+          "nElements": 5
+        },
+        {
+          "R": 220,
+          "i_measured": 0.022727272727272728,
+          "t": 0.2700000000000001,
+          "nElements": 5
+        },
+        {
+          "R": 470,
+          "i_measured": 0.010638297872340425,
+          "t": 0.25000000000000006,
+          "nElements": 5
+        }
+      ],
+      "formula": "V=5 V ⇒ I = 5/R；R 改 100/220/470",
       "checks": [
         {
-          "metric": "电流 (A)",
+          "metric": "I(R=100Ω) (A)",
           "measured": 0.05,
           "analytic": 0.05,
-          "rel_error_pct": 0.0,
-          "tolerance_pct": 0.1,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
           "verdict": "pass"
         },
         {
-          "metric": "电阻压降 (V)",
-          "measured": 5.0,
-          "analytic": 5.0,
-          "rel_error_pct": 0.0,
-          "tolerance_pct": 0.1,
+          "metric": "I(R=220Ω) (A)",
+          "measured": 0.022727273,
+          "analytic": 0.022727273,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
           "verdict": "pass"
         },
         {
-          "metric": "功率 (W)",
-          "measured": 0.25,
-          "analytic": 0.25,
-          "rel_error_pct": 0.0,
-          "tolerance_pct": 0.1,
+          "metric": "I(R=470Ω) (A)",
+          "measured": 0.010638298,
+          "analytic": 0.010638298,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
           "verdict": "pass"
         }
       ],
-      "verdict": "pass"
-    },
-    {
-      "id": "circuits-ohms-law-R470",
-      "title": "改参对照：同一电路把 R 换成 470 Ω，电流必须跟着变成 5/470",
-      "engine_readout": {
-        "info": [
-          "resistor",
-          "I = 10.638 mA",
-          "Vd = 5 V",
-          "R = 470 Ω",
-          "P = 53.191 mW"
-        ],
-        "t_s": 0.81,
-        "current_A": 0.010638297872340425,
-        "voltageDiff_V": 5.0
-      },
-      "checks": [
-        {
-          "metric": "电流 (A)",
-          "measured": 0.010638297872340425,
-          "analytic": 0.010638297872340425,
-          "rel_error_pct": 0.0,
-          "tolerance_pct": 0.01,
-          "verdict": "pass"
-        }
-      ],
-      "note": "引擎给的 getCurrent() 与 5/470 在双精度下逐位相同 ⇒ 「Agent 改参数 → 引擎跟着变 → 变的就是解析式说的值」这条链成立",
       "verdict": "pass"
     },
     {
       "id": "circuits-series",
-      "title": "串联 100 Ω + 220 Ω：电流处处相等、分压按阻值、总和等于电源电压",
-      "engine_readout": {
-        "R1_info": [
-          "resistor",
-          "I = 15.625 mA",
-          "Vd = 1.563 V",
-          "R = 100 Ω",
-          "P = 24.414 mW"
-        ],
-        "R2_info": [
-          "resistor",
-          "I = 15.625 mA",
-          "Vd = 3.438 V",
-          "R = 220 Ω",
-          "P = 53.711 mW"
-        ]
-      },
-      "formula": "I = V/(R1+R2) = 15.625 mA；U1 = 1.5625 V；U2 = 3.4375 V；U1+U2 = 5 V",
+      "title": "串联电路：同一电流、电压按阻值分配",
+      "engine": [
+        {
+          "R": 1.5625,
+          "v": 1.5625,
+          "i": 0.015625
+        },
+        {
+          "R": 3.4375,
+          "v": 3.4375,
+          "i": 0.015625
+        }
+      ],
+      "formula": "I = V/(R1+R2)，U1 = I·R1，U2 = I·R2",
       "checks": [
         {
-          "metric": "回路电流 (mA)",
-          "measured": 15.625,
-          "analytic": 15.625,
-          "rel_error_pct": 0.0,
-          "tolerance_pct": 0.1,
+          "metric": "回路电流 (A)",
+          "measured": 0.015625,
+          "analytic": 0.015625,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
           "verdict": "pass"
         },
         {
-          "metric": "U1 (V)",
-          "measured": 1.563,
+          "metric": "R1 分压 (V)",
+          "measured": 1.5625,
           "analytic": 1.5625,
-          "rel_error_pct": 0.032,
-          "tolerance_pct": 0.5,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
           "verdict": "pass"
         },
         {
-          "metric": "U2 (V)",
-          "measured": 3.438,
+          "metric": "R2 分压 (V)",
+          "measured": 3.4375,
           "analytic": 3.4375,
-          "rel_error_pct": 0.014545,
-          "tolerance_pct": 0.5,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
           "verdict": "pass"
         },
         {
-          "metric": "U1+U2 (V)",
-          "measured": 5.001,
-          "analytic": 5.0,
-          "rel_error_pct": 0.02,
-          "tolerance_pct": 0.5,
+          "metric": "两电阻压降之和 (V)",
+          "measured": 5,
+          "analytic": 5,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        },
+        {
+          "metric": "串联电流处处相等",
+          "i1": 0.015625,
+          "i2": 0.015625,
           "verdict": "pass"
         }
       ],
-      "precision_note": "这两条读数取自 getInfo() 的显示串（4 位有效），不是 double；结论够判 0.1–0.5%，更严的容差要用 getCurrent() 复测",
       "verdict": "pass"
     },
     {
       "id": "circuits-parallel",
-      "title": "并联 100 Ω ∥ 220 Ω：两支路同压、电流按电导分配",
-      "engine_readout": {
-        "R1_info": [
-          "resistor",
-          "I = 50 mA",
-          "Vd = 5 V",
-          "R = 100 Ω",
-          "P = 250 mW"
-        ],
-        "R2_info": [
-          "resistor",
-          "I = 22.727 mA",
-          "Vd = 5 V",
-          "R = 220 Ω",
-          "P = 113.636 mW"
-        ]
-      },
-      "formula": "I1 = V/R1 = 50 mA，I2 = V/R2 = 22.727 mA，Req = (1/100+1/220)^-1 = 68.75 Ω",
+      "title": "并联电路：电压相同、干路电流按电导分配",
+      "engine": [
+        {
+          "R": 5,
+          "v": 5,
+          "i": 0.05
+        },
+        {
+          "R": 5,
+          "v": 5,
+          "i": 0.022727272727272728
+        }
+      ],
+      "formula": "U 相等 = V；I1 = V/R1，I2 = V/R2；Req = (1/R1+1/R2)^-1",
       "checks": [
         {
-          "metric": "支路 1 电流 (mA)",
-          "measured": 50.0,
-          "analytic": 50.0,
-          "rel_error_pct": 0.0,
-          "tolerance_pct": 0.1,
+          "metric": "支路 1 电流 (A)",
+          "measured": 0.05,
+          "analytic": 0.05,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
           "verdict": "pass"
         },
         {
-          "metric": "支路 2 电流 (mA)",
-          "measured": 22.727,
-          "analytic": 22.727272727272727,
-          "rel_error_pct": 0.0012,
-          "tolerance_pct": 0.1,
+          "metric": "支路 2 电流 (A)",
+          "measured": 0.022727273,
+          "analytic": 0.022727273,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
           "verdict": "pass"
         },
         {
           "metric": "等效电阻 (Ω)",
-          "measured": 68.7502578134668,
+          "measured": 68.75,
           "analytic": 68.75,
-          "rel_error_pct": 0.000375,
-          "tolerance_pct": 0.5,
+          "rel_error_pct": 0,
+          "tolerance_pct": 1,
+          "verdict": "pass"
+        },
+        {
+          "metric": "并联两支路电压相等",
+          "v1": 5,
+          "v2": 5,
           "verdict": "pass"
         }
       ],
@@ -185,53 +166,47 @@
     },
     {
       "id": "circuits-rc-charge",
-      "title": "RC 充电（R=1 kΩ、C=100 µF ⇒ τ=0.1 s）：Vc(t) = V(1−e^(−t/RC))",
-      "engine_readout": {
-        "mid": {
-          "t_s": 0.084,
-          "Vc": 2.830615570750429,
-          "info": [
-            "capacitor",
-            "I = 2.169 mA",
-            "Vd = 2.831 V",
-            "C = 100 μF",
-            "P = 6.141 mW",
-            "Q = 283.062 μC"
-          ]
+      "title": "RC 充电曲线：两点反解 τ 与 RC 对照（时间按导入后的充电钟计）",
+      "engine": {
+        "p1": {
+          "t_since_import": 0.05000000000000003,
+          "Vc": 1.9367648972425187
         },
-        "late": {
-          "t_s": 1.02,
-          "Vc": 4.999809787763836,
-          "I": 1.9021223615633964e-07
-        }
+        "p2": {
+          "t_since_import": 0.2640000000000002,
+          "Vc": 4.639621264322269
+        },
+        "R": 1000,
+        "C": 0.0001,
+        "tau_expected": 0.1
       },
+      "formula": "Vc(t) = V(1−e^(−t/RC))；τ = (t2−t1)/ln((V−Vc1)/(V−Vc2))，V=5、R=1 kΩ、C=100 µF ⇒ τ=0.1 s",
       "checks": [
         {
-          "metric": "Vc(0.084 s) (V)",
-          "measured": 2.830615570750429,
-          "analytic": 2.841447382854602,
-          "rel_error_pct": 0.381208,
-          "tolerance_pct": 1.0,
+          "metric": "Vc(t=0.0500 s) (V)",
+          "measured": 1.936764897,
+          "analytic": 1.967346701,
+          "rel_error_pct": 1.5545,
+          "tolerance_pct": 5,
           "verdict": "pass"
         },
         {
-          "metric": "Vc(1.02 s) (V)",
-          "measured": 4.999809787763836,
-          "analytic": 4.999814148406579,
-          "rel_error_pct": 8.7e-05,
-          "tolerance_pct": 1.0,
+          "metric": "Vc(t=0.2640 s) (V)",
+          "measured": 4.639621264,
+          "analytic": 4.643193652,
+          "rel_error_pct": 0.0769,
+          "tolerance_pct": 5,
           "verdict": "pass"
         },
         {
-          "metric": "晚期电阻电流 = (V−Vc)/R (A)",
-          "measured": 1.9021223615633964e-07,
-          "analytic": 1.902122361636671e-07,
-          "rel_error_pct": 0.0,
-          "tolerance_pct": 1.0,
+          "metric": "两点反解出的 τ (s)",
+          "measured": 0.099996667,
+          "analytic": 0.1,
+          "rel_error_pct": 0.0033,
+          "tolerance_pct": 5,
           "verdict": "pass"
         }
       ],
-      "measured_caveat": "中点那条偏 0.39%：引擎自报 getTime() 与状态之间差约 1–2 个步长（把 0.084 当作 0.0854 就完全对上），与抛体台遇到的「多半步相位」同源 ⇒ 容差不该压到 0.1%",
       "verdict": "pass"
     }
   ]

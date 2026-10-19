@@ -65,27 +65,67 @@ g 400 300 400 330 0
     return sim.getElements().filter((e) => e.getType() === type);
   }
 
-  // 跑仿真到目标时间（用 sim.getTime() 轮询，不依赖回调，避免后台标签页 rAF 被节流时行为不明）
-  async function runUntil(targetT, guardMs = 240000) {
+  // 电路文本用的是短码（v/r/c/w/g），getElements() 返回的是类名（VoltageElm/ResistorElm/…）。
+  // 上一版直接拿文本首 token 去匹配 /Elm$/，一个都匹配不上 ⇒ want 恒为空，「确认读到的是这套电路」
+  // 这条守卫变成永远通过的空判据（欧姆定律第一个场景仍然读到 7 元件的启动电路，I=−0.0145 A）。
+  const CODE2TYPE = { v: "VoltageElm", r: "ResistorElm", c: "CapacitorElm", i: "CurrentElm", L: "InductorElm" };
+
+  // 跑仿真「再前进 span 秒」。注意是相对时间：importCircuit 不重置 sim 时钟（实测连续三个场景
+  // t 走到 0.02 → 0.28 → 0.28），拿绝对时间当目标是空转，后面的场景根本没被推进。
+  async function runUntil(span, guardMs = 240000) {
+    const t0 = sim.getTime();
     sim.setSimRunning(true);
-    const t0 = Date.now();
-    while (sim.getTime() < targetT) {
-      if (Date.now() - t0 > guardMs) throw new Error(`仿真时间没走到 ${targetT}s（当前 ${sim.getTime()}s）`);
+    const w0 = Date.now();
+    while (sim.getTime() - t0 < span) {
+      if (Date.now() - w0 > guardMs) throw new Error(`仿真时间没再前进 ${span}s（起点 ${t0}s，当前 ${sim.getTime()}s）`);
       await wait(5);
     }
     sim.setSimRunning(false);
     await wait(30);
+    return sim.getTime() - t0;
   }
 
   async function scenario(cir, opts = {}) {
+    // importCircuit 不是「说一句就换电路」：页面启动时自带的那套电路会晚一拍把 elements 覆盖回来。
+    // 无头跑第一版就被咬到——第一个场景读到的是启动电路（7 元件），I=−0.018 A 而不是 5 V/100 Ω 的 0.05 A，
+    // 仿真时间也没归零（t=0.02008 而不是 0.02）。判据必须建立在「确认读到的就是我要测的那套电路」之上，
+    // 所以这里按类型逐个数数比对（不数文本行数——文本行数含连线，和 getElements() 的数量本来就不等），
+    // 并要求连续两次读数一致（稳定）才放行；等不到就显式抛错，绝不拿别的电路的读数去对解析式。
     sim.setSimRunning(false);
-    sim.importCircuit(cir, false); // 实测：importCircuit 是同步生效的，elements 立刻换成新电路
+    sim.importCircuit(cir, false);
+    const tImport = sim.getTime();
+    const want = {};
+    for (const line of cir.trim().split(/\r?\n+/)) {
+      const t = CODE2TYPE[line.trim().split(/\s+/)[0]];
+      if (t) want[t] = (want[t] || 0) + 1;
+    }
+    const typeCounts = () => {
+      const c = {};
+      for (const e of sim.getElements()) c[e.getType()] = (c[e.getType()] || 0) + 1;
+      return c;
+    };
+    let prev = null, stable = 0, got = null, guard = 0;
+    while (guard < 80 && stable < 2) {
+      await wait(25);
+      guard++;
+      got = typeCounts();
+      const ok = Object.entries(want).every(([t, n]) => (got[t] || 0) === n);
+      stable = ok && JSON.stringify(got) === JSON.stringify(prev) ? stable + 1 : 0;
+      prev = got;
+      if (guard % 10 === 0) sim.importCircuit(cir, false);
+    }
+    const missing = Object.entries(want).filter(([t, n]) => (got[t] || 0) !== n);
+    if (missing.length) {
+      throw new Error(`导入后元件种类不符：期望 ${JSON.stringify(want)}，实际 ${JSON.stringify(got)}（读到的不是这套电路，判据不成立）`);
+    }
     if (opts.timeStep) sim.setMaxTimeStep(opts.timeStep);
-    if (opts.until) await runUntil(opts.until);
+    const dt = opts.until ? await runUntil(opts.until) : 0;
     const resistors = pick("ResistorElm").map((e) => ({ R: e.getVoltageDiff(), v: e.getVoltageDiff(), i: e.getCurrent() }));
     const caps = pick("CapacitorElm").map((e) => ({ v0: e.getVoltage(0), v1: e.getVoltage(1), diff: e.getVoltageDiff(), i: e.getCurrent() }));
     const sources = pick("SourceElm").concat(pick("VoltageElm")).map((e) => ({ diff: e.getVoltageDiff(), i: e.getCurrent(), info: e.getInfo() }));
-    return { t: sim.getTime(), nElements: sim.getElements().length, resistors, caps, sources, exported: sim.exportCircuit().split("\n").length };
+    return { t: sim.getTime(), t_import: tImport, dt_since_import: sim.getTime() - tImport, dt_advanced: dt,
+             nElements: sim.getElements().length, expected_types: want, settle_polls: guard,
+             resistors, caps, sources, exported: sim.exportCircuit().split("\n").length };
   }
 
   // 无头/隐藏页面里 requestAnimationFrame 不会触发，CircuitJS1 的仿真时钟就冻在原地
@@ -202,25 +242,29 @@ g 400 300 400 330 0
     }
 
     // ④ RC 充电：同一个电路里采两点，由两点反解 τ 再和 RC 对照（不看引擎自报的任何量）
+    //    注意充电的钟是从「导入这个电路」开始的，而 importCircuit 不重置 sim.getTime()
+    //    （实测三个场景之后 t 已经累积到 ~0.28 s）。上一版拿绝对 t 去代 Vc=V(1−e^(−t/τ))，
+    //    而且旧的 runUntil 用的是绝对目标，后面的场景其实没推进——那条 pass 是不可靠的，现在按相对时间重做。
     {
       const R = 1000, C = 1e-4, tau = R * C;
+      const s0 = await scenario(cirRC(R, C), { timeStep: 2e-3, until: 0.05 });
+      const t0 = s0.t_import;
       const snap = () => {
         const cap = pick("CapacitorElm")[0];
-        return { t: sim.getTime(), Vc: cap ? Math.abs(cap.getVoltageDiff()) : NaN };
+        return { t_since_import: sim.getTime() - t0, Vc: cap ? Math.abs(cap.getVoltageDiff()) : NaN };
       };
-      const s0 = await scenario(cirRC(R, C), { timeStep: 2e-3, until: 0.05 });
       const p1 = snap();
       await runUntil(0.2);
       const p2 = snap();
-      const tauFit = (p2.t - p1.t) / Math.log((V - p1.Vc) / (V - p2.Vc));
+      const tauFit = (p2.t_since_import - p1.t_since_import) / Math.log((V - p1.Vc) / (V - p2.Vc));
       results.push({
         id: "circuits-rc-charge",
-        title: "RC 充电曲线：两点反解 τ 与 RC 对照",
+        title: "RC 充电曲线：两点反解 τ 与 RC 对照（时间按导入后的充电钟计）",
         engine: { p1, p2, R, C, tau_expected: tau },
         formula: "Vc(t) = V(1−e^(−t/RC))；τ = (t2−t1)/ln((V−Vc1)/(V−Vc2))，V=5、R=1 kΩ、C=100 µF ⇒ τ=0.1 s",
         checks: [
-          near(`Vc(t=${p1.t.toFixed(4)} s) (V)`, p1.Vc, V * (1 - Math.exp(-p1.t / tau)), 5),
-          near(`Vc(t=${p2.t.toFixed(4)} s) (V)`, p2.Vc, V * (1 - Math.exp(-p2.t / tau)), 5),
+          near(`Vc(t=${p1.t_since_import.toFixed(4)} s) (V)`, p1.Vc, V * (1 - Math.exp(-p1.t_since_import / tau)), 5),
+          near(`Vc(t=${p2.t_since_import.toFixed(4)} s) (V)`, p2.Vc, V * (1 - Math.exp(-p2.t_since_import / tau)), 5),
           near("两点反解出的 τ (s)", tauFit, tau, 5),
         ],
       });
