@@ -23,7 +23,7 @@ const cases = [
   },
   {
     name: 'horizontal：要「对比其他角度」但既无第二场景也无对照开关 ⇒ 必须拦',
-    design: { template_id: 'mechanics.projectile', recipe_id: 'horizontal', params: { v0: 15, h0: 20 }, why_recipe: whyFlat, student_task: '拖动初速度滑块，观察并记录射程 R 与飞行时间 T；对比其他角度的射程，验证结论。' },
+    design: { template_id: 'mechanics.projectile', recipe_id: 'horizontal', params: { v0: 15, angle_deg: 0, h0: 20 }, why_recipe: whyFlat, student_task: '拖动初速度滑块，观察并记录射程 R 与飞行时间 T；对比其他角度的射程，验证结论。' },
     expect: 'TEXT_AFFORDANCE',
   },
   {
@@ -36,16 +36,40 @@ const cases = [
     design: { template_id: 'mechanics.projectile', recipe_id: 'oblique45', params: { v0: 20, angle_deg: 45, h0: 0 }, why_recipe: why45, student_task: '勾选「自动发射」，观察并记录射程 R 与飞行时间 T 的变化。' },
     expect: 'TEXT_AFFORDANCE',
   },
+  // 能力标签门：覆盖「记录 / 对照 / 阻力」这类没有宾语的动词
+  {
+    name: 'horizontal：要求「记录」且已声明记录能力 ⇒ 必须放行',
+    design: { template_id: 'mechanics.projectile', recipe_id: 'horizontal', params: { v0: 15, angle_deg: 0, h0: 20 }, why_recipe: whyFlat, student_task: '拖动初速度滑块，观察并记录射程 R 与飞行时间 T，比较不同初速度下的落点。' },
+    expect: 'ok',
+  },
+  {
+    name: 'horizontal：要求「对比其他角度」但无角度对照能力 ⇒ 必须拦',
+    design: { template_id: 'mechanics.projectile', recipe_id: 'horizontal', params: { v0: 15, angle_deg: 0, h0: 20 }, why_recipe: whyFlat, student_task: '拖动初速度滑块，观察并记录射程 R，再对比其他角度的射程，验证 45° 最大。' },
+    expect: 'TEXT_AFFORDANCE',
+  },
+  {
+    name: 'oblique45：记录 + 角度对照 + 阻力都声明过 ⇒ 必须放行',
+    design: { template_id: 'mechanics.projectile', recipe_id: 'oblique45', params: { v0: 20, angle_deg: 45, h0: 0 }, why_recipe: why45, student_task: '记录三组射程 R，对比 30° 与 60° 的对照轨迹，再把空气阻力拉到 0.01 观察结论翻转。' },
+    expect: 'ok',
+  },
+  {
+    name: 'complementary：只提阻力（已声明）⇒ 必须放行',
+    design: { template_id: 'mechanics.projectile', recipe_id: 'complementary', params: { v0: 20, h0: 0, angles_deg: [30, 60] }, why_recipe: '因为 30° 与 60° 互为余角，sin2θ 相同，射程应相等。', student_task: '记录两条轨迹的射程 R，并把空气阻力拉到 0.01 观察比值怎么偏离 1。' },
+    expect: 'ok',
+  },
 ]
 
 let bad = 0
 for (const c of cases) {
   const r = checkDesign({ repoRoot, design: c.design })
-  const hits = (r.errors || []).filter(e => e.code === 'TEXT_AFFORDANCE')
-  const got = hits.length ? 'TEXT_AFFORDANCE' : (r.ok ? 'ok' : 'OTHER:' + (r.errors || []).map(e => e.code).join(','))
+    // 必须把**全部**错误码都摊开：只问「有没有 TEXT_AFFORDANCE」会让 PARAM_MISSING 之类藏在门后面过关，
+  // 于是"这条拦住了"其实混着别的坏掉的东西。
+  const codes = [...new Set((r.errors || []).map(e => e.code))]
+  const got = codes.length === 0 ? 'ok' : (codes.length === 1 ? codes[0] : codes.join('+'))
   const pass = got === c.expect
   if (!pass) bad += 1
-  console.log(`  ${pass ? 'PASS' : 'FAIL'}  ${c.name}  → ${got}${hits.length ? '：' + hits[0].message.slice(0, 60) : ''}`)
+  const first = (r.errors || [])[0]
+  console.log(`  ${pass ? 'PASS' : 'FAIL'}  ${c.name}  → ${got}${first ? '：' + first.message.slice(0, 56) : ''}`)
 }
 console.log(`\n${cases.length - bad}/${cases.length} 符合预期`)
 process.exit(bad ? 1 : 0)

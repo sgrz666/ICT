@@ -61,7 +61,13 @@
           "空气阻力"
         ],
         "toggles": [],
-        "comparison": false
+        "comparison": false,
+        "capabilities": [
+          "调参",
+          "播放控制",
+          "记录数据",
+          "阻力对照"
+        ]
       }
     },
     {
@@ -116,7 +122,14 @@
         "toggles": [
           "叠加"
         ],
-        "comparison": true
+        "comparison": true,
+        "capabilities": [
+          "调参",
+          "播放控制",
+          "记录数据",
+          "角度对照",
+          "阻力对照"
+        ]
       }
     },
     {
@@ -176,7 +189,14 @@
         "toggles": [
           "保持互补"
         ],
-        "comparison": true
+        "comparison": true,
+        "capabilities": [
+          "调参",
+          "播放控制",
+          "记录数据",
+          "角度对照",
+          "阻力对照"
+        ]
       }
     }
   ],

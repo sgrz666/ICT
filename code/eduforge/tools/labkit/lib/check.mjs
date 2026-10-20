@@ -213,6 +213,25 @@ function checkAffordances(template, recipe, design, errors, warnings) {
     pushError(errors, 'TEXT_AFFORDANCE', 'student_task',
       '文案要求与其他角度对照，但本配方既没有第二个场景也没有对照开关')
   }
+  // 「点击X / 勾选X」只覆盖带宾语的句式。像「记录 R/T/H」「比较其他角度」这种
+  // 没有指向具体控件的动词，光靠按钮清单查不出来（这次"记录"就是这么漏过去的）。
+  // 所以再要一层**能力标签**：文案要求的能力必须在 affordances.capabilities 里声明过。
+  const caps = Array.isArray(aff.capabilities) ? aff.capabilities : null
+  if (caps) {
+    const needs = []
+    if (/记录|保存|填入|填表|数据表/.test(task)) needs.push('记录数据')
+    if (/对照|对比|比较[^。]{0,10}角度|其他角度|不同角度/.test(task)) needs.push('角度对照')
+    if (/空气阻力|阻力|friction/i.test(task)) needs.push('阻力对照')
+    if (/暂停|重播|播放|发射/.test(task)) needs.push('播放控制')
+    for (const need of needs) {
+      if (!caps.includes(need)) {
+        pushError(errors, 'TEXT_AFFORDANCE', 'student_task',
+          `文案要求学生「${need}」，但本配方没有声明这项能力（已声明：${caps.join(' / ') || '无'}）`)
+      }
+    }
+  } else if (task) {
+    warnings.push('该配方没声明 affordances.capabilities，"记录/对照/阻力"这类无宾语动词未检查。')
+  }
   const toggles = Array.isArray(aff.toggles) ? aff.toggles : []
   for (const m of task.matchAll(/(?:勾选|勾上)\s*[「“"]?([一-龥A-Za-z0-9]{1,12})/g)) {
     const token = (m[1] || m[2] || '').replace(/[「”』].*$/g, '')
