@@ -818,13 +818,15 @@
         "缺 catalog/templates/mechanics 下的抛体模板三件套与适配器接线",
         "Matter 的 velocity 单位是「每个 baseDelta(16.667 ms) 的位移」，手写 positionPrev 会被首步 correction 再乘 dt/base（实测 1/240 s 步长下初速度缩水 4 倍、射程短 75%）⇒ 模板必须走 Body.setVelocity(v/60)",
         "frictionAir 默认 0.01，不显式置 0 就不是抛体运动（实测同一射程偏离 56.5%）",
-        "残差 0.1–0.3% 来自 Matter 离散式 y_n=½a(n²+n)dt²（比连续式多半步相位），容差不应压到 0.1% 以下"
+        "残差 0.1–0.3% 来自 Matter 离散式 y_n=½a(n²+n)dt²（比连续式多半步相位），容差不应压到 0.1% 以下",
+        "已装资源侧当前没有可离线驱动的抛体页面（三种形态各自的不通之处见 resource_side_2026-10-20）"
       ],
       "measured_evidence": "source/library/projectile-lab-evidence.json",
       "measured_note": "matter-js 0.20.0 无头步进 5/5 pass：单位标定 a=g_y×scale×1e6 实测 9.80000 m/s²；平抛 h=20 m/v₀=15 → 飞行时间 2.0182 s vs √(2h/g)=2.0203、射程 30.2733 vs 30.3046；斜抛 45°/20 m/s → 射程 40.7574 vs 40.8163、最高点 10.1746 vs 10.2041；互补角 30°/60° 射程比 0.9991（判据不含 g）；对照组 frictionAir=0.01 时射程偏离解析 56.5%",
       "harness": "node source/library/projectile_lab.mjs --json",
       "template": "code/eduforge/catalog/templates/mechanics/projectile",
-      "template_note": "升格依据（2026-10-20 实测）：模板四件套齐备（manifest.yaml + native.json + lesson.md + recipes.json，另有 render/ 的 template.html + style.css + runtime.js）；构建与验收链在 code/eduforge/tools/labkit/（L1 check → L2 simulate → 渲染 → L3 verify）；离线单文件产物已实测产出并通过 L3（零外部请求、canvas 非背景 3.14%、改 v0 20→25 射程 40.757382→63.701842、读数与 L2 证据逐位一致到 4.89e-8）。四个可调参数含 2026-10-20 新加的空气阻力 frictionAir（默认 0），页面算出的「偏离解析式之比」与证据里的 391.23 同定义且对得上。 2026-10-20 另加「叠加 30°/60° 对照」开关：单角度配方原本无法在页面上验证\"45° 最大\"这句话，现在三条引擎轨迹各自对解析式（偏差 0.29%/0.41%/0.24%），且带阻力时结论会翻转。"
+      "template_note": "升格依据（2026-10-20 实测）：模板四件套齐备（manifest.yaml + native.json + lesson.md + recipes.json，另有 render/ 的 template.html + style.css + runtime.js）；构建与验收链在 code/eduforge/tools/labkit/（L1 check → L2 simulate → 渲染 → L3 verify）；离线单文件产物已实测产出并通过 L3（零外部请求、canvas 非背景 3.14%、改 v0 20→25 射程 40.757382→63.701842、读数与 L2 证据逐位一致到 4.89e-8）。四个可调参数含 2026-10-20 新加的空气阻力 frictionAir（默认 0），页面算出的「偏离解析式之比」与证据里的 391.23 同定义且对得上。 2026-10-20 另加「叠加 30°/60° 对照」开关：单角度配方原本无法在页面上验证\"45° 最大\"这句话，现在三条引擎轨迹各自对解析式（偏差 0.29%/0.41%/0.24%），且带阻力时结论会翻转。",
+      "resource_side_2026-10-20": "抛体这一条的「已装实验资源」半边实测（2026-10-20，回应「交付件没用我们的资源与组件」）：① PhET projectile-motion 只有源码克隆（source/upstream/phet/sims/projectile-motion：js/ + Gruntfile），不在 source/upstream/phet/published/ 那 13 份官方成品里（实测清单无 projectile），三份 PhET 探针（phet-headless-probe / phet-a11y-channel-probe / phet-keyboard-channel-probe）的 sims 里也都没有它 ⇒ 未构建就没有可离线打开的页面，本机也没有它的构建链。② myphysicslab RollerFlight（腾空段=抛体+阻力）编译产物在（build/sims/roller/RollerFlightApp.js），但可运行页面不在（build/ 下 0 个 .html），页面要靠 prep_html.pl 拼装：本机实测两步都失败——Git-Bash 的 perl 5.34 在 use diagnostics 处编译失败（缺 perldiag.pod），去掉该行后卡在 #include \"#TOP_DIR/macros.html\" 解析出的路径里带反斜杠（未 chomp 的换行），只产出 0 字节文件（已删）。③ 3JCN 与 EJS 的清单里没有抛体页：3jcn-inventory.json 里 projectile 只出现在站点描述句里 1 次，ejss-headless-sweep.json 里 0 次。⇒ 结论：抛体当前没有可离线驱动的已装实验页面；交付走「按模板自建 + 已装引擎 matter-js（vendor 与 source/upstream/matter-js、source/components/node_modules/matter-js 换行归一后同 sha256）」是实测之后的选择，不是绕开资源。myphysicslab 那条路的堵点在页面拼装而不在运行时能力：要通，下一步是给 prep_html.pl 修 TOP_DIR 展开，或手写宿主页直接引入 build/ 里已有的 JS。"
     },
     {
       "id": "mechanics-newtons-cradle",
