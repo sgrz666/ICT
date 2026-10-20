@@ -52,9 +52,18 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
   const runtime = readFileSync(join(renderDir, 'runtime.js'), 'utf8')
   const coreSource = readFileSync(join(repoRoot, 'code', 'eduforge', 'tools', 'labkit', 'lib', 'projectile-core.mjs'), 'utf8')
     .replace(/^export\s+/gm, '')
-  const matter = readFileSync(join(repoRoot, 'code', 'eduforge', 'tools', 'labkit', 'vendor', 'matter.min.js'), 'utf8')
-    // 保留 MIT 署名，去掉横幅里的 URL：单文件产物里不应出现任何可被误当成外链的字符串。
-    .replace(/https?:\/\/\S+/g, '')
+  // 单文件产物里不该出现「可能被误当成外链」的字符串——但**许可横幅必须原样保留**：
+  // 那是再分发 matter-js 的 MIT 署名义务，而且注释里的 URL 不会产生任何请求（L3 数的是运行时请求）。
+  // 上一版那条通吃正则把 `http://brm.io/matter-js/` 一起抹了，副作用是产物内联的字节
+  // 与 vendor 记录的 sha256 对不上，「产物=哪一份引擎」只能人工比。现在只剥横幅之外的 URL，
+  // 并把 vendor / inlined 两个 sha256 一起写进 DATA.engine，让溯源变成可机械核对的事。
+  const matterPath = join(repoRoot, 'code', 'eduforge', 'tools', 'labkit', 'vendor', 'matter.min.js')
+  const matterRaw = readFileSync(matterPath, 'utf8')
+  const bannerEnd = matterRaw.indexOf('*/')
+  const matterBanner = bannerEnd >= 0 ? matterRaw.slice(0, bannerEnd + 2) : ''
+  const matter = matterBanner + matterRaw.slice(matterBanner.length).replace(/https?:\/\/\S+/g, '')
+  const matterVendorSha = sha256Hex(matterRaw)
+  const matterInlinedSha = sha256Hex(matter)
 
   const data = {
     meta: {
@@ -78,7 +87,15 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
       intent_keywords: recipe.intent_keywords,
     },
     decision: template.decision,
-    engine: template.engine,
+    engine: {
+      ...template.engine,
+      // 溯源：内联的到底是哪一份引擎字节。vendor_sha256 对上 vendor/README.md 里记的那串，
+      // inlined_sha256 是产物里实际那份（与 vendor 只差横幅之外的 URL 剥离）。
+      vendor_path: 'code/eduforge/tools/labkit/vendor/matter.min.js',
+      vendor_sha256: matterVendorSha,
+      inlined_sha256: matterInlinedSha,
+      license: 'MIT (matter-js © liabru)',
+    },
     render: template.render,
     acceptance: template.acceptance,
     evidence: evidence
@@ -105,10 +122,38 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
   mkdirSync(dirname(safeOut), { recursive: true })
   writeFileSync(safeOut, html, 'utf8')
 
+  // 产物目录自带一张「这是什么、怎么再来一次、引擎是谁的」说明与 MIT 许可副本：
+  // 交付出去的单个 HTML 不该只靠仓库上下文才能解释。
+  const readmePath = join(dirname(safeOut), 'README.md')
+  writeFileSync(readmePath, [
+    `# ${recipe.title}（\`${recipe.id}\`）— labkit 单文件产物`,
+    '',
+    `- 模板：\`${data.meta.template_id}\`（引擎 ${template.engine.id} ${template.engine.version}）`,
+    `- 参数：\`${JSON.stringify(l1.normalized.params)}\``,
+    `- 设计指纹：\`${hash}\``,
+    `- 页面内联引擎：\`code/eduforge/tools/labkit/vendor/matter.min.js\`（vendor sha256 \`${matterVendorSha.slice(0, 16)}…\`；实际内联那份 sha256 \`${matterInlinedSha.slice(0, 16)}…\`，${matterInlinedSha === matterVendorSha ? '与 vendor 逐字节相同' : '与 vendor 只差横幅外的 URL 剥离'}）`,
+    `- 许可：matter-js © liabru，MIT，全文见同目录 \`LICENSE.matter.txt\``,
+    '',
+    '复现：',
+    '',
+    '```bash',
+    '# L1→L2→渲染→L3 全链（selftest 覆盖的配方）',
+    'node code/eduforge/tools/labkit/selftest.mjs',
+    '# 只重渲染本产物：把 design 交给 renderSingleFile',
+    '```',
+    '',
+    '验收读数与 L2 证据逐位一致（L3 `readout_max_rel_error` 在 1e-7 量级）；页面第四个控件是空气阻力',
+    '（`frictionAir`，默认 0），拉到 0.01 可复现证据里「偏离解析式 391 倍」那条对照。',
+    '',
+  ].join('\n'), 'utf8')
+  writeFileSync(join(dirname(safeOut), 'LICENSE.matter.txt'),
+    readFileSync(join(repoRoot, 'code', 'eduforge', 'tools', 'labkit', 'vendor', 'LICENSE.matter.txt'), 'utf8'), 'utf8')
+
   return {
     ok: true,
     stage: 'RENDER',
     html_path: safeOut,
+    readme_path: readmePath,
     sha256: sha256Hex(html),
     bytes: Buffer.byteLength(html, 'utf8'),
     design_hash: hash,
