@@ -7,9 +7,9 @@
  实测只有 2.30 —— 判据口径必须与 L2 证据一致，否则绿的是探针、错的是结论。
 
  跑法（仓库根）：node code/eduforge/tools/labkit/drag-control-probe.mjs [html 路径]
- 默认打 selftest 产出的 oblique45；截图写进被 .gitignore 挡住的 candidates/labkit/ 下。
- 注意：DATA.sources / 三色对照这几条判据只对**改动之后重渲过的**产物成立。selftest 目录里那份是历史产物，
- 拿它跑会红两条——那是"产物比代码旧"，不是页面坏了；要判当前代码，请显式传 dsh 产物路径。
+ 默认打 dsh 交付的那份 oblique45；截图写进被 .gitignore 挡住的 candidates/labkit/ 下。
+ 注意：selftest 目录里的产物只在 `selftest.mjs` 跑过时才是新的，历史扁平目录（如 selftest/oblique45/）
+ 是改动前的现场，拿它跑会红或崩——那是"产物比代码旧"，不是页面坏了。
 */
 import path from 'node:path'
 import { createRequire } from 'node:module'
@@ -21,7 +21,7 @@ const { chromium } = require('playwright-core')
 // Windows: 动态 import 必须给 file:// URL，绝对盘路径会被当成协议名
 const { findChromium } = await import(pathToFileURL(path.resolve('source/library/ejss_headless_lab.mjs')).href)
 
-const target = process.argv[2] || 'output/eduforge/candidates/labkit/selftest/oblique45/oblique45.html'
+const target = process.argv[2] || 'output/eduforge/candidates/labkit/oblique45/oblique45-range-max.html'
 const url = pathToFileURL(path.resolve(target)).href
 const browser = await chromium.launch({ executablePath: findChromium(), headless: true, args: ['--no-sandbox'] })
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage()
