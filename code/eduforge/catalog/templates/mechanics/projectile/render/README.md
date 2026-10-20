@@ -49,5 +49,6 @@
   防止有人以后把对照改成硬编码的漂亮曲线。
 - **文案必须只承诺页面真有的操作**：dsh 生成的 `student_task` 原文写着「点击发射或重放…对比页面给出的其他角度」，
   而页面上只有「暂停/重播」、也没有其他角度。L1 查教学理由质量、L3 查控件是否生效，**两边都不查文案与可得控件是否一致**，
-  所以这句话一路绿灯到了交付件里。现在 `drag-control-probe.mjs` 补了这条（正则抓「点击X」与按钮清单比对，
-  并要求"提到对照"时场景数 ≥3）。改文案会改 `design_hash`，必须重跑 L2 才能渲染——这个拦截是对的，别绕。
+  所以这句话一路绿灯到了交付件里。这条先由 `drag-control-probe.mjs` 兜住，**现已升进 L1**：`recipes.json` 里每个配方声明 `affordances`
+  （buttons/sliders/toggles/comparison），`check.mjs` 的 `checkAffordances` 拿文案去比，对不上就报 `TEXT_AFFORDANCE`；
+  反例常驻 `tools/labkit/l1-text-gate-test.mjs`。改文案会改 `design_hash`，必须重跑 L2 才能渲染——这个拦截是对的，别绕。

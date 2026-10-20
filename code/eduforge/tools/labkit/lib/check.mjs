@@ -183,6 +183,45 @@ function checkReasons(template, recipe, design, errors) {
   }
 }
 
+/**
+ * 文案承诺 vs 页面真有的控件。
+ *
+ * 起因：dsh 生成的 student_task 写着「点击发射或重放…对比页面给出的其他角度」，
+ * 而产物上只有「暂停 / 重播」，也没有其他角度。L1 查理由质量、L3 查控件是否生效，
+ * 两边都不查这句话能不能兑现，于是它一路绿灯进了交付件。
+ * 规则保守：只判「点击X 必须是真按钮」与「说要对照就必须有对照能力」两类硬矛盾；
+ * 配方没声明 affordances 就跳过（新域还没声明，不误伤）。
+ */
+function checkAffordances(template, recipe, design, errors, warnings) {
+  const aff = recipe.affordances
+  const task = typeof design.student_task === 'string' ? design.student_task.trim() : ''
+  if (!aff) {
+    if (task) warnings.push('该配方没声明 affordances，文案与控件的一致性未检查。')
+    return
+  }
+  const buttons = Array.isArray(aff.buttons) ? aff.buttons : []
+  for (const m of task.matchAll(/点击\s*[「“"]?([一-龥A-Za-z0-9]{1,8})/g)) {
+    const token = m[1].replace(/(一下|按钮|按键)$/g, '')
+    const hit = buttons.some(b => b.includes(token) || token.includes(b))
+    if (!hit) {
+      pushError(errors, 'TEXT_AFFORDANCE', 'student_task',
+        `文案让学生「点击${m[1]}」，但这个页面没有这个按钮（只有：${buttons.join(' / ') || '无按钮'}）`)
+    }
+  }
+  const wantsCompare = /其他角度|别的角度|对照|对比[^。]{0,8}角度/.test(task)
+  if (wantsCompare && !aff.comparison) {
+    pushError(errors, 'TEXT_AFFORDANCE', 'student_task',
+      '文案要求与其他角度对照，但本配方既没有第二个场景也没有对照开关')
+  }
+  const toggles = Array.isArray(aff.toggles) ? aff.toggles : []
+  for (const m of task.matchAll(/(?:勾选|勾上)\s*[「“"]?([一-龥A-Za-z0-9]{1,12})/g)) {
+    const token = (m[1] || m[2] || '').replace(/[「”』].*$/g, '')
+    if (token && !toggles.some(t => t.includes(token) || token.includes(t))) {
+      pushError(errors, 'TEXT_AFFORDANCE', 'student_task', `文案提到勾选「${token}」，页面上没有这个开关（现有：${toggles.join(' / ') || '无'}）`)
+    }
+  }
+}
+
 function checkExpected(recipe, predictions, design, errors, hints) {
   const expected = design.expected_numbers
   if (expected === undefined) return null
@@ -287,6 +326,7 @@ export function checkDesign({ repoRoot, design }) {
 
   deriveHints(template, scenarios, predictions.scenarios, errors, hints)
   checkReasons(template, recipe, design, errors)
+  checkAffordances(template, recipe, design, errors, warnings)
   const expected = checkExpected(recipe, predictions, design, errors, hints)
 
   if (normalized) {

@@ -22,3 +22,11 @@
 - 四个阶段共享 `design_hash`；改设计后旧证据必须失配，不允许「新设计配旧证据」。
 - 物理只写在 `projectile-core.mjs`；`check.mjs` 只调用 `analyticProjectile()`，`render-single-file.mjs` 只拼接源码，不复制公式。
 - 新增引擎时复制的是「core + render + verify」三件，不是把 matter-js 分支塞进同一个文件。
+
+**L1 的「文案承诺 vs 页面控件」检查（2026-10-20 新增，`checkAffordances`）**
+`recipes.json` 里每个配方声明一份 `affordances`（`buttons` / `sliders` / `toggles` / `comparison`），
+L1 拿 `student_task` 去比：文案里的「点击X」「勾选X」必须真有其事，说要「对比其他角度/对照」而本配方
+既无第二场景又无对照开关就报错（`TEXT_AFFORDANCE`）。没声明 `affordances` 的配方只给 warning，不误伤新域。
+反例常驻在 [`../l1-text-gate-test.mjs`](../l1-text-gate-test.mjs)（5 例，含"必须放行"的两例，防止门越修越宽）。
+来历：dsh 给 oblique45 写的 student_task 让student「点击发射」，而产物只有暂停/重播，
+L1 与 L3 都不查这句话能不能兑现，于是一路绿灯进了交付件。
