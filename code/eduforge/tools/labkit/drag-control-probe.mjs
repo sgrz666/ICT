@@ -122,6 +122,18 @@ const sha = b => createHash('sha256').update(b).digest('hex')
 const rawHtml = fsMod.readFileSync(path.resolve(target))
 const blocks = [...rawHtml.toString('utf8').matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1])
 const matterBlock = blocks.reduce((a, b) => (b.length > (a ? a.length : 0) && b.length > 50000 ? b : a), null)
+// 能力标签必须由**行为**背书，不能是我手写字符串。
+// 每一项都对应上面已经跑过的一次真实交互：推不出来的能力，就是页面没有的能力。
+const observed = {
+  调参: Math.abs(after.R - before.R) > 1e-9 || Math.abs(trials.afterRows - 1) === 1,
+  播放控制: (live.buttons || []).some(b => /暂停|重播|播放/.test(b)),
+  记录数据: trials.recorded === 1 && Math.abs(trials.firstR - trials.R0) < 0.01 && trials.cleared === 0 && trials.hintBack,
+  角度对照: (cmpOn.scenarios || []).length >= 3 && new Set((cmpOn.scenarios || []).map(x => x.id)).size >= 3,
+  阻力对照: after.R < before.R * 0.6 && Math.abs(after.ratio_vs_clean) > 0,
+}
+const declaredCaps = (live.declared && live.declared.capabilities) || null
+const missing = declaredCaps ? declaredCaps.filter(c => !observed[c]) : []
+const extra = declaredCaps ? Object.keys(observed).filter(c => observed[c] && !declaredCaps.includes(c)) : []
 const checks = [
   ['DATA.engine.vendor_sha256 == vendor 实际字节 sha', prov.vendor === sha(vendorBytes)],
   ['DATA.engine.inlined_sha256 == 产物里那段引擎的 sha', prov.inlined === sha(Buffer.from(matterBlock || '', 'utf8'))],
@@ -152,6 +164,8 @@ const checks = [
     return !!d && JSON.stringify(d.buttons) === JSON.stringify(live.buttons)
   })()],
   ['全程零外部请求', net.length === 0],
+  ['声明的每一项能力都有行为背书（无许愿式声明）', !!declaredCaps && missing.length === 0],
+  ['页面实际具备的能力都已声明（无漏报）', !!declaredCaps && extra.length === 0],
   ['「记录本次」把当前引擎读数写进表（第 1 行的 R == 页面读数）', (() => {
     return trials.recorded === 1 && Math.abs(trials.firstR - trials.R0) < 0.01
   })()],
