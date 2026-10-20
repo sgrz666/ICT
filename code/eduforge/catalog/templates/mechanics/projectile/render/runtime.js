@@ -327,9 +327,25 @@
       var devR = Math.abs(c.measured.R - c.analytic.R) / Math.abs(c.analytic.R || 1) * 100
       var devT = Math.abs(c.measured.T - c.analytic.T) / Math.abs(c.analytic.T || 1) * 100
       var devH = Math.abs(c.measured.H - c.analytic.H) / Math.abs(c.analytic.H || 1) * 100
+      // 容差不能只有相对项。实测：T 的偏差恒等于 −dt（1/240 s 一步），R、H 的偏差就是它按 v·dt 传播，
+      // 所以这是**固定步长的分辨率下限**，不是物理误差。设计点 T≈2.88 s 时它只占 0.14%，
+      // 可 v₀=5、θ=15 时 T 只有 0.26 s，一步就占 1.6% —— 拿配方那一个点标定的 1% 去判所有参数，
+      // 会把学生推进到一个「页面自己说实验不通过」的角落。这里给每一项加上物理推出来的绝对下限，
+      // 并把两个数都显示出来：放宽的不是判据，是把判据的适用条件写清楚。
+      var dtS = DATA.engine.dt_s
+      var v0 = c.params.v0
+      var floorT = dtS / Math.abs(c.analytic.T || 1) * 100
+      var floorR = v0 * dtS / Math.abs(c.analytic.R || 1) * 100
+      var floorH = v0 * dtS / Math.abs(c.analytic.H || 1) * 100
+      var tol = (recipe.tolerances_pct && recipe.tolerances_pct.R) || 1
+      var limT = Math.max(tol, floorT), limR = Math.max(tol, floorR), limH = Math.max(tol, floorH)
       var worst = Math.max(devR, devT, devH)
+      var worstRatio = Math.max(devR / limR, devT / limT, devH / limH)
+      var byFloor = (floorT > tol || floorR > tol || floorH > tol)
       if (!dragging) {
-        rows += '<tr><td style="color:#5b6663">偏差</td><td colspan="3" class="' + (worst <= 1 ? 'ok' : 'bad') + '">最大 ' + fmt(worst, 2) + '%（容差 1%）</td></tr>'
+        rows += '<tr><td style="color:#5b6663">偏差</td><td colspan="3" class="' + (worstRatio <= 1 ? 'ok' : 'bad') + '">最大 ' + fmt(worst, 2) + '%'
+          + (byFloor ? '（本参数下分辨率下限 ' + fmt(Math.max(floorT, floorR, floorH), 2) + '%，一步 = ' + fmt(dtS, 5) + ' s）' : '（容差 ' + fmt(tol, 0) + '%）')
+          + '</td></tr>'
       } else {
         // 有阻力时「偏离解析式」不是失败，而是这一节的实验现象本身；判据换成与无阻力之比。
         rows += '<tr><td style="color:#5b6663">偏离无阻力解析式</td><td colspan="3">' + fmt(worst, 1) + '%（有阻力时抛物线不适用，见下一行）</td></tr>'
@@ -349,6 +365,16 @@
     if (recipe.params_mode === 'pair' && computed.length === 2) {
       var ratio = computed[0].measured.R / computed[1].measured.R
       rows += '<tr><td>R(θ₁)/R(θ₂)</td><td colspan="3" class="' + (Math.abs(ratio - 1) * 100 <= 1 ? 'ok' : 'bad') + '">' + fmt(ratio, 4) + '（理论 1）</td></tr>'
+    }
+    var over = []
+    if (computed.length) {
+      var c0 = computed[computed.length - 1]
+      if (decision.max_apex_m && c0.measured.H > decision.max_apex_m) over.push('最高点 ' + fmt(c0.measured.H, 1) + ' m > 声明可视上限 ' + decision.max_apex_m + ' m')
+      if (decision.max_range_m && c0.measured.R > decision.max_range_m) over.push('射程 ' + fmt(c0.measured.R, 1) + ' m > 声明可视上限 ' + decision.max_range_m + ' m')
+      if (decision.max_flight_time_s && c0.measured.T > decision.max_flight_time_s) over.push('飞行时间 ' + fmt(c0.measured.T, 2) + ' s > 声明上限 ' + decision.max_flight_time_s + ' s')
+    }
+    if (over.length) {
+      rows += '<tr><td style="color:#b45309">超出模板声明的可视范围</td><td colspan="3">' + over.join('；') + ' —— 坐标已自动缩放，读数仍是引擎真值</td></tr>'
     }
     box.innerHTML = '<table class="readout">' + heads + '<tbody>' + rows + '</tbody></table>'
   }
