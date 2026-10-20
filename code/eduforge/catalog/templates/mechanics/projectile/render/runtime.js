@@ -24,6 +24,10 @@
     playing: true,
     time: 0,
     speed: 1,
+    // 空气阻力（matter-js 的 frictionAir：每个步长把速度乘掉 (1-f)）。
+    // 默认 0 = 理想抛体，这样「引擎 vs 解析式」那条验收对照仍然成立；
+    // 一旦 >0，课本抛物线就不再适用，读数表要换成「与无阻力之比」来说话。
+    drag: 0,
   }
 
   var core = null
@@ -68,7 +72,7 @@
         h0: d.params.h0,
         v0: d.params.v0,
         angleDeg: d.params.angle_deg,
-        frictionAir: 0,
+        frictionAir: state.drag,
       })
       var analytic = core.analytic({
         h0: d.params.h0,
@@ -79,6 +83,13 @@
       var apexSample = flight.samples.reduce(function (best, s) {
         return s.y > best.y ? s : best
       }, flight.samples[0])
+      // 有阻力时解析式不再是预测值，改成与「同一参数的无阻力运行」比——
+      // 这一条正是 L2 证据里最有说服力的对照（射程掉到 1/5 以下），页面上必须点得到。
+      var clean = state.drag > 0
+        ? measuredOf(core.fly({
+          h0: d.params.h0, v0: d.params.v0, angleDeg: d.params.angle_deg, frictionAir: 0,
+        }))
+        : null
       return {
         id: d.id,
         label: d.label,
@@ -89,6 +100,7 @@
         apexSample: apexSample,
         measured: measuredOf(flight),
         analytic: analytic,
+        clean: clean,
       }
     })
     state.time = 0
@@ -118,13 +130,30 @@
             H: Number(c.analytic.H.toFixed(6)),
             apex_y: Number(c.analytic.apex_y.toFixed(6)),
           },
+          clean: c.clean ? {
+            T: Number(c.clean.T.toFixed(6)),
+            R: Number(c.clean.R.toFixed(6)),
+            H: Number(c.clean.H.toFixed(6)),
+          } : undefined,
         }
       }),
+      friction_air: state.drag,
       design_hash: DATA.meta.design_hash,
       engine: { id: DATA.engine.id, version: DATA.engine.version, calibrated_acceleration: aEff },
     }
     if (recipe.params_mode === 'pair' && computed.length === 2) {
       result.ratio_R = computed[0].measured.R / computed[1].measured.R
+    }
+    // 有阻力时把「无阻力射程 / 有阻力射程」也写进 __RESULT：L2 的 drag_control 判据
+    // 要求这个倍数 ≥ min_ratio_vs_clean，页面上能算出来，Agent 才可能自己核对。
+    if (state.drag > 0 && computed[0] && computed[0].clean) {
+      // 与 L2 证据的 ratio 同定义：偏离解析式程度的倍数（不是射程比）
+      var c0 = computed[0]
+      var den0 = Math.abs(c0.analytic.R) || 1
+      var devClean0 = Math.abs(c0.clean.R - c0.analytic.R) / den0
+      var devDrag0 = Math.abs(c0.measured.R - c0.analytic.R) / den0
+      result.ratio_vs_clean = devClean0 > 0 ? devDrag0 / devClean0 : Infinity
+      result.range_ratio_clean_over_drag = c0.clean.R / c0.measured.R
     }
     window.__RESULT = result
   }
@@ -235,9 +264,24 @@
         hint: '拖动角度观察射程变化；45° 附近射程最大。',
       })
     }
+
+    // 空气阻力放在最后追加：syncControls() 是按位置取前两个滑块（v₀、h₀）的，
+    // 插在前面会把那两个索引顶掉。
+    var dragCfg = (DATA.acceptance && DATA.acceptance.drag_control) || null
+    var dragNominal = dragCfg && dragCfg.friction_air ? dragCfg.friction_air : 0.01
+    dragHandle = slider({
+      label: '空气阻力 frictionAir',
+      min: 0, max: Number((dragNominal * 3).toFixed(3)), step: 0.001,
+      get: function () { return state.drag },
+      set: function (v) { state.drag = clamp(v, 0, dragNominal * 3) },
+      format: function (v) { return v === 0 ? '0（理想抛体）' : fmt(v, 3) },
+      hint: 'matter-js 每个步长把速度乘掉 (1−f)。f=0 时才是课本抛物线；'
+        + '把 f 拉到 ' + fmt(dragNominal, 2) + ' 可以看见 45° 射程最大这条结论怎么被空气阻力拆掉。',
+    })
   }
 
   var angleInputs = []
+  var dragHandle = null
   function syncAngleInputs() {
     angleInputs.forEach(function (item) {
       item.input.value = String(item.get())
@@ -249,14 +293,32 @@
     var box = el('readouts')
     var heads = '<thead><tr><th>场景</th><th>R (m)</th><th>T (s)</th><th>H (m)</th></tr></thead>'
     var rows = ''
+    var dragging = state.drag > 0
+    var dragCfg = (DATA.acceptance && DATA.acceptance.drag_control) || null
     computed.forEach(function (c) {
       rows += '<tr><td>' + c.label + '</td><td>' + fmt(c.measured.R) + '</td><td>' + fmt(c.measured.T) + '</td><td>' + fmt(c.measured.H) + '</td></tr>'
-      rows += '<tr><td style="color:#5b6663">解析式</td><td>' + fmt(c.analytic.R) + '</td><td>' + fmt(c.analytic.T) + '</td><td>' + fmt(c.analytic.H) + '</td></tr>'
+      rows += '<tr><td style="color:#5b6663">解析式' + (dragging ? '（无阻力）' : '') + '</td><td>' + fmt(c.analytic.R) + '</td><td>' + fmt(c.analytic.T) + '</td><td>' + fmt(c.analytic.H) + '</td></tr>'
       var devR = Math.abs(c.measured.R - c.analytic.R) / Math.abs(c.analytic.R || 1) * 100
       var devT = Math.abs(c.measured.T - c.analytic.T) / Math.abs(c.analytic.T || 1) * 100
       var devH = Math.abs(c.measured.H - c.analytic.H) / Math.abs(c.analytic.H || 1) * 100
       var worst = Math.max(devR, devT, devH)
-      rows += '<tr><td style="color:#5b6663">偏差</td><td colspan="3" class="' + (worst <= 1 ? 'ok' : 'bad') + '">最大 ' + fmt(worst, 2) + '%（容差 1%）</td></tr>'
+      if (!dragging) {
+        rows += '<tr><td style="color:#5b6663">偏差</td><td colspan="3" class="' + (worst <= 1 ? 'ok' : 'bad') + '">最大 ' + fmt(worst, 2) + '%（容差 1%）</td></tr>'
+      } else {
+        // 有阻力时「偏离解析式」不是失败，而是这一节的实验现象本身；判据换成与无阻力之比。
+        rows += '<tr><td style="color:#5b6663">偏离无阻力解析式</td><td colspan="3">' + fmt(worst, 1) + '%（有阻力时抛物线不适用，见下一行）</td></tr>'
+        if (c.clean) {
+          // 与 L2 证据同一个定义：ratio = 有阻力时偏离无阻力解析式的程度 / 无阻力时偏离解析式的程度。
+          // （证据里的 391.23 是这个比，不是射程比；射程比只有 ~2.3，别混为一谈。）
+          var den = Math.abs(c.analytic.R) || 1
+          var devClean = Math.abs(c.clean.R - c.analytic.R) / den * 100
+          var devDrag = Math.abs(c.measured.R - c.analytic.R) / den * 100
+          var k = devClean > 0 ? devDrag / devClean : Infinity
+          var need = dragCfg && dragCfg.min_ratio_vs_clean ? dragCfg.min_ratio_vs_clean : 5
+          rows += '<tr><td style="color:#5b6663">偏离解析式之比（阻力/无阻力）</td><td colspan="3" class="' + (k >= need ? 'ok' : 'bad') + '">' + fmt(k, 1) + ' 倍（L2 判据要求 ≥ ' + need + '）</td></tr>'
+          rows += '<tr><td style="color:#5b6663">射程 R(无阻力)/R(阻力)</td><td colspan="3">' + fmt(c.clean.R / c.measured.R, 2) + ' 倍（' + fmt(c.clean.R, 2) + ' → ' + fmt(c.measured.R, 2) + ' m）</td></tr>'
+        }
+      }
     })
     if (recipe.params_mode === 'pair' && computed.length === 2) {
       var ratio = computed[0].measured.R / computed[1].measured.R
@@ -459,6 +521,11 @@
                 return clamp(a, decision.angle_range_oblique[0], decision.angle_range_oblique[1])
               })
             }
+            // Agent 侧入口：与页面滑块同一状态、同一量程，改完立刻回读到 __RESULT.friction_air
+            if (typeof next.friction_air === 'number') {
+              var dmax = ((DATA.acceptance && DATA.acceptance.drag_control && DATA.acceptance.drag_control.friction_air) || 0.01) * 3
+              state.drag = clamp(next.friction_air, 0, dmax)
+            }
           }
           syncControls()
           syncAngleInputs()
@@ -498,11 +565,15 @@
     dash.className = 'swatch'
     dash.style.background = 'repeating-linear-gradient(90deg,#5a6661 0 5px,transparent 5px 9px)'
     ana.appendChild(dash)
-    ana.appendChild(document.createTextNode('解析式'))
+    ana.appendChild(document.createTextNode('解析式（无阻力抛物线）'))
     legend.appendChild(ana)
   }
 
   function syncControls() {
+    if (dragHandle) {
+      dragHandle.input.value = String(state.drag)
+      dragHandle.val.textContent = dragHandle.format(state.drag)
+    }
     var inputs = document.querySelectorAll('#controls input[type="range"]')
     if (inputs.length >= 2) {
       inputs[0].value = String(state.v0)

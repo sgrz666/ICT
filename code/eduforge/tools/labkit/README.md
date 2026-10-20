@@ -18,6 +18,7 @@
 | [`lib/fs-safe.mjs`](lib/fs-safe.mjs) | 13 | 输出路径白名单 |
 | [`vendor/matter.min.js`](vendor/matter.min.js) | — | 内联引擎 0.20.0（MIT，83,476 字节，sha256 `72d30be0…88e24ae`）；附 `LICENSE.matter.txt` |
 | [`selftest.mjs`](selftest.mjs) | 87 | 三个配方各跑 L1→L2→渲染→L3，打印一表；退出码 0/1 |
+| [`drag-control-probe.mjs`](drag-control-probe.mjs) | 96 | 阻力控件的回归：默认 0 不变、写入后射程真变、页面 ratio 与 L2 的 391.23 同定义对得上、写回可逆、滑块与 `__LAB.setParams` 两条路都生效（12 条判据）|
 
 `vendor/` 是上游 npm 包的副本，不在运行时联网；许可证与哈希记录在此，升级引擎必须同步改 `recipes.json` 的 `engine.version` 与本表。
 

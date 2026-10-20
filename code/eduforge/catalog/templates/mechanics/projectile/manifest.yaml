@@ -41,6 +41,15 @@ controls:
     min: 0
     max: 30
     initial: 0
+  - entity_id: projectile
+    native_type: Circle
+    parameter: friction_air
+    native_field: frictionAir
+    label: 空气阻力
+    unit: ""
+    min: 0
+    max: 0.03
+    initial: 0
 
 views:
   - scene

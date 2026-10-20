@@ -38,7 +38,7 @@
 1. **`catalog.py` 是手写逐行解析器**：`controls` 必须是扁平 `key: value`，`views` 的停止键是 `exports:`。所以字段顺序固定为 `controls → views → exports → routes`；嵌套的 recipes / acceptance / render 一律放 `recipes.json`，否则会被当成 control 项解析坏。
 2. **`status: verified` 只影响 catalog 的 pending 判断**（`startswith("pending")` 才返回空模板）；它**不**代表已接入教师端。
 3. **`engine_id: matter_js` 目前只被 LabKit 使用**；`domain/contracts.py` 的 `EngineId` Literal 还没有它，接入主链路时要加。
-4. **matter-js 的阻力模型不是二次阻力**：`frictionAir` 是线性衰减，模板强制 0；阻力只用于 L2 对照组。
+4. **matter-js 的阻力模型不是二次阻力**：`frictionAir` 是每个步长对速度的线性衰减，不是 `½CρAv²` 那种二次阻力。2026-10-20 起它作为第四个控件开放给教师与 Agent（`manifest.yaml` 的 `friction_air`，量程 0~0.03，**默认 0**），但页面上必须按「线性阻尼」解释，不得写成"真实空气阻力"；默认 0 是有意的——L2/L3 的「引擎 vs 解析式」对照只在无阻力时成立，默认值一动，历史证据就作废。
 5. **不引用 gallery 场景**：本模板的 `native.json` 只有一个质点，轨迹完全由参数决定；没有上游场景的球差/色散一类物理偏差。
 
 ## 5. 关系

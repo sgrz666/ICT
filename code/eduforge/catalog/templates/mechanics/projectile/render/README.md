@@ -7,7 +7,7 @@
 | 文件 | 行数 | 作用 |
 |---|---|---|
 | [`template.html`](template.html) | 62 | 骨架：标题 / canvas / 参数区 / 读数区 / 教学说明 / 页脚；六个占位符 |
-| [`runtime.js`](runtime.js) | 520 | 读 `window.__LAB_DATA__`，预计算轨迹、画 canvas、绑定滑块、暴露 `window.__LAB` / `__RESULT` / `__STATUS` |
+| [`runtime.js`](runtime.js) | 580 | 读 `window.__LAB_DATA__`，预计算轨迹、画 canvas、绑定滑块、暴露 `window.__LAB` / `__RESULT` / `__STATUS` |
 | [`style.css`](style.css) | 229 | 内联样式；浅色、无外部字体、响应式两栏 |
 
 ## 2. 占位符（由 `render-single-file.mjs` 替换）
@@ -29,8 +29,9 @@
 - **验证钩子**：
   - `window.__STATUS = 'loading' | 'ready' | 'error'`
   - `window.__RESULT = {params, scenarios[{id, measured, analytic}], ratio_R?, design_hash, engine}`
-  - `window.__LAB.setParams({v0, h0, angle_deg?, angles_deg?})` → 重新计算并返回 `__RESULT`
+  - `window.__LAB.setParams({v0, h0, angle_deg?, angles_deg?, friction_air?})` → 重新计算并返回 `__RESULT`（`friction_air` 与页面滑块同一状态、同一量程，写后能从 `__RESULT.friction_air` 回读）
 - **读数显示**：实测 / 解析 / 偏差三行；偏差超过 1% 标红；互补角额外显示 `R(θ₁)/R(θ₂)` 与理论值 1 的对比。
+- **空气阻力（2026-10-20 新增）**：`frictionAir` 滑块默认 0（= 理想抛体，验收路径不变）。拉到 0.01 时页面额外做一次「同参数无阻力」重跑，读数表换成两行：`偏离解析式之比（阻力/无阻力）`（与 L2 证据 `ratio` **同一定义**，实测 391.23 对得上，判据 ≥5）与 `射程 R(无阻力)/R(阻力)`（2.30 倍，40.76 → 17.76 m）。注意这两个数不是一回事——早先一次探针把判据误写成「射程比 ≥5」，才暴露出这个混淆。
 
 ## 4. 坑与纪律
 
