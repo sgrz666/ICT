@@ -52,3 +52,7 @@
   所以这句话一路绿灯到了交付件里。这条先由 `drag-control-probe.mjs` 兜住，**现已升进 L1**：`recipes.json` 里每个配方声明 `affordances`
   （buttons/sliders/toggles/comparison），`check.mjs` 的 `checkAffordances` 拿文案去比，对不上就报 `TEXT_AFFORDANCE`；
   反例常驻 `tools/labkit/l1-text-gate-test.mjs`。改文案会改 `design_hash`，必须重跑 L2 才能渲染——这个拦截是对的，别绕。
+- **声明也要被验**：`affordances` 是手工写的，上一轮就过期过一次（三个配方都漏写新加的「空气阻力」）。
+  所以 `render-single-file.mjs` 把它随 `DATA.recipe` 一起交付，`drag-control-probe.mjs` 再拿这份声明
+  比对**浏览器里真实渲染出来的**滑块/开关/按钮（三条判据，oblique45 现 26/26）——
+  声明与页面一旦不符，红的就是产物判据，而不是等到有人照着旧清单放行文案。
