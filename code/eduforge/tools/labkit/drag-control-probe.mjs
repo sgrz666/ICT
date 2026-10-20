@@ -60,6 +60,23 @@ const uiDriven = await page.evaluate(() => {
   s.dispatchEvent(new Event('input', { bubbles: true }))
   return { R: window.__RESULT.scenarios[0].measured.R, f: window.__RESULT.friction_air }
 })
+// 「记录本次」必须真的把引擎读数存进表里（非空判据：记两条不同参数、比对当前读数、再清空）
+const trials = await page.evaluate(() => {
+  const R0 = window.__RESULT.scenarios[0].measured.R
+  const before = document.querySelectorAll('#trials tbody tr').length
+  document.getElementById('record').click()
+  const afterFirst = document.querySelectorAll('#trials tbody tr').length
+  const rCell = tr => parseFloat(tr.children[5].textContent)
+  window.__LAB.setParams({ v0: 30 })
+  document.getElementById('record').click()
+  const afterRows = [...document.querySelectorAll('#trials tbody tr')].length
+  const firstR = document.querySelector('#trials tbody tr') ? rCell(document.querySelector('#trials tbody tr')) : null
+  const distinct = new Set([...document.querySelectorAll('#trials tbody tr')].map(rCell)).size
+  document.getElementById('clear-trials').click()
+  const cleared = document.querySelectorAll('#trials tbody tr').length
+  const hintBack = /还没有记录/.test(document.getElementById('trials').innerText)
+  return { R0, before, recorded: afterFirst - before, firstR, afterRows, distinct, cleared, hintBack }
+})
 const live = await page.evaluate(() => ({
   recipe_id: window.__LAB_DATA__.recipe.id,
   declared: window.__LAB_DATA__.recipe.affordances || null,
@@ -135,6 +152,11 @@ const checks = [
     return !!d && JSON.stringify(d.buttons) === JSON.stringify(live.buttons)
   })()],
   ['全程零外部请求', net.length === 0],
+  ['「记录本次」把当前引擎读数写进表（第 1 行的 R == 页面读数）', (() => {
+    return trials.recorded === 1 && Math.abs(trials.firstR - trials.R0) < 0.01
+  })()],
+  ['换参数再记一条，两行 R 不同（不是复制粘贴）', trials.afterRows === 2 && trials.distinct === 2],
+  ['「清空记录」回到空态提示', trials.cleared === 0 && trials.hintBack === true],
   ['有「叠加 30°/60° 对照」这个开关', cmpOn.present === true],
   ['勾上后场景数到 3（45° + 两个对照）', (cmpOn.scenarios || []).length === 3],
   ['引擎输出真能证「45° 最大」：R(30°) 与 R(60°) 都小于 R(45°)', (() => {

@@ -24,6 +24,7 @@
     playing: true,
     time: 0,
     speed: 1,
+    trials: [],
     // 空气阻力（matter-js 的 frictionAir：每个步长把速度乘掉 (1-f)）。
     // 默认 0 = 理想抛体，这样「引擎 vs 解析式」那条验收对照仍然成立；
     // 一旦 >0，课本抛物线就不再适用，读数表要换成「与无阻力之比」来说话。
@@ -388,6 +389,22 @@
     box.innerHTML = '<table class="readout">' + heads + '<tbody>' + rows + '</tbody></table>'
   }
 
+  function renderTrials() {
+    var box = el('trials')
+    if (!state.trials.length) {
+      box.innerHTML = '<div class="hint">还没有记录。调好参数后点「记录本次」，把引擎算出的 R / T / H 存进表里；'
+        + '换几组参数记满 3 行，就能自己看出 45° 附近射程最大。</div>'
+      return
+    }
+    var rows = state.trials.map(function (x, i) {
+      return '<tr><td>' + (i + 1) + '</td><td>' + fmt(x.v0, 1) + '</td><td>' + fmt(x.h0, 1) + '</td><td>' + fmt(x.angle_deg, 0)
+        + '</td><td>' + (x.friction_air ? fmt(x.friction_air, 3) : '0') + '</td><td>' + fmt(x.R, 2) + '</td><td>' + fmt(x.T, 2)
+        + '</td><td>' + fmt(x.H, 2) + '</td></tr>'
+    }).join('')
+    box.innerHTML = '<table class="readout"><thead><tr><th>#</th><th>v₀</th><th>h₀</th><th>θ</th><th>f</th><th>R (m)</th><th>T (s)</th><th>H (m)</th></tr></thead><tbody>'
+      + rows + '</tbody></table><div class="hint">共 ' + state.trials.length + ' 条，来自引擎读数（刷新页面即清空）。</div>'
+  }
+
   function niceStep(maxValue, targetTicks) {
     var raw = maxValue / targetTicks
     var pow = Math.pow(10, Math.floor(Math.log10(Math.max(raw, 1e-6))))
@@ -562,6 +579,21 @@
         state.playing = !state.playing
         el('play').textContent = state.playing ? '暂停' : '播放'
       })
+      el('record').addEventListener('click', function () {
+        // 记的是**引擎当前算出来的**读数，不是解析式：学生交上来的表要能对上他刚才看到的那条曲线
+        var c = computed[0]
+        if (!c || !c.landed) return
+        state.trials.push({
+          v0: c.params.v0, h0: c.params.h0, angle_deg: c.params.angle_deg,
+          friction_air: state.drag, R: c.measured.R, T: c.measured.T, H: c.measured.H,
+        })
+        renderTrials()
+      })
+      el('clear-trials').addEventListener('click', function () {
+        state.trials = []
+        renderTrials()
+      })
+
       el('reset').addEventListener('click', function () {
         state.time = 0
         state.playing = true
