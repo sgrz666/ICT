@@ -1,0 +1,54 @@
+template_id: mechanics.projectile
+title: 抛体运动
+engine_id: matter_js
+engine_version: "0.20.0"
+native_format_version: 1
+native_file: native.json
+lesson_file: lesson.md
+units_per_unit: 1
+status: verified
+
+scene_layout:
+  - entity_id: projectile
+    native_type: Circle
+    geometry: { x: 0, y: 0, r: 0.25 }
+
+controls:
+  - entity_id: projectile
+    native_type: Circle
+    parameter: v0
+    native_field: velocity
+    label: 初速度
+    unit: m/s
+    min: 5
+    max: 40
+    initial: 20
+  - entity_id: projectile
+    native_type: Circle
+    parameter: angle_deg
+    native_field: angle
+    label: 发射角
+    unit: deg
+    min: 0
+    max: 90
+    initial: 45
+  - entity_id: projectile
+    native_type: Circle
+    parameter: h0
+    native_field: y
+    label: 初始高度
+    unit: m
+    min: 0
+    max: 30
+    initial: 0
+
+views:
+  - scene
+  - controls
+  - measurement_table
+
+exports:
+  - single_file_html
+
+routes:
+  - config

@@ -1,0 +1,229 @@
+:root {
+  --bg: #f6f7f4;
+  --panel: #ffffff;
+  --ink: #1c2321;
+  --muted: #5b6663;
+  --line: #d9ddd7;
+  --accent: #0f766e;
+  --accent-soft: #e3f1ee;
+  --warn: #b45309;
+  --good: #157347;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  line-height: 1.55;
+}
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px 22px 32px;
+}
+
+header.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+}
+
+header.top h1 {
+  font-size: 22px;
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+header.top .sub {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.badge.pass { border-color: #b7dfcd; background: #eef8f2; color: var(--good); }
+.badge.fail { border-color: #f0d0b5; background: #fdf3ea; color: var(--warn); }
+
+main.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.stage {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 1px 2px rgba(20, 30, 25, 0.04);
+}
+
+canvas#canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  background: #fbfcfa;
+}
+
+.stage-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+button {
+  font: inherit;
+  font-size: 13px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+button:hover { border-color: #b9c1ba; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.legend .item { display: inline-flex; align-items: center; gap: 6px; }
+.legend .swatch { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }
+
+.panel {
+  display: grid;
+  gap: 14px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+}
+
+.card h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+.control { margin-bottom: 12px; }
+.control:last-child { margin-bottom: 0; }
+
+.control .row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.control .row .val { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 600; }
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.control .hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+table.readout {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+table.readout th, table.readout td {
+  text-align: right;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+table.readout th:first-child, table.readout td:first-child { text-align: left; }
+table.readout thead th { color: var(--muted); font-weight: 500; font-size: 12px; }
+table.readout tr:last-child td { border-bottom: 0; }
+table.readout td.ok { color: var(--good); }
+table.readout td.bad { color: var(--warn); }
+
+.teaching h3 {
+  font-size: 13px;
+  margin: 12px 0 4px;
+  color: var(--ink);
+}
+
+.teaching p {
+  margin: 0;
+  font-size: 13.5px;
+  color: #33403c;
+}
+
+.teaching .formula {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--accent-soft);
+  border-radius: 8px;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 12.5px;
+  color: #0b4f49;
+}
+
+footer.foot {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+@media (max-width: 900px) {
+  main.layout { grid-template-columns: 1fr; }
+  .legend { margin-left: 0; }
+}

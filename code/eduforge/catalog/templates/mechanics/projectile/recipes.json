@@ -1,0 +1,93 @@
+{
+  "schema": "eduforge.labkit.recipes/v1",
+  "template_id": "mechanics.projectile",
+  "title": "抛体运动",
+  "engine": {
+    "id": "matter_js",
+    "version": "0.20.0",
+    "dt_s": 0.004166666666666667,
+    "gravity": 9.8,
+    "gravity_scale": 1e-06,
+    "radius": 0.25,
+    "friction_air": 0
+  },
+  "recipes": [
+    {
+      "id": "horizontal",
+      "title": "平抛：高度决定飞行时间",
+      "intent": "水平抛出时竖直方向是自由落体，飞行时间只由高度决定；射程与初速度成正比。",
+      "intent_keywords": ["飞行时间", "高度", "射程", "正比"],
+      "params_mode": "single",
+      "scenarios": [
+        { "id": "main", "params": { "v0": 15, "angle_deg": 0, "h0": 20 } }
+      ],
+      "metric_keys": ["T", "R", "apex_y"],
+      "metrics": ["T", "R", "apex_y"],
+      "tolerances_pct": { "T": 1, "R": 1, "apex_y": 0.5 }
+    },
+    {
+      "id": "oblique45",
+      "title": "斜抛：45° 射程最大",
+      "intent": "射程 R=v0²sin2θ/g，θ=45° 时 sin2θ=1，射程最大；最高点与飞行时间随角度增大。",
+      "intent_keywords": ["射程", "45", "最大", "角度"],
+      "params_mode": "single",
+      "scenarios": [
+        { "id": "main", "params": { "v0": 20, "angle_deg": 45, "h0": 0 } }
+      ],
+      "metric_keys": ["T", "R", "H"],
+      "metrics": ["T", "R", "H"],
+      "tolerances_pct": { "T": 1, "R": 1, "H": 1 }
+    },
+    {
+      "id": "complementary",
+      "title": "互补角：30° 与 60° 射程相同",
+      "intent": "30° 与 60° 互为余角，sin2θ 相同，所以射程相等；射程随角度先增后减。",
+      "intent_keywords": ["互补角", "射程", "相等", "30", "60"],
+      "params_mode": "pair",
+      "scenarios": [
+        { "id": "a30", "params": { "v0": 20, "angle_deg": 30, "h0": 0 } },
+        { "id": "a60", "params": { "v0": 20, "angle_deg": 60, "h0": 0 } }
+      ],
+      "metric_keys": ["R_30", "R_60", "ratio"],
+      "metrics": ["ratio_R"],
+      "tolerances_pct": { "ratio_R": 1 }
+    }
+  ],
+  "acceptance": {
+    "formulas_display": {
+      "T": "T = (v₀sinθ + √(v₀²sin²θ + 2gh₀)) / g",
+      "R": "R = v₀cosθ · T",
+      "H": "H = h₀ + v₀²sin²θ / (2g)",
+      "ratio_R": "R(θ) / R(90°−θ) = 1"
+    },
+    "drag_control": {
+      "friction_air": 0.01,
+      "min_deviation_pct": 1,
+      "min_ratio_vs_clean": 5
+    }
+  },
+  "decision": {
+    "v0_range": [5, 40],
+    "angle_range": [0, 90],
+    "angle_range_oblique": [15, 75],
+    "h0_range": [0, 30],
+    "max_range_m": 120,
+    "max_flight_time_s": 8,
+    "max_apex_m": 45,
+    "viewport_pad": 1.15
+  },
+  "reason": {
+    "variables": ["射程", "飞行时间", "最高点", "高度", "角度", "初速度", "时间", "水平距离"],
+    "task_verbs": ["改变", "调整", "设置", "记录", "比较", "观察", "测量", "试", "拖动", "保持"],
+    "task_metrics": ["射程", "飞行时间", "最高点", "高度", "角度", "时间", "比值", "水平距离"],
+    "generic_phrases": ["更有趣", "更直观", "效果好", "更生动", "更美观"]
+  },
+  "render": {
+    "canvas": { "width": 960, "height": 540 },
+    "grid_m": 5,
+    "colors": ["#0f766e", "#b45309"],
+    "readouts": ["R", "T", "H", "v0", "angle_deg", "h0"],
+    "overlay_analytic": true,
+    "show_apex_marker": true
+  }
+}

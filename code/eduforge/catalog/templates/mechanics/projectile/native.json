@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "objs": [
+    {
+      "type": "Circle",
+      "name": "projectile",
+      "r": 0.25,
+      "frictionAir": 0
+    }
+  ]
+}

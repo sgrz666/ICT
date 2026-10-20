@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>__TITLE__</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:">
+<style>
+__STYLE__
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div>
+      <h1 id="title">抛体运动</h1>
+      <div class="sub" id="subtitle"></div>
+    </div>
+    <div class="badge" id="badge">加载中…</div>
+  </header>
+
+  <main class="layout">
+    <section class="stage">
+      <canvas id="canvas" width="960" height="540"></canvas>
+      <div class="stage-bar">
+        <button class="primary" id="play">暂停</button>
+        <button id="reset">重播</button>
+        <div class="legend" id="legend"></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="card">
+        <h2>参数</h2>
+        <div id="controls"></div>
+      </div>
+      <div class="card">
+        <h2>读数与解析对照</h2>
+        <div id="readouts"></div>
+      </div>
+      <div class="card teaching">
+        <h2>实验说明</h2>
+        <h3>实验目的</h3>
+        <p id="purpose"></p>
+        <h3>操作步骤</h3>
+        <p id="task"></p>
+        <div class="formula" id="formula"></div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <span id="engine-line"></span>
+    <span id="hash-line"></span>
+  </footer>
+</div>
+
+<script>window.__LAB_DATA__ = __DATA__;</script>
+<script>__MATTER_JS__</script>
+<script>__CORE_JS__</script>
+<script>__RUNTIME_JS__</script>
+</body>
+</html>
