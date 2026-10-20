@@ -37,16 +37,19 @@ const grid = {
   v0: [meta.v0[0], 12, 20, 30, meta.v0[1]],
   h0: [meta.h0[0], 8, meta.h0[1]],
   ang: [meta.ang[0], 30, 45, 60, meta.ang[1]],
-  drag: [0, 0.01, meta.ang && 0.03],
+  drag: [0.01, 0.03],  // 不含 0：无阻力已由上面那张网格全覆盖，混进来会让这批行少带 effAng/explained 字段而误报
 }
 const rows = []
 for (const v0 of grid.v0) for (const h0 of grid.h0) for (const ang of grid.ang) {
   const r = await page.evaluate(([v0, h0, ang]) => {
     window.__LAB.setParams({ v0, h0, angle_deg: ang, friction_air: 0 })
-    return { res: window.__RESULT, notice: /超出模板声明的可视范围/.test(document.querySelector('table.readout').innerText) }
+    const txt = document.querySelector('table.readout').innerText
+    return { res: window.__RESULT, notice: /超出模板声明的可视范围/.test(txt), explained: /贴地|未落地/.test(txt) }
   }, [v0, h0, ang])
   const s = r.res.scenarios[0]
-  rows.push({ v0, h0, ang, drag: 0, T: s.measured.T, R: s.measured.R, H: s.measured.H, aT: s.analytic.T, aR: s.analytic.R, aH: s.analytic.H, noticed: r.notice })
+  // 用页面回显的**有效**参数，不是请求值：horizontal 配方会忽略 angle_deg（恒 0），
+  // 拿请求值判退化态就会把「其实贴地」误当成「θ=15 却读不出数」。写后回读，同一课。
+  rows.push({ v0, h0, ang, effAng: s.params ? s.params.angle_deg : ang, effH0: s.params ? s.params.h0 : h0, drag: 0, T: s.measured.T, R: s.measured.R, H: s.measured.H, aT: s.analytic.T, aR: s.analytic.R, aH: s.analytic.H, noticed: r.notice, explained: r.explained })
 }
 for (const d of grid.drag) for (const ang of [30, 45, 60]) {
   const r = await page.evaluate(([v0, h0, ang, drag]) => window.__LAB.setParams({ v0, h0, angle_deg: ang, friction_air: drag }), [20, 0, ang, d])
@@ -75,8 +78,12 @@ for (const x of rows.filter(r => r.drag === 0)) {
   const dev = k => Math.abs(x[k] - x['a' + k]) / Math.abs(x['a' + k] || 1) * 100
   const floors = { T: DT / Math.abs(x.aT || 1) * 100, R: x.v0 * DT / Math.abs(x.aR || 1) * 100, H: x.v0 * DT / Math.abs(x.aH || 1) * 100 }
   for (const k of ['T', 'R', 'H']) {
-    if (!Number.isFinite(x[k]) || x[k] <= 0) bad.push(`无有效读数 v0=${x.v0} h0=${x.h0} θ=${x.ang} ${k}=${x[k]}`)
+    const degenerate = (x.effH0 ?? x.h0) <= 0 && (x.effAng ?? x.ang) <= 0
+    if (degenerate && !Number.isFinite(x[k])) { bad.push(`退化态读数不是有限值 v0=${x.v0} θ有效=${x.effAng} ${k}=${x[k]}`) }
+    else if (degenerate) { if (!x.explained) bad.push(`退化态未解释（h₀=0 且 θ=0 只给 0 读数）v0=${x.v0}`) }
+    else if (!Number.isFinite(x[k]) || x[k] <= 0) bad.push(`无有效读数 v0=${x.v0} h0=${x.h0} θ=${x.ang} ${k}=${x[k]}`)
     // 1.05 步：落点用相邻两帧线性插值，允许不足一步的余量
+    else if (degenerate) { /* 贴地情形没有可比的抛物线 */ }
     else if (dev(k) > Math.max(1, floors[k]) * 1.05) bad.push(`偏离解析式 ${dev(k).toFixed(2)}% > 下限 ${Math.max(1, floors[k]).toFixed(2)}% v0=${x.v0} h0=${x.h0} θ=${x.ang} ${k}`)
   }
   // 越过模板声明的可视上限本身不是错，**不吭声才是**：页面必须显式告诉学生已越界、坐标已自动缩放

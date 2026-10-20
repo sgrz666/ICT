@@ -322,6 +322,15 @@
     var dragging = state.drag > 0
     var dragCfg = (DATA.acceptance && DATA.acceptance.drag_control) || null
     computed.forEach(function (c) {
+      // 退化态要说清原因，不能只给三个 0：h₀=0 且没有向上初速时物体一出发就贴地，
+      // 引擎"没落地"是因为根本不在空中，而不是实验失败。
+      if (!c.landed) {
+        rows += '<tr><td>' + c.label + '</td><td colspan="3" style="color:#b45309">'
+          + (c.params.h0 <= 0 && c.params.angle_deg <= 0
+            ? 'h₀=0 且水平抛出 ⇒ 一出发即贴地，没有可测的飞行。把「初始高度 h₀」抬到 1 m 以上再看。'
+            : '在量程内未落地（飞行超出 60 s 或飞出 5000 m 判定界）') + '</td></tr>'
+        return
+      }
       rows += '<tr><td>' + c.label + '</td><td>' + fmt(c.measured.R) + '</td><td>' + fmt(c.measured.T) + '</td><td>' + fmt(c.measured.H) + '</td></tr>'
       rows += '<tr><td style="color:#5b6663">解析式' + (dragging ? '（无阻力）' : '') + '</td><td>' + fmt(c.analytic.R) + '</td><td>' + fmt(c.analytic.T) + '</td><td>' + fmt(c.analytic.H) + '</td></tr>'
       var devR = Math.abs(c.measured.R - c.analytic.R) / Math.abs(c.analytic.R || 1) * 100
