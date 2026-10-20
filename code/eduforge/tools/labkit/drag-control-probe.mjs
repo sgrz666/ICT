@@ -60,9 +60,25 @@ const uiDriven = await page.evaluate(() => {
   s.dispatchEvent(new Event('input', { bubbles: true }))
   return { R: window.__RESULT.scenarios[0].measured.R, f: window.__RESULT.friction_air }
 })
+const prov = await page.evaluate(() => ({
+  vendor: window.__LAB_DATA__.engine.vendor_sha256,
+  inlined: window.__LAB_DATA__.engine.inlined_sha256,
+}))
 await browser.close()
 
+// 溯源防回归：产物内联的引擎字节必须等于 vendor 那份，且 DATA 里记的两个 sha 要能自证。
+// 上一版构建器把 MIT 横幅里的 URL 也抹了，导致「同一份引擎两个哈希」，排查时先被骗一次。
+const fsMod = await import('node:fs')
+const vendorBytes = fsMod.readFileSync(path.resolve('code/eduforge/tools/labkit/vendor/matter.min.js'))
+const { createHash } = await import('node:crypto')
+const sha = b => createHash('sha256').update(b).digest('hex')
+const rawHtml = fsMod.readFileSync(path.resolve(target))
+const blocks = [...rawHtml.toString('utf8').matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1])
+const matterBlock = blocks.reduce((a, b) => (b.length > (a ? a.length : 0) && b.length > 50000 ? b : a), null)
 const checks = [
+  ['DATA.engine.vendor_sha256 == vendor 实际字节 sha', prov.vendor === sha(vendorBytes)],
+  ['DATA.engine.inlined_sha256 == 产物里那段引擎的 sha', prov.inlined === sha(Buffer.from(matterBlock || '', 'utf8'))],
+  ['内联引擎与 vendor 逐字节相同（横幅 URL 未被抹）', sha(vendorBytes) === prov.inlined],
   ['默认无阻力：friction_air=0', before.friction_air === 0],
   ['默认射程≈解析式（<1%）', Math.abs(before.R - before.analytic_R) / before.analytic_R < 0.01],
   ['写 0.01 后射程显著变小', after.R < before.R * 0.6],
