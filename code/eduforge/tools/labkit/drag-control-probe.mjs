@@ -60,6 +60,13 @@ const uiDriven = await page.evaluate(() => {
   s.dispatchEvent(new Event('input', { bubbles: true }))
   return { R: window.__RESULT.scenarios[0].measured.R, f: window.__RESULT.friction_air }
 })
+const live = await page.evaluate(() => ({
+  recipe_id: window.__LAB_DATA__.recipe.id,
+  declared: window.__LAB_DATA__.recipe.affordances || null,
+  sliders: [...document.querySelectorAll('#controls .control .row span:first-child')].map(x => x.textContent.trim()),
+  toggles: [...document.querySelectorAll('#controls .toggle')].map(x => x.textContent.trim()),
+  buttons: [...document.querySelectorAll('button')].map(x => x.textContent.trim()),
+}))
 const prov = await page.evaluate(() => ({
   vendor: window.__LAB_DATA__.engine.vendor_sha256,
   inlined: window.__LAB_DATA__.engine.inlined_sha256,
@@ -113,6 +120,20 @@ const checks = [
   ['写回 0 可逆（回到默认射程）', Math.abs(reverted.R - before.R) < 1e-6 && reverted.friction_air === 0],
   ['拖滑块这条路也生效（f=0.02 更短）', uiDriven.f === 0.02 && uiDriven.R < after.R],
   ['滑块数从 3 增到 4（v0/h0/θ/阻力）', after.slider_count === 4],
+  // 声明的 affordances 必须与页面真渲染出来的一致：手工声明一旦过期，L1 的文案门就会照着旧清单放行
+  ['affordances.sliders 与页面实际滑块一一对应', (() => {
+    const d = live.declared
+    if (!d) return false
+    return d.sliders.length === live.sliders.length && d.sliders.every((n, i) => live.sliders[i].includes(n))
+  })()],
+  ['affordances.toggles 与页面实际开关一一对应', (() => {
+    const d = live.declared
+    return !!d && d.toggles.length === live.toggles.length && d.toggles.every((n, i) => live.toggles[i].includes(n))
+  })()],
+  ['affordances.buttons 与页面实际按钮一致', (() => {
+    const d = live.declared
+    return !!d && JSON.stringify(d.buttons) === JSON.stringify(live.buttons)
+  })()],
   ['全程零外部请求', net.length === 0],
   ['有「叠加 30°/60° 对照」这个开关', cmpOn.present === true],
   ['勾上后场景数到 3（45° + 两个对照）', (cmpOn.scenarios || []).length === 3],

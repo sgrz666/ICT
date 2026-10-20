@@ -85,6 +85,9 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
       metrics: recipe.metrics,
       tolerances_pct: recipe.tolerances_pct,
       intent_keywords: recipe.intent_keywords,
+      // 带上这份配方声明的控件契约：交付件应当自证「页面上到底有哪些操作」，
+      // L3/探针才能拿它去比对真实渲染（手工声明一过期就会被照出来，而不是悄悄烂着）。
+      affordances: recipe.affordances ?? null,
     },
     decision: template.decision,
     engine: {
