@@ -87,6 +87,7 @@ const live = await page.evaluate(() => ({
 const prov = await page.evaluate(() => ({
   vendor: window.__LAB_DATA__.engine.vendor_sha256,
   inlined: window.__LAB_DATA__.engine.inlined_sha256,
+  sources: (window.__LAB_DATA__.sources || []).map(s => ({ role: s.role, path: s.path, sha256: s.sha256 })),
 }))
 // 对照叠加：勾上之后，「45° 射程最大」这句话必须能被页面自己的引擎输出检验
 const cmpOn = await page.evaluate(() => {
@@ -122,6 +123,26 @@ const sha = b => createHash('sha256').update(b).digest('hex')
 const rawHtml = fsMod.readFileSync(path.resolve(target))
 const blocks = [...rawHtml.toString('utf8').matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1])
 const matterBlock = blocks.reduce((a, b) => (b.length > (a ? a.length : 0) && b.length > 50000 ? b : a), null)
+// 资产溯源：产物里 DATA.sources 说自己用了哪几份源文件，就必须被仓库现状回证；
+// 「我们自己的运行时/内核进了这页」不能只是 README 里的一句话。换行归一后再比哈希，
+// 否则 CRLF 会造出假失配（这个坑上一轮已经踩过一次）。
+const htmlText = rawHtml.toString('utf8')
+const shaNorm = s => sha(Buffer.from(String(s).replace(/\r\n/g, '\n'), 'utf8'))
+const renderDirAbs = path.resolve('code/eduforge/catalog/templates/mechanics/projectile/render')
+const srcCheck = (prov.sources || []).map(s => {
+  const abs = path.resolve(s.path)
+  const has = fsMod.existsSync(abs)
+  return { ...s, exists: has, matches: has && shaNorm(fsMod.readFileSync(abs, 'utf8')) === s.sha256 }
+})
+const ins = [
+  ['样式', fsMod.readFileSync(path.join(renderDirAbs, 'style.css'), 'utf8')],
+  ['运行时', fsMod.readFileSync(path.join(renderDirAbs, 'runtime.js'), 'utf8')],
+  ['内核', fsMod.readFileSync(path.resolve('code/eduforge/tools/labkit/lib/projectile-core.mjs'), 'utf8').replace(/^export\s+/gm, '')],
+].map(([k, t]) => ({ k, in: htmlText.includes(t) }))
+const installedMatter = ['source/upstream/matter-js/build/matter.min.js', 'source/components/node_modules/matter-js/build/matter.min.js']
+  .map(rel => path.resolve(rel)).filter(p => fsMod.existsSync(p))
+  .map(p => ({ rel: path.relative(process.cwd(), p).replace(/\\/g, '/'), same: shaNorm(fsMod.readFileSync(p, 'utf8')) === shaNorm(vendorBytes.toString('utf8')) }))
+const badSources = srcCheck.filter(x => !x.exists || !x.matches).map(x => `${x.path}${x.exists ? ' 哈希不符' : ' 文件不存在'}`)
 // 能力标签必须由**行为**背书，不能是我手写字符串。
 // 每一项都对应上面已经跑过的一次真实交互：推不出来的能力，就是页面没有的能力。
 const observed = {
@@ -137,6 +158,9 @@ const extra = declaredCaps ? Object.keys(observed).filter(c => observed[c] && !d
 const checks = [
   ['DATA.engine.vendor_sha256 == vendor 实际字节 sha', prov.vendor === sha(vendorBytes)],
   ['DATA.engine.inlined_sha256 == 产物里那段引擎的 sha', prov.inlined === sha(Buffer.from(matterBlock || '', 'utf8'))],
+  [`DATA.sources 的 ${srcCheck.length} 份源都能被仓库现状回证（改源没重渲就红）${badSources.length ? '：' + badSources.join('、') : ''}`, srcCheck.length === 4 && badSources.length === 0],
+  ['样式 / 运行时 / 内核三段是仓库源文件的逐字节片段（页面不是另写的一份）', ins.length === 3 && ins.every(x => x.in)],
+  [`本机已装的 matter-js 拷贝与 vendor 同字节（本机命中 ${installedMatter.length} 份；这两棵树不入库，缺失时本条不构成证据）`, installedMatter.every(x => x.same)],
   ['内联引擎与 vendor 逐字节相同（横幅 URL 未被抹）', sha(vendorBytes) === prov.inlined],
   ['默认无阻力：friction_air=0', before.friction_air === 0],
   ['默认射程≈解析式（<1%）', Math.abs(before.R - before.analytic_R) / before.analytic_R < 0.01],

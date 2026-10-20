@@ -4,8 +4,8 @@
  * 确定性：不含时间戳、随机数、网络请求；同一 design + evidence 连渲两次 sha256 相同。
  * 页面运行时与 L2 共用 projectile-core.mjs（内联时剥掉 export 关键字）。
  */
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, join, relative } from 'node:path'
 import { checkDesign } from './check.mjs'
 import { assertUnder } from './fs-safe.mjs'
 import { canonicalJson, designHash, sha256Hex } from './hash.mjs'
@@ -50,8 +50,9 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
   const htmlTemplate = readFileSync(join(renderDir, 'template.html'), 'utf8')
   const style = readFileSync(join(renderDir, 'style.css'), 'utf8')
   const runtime = readFileSync(join(renderDir, 'runtime.js'), 'utf8')
-  const coreSource = readFileSync(join(repoRoot, 'code', 'eduforge', 'tools', 'labkit', 'lib', 'projectile-core.mjs'), 'utf8')
-    .replace(/^export\s+/gm, '')
+  const corePath = join(repoRoot, 'code', 'eduforge', 'tools', 'labkit', 'lib', 'projectile-core.mjs')
+  const coreDisk = readFileSync(corePath, 'utf8')
+  const coreSource = coreDisk.replace(/^export\s+/gm, '')
   // 单文件产物里不该出现「可能被误当成外链」的字符串——但**许可横幅必须原样保留**：
   // 那是再分发 matter-js 的 MIT 署名义务，而且注释里的 URL 不会产生任何请求（L3 数的是运行时请求）。
   // 上一版那条通吃正则把 `http://brm.io/matter-js/` 一起抹了，副作用是产物内联的字节
@@ -64,6 +65,16 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
   const matter = matterBanner + matterRaw.slice(matterBanner.length).replace(/https?:\/\/\S+/g, '')
   const matterVendorSha = sha256Hex(matterRaw)
   const matterInlinedSha = sha256Hex(matter)
+  // 「这页用了我们的哪些资产」不能只写在文档里：把内联进去的每一份源文件的 sha256 记进产物 DATA，
+  // 探针就能拿它去比仓库现状——源文件改了而产物没重渲，这里立刻失配（换行归一后取哈希，避免 CRLF 制造假差异）。
+  const shaNorm = text => sha256Hex(text.replace(/\r\n/g, '\n'))
+  const repoRel = p => relative(repoRoot, p).replace(/\\/g, '/')
+  const sources = [
+    { role: '骨架', path: repoRel(join(renderDir, 'template.html')), sha256: shaNorm(htmlTemplate) },
+    { role: '样式', path: repoRel(join(renderDir, 'style.css')), sha256: shaNorm(style) },
+    { role: '运行时', path: repoRel(join(renderDir, 'runtime.js')), sha256: shaNorm(runtime) },
+    { role: '内核（与 L2 同一份，内联时剥掉行首 export）', path: repoRel(corePath), sha256: shaNorm(coreDisk) },
+  ]
 
   const data = {
     meta: {
@@ -100,6 +111,7 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
       license: 'MIT (matter-js © liabru)',
     },
     render: template.render,
+    sources,
     acceptance: template.acceptance,
     evidence: evidence
       ? {
@@ -125,6 +137,22 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
   mkdirSync(dirname(safeOut), { recursive: true })
   writeFileSync(safeOut, html, 'utf8')
 
+  // 「用了我们的资产」这句话要有可核对的形式：三份整段插入的源文本能否在产物里逐字节找到，
+  // 以及 vendor 引擎与本机已装的 matter-js 两份拷贝是否同一份字节。后者只在 README 里记，
+  // 不进 DATA——`source/` 那两棵树不入库，把它们的存废写进 HTML 会让同一 design 在不同机器渲出不同字节。
+  const inserted = { 样式: style, 运行时: runtime, 内核: coreSource }
+  const verbatim = Object.keys(inserted).filter(k => html.includes(inserted[k]))
+  const notVerbatim = Object.keys(inserted).filter(k => !verbatim.includes(k))
+  const installedEngines = [
+    'source/upstream/matter-js/build/matter.min.js',
+    'source/components/node_modules/matter-js/build/matter.min.js',
+  ].map(rel => {
+    const abs = join(repoRoot, rel)
+    if (!existsSync(abs)) return `- 已装资源 \`${rel}\`：本机不存在（这棵树不入库，按 \`source/upstream/README.md\` 的克隆命令重建）`
+    const same = shaNorm(readFileSync(abs, 'utf8')) === shaNorm(matterRaw)
+    return `- 已装资源 \`${rel}\`：${same ? '**与本产物的引擎是同一份字节**（换行归一后 sha256 相同）' : '换行归一后哈希不同，说明 vendor 与已装拷贝不是同一版，必须查'}`
+  })
+
   // 产物目录自带一张「这是什么、怎么再来一次、引擎是谁的」说明与 MIT 许可副本：
   // 交付出去的单个 HTML 不该只靠仓库上下文才能解释。
   const readmePath = join(dirname(safeOut), 'README.md')
@@ -136,6 +164,18 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
     `- 设计指纹：\`${hash}\``,
     `- 页面内联引擎：\`code/eduforge/tools/labkit/vendor/matter.min.js\`（vendor sha256 \`${matterVendorSha.slice(0, 16)}…\`；实际内联那份 sha256 \`${matterInlinedSha.slice(0, 16)}…\`，${matterInlinedSha === matterVendorSha ? '与 vendor 逐字节相同' : '与 vendor 只差横幅外的 URL 剥离'}）`,
     `- 许可：matter-js © liabru，MIT，全文见同目录 \`LICENSE.matter.txt\``,
+    '',
+    '## 用了仓库里的什么（渲染时实测出来的，不是手写说明）',
+    '',
+    ...installedEngines,
+    `- 引擎之外的三段源文本 —— ${verbatim.map(v => `\`${v}\``).join(' / ') || '（无）'} —— 在产物 HTML 里**逐字节找得到**，内联时不改写；\`骨架\` 是 \`template.html\` 填掉六个占位符后的外层。`,
+    '- 页面运行时与 L2 对账用的是**同一份** `projectile-core.mjs`（物理只有一处定义，产物里内联的就是它）。',
+    `- 这四份源的 sha256 已写进产物内 \`DATA.sources\`，探针会拿仓库现状回比：改了源没重渲，立刻失配。`,
+    ...(notVerbatim.length
+      ? [`- **异常**：${notVerbatim.join(' / ')} 没能在产物里逐字节找到——渲染器与模板对不上，这个产物别交付。`]
+      : []),
+    '',
+    '**没用到的**：`source/library` 里已装的 3JCN / PhET / EJS 实验不参与这条路径。那条「改现成实验」的路另有档位；本产物是「按模板自建」，`source/library/experiments.json` 里 `mechanics-projectile` 记的是 `template_connected`，不是资源直连。',
     '',
     '复现：',
     '',

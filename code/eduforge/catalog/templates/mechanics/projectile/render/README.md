@@ -6,8 +6,8 @@
 
 | 文件 | 行数 | 作用 |
 |---|---|---|
-| [`template.html`](template.html) | 62 | 骨架：标题 / canvas / 参数区 / 读数区 / 教学说明 / 页脚；六个占位符 |
-| [`runtime.js`](runtime.js) | 580 | 读 `window.__LAB_DATA__`，预计算轨迹、画 canvas、绑定滑块、暴露 `window.__LAB` / `__RESULT` / `__STATUS` |
+| [`template.html`](template.html) | 69 | 骨架：标题 / canvas / 参数区 / 读数区 / 教学说明 / 页脚；六个占位符 |
+| [`runtime.js`](runtime.js) | 684 | 读 `window.__LAB_DATA__`，预计算轨迹、画 canvas、绑定滑块、暴露 `window.__LAB` / `__RESULT` / `__STATUS` |
 | [`style.css`](style.css) | 229 | 内联样式；浅色、无外部字体、响应式两栏 |
 
 ## 2. 占位符（由 `render-single-file.mjs` 替换）
@@ -16,7 +16,7 @@
 |---|---|
 | `__TITLE__` | `模板标题 · 配方标题`（HTML 转义） |
 | `__STYLE__` | `style.css` 全文 |
-| `__DATA__` | canonical JSON：meta / design / recipe / decision / engine / render / acceptance / evidence（`<` 转 `\u003c`） |
+| `__DATA__` | canonical JSON：meta / design / recipe / decision / engine / **sources** / render / acceptance / evidence（`<` 转 `\u003c`）；`sources` 是四份源文件的路径与换行归一后的 sha256 |
 | `__MATTER_JS__` | `vendor/matter.min.js`，剥掉横幅 URL |
 | `__CORE_JS__` | `projectile-core.mjs` 源码，`export` 关键字剥掉后作为普通脚本 |
 | `__RUNTIME_JS__` | `runtime.js` 全文 |
@@ -54,7 +54,7 @@
   反例常驻 `tools/labkit/l1-text-gate-test.mjs`。改文案会改 `design_hash`，必须重跑 L2 才能渲染——这个拦截是对的，别绕。
 - **声明也要被验**：`affordances` 是手工写的，上一轮就过期过一次（三个配方都漏写新加的「空气阻力」）。
   所以 `render-single-file.mjs` 把它随 `DATA.recipe` 一起交付，`drag-control-probe.mjs` 再拿这份声明
-  比对**浏览器里真实渲染出来的**滑块/开关/按钮（三条判据，oblique45 现 26/26）——
+  比对**浏览器里真实渲染出来的**滑块/开关/按钮（oblique45 现 **34/34**，2026-10-20）——
   声明与页面一旦不符，红的就是产物判据，而不是等到有人照着旧清单放行文案。
 
 - **偏差判据带分辨率下限（2026-10-20）**：实测 `T` 的偏差恒等于 −1 个步长（−0.00417 s = −dt），
@@ -77,3 +77,13 @@
   现在舞台条上有「记录本次 / 清空记录」，记的是**引擎当前算出的**读数（不是解析式），
   表里带 v₀/h₀/θ/f 与 R/T/H，换参数记满三行就能自己看出 45° 附近射程最大。
   探针侧三条判据保证它不是摆设：第一条的 R 必须等于页面当前读数、连记两行的 R 必须不同、清空后要回到空态提示。
+
+- **资产溯源写进产物本身（2026-10-20）**：`DATA.sources` 带四份源文件的路径与 sha256（骨架 / 样式 / 运行时 / 内核），
+  哈希一律**换行归一后**再取。这条是被一句质疑逼出来的——「这页好像没用我们的资源和组件」。实测下来：
+  vendor 的 `matter.min.js` 83,476 字节与已装的 `source/upstream/matter-js/build/matter.min.js`（83,481 字节）只差 5 处 CRLF，
+  归一后同为 `72d30be0…88e24ae`；`source/components/node_modules/matter-js` 那份连字节数都相同。
+  产物目录 `README.md` 里「用了仓库里的什么」一节由 `render-single-file.mjs` **跑出来再写进去**（三段整段插入的文本能否在产物 HTML 里逐字节找到、
+  已装的 matter-js 拷贝与 vendor 是否同哈希），不是手抄的说明；`drag-control-probe.mjs` 再拿 `DATA.sources` 回比仓库现状。
+  反例验过：往 `runtime.js` 尾部加一行注释而不重渲，两条判据同时红并点名文件（`32/34`，`…/render/runtime.js 哈希不符`），还原后回到 `34/34`。
+  **同一条路径没用到什么也写在产物 README 最后一行**：3JCN / PhET / EJS 属于「改现成实验」那条路，本模板是「按模板自建」，
+  `source/library/experiments.json` 里 `mechanics-projectile` 的档位是 `template_connected`——别把边界读成缺陷，也别把它读成用了资源。
