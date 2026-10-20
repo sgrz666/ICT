@@ -824,7 +824,7 @@
       "measured_note": "matter-js 0.20.0 无头步进 5/5 pass：单位标定 a=g_y×scale×1e6 实测 9.80000 m/s²；平抛 h=20 m/v₀=15 → 飞行时间 2.0182 s vs √(2h/g)=2.0203、射程 30.2733 vs 30.3046；斜抛 45°/20 m/s → 射程 40.7574 vs 40.8163、最高点 10.1746 vs 10.2041；互补角 30°/60° 射程比 0.9991（判据不含 g）；对照组 frictionAir=0.01 时射程偏离解析 56.5%",
       "harness": "node source/library/projectile_lab.mjs --json",
       "template": "code/eduforge/catalog/templates/mechanics/projectile",
-      "template_note": "升格依据（2026-10-20 实测）：模板四件套齐备（manifest.yaml + native.json + lesson.md + recipes.json，另有 render/ 的 template.html + style.css + runtime.js）；构建与验收链在 code/eduforge/tools/labkit/（L1 check → L2 simulate → 渲染 → L3 verify）；离线单文件产物已实测产出并通过 L3（零外部请求、canvas 非背景 3.14%、改 v0 20→25 射程 40.757382→63.701842、读数与 L2 证据逐位一致到 4.89e-8）。四个可调参数含 2026-10-20 新加的空气阻力 frictionAir（默认 0），页面算出的「偏离解析式之比」与证据里的 391.23 同定义且对得上。"
+      "template_note": "升格依据（2026-10-20 实测）：模板四件套齐备（manifest.yaml + native.json + lesson.md + recipes.json，另有 render/ 的 template.html + style.css + runtime.js）；构建与验收链在 code/eduforge/tools/labkit/（L1 check → L2 simulate → 渲染 → L3 verify）；离线单文件产物已实测产出并通过 L3（零外部请求、canvas 非背景 3.14%、改 v0 20→25 射程 40.757382→63.701842、读数与 L2 证据逐位一致到 4.89e-8）。四个可调参数含 2026-10-20 新加的空气阻力 frictionAir（默认 0），页面算出的「偏离解析式之比」与证据里的 391.23 同定义且对得上。 2026-10-20 另加「叠加 30°/60° 对照」开关：单角度配方原本无法在页面上验证\"45° 最大\"这句话，现在三条引擎轨迹各自对解析式（偏差 0.29%/0.41%/0.24%），且带阻力时结论会翻转。"
     },
     {
       "id": "mechanics-newtons-cradle",

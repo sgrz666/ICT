@@ -28,6 +28,9 @@
     // 默认 0 = 理想抛体，这样「引擎 vs 解析式」那条验收对照仍然成立；
     // 一旦 >0，课本抛物线就不再适用，读数表要换成「与无阻力之比」来说话。
     drag: 0,
+    // 对照角度：本配方是单角度（45°），但「45° 射程最大」这句话在只有一条曲线时**无法被验证**。
+    // 打开后按同一 v₀/h₀ 追加 30° 与 60° 两条引擎轨迹——不是画参考线，是真的各跑一遍 matter-js。
+    compare: false,
   }
 
   var core = null
@@ -49,11 +52,16 @@
         }
       })
     }
-    return [{
+    var defs = [{
       id: recipe.scenarios[0].id,
       label: recipe.id === 'horizontal' ? '平抛' : fmt(state.angles[0], 0) + '°',
       params: { v0: state.v0, angle_deg: state.angles[0], h0: state.h0 },
     }]
+    if (state.compare && recipe.id === 'oblique45') {
+      defs.push({ id: 'cmp30', label: '30°（对照）', params: { v0: state.v0, angle_deg: 30, h0: state.h0 } })
+      defs.push({ id: 'cmp60', label: '60°（对照）', params: { v0: state.v0, angle_deg: 60, h0: state.h0 } })
+    }
+    return defs
   }
 
   function measuredOf(flight) {
@@ -278,6 +286,24 @@
       hint: 'matter-js 每个步长把速度乘掉 (1−f)。f=0 时才是课本抛物线；'
         + '把 f 拉到 ' + fmt(dragNominal, 2) + ' 可以看见 45° 射程最大这条结论怎么被空气阻力拆掉。',
     })
+
+    if (recipe.id === 'oblique45') {
+      var cmp = document.createElement('label')
+      cmp.className = 'toggle'
+      var cmpBox = document.createElement('input')
+      cmpBox.type = 'checkbox'
+      cmpBox.checked = state.compare
+      cmpBox.addEventListener('change', function () {
+        state.compare = cmpBox.checked
+        var lg = el('legend')
+        lg.innerHTML = ''
+        computedLabelsForLegend(lg)
+        recompute()
+      })
+      cmp.appendChild(cmpBox)
+      cmp.appendChild(document.createTextNode('叠加 30° / 60° 对照（同 v₀、同 h₀，各跑一遍引擎）'))
+      box.appendChild(cmp)
+    }
   }
 
   var angleInputs = []
