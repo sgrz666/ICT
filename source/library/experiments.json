@@ -717,13 +717,15 @@
         "tolerance": "≤1%（θ0≤10°），θ0=30° 时按椭圆积分修正 ≤0.5%",
         "independent_reference": "Python 独立 ODE 积分 + 解析式"
       },
-      "status": "engine_headless_verified",
+      "status": "template_connected",
       "blockers": [
         "catalog/templates/mechanics/pendulum 仍是预留（pending_slice_9）：引擎侧已能无头取数，缺的是模板三件套与适配器接线",
         "浏览器端打包（上游 makefile + esbuild）未做，交付离线实验前要补这一步"
       ],
       "measured_evidence": "source/upstream/probe-myphysicslab.json",
-      "measured_note": "（上游 PendulumSim 无头跑 30 s，周期 2.00835 s vs 解析 2.00834 s）"
+      "measured_note": "（上游 PendulumSim 无头跑 30 s，周期 2.00835 s vs 解析 2.00834 s）",
+      "template": "code/eduforge/catalog/templates/mechanics/pendulum",
+      "template_note": "升格依据（2026-10-20 独立实测，不采信 selftest 的绿灯）：模板四件套齐备；产物离线（零外部请求、控制台无错）；页面真在跑 matter-js —— 摆长 0.5→2.0 周期跟着动，L=2.0 得 2.839583 s 对 2π√(L/g)=2.838454（偏 0.04%）；页面读数与 L2 evidence 的 measured T 逐场景对上（1.419444 / 2.007292 / 2.839583）；大角修正在：30° 比小角度长 1.36%（理论 1.74%，差 0.38% 可由 dt=1/240 的周期量化解释，其证据容差 1% 内）。摆角量程是 [1,30]，越界值被钳位但**会回显**（setParams 返回 angle0_deg:30、getState 与 scenario.params 同为 30），所以「写后回读」这条成立，不算静默吞参。⚠ 一条必须说清的差别：本行原先验收用的是 myPhysicsLab（T=2.00835 vs 2.00834），而这个模板产物用的是 matter-js —— 同一实验的两套引擎实现，升格说的是「模板+离线包这条交付链已通」，不是说两套引擎互证过。"
     },
     {
       "id": "mechanics-spring-hooke",
@@ -908,7 +910,8 @@
       "blockers": [
         "缺 catalog/templates/circuits 模板三件套与 engine-host 适配器（现在是浏览器里手工驱动，不是服务链路）",
         "验收台页内自动跑在无可见 surface 的浏览器里被节流到 ~3 帧/秒，需要外部逐条驱动；接进 CI 前要解决（真浏览器 / 虚拟时间）",
-        "GPL-2.0：把产物打进离线交付包时义务触发"
+        "GPL-2.0：把产物打进离线交付包时义务触发",
+        "2026-10-20 排查：labkit 也有一份 circuits/ohms-law 模板并跑通 L1–L3，但它的「引擎」是 `circuit_mna`（自写节点电压法，27 KB 单文件、无 CircuitJS1），于是 rel_error 恒为 0、容差 1e-06 ——那是拿解析式和解析式比，不构成「真电路引擎出数」。本行保持 engine_browser_verified（CircuitJS1 在浏览器里读引擎自己的电气量，见 circuit-lab-evidence.json），不因为那份产物而升格。要用 CircuitJS1 出单文件包，得把 labkit 的 circuit 渲染器换成真接 CircuitJS1。"
       ],
       "measured_evidence": "source/library/circuit-lab-evidence.json",
       "measured_note": "同源浏览器里 importCircuit 后读 ResistorElm：R=100 Ω ⇒ I = 50 mA、Vd = 5 V、P = 250 mW；把 R 改成 470 Ω ⇒ getCurrent() = 0.010638297872340425 A，与 5/470 在双精度下逐位相同 ⇒ 「改参→引擎跟着变」成立",
