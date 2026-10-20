@@ -4,7 +4,7 @@
   "generated_at": "2026-10-19T13:38:50+08:00",
   "ground_rule": "本文件只登记磁盘上真实存在的东西。engine_install_path / seed 全部是相对仓库根的路径，能用 ls 验证；没装的写进 not_installed 并给出实测原因；没跑过的验证一律标 pending，不写成已完成。",
   "status_words": {
-    "template_connected": "引擎已接通 + 模板三件套齐备 + 已实测出离线包（当前全库只有 optics-convex-lens 这一条）",
+    "template_connected": "引擎已接通 + 模板三件套齐备 + 已实测出离线包；条数以本文件 experiments[].status 的实测分布为准，不在这里枚举。",
     "resource_installed": "上游源码已在 source/upstream 落盘，但没有适配器，Agent 还改不动",
     "component_headless_verified": "组件已装且在本机 Node 里真跑通了物理量（见 source/components/component-probe.json）",
     "reference_only": "只作为资源候选登记；本轮 3JCN 走的是「目录镜像已落盘、控制面未验」这条最轻的路（见 engines 里的 3jcn-catalog）",
@@ -175,18 +175,41 @@
         },
         "headless_probe_2026-10-19": {
           "measured_at": "2026-10-19",
-          "tools": ["source/library/phet_headless_probe.mjs", "source/library/phet_a11y_channel_probe.mjs", "source/library/phet_ohms_writeproof.mjs", "source/library/phet_keyboard_channel_probe.mjs", "source/library/phet_a11y_enable_probe.mjs"],
-          "evidence": ["source/library/phet-headless-probe.json", "source/library/phet-a11y-channel-probe.json", "source/library/phet-ohms-writeproof.json", "source/library/phet-keyboard-channel-probe.json"],
+          "tools": [
+            "source/library/phet_headless_probe.mjs",
+            "source/library/phet_a11y_channel_probe.mjs",
+            "source/library/phet_ohms_writeproof.mjs",
+            "source/library/phet_keyboard_channel_probe.mjs",
+            "source/library/phet_a11y_enable_probe.mjs"
+          ],
+          "evidence": [
+            "source/library/phet-headless-probe.json",
+            "source/library/phet-a11y-channel-probe.json",
+            "source/library/phet-ohms-writeproof.json",
+            "source/library/phet-keyboard-channel-probe.json"
+          ],
           "offline_boots": "13/13（无头 chromium 直开 file://，window.phet 命名空间齐全）",
           "sim_body_clean": "13/13 —— 之前报的「0/13 干净」是仪器假阴性：报错全部来自发布包内嵌的 Cloudflare 遥测桩（file:///cdn-cgi/rum、sendBeacon 只允许 HTTP(S)），不是仿真本体",
           "phet_io_callable": "0/13（data-phetio-id 全 0；window.phetio 存在 7/13 但静态核对只是 PhetioIDUtils 这个拼 ID 的工具，没有 client/engine/session）⇒ 成品确实没有参数 API",
           "url_params": "?screens=2 真换屏 11/13（ohms-law 与 charges-and-fields 是单屏，抛 invalid screen index 并把画面变空白，已从『换屏成功』排掉）；?locale=es 改画 13/13 ⇒ URL 只到框架层，这句现在是逐只实测的",
           "a11y_readable_values": "默认 6/13 能从 [aria-valuenow] 读到数值（ohms-law 4.5 V / 500 Ω、geometric-optics 1.5 折射率、wave-interference 0.625、energy-skate 62.5 / 0.05、circuit-construction-kit-dc 1e-10 / 1e-4、gas-properties 全 0），其余 7 只一个都读不到",
           "a11y_writable": "ohms-law 1/1 闭环成立：focus 无障碍 INPUT（实测 51×253 有尺寸）+ 方向键把电压 4.5→6 V、电阻 500→560 Ω，仿真自己念出的电流与 I=V/R 对账 6/6 pass（V 档 2/6/9 V × 500 Ω → 4/12/18 mA 逐位相同；R 档 320/980/220 Ω × 9 V → 28.1/9.2/40.9 mA vs 解析 28.125/9.184/40.909，最大 0.18% = 画面显示位数）；另外 5 只同类 INPUT 的 rect 是 0×0，focus 不进去，换「点画布中心」与「关欢迎屏 + 走 30 步 Tab 环」两条路也拿不到带 aria-valuenow 的焦点元素 ⇒ 判 no_focusable_value_target 5/5",
-          "verdict_by_tier": ["展示级：13/13 离线能起、能换屏换语言", "可读级：6/13 默认能读到物理量数值", "可写级：1/13（ohms-law）实测可用无障碍层改参并与解析式对账", "API 级：0/13 有可调用 PhET-iO"],
+          "verdict_by_tier": [
+            "展示级：13/13 离线能起、能换屏换语言",
+            "可读级：6/13 默认能读到物理量数值",
+            "可写级：1/13（ohms-law）实测可用无障碍层改参并与解析式对账",
+            "API 级：0/13 有可调用 PhET-iO"
+          ],
           "enable_switch": "48 次加载逐只试过 ?a11y=visible/label/sound、?accessibility=true、?fuzz=false 等候选开关：没有一只是被参数打开的（0×0 恒在），写通路仍 1/13 ⇒ 别再假设「一个开关整批点亮」。副产品：已知参数给非法值会让仿真直接不起（?fuzz=false 打死 6/6），未知参数才被忽略。",
           "not_claimed": "不写「PhET 不支持键盘」——本轮只证明了我们的探针没打开那 5 只的键盘写通路（Tab 环里只有无标签的 2×2 / 7×3 像素 BUTTON）",
-          "instrument_lessons": ["结论文案要由实测派生，第一版预先写死「13 只都拿不到接口」而实测冒出 7 只带 window.phetio", "报错按加载次数归账，?screens=2 引发的错误记在探针头上", "画面对照要排掉『变成报错页』", "动画仿真不按键也在变画，改画不能当驱动证据", "单位正则要同时收 mA 与 milliamps，否则明明成立的写通路会被判 FAIL", "page.evaluate 要传函数引用，写成 TEXT() 会在 Node 侧执行，5 只全报 ReferenceError"]
+          "instrument_lessons": [
+            "结论文案要由实测派生，第一版预先写死「13 只都拿不到接口」而实测冒出 7 只带 window.phetio",
+            "报错按加载次数归账，?screens=2 引发的错误记在探针头上",
+            "画面对照要排掉『变成报错页』",
+            "动画仿真不按键也在变画，改画不能当驱动证据",
+            "单位正则要同时收 mA 与 milliamps，否则明明成立的写通路会被判 FAIL",
+            "page.evaluate 要传函数引用，写成 TEXT() 会在 Node 侧执行，5 只全报 ReferenceError"
+          ]
         },
         "blockers": [
           "没有参数 API：published 构建的 queryParameters 只到框架层（逐项实测 62~97 项，locale/screens/rootRenderer/accessibility…），PhET-iO 可调用接口 0/13 ⇒ 想按教师要求改摆长、电阻这类量，正经路子仍是自建 PhET-iO wrapper 或用源码（GPL-3.0 义务）重编译，两条本轮都没走。**但旧那句「物理参数改不了」已被实测推翻一半**：ohms-law 可以用无障碍层焦点+方向键改到 4.5→6 V、500→560 Ω，并且仿真自己念出的电流与 I=V/R 对上（6/6 pass）；这条通道逐只不同（1/6 成立），不能当通用能力。",
@@ -788,7 +811,7 @@
         "tolerance": "≤1%（无阻力）",
         "independent_reference": "Python 抛体解析式；Matter.js 步进作为第二路对照"
       },
-      "status": "component_headless_verified",
+      "status": "template_connected",
       "blockers": [
         "缺 catalog/templates/mechanics 下的抛体模板三件套与适配器接线",
         "Matter 的 velocity 单位是「每个 baseDelta(16.667 ms) 的位移」，手写 positionPrev 会被首步 correction 再乘 dt/base（实测 1/240 s 步长下初速度缩水 4 倍、射程短 75%）⇒ 模板必须走 Body.setVelocity(v/60)",
@@ -797,7 +820,9 @@
       ],
       "measured_evidence": "source/library/projectile-lab-evidence.json",
       "measured_note": "matter-js 0.20.0 无头步进 5/5 pass：单位标定 a=g_y×scale×1e6 实测 9.80000 m/s²；平抛 h=20 m/v₀=15 → 飞行时间 2.0182 s vs √(2h/g)=2.0203、射程 30.2733 vs 30.3046；斜抛 45°/20 m/s → 射程 40.7574 vs 40.8163、最高点 10.1746 vs 10.2041；互补角 30°/60° 射程比 0.9991（判据不含 g）；对照组 frictionAir=0.01 时射程偏离解析 56.5%",
-      "harness": "node source/library/projectile_lab.mjs --json"
+      "harness": "node source/library/projectile_lab.mjs --json",
+      "template": "code/eduforge/catalog/templates/mechanics/projectile",
+      "template_note": "升格依据（2026-10-20 实测）：模板四件套齐备（manifest.yaml + native.json + lesson.md + recipes.json，另有 render/ 的 template.html + style.css + runtime.js）；构建与验收链在 code/eduforge/tools/labkit/（L1 check → L2 simulate → 渲染 → L3 verify）；离线单文件产物已实测产出并通过 L3（零外部请求、canvas 非背景 3.14%、改 v0 20→25 射程 40.757382→63.701842、读数与 L2 证据逐位一致到 4.89e-8）。四个可调参数含 2026-10-20 新加的空气阻力 frictionAir（默认 0），页面算出的「偏离解析式之比」与证据里的 391.23 同定义且对得上。"
     },
     {
       "id": "mechanics-newtons-cradle",
