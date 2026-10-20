@@ -127,6 +127,13 @@ button.primary { background: var(--accent); border-color: var(--accent); color: 
   gap: 14px;
 }
 
+/* 数据记录跟着舞台走：它记的是这张图上的曲线，放在右栏会把左栏留出一大片空白。 */
+.trials-block {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
 .card {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -134,7 +141,8 @@ button.primary { background: var(--accent); border-color: var(--accent); color: 
   padding: 14px 14px 12px;
 }
 
-.card h2 {
+.card h2,
+.trials-block h2 {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.08em;

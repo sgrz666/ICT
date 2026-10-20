@@ -8,6 +8,8 @@
 
  跑法（仓库根）：node code/eduforge/tools/labkit/drag-control-probe.mjs [html 路径]
  默认打 selftest 产出的 oblique45；截图写进被 .gitignore 挡住的 candidates/labkit/ 下。
+ 注意：DATA.sources / 三色对照这几条判据只对**改动之后重渲过的**产物成立。selftest 目录里那份是历史产物，
+ 拿它跑会红两条——那是"产物比代码旧"，不是页面坏了；要判当前代码，请显式传 dsh 产物路径。
 */
 import path from 'node:path'
 import { createRequire } from 'node:module'
@@ -108,6 +110,9 @@ const cmpOn = await page.evaluate(() => {
     scenarios: sc,
     dragged,
     legend: [...document.querySelectorAll('#legend .item')].map(x => x.textContent.trim()),
+    // 曲线能不能用眼睛分开，是"对照"这个功能的一半。上一版 render.colors 只有两色，
+    // 第三条曲线按 i % 2 回到第一条的颜色 —— 45° 与 60° 在图上长得一模一样。
+    swatches: [...document.querySelectorAll('#legend .item .swatch')].map(s => s.style.background).filter(c => !/gradient/.test(c)),
     task: document.getElementById('task').textContent,
     buttons: [...document.querySelectorAll('button')].map(x => x.textContent.trim()),
   }
@@ -206,6 +211,10 @@ const checks = [
     return m.main && Math.abs(m.cmp30 - m.cmp60) / m.main < 0.005
   })()],
   ['图例随之变成 3 条引擎曲线', (cmpOn.legend || []).filter(x => x.includes('引擎')).length >= 3],
+  ['对照的三条引擎曲线是三种颜色（图例色块不重复，眼睛分得开）', (() => {
+    const sw = cmpOn.swatches || []
+    return sw.length >= 3 && new Set(sw).size === sw.length
+  })()],
   // 文案与可得控件一致：步骤里写「点击X」，页面上就必须真有叫 X 的按钮
   ['步骤文案不承诺不存在的按钮', (() => {
     const t = cmpOn.task || ''
