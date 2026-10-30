@@ -4,7 +4,7 @@ import galleryItems from "../data/galleryData.json";
 export type SimulatorViewProps = {
   activeScene: string | null;
   onSelectScene: (sceneUrl: string) => void;
-  onImportToStudio?: (sceneUrl: string, title: string) => void;
+  onImportToStudio?: (sceneUrl: string, title: string, templateId?: string) => void;
 };
 
 const POPULAR_PRESETS = [
@@ -54,13 +54,23 @@ export function SimulatorView({ activeScene, onSelectScene, onImportToStudio }: 
 
         <div className="toolbar-right">
           {currentItem && onImportToStudio ? (
-            <button
-              className="ghost"
-              onClick={() => onImportToStudio(currentItem.sceneUrl, currentItem.title)}
-              title="将此案例载入 EduForge AI 定制工坊进行教学调参和Prompt二次创作"
-            >
-              🤖 导入 AI 定制工坊
-            </button>
+            (currentItem as any).templateId ? (
+              <button
+                className="ghost"
+                onClick={() => onImportToStudio(currentItem.sceneUrl, currentItem.title, (currentItem as any).templateId)}
+                title="将此案例载入 EduForge AI 定制工坊进行教学调参和Prompt二次创作"
+              >
+                🤖 导入 AI 定制工坊
+              </button>
+            ) : (
+              <span
+                className="badge-readonly"
+                style={{ padding: "0.35rem 0.6rem" }}
+                title="该案例仅供原生仿真演示，尚未配置 AI 定制能力清单与科学规约"
+              >
+                仅演示 (不可 AI 定制)
+              </span>
+            )
           ) : null}
           <a
             href={iframeSrc}

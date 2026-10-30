@@ -5,7 +5,7 @@ export type GalleryItem = typeof galleryItems[number];
 
 export type GalleryViewProps = {
   onOpenInSimulator: (sceneUrl: string) => void;
-  onImportToStudio?: (sceneUrl: string, title: string) => void;
+  onImportToStudio?: (sceneUrl: string, title: string, templateId?: string) => void;
 };
 
 const CATEGORIES = [
@@ -91,15 +91,24 @@ export function GalleryView({ onOpenInSimulator, onImportToStudio }: GalleryView
               >
                 ⚡ 在模拟器中运行
               </button>
-              {onImportToStudio ? (
-                <button
-                  className="ghost btn-sm"
-                  onClick={() => onImportToStudio(item.sceneUrl, item.title)}
-                  title="导入 EduForge AI 工坊进行教学定制"
+              {(item as any).templateId ? (
+                onImportToStudio ? (
+                  <button
+                    className="ghost btn-sm"
+                    onClick={() => onImportToStudio(item.sceneUrl, item.title, (item as any).templateId)}
+                    title="导入 EduForge AI 工坊进行教学定制"
+                  >
+                    🤖 AI 定制
+                  </button>
+                ) : null
+              ) : (
+                <span
+                  className="badge-readonly"
+                  title="该案例仅供演示，尚未配置 AI 定制能力清单与科学验证规约"
                 >
-                  🤖 AI 定制
-                </button>
-              ) : null}
+                  仅演示 (不可 AI 定制)
+                </span>
+              )}
               <a
                 href={item.pageUrl}
                 target="_blank"

@@ -15,7 +15,7 @@
 
 | 工具 | 给主 Agent？ | 本轮生效的约束 |
 |---|---|---|
-| `search_experiments` | 是 | 模板清单 + `experiments` 行；无登记能力就返回空，不静默换成凸透镜 |
+| `search_experiments` | 是 | 动态读取全部模板清单（`list_templates()`）+ `experiments` 行；支持凸透镜、凹透镜、照相机等已登记实验环境，无登记能力返回空，不静默换成凸透镜 |
 | `open_experiment` | 是 | `owner_id` **不再是入参**（改由 `JobContext` 注入并校验归属）；job 绑定了实验就只能开那个实验；取回的是**本 job 绑定的候选行**（`experiment_candidates`），已有未发布内容时不覆盖、直接续用；换绑实验或基线版本被拒 |
 | `inspect_scene` | 是 | 返回真实场景读数 + 薄透镜独立参考值；缓存没有就从候选行重建（重启后可继续） |
 | `apply_scene_patch` | 是 | **写动作开始前先判执行权**（`_assert_execution`：注入的守护器 ∧ 库里 `status='running'` ∧ `lease_token` 是自己 ∧ 租约未到期；被取消则 `JOB_CANCELLED`）；每条 edit 过 `policy.authorize_operation`（未登记 → `PARAMETER_NOT_REGISTERED`，超量程 → `VALUE_OUT_OF_RANGE`）；引擎拒绝抛 `ConflictError`；改完**写穿候选**（`state_version` CAS），旧验证结论当场作废；**写失败会把缓存退回最后一次已持久化的内容**，不留「改成功但从未落库」的假工作态 |

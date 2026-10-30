@@ -348,6 +348,7 @@
     "contributors": [
       "Paul Falstad"
     ],
+    "templateId": "optics.concave_lens",
     "sceneUrl": "../cn/gallery/concave-lens",
     "pageUrl": "/cn/gallery/concave-lens.html"
   },
@@ -360,6 +361,7 @@
     "contributors": [
       "Paul Falstad"
     ],
+    "templateId": "optics.convex_lens",
     "sceneUrl": "../cn/gallery/convex-lens",
     "pageUrl": "/cn/gallery/convex-lens.html"
   },
@@ -809,6 +811,7 @@
     "contributors": [
       "Liu Quanhong"
     ],
+    "templateId": "optics.camera_principle",
     "sceneUrl": "../cn/gallery/the-principle-of-camera-imaging",
     "pageUrl": "/cn/gallery/the-principle-of-camera-imaging.html"
   },

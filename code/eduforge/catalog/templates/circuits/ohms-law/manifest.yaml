@@ -1,34 +1,57 @@
 template_id: circuits.ohms_law
-title: 欧姆定律与电阻伏安特性
-engine_id: circuitjs
-status: pending_slice_9               # 方案排期在第 7～8 周切片 9
+title: 直流电路：欧姆定律与串并联
+engine_id: circuit_mna
+engine_version: "1.0"
+native_format_version: 1
+native_file: native.json
+lesson_file: lesson.md
+units_per_unit: 1
+status: verified
+
+scene_layout:
+  - entity_id: source_1
+    native_type: VoltageSource
+    geometry: { from: 1, to: 0, v: 5 }
+  - entity_id: resistor_1
+    native_type: Resistor
+    geometry: { from: 1, to: 0, r: 100 }
 
 controls:
-  - entity_id: resistor_1
-    parameter: resistance
-    teaching_label: 电阻阻值
-    unit: Ω
-    min: 1
-    max: 1000
-    step: 10
-    default: 100
-  - entity_id: power_source_1
-    parameter: voltage
-    teaching_label: 电源电压
+  - entity_id: source_1
+    native_type: VoltageSource
+    parameter: voltage_v
+    native_field: v
+    label: 电源电压
     unit: V
     min: 1
-    max: 24
-    step: 0.5
-    default: 5
+    max: 12
+    initial: 5
+  - entity_id: resistor_1
+    native_type: Resistor
+    parameter: resistance_ohm
+    native_field: r
+    label: 电阻 R1
+    unit: ohm
+    min: 10
+    max: 1000
+    initial: 100
+  - entity_id: resistor_2
+    native_type: Resistor
+    parameter: r2_ohm
+    native_field: r
+    label: 电阻 R2
+    unit: ohm
+    min: 10
+    max: 1000
+    initial: 220
 
 views:
-  - view_id: voltmeter
-    teaching_label: 电压表读数
-    default_visible: true
-  - view_id: ammeter
-    teaching_label: 电流表读数
-    default_visible: true
+  - scene
+  - controls
+  - measurement_table
 
-notes: >-
-  首批排期专注 Ray Optics 单一闭环；本模板作为电路实验保留位，
-  待第 7～8 周切片 9 引入 CircuitJS 适配器时正式启用。
+exports:
+  - single_file_html
+
+routes:
+  - config

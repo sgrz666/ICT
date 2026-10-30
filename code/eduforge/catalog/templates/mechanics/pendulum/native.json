@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "objs": [
+    {
+      "type": "RigidBody",
+      "name": "pendulum",
+      "length_m": 1.0,
+      "angle0_deg": 5
+    }
+  ]
+}

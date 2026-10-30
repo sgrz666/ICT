@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "objs": [
+    { "type": "VoltageSource", "name": "source_1", "v": 5 },
+    { "type": "Resistor", "name": "resistor_1", "r": 100 },
+    { "type": "Resistor", "name": "resistor_2", "r": 220 }
+  ]
+}

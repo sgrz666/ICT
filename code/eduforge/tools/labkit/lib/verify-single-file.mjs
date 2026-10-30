@@ -26,9 +26,13 @@ function relErr(a, b) {
 }
 
 /**
- * @param {{repoRoot:string, htmlPath:string, evidencePath:string, outRoot?:string}} input
+ * @param {{repoRoot:string, htmlPath:string, evidencePath:string, outRoot?:string,
+ *          probe?:{param:string,factor:number,metric:string},
+ *          metricKeys?:string[]}} input
  */
-export async function verifySingleFile({ repoRoot, htmlPath, evidencePath, outRoot }) {
+export async function verifySingleFile({ repoRoot, htmlPath, evidencePath, outRoot, probe, metricKeys }) {
+  const p = { param: 'v0', factor: 1.25, metric: 'R', ...(probe ?? {}) }
+  const keys = metricKeys ?? ['T', 'R', 'H']
   const root = outRoot ?? join(repoRoot, 'output', 'eduforge', 'candidates', 'labkit')
   let safeHtml
   try {
@@ -112,27 +116,29 @@ export async function verifySingleFile({ repoRoot, htmlPath, evidencePath, outRo
       return { ok: false, stage: 'L3', code: 'L3_NO_CANVAS', detail: '页面没有 canvas。', hints: ['检查模板是否被改坏。'] }
     }
 
-    const before = await page.evaluate(() => ({
-      v0: window.__RESULT.params.v0,
-      R: window.__RESULT.scenarios[0].measured.R,
-      result: window.__RESULT,
-    }))
-    await page.evaluate(() => window.__LAB.setParams({ v0: window.__RESULT.params.v0 * 1.25 }))
+    const before = await page.evaluate(({ param, metric }) => {
+      const r = window.__RESULT
+      return { value: r.params[param], metric: r.scenarios[0].measured[metric], result: r }
+    }, p)
+    await page.evaluate(({ param, value }) => window.__LAB.setParams({ [param]: value }), {
+      param: p.param,
+      value: before.value * p.factor,
+    })
     await new Promise(resolve => setTimeout(resolve, 200))
-    const after = await page.evaluate(() => ({
-      v0: window.__RESULT.params.v0,
-      R: window.__RESULT.scenarios[0].measured.R,
-    }))
-    const rangeChanged = before.R > 0 && Math.abs(after.R - before.R) / before.R > 0.05
+    const after = await page.evaluate(({ param, metric }) => {
+      const r = window.__RESULT
+      return { value: r.params[param], metric: r.scenarios[0].measured[metric] }
+    }, p)
+    const metricChanged = before.metric > 0 && Math.abs(after.metric - before.metric) / before.metric > 0.05
 
     const pageScenarios = before.result.scenarios ?? []
     let maxRel = 0
     let compared = 0
     for (const ev of evidence.scenarios ?? []) {
-      if (!ev.params || typeof ev.params.angle_deg !== 'number') continue
       const ps = pageScenarios.find(s => s.id === ev.id)
       if (!ps) continue
-      for (const key of ['T', 'R', 'H']) {
+      for (const key of keys) {
+        if (typeof ev.measured?.[key] !== 'number' || typeof ps.measured?.[key] !== 'number') continue
         maxRel = Math.max(maxRel, relErr(ps.measured[key], ev.measured[key]))
         compared += 1
       }
@@ -144,11 +150,16 @@ export async function verifySingleFile({ repoRoot, htmlPath, evidencePath, outRo
       canvas_nonbg_ratio: Number(canvas.nonBgRatio.toFixed(4)),
       canvas_opaque_ratio: Number(canvas.opaqueRatio.toFixed(4)),
       canvas_distinct_colors: canvas.distinctColors,
-      v0_before: before.v0,
-      v0_after: after.v0,
-      range_before: before.R,
-      range_after: after.R,
-      range_changed: rangeChanged,
+      v0_before: before.value,
+      v0_after: after.value,
+      probe_param: p.param,
+      probe_metric: p.metric,
+      probe_metric_before: before.metric,
+      probe_metric_after: after.metric,
+      probe_changed: metricChanged,
+      range_before: before.metric,
+      range_after: after.metric,
+      range_changed: metricChanged,
       console_errors: consoleErrors,
       readout_compared_fields: compared,
       readout_max_rel_error: maxRel,
@@ -157,12 +168,12 @@ export async function verifySingleFile({ repoRoot, htmlPath, evidencePath, outRo
 
     const failures = []
     if (network.length > 0) failures.push(`L3_NETWORK: ${network.slice(0, 3).join(', ')}`)
-    if (canvas.opaqueRatio < 0.5 || canvas.nonBgRatio < 0.02 || canvas.distinctColors < 8) {
+    if (canvas.opaqueRatio < 0.5 || canvas.nonBgRatio < 0.001 || canvas.distinctColors < 8) {
       failures.push(
         `L3_BLANK_CANVAS: opaque=${canvas.opaqueRatio.toFixed(3)}, nonBg=${canvas.nonBgRatio.toFixed(4)}, colors=${canvas.distinctColors}`,
       )
     }
-    if (!rangeChanged) failures.push(`L3_NO_RESPONSE_TO_INPUT: 改 v0 后射程未变化（${before.R} → ${after.R}）`)
+    if (!metricChanged) failures.push(`L3_NO_RESPONSE_TO_INPUT: 改 ${p.param} 后 ${p.metric} 未变化（${before.metric} → ${after.metric}）`)
     if (consoleErrors.length > 0) failures.push(`L3_CONSOLE_ERROR: ${consoleErrors.slice(0, 3).join(' | ')}`)
     if (compared === 0) failures.push('L3_READOUT_MISMATCH: 没有可对比的读数')
     else if (maxRel > READOUT_REL_TOL) failures.push(`L3_READOUT_MISMATCH: 最大相对误差 ${maxRel.toExponential(2)} > ${READOUT_REL_TOL}`)

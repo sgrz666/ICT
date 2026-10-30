@@ -1,0 +1,57 @@
+================================================================================
+Gate C §C.6 R4: 案例库多模板真实导入与只读案例明确隔离 实测报告
+审查基线: af41419 | 实施时间: 2026-10-17T22:20:00+08:00
+================================================================================
+
+1. 改造目标
+根据 Gate C §C.6 与实施指令：
+- 消除「不管从案例库挑什么案例，导入后都悄悄退回通用凸透镜模板」的假象；
+- 新增真实光学模板：`optics.concave_lens`（凹透镜发散与成像）与 `optics.camera_principle`（照相机成像原理），齐备 manifest.yaml、native.json、lesson.md 与 README.md 三件套与说明；
+- 物理参考式扩展支持发散凹透镜薄透镜公式（allow_diverging 显式参数保护），科学策略放行被动光学元件（Aperture、Blocker、CropBox 等）；
+- 工具服务层动态读取全部 catalog 模板，提供多模板创建、搜索与种子版本生成；
+- 教师端前端案例库与模拟器明确分离 3 个可 AI 定制模板与 78 个仅演示只读案例，导入未支持案例时强制拦截并提示，自动切至模拟器原生只读仿真，严禁静默回退；
+- 修复 Worker 租约守护器心跳周期自适应防超时，并修复子进程日志管道防 Windows 缓冲区阻塞。
+
+2. 新增与修改实测记录
+A. 模板目录实测：
+   - code/eduforge/catalog/templates/optics/concave-lens/:
+     * manifest.yaml: template_id=optics.concave_lens, engine_id=ray_optics, controls=[focal_length_cm, object_distance_cm], views=[measurement_table]
+     * native.json: objs=[IdealLens(focalLength=-150), PointSource(x=-300), 7x Detector]
+     * lesson.md, README.md
+   - code/eduforge/catalog/templates/optics/camera-principle/:
+     * manifest.yaml: template_id=optics.camera_principle, engine_id=ray_optics, controls=[focal_length_cm, object_distance_cm, aperture_size_cm], views=[measurement_table]
+     * native.json: objs=[IdealLens, PointSource, Aperture, Blocker, Screen, 7x Detector]
+     * lesson.md, README.md
+
+B. 科学参考式与门禁策略实测：
+   - optics.py: thin_lens_reference 增加 allow_diverging: bool = False 保证向后严格兼容；当 allow_diverging=True 时支持 f < 0 计算，返回 正立缩小虚像 (virtual)；新增 concave_lens_reference。
+   - policies.py: allowed_types 扩充支持 {"IdealLens", "PointSource", "Detector", "Screen", "CropBox", "Blocker", "Aperture", "TextLabel", "Ruler"}，被动元件不再被厚透镜过滤拦截；available_screens 动态匹配屏阵列。
+
+C. 教师前端真实导入与隔离实测：
+   - galleryData.json: 显式标记 "templateId" 于凸透镜 (optics.convex_lens)、凹透镜 (optics.concave_lens) 与照相机 (optics.camera_principle)。
+   - GalleryView.tsx: 3 个模板显示「🤖 AI 定制」，其余 78 个案例显示「仅演示 (不可 AI 定制)」与「⚡ 在模拟器中运行」。
+   - App.tsx: handleImportToStudio 严格核验模板支持；若未支持则触发 warning notice 并转入模拟器原生只读仿真，杜绝静默回退。
+
+D. Worker 租约周期与管道死锁修复实测：
+   - Worker 增加 __post_init__：若 heartbeat_seconds >= lease_seconds / 2.0，则自动调节为 max(0.5, lease_seconds / 3.0)。
+   - 子进程输出重定向至独立文件，彻底消除 Windows 4KB 管道缓冲区满阻塞死锁。
+
+3. 测试套件验证结果
+- Python pytest:
+  code/eduforge/.venv/Scripts/pytest.exe -v code/eduforge/tests/python
+  结果: 158 collected, 157 passed, 1 skipped (0 failures, 100% 成功率)
+  其中新增 test_gate_c6_gallery_import.py 5 项测试全部通过：
+  * test_catalog_loads_three_distinct_optics_templates PASSED
+  * test_gallery_metadata_separates_customizable_and_readonly PASSED
+  * test_thin_lens_reference_supports_concave_lens PASSED
+  * test_create_experiment_from_multiple_templates PASSED
+  * test_tool_service_dynamic_search_and_experiment_open PASSED
+- TypeScript vitest:
+  node_modules/.bin/vitest.CMD run (services/engine-host)
+  结果: 12 test files passed, 84 passed (0 failures)
+- 前端验证:
+  apps/teacher-web: npm run typecheck && npm run build
+  结果: 0 error, 成功构建 dist/
+
+4. 结论
+Gate C §C.6 任务目标全部达成，满足 AGENTS.md 全部纪律规范。

@@ -52,7 +52,7 @@ from eduforge.experiment_tools.contracts import (
     SearchExperimentsInput,
     SearchExperimentsOutput,
 )
-from eduforge.infrastructure.catalog import CatalogError, load_native
+from eduforge.infrastructure.catalog import CatalogError, list_templates, load_native
 from eduforge.infrastructure.clients.engine_client import EngineClient
 from eduforge.infrastructure.db.candidate_repository import (
     CandidateScopeConflict,
@@ -108,7 +108,10 @@ def _make_measurement_record(
         else:
             kind = "倒立放大实像 (real)"
     else:
-        kind = "正立放大虚像 (virtual)"
+        if f < 0:
+            kind = "正立缩小虚像 (virtual)"
+        else:
+            kind = "正立放大虚像 (virtual)"
 
     mag = round(ref["magnification"], 2) if ref.get("magnification") is not None else None
     v_val = round(v, 2) if v is not None else None
@@ -182,21 +185,17 @@ class ExperimentToolService:
             req = input_data
 
         items: list[ExperimentSummary] = []
-        # 从 catalog 模板读取
-        try:
-            convex = load_template("optics.convex_lens")
+        # 从 catalog 模板动态读取所有已实测模板
+        for t in list_templates():
             items.append(
                 ExperimentSummary(
-                    template_id=convex.template_id,
-                    title="凸透镜成像实验",
-                    description=convex.title or "探究凸透镜成像规律及物距像距关系",
-                    controls=[asdict(c) for c in convex.controls],
-                    views=list(convex.views),
+                    template_id=t.template_id,
+                    title=t.title,
+                    description=t.title or "实验模板",
+                    controls=[asdict(c) for c in t.controls],
+                    views=list(t.views),
                 )
-
             )
-        except Exception:
-            pass
 
         # 若有数据库，也可加入已有实验——但只能是自己名下的实例。
         # 以前这条不带 owner：模型问一句就能把别人的实验 id 抄出来接着「打开」，
@@ -558,7 +557,7 @@ class ExperimentToolService:
             u = extracted["object_distance_cm"]
             f = extracted["focal_length_cm"]
             if u is not None and f is not None:
-                ref = thin_lens_reference(f, u)
+                ref = thin_lens_reference(f, u, allow_diverging=(f < 0))
                 new_row = _make_measurement_record(f, u, ref)
                 existing = table.get("records", [])
                 match = next(
@@ -652,7 +651,7 @@ class ExperimentToolService:
             u = extracted["object_distance_cm"]
             f = extracted["focal_length_cm"]
             if u is not None and f is not None:
-                ref = thin_lens_reference(f, u)
+                ref = thin_lens_reference(f, u, allow_diverging=(f < 0))
                 current_record = _make_measurement_record(f, u, ref)
                 if not any(
                     math.isclose(r["object_distance_cm"], current_record["object_distance_cm"], rel_tol=1e-4)

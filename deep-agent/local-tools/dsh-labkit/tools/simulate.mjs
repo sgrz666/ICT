@@ -1,12 +1,13 @@
 import { simulateDesign } from '../lib/labkit.mjs'
-import { errorBlock, fmt, hintBlock, scenarioTable } from '../lib/format.mjs'
+import { errorBlock, fmt, hintBlock } from '../lib/format.mjs'
+import { simulationSummary } from '../lib/summary.mjs'
 import { defaultTemplateId, outPaths, repoRoot } from '../lib/paths.mjs'
 import { designParams, resultSchema, renderResult } from '../lib/tool-schema.mjs'
 
 export function registerSimulate(ctx, defineTool) {
   ctx.tools.register(defineTool({
     name: 'experiment_simulate',
-    description: 'L2 物理对账：用 matter-js 固定步进跑真实轨迹，逐指标对照运动学解析式，并跑阻力对照组。只验证不渲染；需要成品时用 experiment_build。',
+    description: 'L2 物理对账：按模板跑真实步进/求解（抛体与单摆用 matter-js，直流电路用 MNA），逐指标对照解析式。只验证不渲染；需要成品时用 experiment_build。',
     parameters: designParams(),
     output: { schema: resultSchema(), render: renderResult },
     timeoutMs: 60_000,
@@ -37,15 +38,14 @@ export function registerSimulate(ctx, defineTool) {
         }
       }
 
-      const drag = r.drag_control
       const summary = [
-        r.verdict === 'pass' ? 'L2 物理对账通过。' : 'L2 物理对账未通过。',
-        scenarioTable(r.scenarios),
+        simulationSummary(r, args.template_id || defaultTemplateId),
         '',
-        `阻力对照：无阻力偏离 ${fmt(drag.deviation_no_drag_pct, 3)}%，开阻力偏离 ${fmt(drag.deviation_with_drag_pct, 3)}%，比值 ${fmt(drag.ratio, 1)}×（要求 >5× 且开阻力偏离 >1%）→ ${drag.verdict}`,
         `证据：${r.evidence_path}`,
-        `标定加速度：${fmt(r.engine.calibrated_acceleration, 4)} m/s²（名义 ${r.engine.gravity}）`,
-      ].join('\n')
+        r.engine?.calibrated_acceleration !== undefined
+          ? `标定加速度：${fmt(r.engine.calibrated_acceleration, 4)} m/s²（名义 ${r.engine.gravity ?? '—'}）`
+          : '',
+      ].filter(Boolean).join('\n')
 
       return {
         ok: r.ok,
@@ -57,7 +57,8 @@ export function registerSimulate(ctx, defineTool) {
           design_hash: r.design_hash,
           engine: r.engine,
           scenarios: r.scenarios,
-          drag_control: r.drag_control,
+          ...(r.drag_control ? { drag_control: r.drag_control } : {}),
+          ...(r.cross_check ? { cross_check: r.cross_check } : {}),
         },
         hints: r.ok ? [] : r.hints,
       }

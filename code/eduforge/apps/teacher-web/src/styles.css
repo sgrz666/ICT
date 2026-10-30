@@ -40,8 +40,33 @@ body {
 }
 
 .brand-logo {
-  font-size: 1.4rem;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #35404e;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.09), transparent 60%);
+  color: #9fb0c4;
   line-height: 1;
+}
+
+.brand-logo svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 3D 动量实验室沿用自身的黄绿测量色，顶栏只做最小范围的主题切换。 */
+.app-header--momentum .brand-logo {
+  border-color: rgba(216, 255, 99, 0.3);
+  color: #d8ff63;
+}
+
+.app-header--momentum .nav-tab-btn.active {
+  background: #d8ff63;
+  color: #0b0f0a;
+  box-shadow: 0 2px 8px rgba(216, 255, 99, 0.18);
 }
 
 .brand-title {
@@ -611,4 +636,24 @@ code { font-family: ui-monospace, Consolas, monospace; font-size: 0.78rem; color
   border-radius: 8px;
   border: 1px dashed var(--border-color);
   color: var(--text-muted);
+}
+
+.badge-readonly {
+  font-size: 0.75rem;
+  color: #7b889b;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.notice.warning {
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  color: #fde047;
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
 }

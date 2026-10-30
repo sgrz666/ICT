@@ -6,9 +6,17 @@ import { designParams, resultSchema, renderResult } from '../lib/tool-schema.mjs
 function predictionLines(predictions) {
   const out = []
   for (const s of predictions?.scenarios ?? []) {
-    out.push(`  ${s.id}: R=${fmt(s.analytic.R)} m, T=${fmt(s.analytic.T, 3)} s, H=${fmt(s.analytic.H)} m`)
+    const a = s.analytic ?? {}
+    if (typeof a.Texact === 'number') {
+      out.push(`  ${s.id}: T0=${fmt(a.T0, 4)} s, Texact=${fmt(a.Texact, 4)} s（振幅修正 ${fmt(a.correction_pct, 2)}%）`)
+    } else if (typeof a.I === 'number' || typeof a.U === 'number') {
+      const parts = Object.entries(a).filter(([, v]) => typeof v === 'number').map(([k, v]) => `${k}=${fmt(v, 6)}`)
+      out.push(`  ${s.id}: ${parts.join(', ')}`)
+    } else {
+      out.push(`  ${s.id}: R=${fmt(a.R)} m, T=${fmt(a.T, 3)} s, H=${fmt(a.H)} m`)
+    }
   }
-  if (typeof predictions?.ratio === 'number') out.push(`  ratio_R=${fmt(predictions.ratio, 4)}`)
+  if (typeof predictions?.ratio === 'number') out.push(`  ratio=${fmt(predictions.ratio, 4)}`)
   return out.join('\n')
 }
 

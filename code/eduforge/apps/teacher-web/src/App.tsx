@@ -6,14 +6,16 @@ import { ExperimentWorkspace } from "./components/ExperimentWorkspace";
 import { TemplateLibrary } from "./components/TemplateLibrary";
 import { SimulatorView } from "./components/SimulatorView";
 import { GalleryView } from "./components/GalleryView";
+import { MomentumLabView } from "./components/MomentumLabView";
 import { useJob } from "./hooks/useJob";
 
-type TabKey = "studio" | "simulator" | "gallery";
+type TabKey = "studio" | "simulator" | "gallery" | "momentum";
 
 export function App() {
   // 根据 URL Hash 决定初始 Tab，默认可在 studio / simulator 之间平滑切换
   const initialTab = ((): TabKey => {
     const hash = window.location.hash.toLowerCase();
+    if (hash.includes("momentum")) return "momentum";
     if (hash.includes("sim")) return "simulator";
     if (hash.includes("gallery")) return "gallery";
     return "studio";
@@ -41,11 +43,14 @@ export function App() {
   const { job, error: pollError } = useJob(jobId);
 
   useEffect(() => {
+    // 动量实验室是纯浏览器实验台：不依赖模板列表。只有进入工坊相关视图时才取模板，
+    // 避免在未启动网关时用无关的 /api 请求污染 3D 页面的控制台。
+    if (activeTab === "momentum" || templates.length > 0 || templateError) return;
     api
       .templates()
       .then(r => setTemplates(r.templates))
       .catch(e => setTemplateError(e instanceof ApiError ? e.code : String(e)));
-  }, []);
+  }, [activeTab, templates.length, templateError]);
 
   /**
    * 载入某个已发布版本：先取产物清单登记的 sha256，再下载并重算比对，
@@ -190,6 +195,8 @@ export function App() {
     }
   };
 
+  const [importNotice, setImportNotice] = useState<string | null>(null);
+
   // 从案例库一键载入模拟器
   const handleOpenInSimulator = (sceneUrl: string) => {
     setSimulatorScene(sceneUrl);
@@ -198,30 +205,64 @@ export function App() {
   };
 
   // 从模拟器或案例库导入到 AI 定制工坊
-  const handleImportToStudio = (sceneUrl: string, title: string) => {
-    setActiveTab("studio");
-    window.location.hash = "studio";
-    // 优先匹配对应案例的模板
-    const matched = templates.find(t => title.includes(t.title) || (t.title.includes("凸透镜") && title.includes("凸透镜")));
+  const handleImportToStudio = (sceneUrl: string, title: string, templateId?: string) => {
+    // 明确判定是否属于已支持的 AI 定制模板
+    const targetTemplateId = templateId || (
+      title.includes("照相机") || title.includes("相机") ? "optics.camera_principle"
+      : title.includes("凹透镜") ? "optics.concave_lens"
+      : (title.includes("凸透镜") && !title.includes("两面镜子")) ? "optics.convex_lens"
+      : null
+    );
+
+    const matched = targetTemplateId ? templates.find(t => t.template_id === targetTemplateId) : null;
     if (matched) {
+      setImportNotice(null);
+      setActiveTab("studio");
+      window.location.hash = "studio";
       if (!exp || exp.template_id !== matched.template_id) {
         void pick(matched.template_id);
       }
     } else {
-      // 保留所选实际场景信息
+      // 严禁静默回退到凸透镜模板！拦截并告知教师，转至模拟器原生只读仿真
+      setImportNotice(`案例「${title}」仅供演示，尚未配置 AI 定制能力清单与科学验证规约。已在光学模拟器中打开。`);
       setSimulatorScene(sceneUrl);
+      setActiveTab("simulator");
+      window.location.hash = "simulator";
     }
   };
 
   return (
     <div className="app-root">
       {/* 顶层导航栏 */}
-      <header className="app-header">
+      <header className={`app-header ${activeTab === "momentum" ? "app-header--momentum" : ""}`}>
         <div className="brand-section">
-          <span className="brand-logo">🔬</span>
+          <span className="brand-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="2.4" fill="currentColor" />
+              <ellipse cx="12" cy="12" rx="9" ry="3.5" stroke="currentColor" strokeWidth="1.1" />
+              <ellipse
+                cx="12"
+                cy="12"
+                rx="9"
+                ry="3.5"
+                stroke="currentColor"
+                strokeWidth="1.1"
+                transform="rotate(60 12 12)"
+              />
+              <ellipse
+                cx="12"
+                cy="12"
+                rx="9"
+                ry="3.5"
+                stroke="currentColor"
+                strokeWidth="1.1"
+                transform="rotate(120 12 12)"
+              />
+            </svg>
+          </span>
           <div>
-            <div className="brand-title">Ray Optics 射线光学模拟</div>
-            <div className="brand-subtitle">二维几何光学仿真与 AI 教学定制平台</div>
+            <div className="brand-title">EduForge 物理实验平台</div>
+            <div className="brand-subtitle">3D 碰撞 · 光学仿真 · AI 教学定制</div>
           </div>
         </div>
 
@@ -243,6 +284,12 @@ export function App() {
             onClick={() => { setActiveTab("gallery"); window.location.hash = "gallery"; }}
           >
             📚 81 演示案例库
+          </button>
+          <button
+            className={`nav-tab-btn ${activeTab === "momentum" ? "active" : ""}`}
+            onClick={() => { setActiveTab("momentum"); window.location.hash = "momentum"; }}
+          >
+            3D 动量实验室
           </button>
         </nav>
 
@@ -268,6 +315,13 @@ export function App() {
         </div>
       </header>
 
+      {importNotice ? (
+        <div className="notice warning" style={{ margin: "0.5rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>⚠️ {importNotice}</span>
+          <button type="button" className="ghost btn-sm" onClick={() => setImportNotice(null)}>✕ 关闭</button>
+        </div>
+      ) : null}
+
       {/* 主界面内容切换 */}
       <div className="app-content">
         {activeTab === "simulator" ? (
@@ -284,6 +338,8 @@ export function App() {
             onImportToStudio={handleImportToStudio}
           />
         ) : null}
+
+        {activeTab === "momentum" ? <MomentumLabView /> : null}
 
         {activeTab === "studio" ? (
           <main className="studio-layout">

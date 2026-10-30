@@ -40,7 +40,24 @@
 
 ## 2026-10-19 程序化接口实测
 
-结构面已量、运行时未证实（2026-10-19）：镜像分类页里共 **54 条演示链接**（Phyc140 19 / Phyc240 25 / Simulation 9 / thermodynamics 1），抓下 14 份演示页（14~30 KB）后 **14/14 都带具名 `<input type=range>` 滑块且有 min/max/step/value**（`tempSlider` 0~600、`massMetalSlider` 300~700、`density1` 1~3 step 0.1、`liquidVolSlider` 1500~2900…），11/14 用 three.js，13/14 页可直接改的数值常量共 65 个 —— 控制面比 PhET 成品显式得多。但运行时**没**证实：`../library/jcn3_headless_lab.mjs` 在 `buoyant_force_exp` 上页面 0 异常却 canvas 恒 0（补 `--use-gl=angle --use-angle=swiftshader` 后 WebGL 可用仍是 0，three.js 场景没初始化），而我拿去当「读数指纹」的 6 个数字其实是滑块量程标注（100/200、1500/3000、10/100）——**是对照组（同值再派发一次事件、读数本该不变）先把这条判据打死的**，所以记 FAIL，不写「能改参」。缺的依赖也定位了：页内引用 `../css/final.css`、`../css/main3.css` 与 jQuery 3.2.1 / bootstrap 3.3.7 CDN，镜像一个都没取（three.js 出处也还没查）⇒ 离线不成立。证据 `3jcn/3jcn-demo-interface-probe.json` 与 `../library/jcn3-headless-lab-evidence.json`。
+**这一族现在能说什么、不能说什么**（细节按 pass 顺序列在下面，每条 pass 是一段现场）：
+
+| 问题 | 答 | 依据 |
+|---|---|---|
+| 目录抓得下来吗 | 能，8/8 页、90 条链接 | `fetch_3jcn_index.py` + `3jcn-inventory.json` |
+| 有控件面吗 | 有，且比 PhET 成品显式：14/14 抓下的演示页都带具名 `<input type=range>`（带 min/max/step/value） | 结构面探针 |
+| Agent 写值改得动画面吗 | **改得动**（UI 可驱动），且页面自己的 Reset 能复原 | 三 / 四 pass |
+| 离线能跑吗 | **一只页面**能（同源伺服 + 掐外网，被拦 0、canvas 起、像素随写值变、能回基线）；整批不能说「离线可用」 | 八 / 九 pass + `assemble_3jcn_offline.py` |
+| 能改参 → 解析式对账吗 | **还没做成**：这一页读数画在 3D 文字里，`readout_tokens` 为空；离线口径下整批只有 1 页有 DOM 数字读数（`Phyc140/seesaw2.html`） | 六 / 十 pass |
+| 所以状态词是什么 | `resource_installed` + 「UI 可驱动且可观测」，**不标** `engine_*_verified`；目录条目 `3jcn-catalog` 在 lock 里是 `reference_only` | 全篇 |
+
+结构面已量、运行时未证实（2026-10-19 一 pass 的原始记录）：镜像分类页里共 **54 条演示链接**（Phyc140 19 / Phyc240 25 / Simulation 9 / thermodynamics 1）。抓下 14 份演示页（14~30 KB）后：
+
+- **14/14 都带具名 `<input type=range>` 滑块且有 min/max/step/value**（`tempSlider` 0~600、`massMetalSlider` 300~700、`density1` 1~3 step 0.1、`liquidVolSlider` 1500~2900…），11/14 用 three.js，13/14 页可直接改的数值常量共 65 个 ⇒ 控制面比 PhET 成品显式得多。
+- 但运行时**没**证实：`../library/jcn3_headless_lab.mjs` 在 `buoyant_force_exp` 上页面 0 异常却 canvas 恒 0（补 `--use-gl=angle --use-angle=swiftshader` 后 WebGL 可用仍是 0，three.js 场景没初始化）。
+- 而我拿去当「读数指纹」的 6 个数字其实是滑块量程标注（100/200、1500/3000、10/100）——**是对照组（同值再派发一次事件、读数本该不变）先把这条判据打死的**，所以记 FAIL，不写「能改参」。
+- 缺的依赖也定位了：页内引用 `../css/final.css`、`../css/main3.css` 与 jQuery 3.2.1 / bootstrap 3.3.7 CDN，镜像一个都没取（three.js 出处也还没查）⇒ 离线不成立。
+- 证据 `3jcn/3jcn-demo-interface-probe.json` 与 `../library/jcn3-headless-lab-evidence.json`。
 
 新增两份项目侧文件：`probe_3jcn_demo_interfaces.py`（结构面探针）与驱动台 `../../library/jcn3_headless_lab.mjs`。`demos/` 与 `pages/` 一样被 `.gitignore` 挡住不入库——里面全是第三方 HTML，站点未声明开源许可，只作本机分析用。
 
@@ -54,7 +71,20 @@
 
 六 pass（同日，换页面拿到完整闭环）：`Phyc140/apparent_weight_exp.html` 在**本地镜像 + 自建同源伺服**下连跑两遍，5 只具名滑块（`posSlider`、`massMetalSlider` 300~700、`tempMetalSlider`、`massLiquidSlider` 1200~2000、`tempLiquidSlider`）**全部判 `agent_writable_and_observable`（PASS）**：写值回读一致、「同值再派发事件画面不变」对照组守住、写值后整页 PNG 变、改回原值画面**回到基线帧**（`reverted_to_baseline=true`，与上一只平面镜页不同——那只要靠页面 Reset 才回得去），页面异常 0 条，两遍结果一致。⇒ 3JCN 这一族现在有了「离线可跑 + Agent 改参 + 可观测响应 + 可复原」的第一只完整样本。还差的那一半也说清：**读数没有 DOM 数字**（`readout_tokens` 为空，读数画在 3D 文字里），所以「改参→解析式对账」仍未做，这一只不能标成 `engine_*_verified`，只能标成 **UI 可驱动且可观测**。另外修了自己一个工具缺陷：驱动台把逐条结果写成 `"…%s…" % (…)`（JavaScript 里这是取模），控制台整行只剩 NaN，5/5 通过的运行看起来像坏了——现在改回 `console.log(fmt, …)` 并留了注释。
 
-七 pass（同日，批量分档）：新增 `../library/jcn3_batch_probe.mjs`，把本地镜像里 31 份演示页逐只跑同样四条判据（写值回读、DOM 数字读数变、画面变、改回原值画面回基线，画面通道先过「不操作两帧一致」对照组），结果按档记账不压成布尔：**可读数量数=1 页、画面可驱动=12 页、只写不动=1 页、页面自己在动（画面通道不可用）=2 页、无控件=14 页、载入失败=1 页**；带 DOM 数字读数的页面 13 页（这一档才谈得上解析式对账）。分档名单：writable_and_readout ['Simulation/sun_earth_distance.html']；writable_and_picture ['Phyc140/apparent_weight_exp.html', 'Phyc140/block_spring.html', 'Phyc140/buoyant_force_exp.html', 'Phyc140/center_mass_3d.html', 'Phyc140/center_of_mass.html', 'Phyc140/centripetal_force_formula.html', 'Phyc140/gravity_force.html', 'Phyc140/newton_cooling_law.html', 'Phyc140/seesaw2.html', 'Simulation/projectile_motion_exp.html', 'Simulation/simple-pendulum.html', 'Simulation/soccer.html']；writable_only ['Phyc140/flat_mirror_prob.html']；dynamic_render ['Simulation/least_action.html', 'Simulation/rescue.html']；no_control ['Phyc140/angular_momentum_collision.html', 'Phyc140/circular_shm.html', 'Phyc140/earth_circumference.html', 'Phyc140/galileo_gravity.html', 'Phyc140/mass-on-spring.html', 'Phyc140/measure_earth_radius.html']；load_failed ['Simulation/Newton-Cannon.html']。⇒ 3JCN 的控制面从「一只样本」变成「整批有档可查」，同时把简报那句警告的分量量化了：能写值的页面很多，但**写值之后能采到数字读数**的只是少数，所以「装上了 / 滑块在」跟「Agent 能改并验得过」之间仍隔着这一段。证据 `../library/jcn3-batch-probe.json`。
+七 pass（同日，批量分档）：新增 `../library/jcn3_batch_probe.mjs`，把本地镜像里 31 份演示页逐只跑同样四条判据（写值回读、DOM 数字读数变、画面变、改回原值画面回基线；画面通道先过「不操作两帧一致」对照组），结果**按档记账、不压成布尔**：可读数量数 1 页、画面可驱动 12 页、只写不动 1 页、页面自己在动（画面通道不可用）2 页、无控件 14 页、载入失败 1 页；带 DOM 数字读数的页面 13 页（只有这一档才谈得上解析式对账）。
+
+> ⚠ **这一批的分档口径同日作废**（当时是 `file://` + 有网 + 整页截图），新口径的逐页结果在下面「十 pass 实况」。名单留在这是为了可追溯，不是实况。
+
+| 档（旧口径） | 页 |
+|---|---|
+| `writable_and_readout`（1） | `Simulation/sun_earth_distance.html` |
+| `writable_and_picture`（12） | `Phyc140/apparent_weight_exp`、`block_spring`、`buoyant_force_exp`、`center_mass_3d`、`center_of_mass`、`centripetal_force_formula`、`gravity_force`、`newton_cooling_law`、`seesaw2`、`Simulation/projectile_motion_exp`、`simple-pendulum`、`soccer` |
+| `writable_only`（1） | `Phyc140/flat_mirror_prob.html` |
+| `dynamic_render`（2） | `Simulation/least_action`、`Simulation/rescue` |
+| `no_control`（6 只点名） | `Phyc140/angular_momentum_collision`、`circular_shm`、`earth_circumference`、`galileo_gravity`、`mass-on-spring`、`measure_earth_radius`（这一档共 14 页，探针只点名这 6 只） |
+| `load_failed`（1） | `Simulation/Newton-Cannon.html` |
+
+⇒ 3JCN 的控制面从「一只样本」变成「整批有档可查」，同时把简报那句警告的分量量化了：能写值的页面很多，但**写值之后能采到数字读数**的只是少数，所以「装上了 / 滑块在」跟「Agent 能改并验得过」之间仍隔着这一段。证据 `../library/jcn3-batch-probe.json`。
 
 ## 八 pass（同日）：断网 A/B 把「离线可跑」证伪了，并纠正我上一轮的过强说法
 

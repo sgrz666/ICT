@@ -4,12 +4,24 @@
 
 ## 内容
 
-- `experiments.json` — 目录本体。11 个引擎条目 + 18 个实验条目 + **0 条「本轮没装」**（上一轮剩下的 PhET 官方发布成品这次装上了：真形态是 `sims/html/<sim>/latest/<sim>_all.html`，13 份单文件离线包，见 `../upstream/phet-published.json`）。实验按 P0/P1/P2 分优先级（实测计数：P0 9 条、P1 7 条、P2 2 条）；状态词有七种（`template_connected` / `engine_headless_verified` / `component_headless_verified` / `engine_browser_verified` / `resource_installed` / `installed_catalog_only` / `reference_only`），含义写死在文件开头的 `status_words` 里，避免把「装了源码」说成「接通了」。当前分布（2026-10-20 实测，`check_catalog.py` 逐条数过；**18 条全部达到「引擎真出数、解析式判对错」**）：`engine_headless_verified` 10 条（平面镜、折射、全反射、三棱镜、单摆、弹簧振子、**理想气体状态变化**、**绳波与波速**、**太阳系与开普勒定律**、**牛顿摆**、**双缝干涉**）、`component_headless_verified` 2 条（3D 自由落体、带电粒子在磁场中）、`engine_browser_verified` 3 条（欧姆定律、串并联、RC 充电，浏览器里读引擎自己的电气量）；`resource_installed` 当前 0 条（已清零）；`template_connected` **3 条**——`optics-concave-lens`、`mechanics-projectile`、**`mechanics-pendulum`**（2026-10-20 独立实测升格：产物零外部请求、改摆长周期真动、L=2.0 得 2.839583 s 对 2π√(L/g)=2.838454、大角修正存在；注意该模板用 matter-js，而本行原先的验收引擎是 myPhysicsLab，属同一实验的两套实现，不是互证）（下游 `catalog/templates/optics/concave-lens/` 三件套齐备后升格）与 `mechanics-projectile`（同日升格：模板四件套 + `tools/labkit/` 的 L1→L2→渲染→L3 全链 + 离线单文件产物实测通过，读数与 L2 证据逐位一致到 4.89e-8，四个控件含新加的空气阻力）。上一版这里把凹透镜同时计进 `engine_headless_verified` 与本档，12+3+3+1=19 对不上 18，已按状态互斥改正；同目录还有 `convex-lens` 与 `camera-principle` 两份模板，但都不在简报那 18 条之内，所以这边不替它们虚构行或状态。引擎那侧本轮新增两条：`osp-ejss`（6 仓源码落盘，**控制面已由 `interference_lab.mjs` 实测走通一条**：读 `.ejss` 参数表 → 执行模型自己的函数 → 对解析式）与 `3jcn-catalog`（`reference_only`，只有目录）。
+- `experiments.json` — **目录本体，也是这些状态与条数的唯一归属处**。结构：`schema_version` / `ground_rule` / `status_words` / `engines`（11 个引擎条目）/ `experiments`（18 个实验条目）/ `not_installed`（当前 **0 条**）/ `verification_log`。想引用「几条是什么档」，跑这一行现取，别从任何 README 里抄：
+
+  ```bash
+  python -c "import json,collections;e=json.load(open('source/library/experiments.json',encoding='utf-8'))['experiments'];print(dict(collections.Counter(x['status'] for x in e)),dict(collections.Counter(x.get('priority') for x in e)))"
+  ```
+
+  2026-10-20 实测：`engine_headless_verified` 10、`template_connected` 3（`optics-concave-lens`、`mechanics-pendulum`、`mechanics-projectile`）、`engine_browser_verified` 3（欧姆定律、串并联、RC 充电，CircuitJS1 在浏览器里读自己的电气量）、`component_headless_verified` 2（3D 自由落体、带电粒子在磁场中）；优先级 P0 9 / P1 7 / P2 2。**这份分布会被并行会话随时改动**，上面只是当轮快照，要引用就指回 JSON。
+
+  **七个状态词是刻意分开的**（含义写死在文件开头的 `status_words` 里），为的就是不把「装了源码」说成「接通了」：`template_connected`（模板三件套与适配器都接上）、`engine_headless_verified`（引擎在无头里跑出可与解析式对账的数）、`engine_browser_verified`（浏览器态引擎自己念出来的量对得上）、`component_headless_verified`（npm 组件级验证）、`resource_installed`（资源装好但未验证，当前 0 条）、`reference_only`（只读参考，现在只用在引擎条目 `3jcn-catalog`）、`not_installed`。
+
+  两条留痕，别重犯：① 上一版把凹透镜同时计进 `engine_headless_verified` 与本档，12+3+3+1=19 对不上 18 条 ⇒ **状态互斥**，一条实验只能有一个档；② 同目录还有 `convex-lens` 与 `camera-principle` 两份模板，但它们不在简报那 18 条之内，**不替它们虚构行或状态**。
+
+  引擎侧本轮新增两条：`osp-ejss`（OSP 家族 6 仓源码落盘，控制面**只实测走通一条**——读 `.ejss` 参数表 + 执行模型自带的 JS 函数，不需要编译）与 `3jcn-catalog`（`reference_only`，只有目录清单）。官方那条 `.ejs → 编译 → webejs 加载` 链路，本轮一步没跑。
 - `optics_hall.mjs` + `optics-hall-evidence.json` — 光学实验馆的验收台（`node source/library/optics_hall.mjs --json`）。五个场景（平面镜 / 折射 / 全反射临界角扫描 / 凹透镜焦距反解 / 三棱镜色散）全部用与引擎无关的解析式判对错，2026-10-19 实测 **5/5 pass**。凹透镜那条从两个屏的束宽反解出 |f| = 100.00000000000037（设定 −100），全程不读引擎自报的焦距；三棱镜那条由脚本自写一套矢量斯涅尔追迹（refract + 逐面求交）作对照，两个折射率下屏上落点 −165.5 / −186.5 vs 解析 −165.815 / −186.609，两色差 −21.0 vs −20.793。
-- `projectile_lab.mjs` + `projectile-lab-evidence.json` — 抛体验收台（`node source/library/projectile_lab.mjs --json`），引擎是 npm 组件 matter-js。先做**单位标定**（实测律 `a = gravity.y × gravity.scale × 1e6`，自由落体反解 9.80000 m/s²），再拿解析式判平抛（时间 2.0182 s vs 2.0203、射程 30.2733 vs 30.3046）、斜抛 45°（射程 40.7574 vs 40.8163、最高点 10.1746 vs 10.2041）、互补角等射程（30°/60° = 0.9991，**判据里不含 g**，单位标定错了也瞒不过去）。2026-10-19 实测 **5/5 pass**。
+- `projectile_lab.mjs` + `projectile-lab-evidence.json` — 抛体验收台（`node source/library/projectile_lab.mjs --json`），引擎是 npm 组件 matter-js。先做**单位标定**（实测律 `a = gravity.y × gravity.scale × 1e6`，自由落体反解 9.80000 m/s²），再拿解析式判平抛（时间 2.0182 s vs 2.0203、射程 30.2733 vs 30.3046）、斜抛 45°（射程 40.7574 vs 40.8163、最高点 10.1746 vs 10.2041）、互补角等射程（30°/60° = 0.9991，**判据里不含 g**，单位标定错了也瞒不过去）。2026-10-19 实测 **5/5 pass**。物理内核已抽到 [`../../code/eduforge/tools/labkit/lib/projectile-core.mjs`](../../code/eduforge/tools/labkit/lib/projectile-core.mjs)（Node 与单文件页面共用），本脚本改为导入；CLI、证据格式与数值不变。
 - `field3d_lab.mjs` + `field3d-lab-evidence.json` — 3D 电磁验收台（`node source/library/field3d_lab.mjs --json`），引擎是 `@dimforge/rapier3d-compat`。Rapier 不懂洛伦兹力，所以力由脚本每步 `qv×B` 施加，验收用**自写最小二乘圆拟合**（不读引擎自报的任何量）：半径 3.3597 vs `mv/(|q|B)`=3.3333、角速度 1.19999 vs 1.2、由累积转角反出的周期 5.23603 vs 5.23599、拟合残差/半径 0.285%、q 反号则旋向反号、螺旋螺距 7.8566 vs `v∥·T`=7.8540、q=0 时侧向偏移 0。2026-10-19 实测 **5/5 pass**。
 - `collisions_lab.mjs` + `collisions-lab-evidence.json` — 碰撞/动量验收台（`node source/library/collisions_lab.mjs --json`），**同一套解析式分别喂给 matter-js 与 Rapier**。结论 6/9 pass，而且败的那三条比赢的更有用：Rapier 的弹性碰撞全中（等质量 4/−2 → −2/4 精确、2 kg 撞 1 kg 得 1.66667/6.66667、弹性斜碰出射夹角 90.000° 且 |vA|²+|vB|² = 25.000、restitution=0.5 时动量守恒而动能掉 37.5%）；Matter 的自由-自由弹性正碰把 10 J 吃到 1.21 J，「n 进 n 出」的牛顿摆两个引擎都不成立（Rapier 5 球排一列被撞后 4 球同动、末端只拿到 1.588 m/s）。⇒ 动量守恒定量交付只能用 Rapier 或专用一维硬球模型，牛顿摆这条**不许**标成已验证。
-- `circuit_harness.html` + `serve_circuitjs.py` + `circuit_headless_lab.mjs` + `circuit-lab-evidence.json` — 电学验收台（唯一走浏览器的一条，因为 CircuitJS1 的产物是 GWT 编译的 JS）。**2026-10-19 起不再需要人点**：`node source/library/circuit_headless_lab.mjs` 起同源伺服 + 本机 chromium，跑 `?autorun=1`，轮询 `window.__STATUS`，并核对「页内 `__RESULT` 与 POST 落盘的字节是同一份」。实测 4/4 场景 pass（欧姆 0.05/0.0227273/0.0106383 A 逐位对上 5/R；RC 两点反解 τ=0.0999967 s vs 0.1 s），连跑两遍一致。
+- `circuit_harness.html` + `serve_circuitjs.py` + `circuit_headless_lab.mjs` + `circuit-lab-evidence.json` — 电学验收台（唯一走浏览器的一条，因为 CircuitJS1 的产物是 GWT 编译的 JS）。**2026-10-19 起不再需要人点**：`node source/library/circuit_headless_lab.mjs` 起同源伺服 + 本机 chromium，跑 `?autorun=1`，轮询 `window.__STATUS`，并核对「页内 `__RESULT` 与 POST 落盘的字节是同一份」。实测 4/4 场景 pass（欧姆 0.05/0.0227273/0.0106383 A 逐位对上 5/R；RC 充电按「导入后的充电钟」重测：Vc 偏解析 1.55% / 0.07%，两点反解 τ=0.0999967 s vs RC=0.1 s，偏 0.0033%），连跑两遍一致。
   这次搬无头揪出验收台两处自己的缺陷，都已修：① 元件种类守卫拿文本短码（v/r/c/w/g）去匹配 `/Elm$/`，一个都对不上 ⇒ want 恒空、守卫是空判据，第一个场景实际读到页面启动的 7 元件电路（I=−0.0145 A）却照样拿去和 5 V/100 Ω 比；② `runUntil` 比的是绝对 `sim.getTime()`，而 `importCircuit` 不重置时钟（三个场景后 t 累积到 0.28 s）⇒ 「跑到 0.02 s」在第一个场景之后全是空转，RC 那条旧 pass 因此不可靠，现在按「导入后的充电钟」重做。
   官方 JavaScript 接口只有 12 个方法且**没有元件参数 setter**，所以「Agent 改参」的路径是 `importCircuit(整份电路文本)`；读数用 `getCurrent()`/`getVoltageDiff()`（double）与 `getInfo()`（渲染串，只有 4 位有效，别当高精度用）。2026-10-19 实测 5/5 pass：欧姆 R=100 ⇒ 50 mA；把 R 改成 470 Ω ⇒ `getCurrent()` = 0.010638297872340425 A，与 5/470 逐位相同（「改参→引擎跟着变」的硬证）；串联 100+220 处处 15.625 mA、分压 1.563+3.438 = 5.001 V；并联两支路 50 / 22.727 mA、Req 68.75 Ω；RC 充电 Vc(0.084 s) = 2.830616 V（解析 2.8418，偏 0.39%，成因是引擎自报时间与状态差约 1~2 步长）。
 - `gas_lab.mjs` + `gas-lab-evidence.json` — 热学验收台（`node source/library/gas_lab.mjs --json`），引擎是 `@dimforge/rapier3d-compat`。**关键设计是别把「小球在动」当成「气体有压强」**：压强只从引擎自己给出的速度反转里算（逐分量 `|Δv|` ⇒ 冲量 = m·Δv），球间碰撞用 `collisionGroups` 关掉才是真理想气体；随机源是自写 LCG（不用 `Math.random`，否则证据不可复现）。2026-10-19 实测 **6/6 pass**：基准 p 0.855085 Pa vs 有限半径修正式 0.823045（3.893%）、三轴各向同性 0.992606（0.739%）、弹性撞墙前后 ⟨v²⟩ 漂移 0%、质点极限（R=4 mm）对课本式 p = Nm⟨v²⟩/(3L³) 偏 4.894%、玻意耳 2.08236、等容升温 1.99666、分子数翻倍 2.00013、开重力对照 y 轴受力比 2.0288。
@@ -22,18 +34,93 @@
 - `cradle_lab.mjs` + `cradle-lab-evidence.json` — 牛顿摆验收台（`node source/library/cradle_lab.mjs --json`），引擎是上游自带的摆模型：`NewtonsCradleApp.make`（静态工厂，不碰 DOM）+ `ContactSim` + `CollisionAdvance`（先求碰撞时刻、再按冲量解的事件式解法）。2026-10-19 实测 **5/5 pass**：末球峰值角/释放角 = 0.999984、交接后首球与中间三球的残余角都是 0、末球出射与首球入射的 |ω| 比 0.999954、二进二出时末两颗都摆到 0.78539 而中间那颗仍是 0；对照组把 elasticity 从 1 改到 0.5 ⇒ 末球只剩 0.3091 倍释放角、中间球被带到 0.15322（证明判据真的跟着参数变，不是常数 1）。前置校验是同一条摆的大角/小角周期比 1.03966 vs 解析 1 + θ0²/16 = 1.03855（0.106%）。
   - 这条是**换引擎换出来的**：collisions_lab 已经证明 Matter（10 J → 1.21 J）与 Rapier（5 球被撞后 4 球同动）都复现不了 n 进 n 出，两条线的负结果原样保留，没有为了 pass 去改判据。
   - 三个 API 坑都是本轮踩出来的：`setElasticity` 必须晚于建模、步进方法是 `advance.advance(dt)`、`getBody` 对缺失的球是抛异常而不是返回 null；能量总量在 `getEnergyInfo().getTotalEnergy()`，没有 `.total` 字段。
-- `interference_lab.mjs` + `interference-lab-evidence.json` + `../upstream/probe_ejss_model.py` — 双缝/多缝干涉验收台（`node source/library/interference_lab.mjs --json`），也是 **EJSS 这条线的第一条可复用 Agent 路径**：`probe_ejss_model.py` 解开 `webejs_model_MultislitDiffraction.zip`、按 UTF-16 读 `_source.ejss`、列出 22 个 public 参数（N/D/d/lambda/L…）与模型自带的 JS 代码块；`interference_lab.mjs` 取 `Osejs.Model.Library` 里 `getSingleSlitAmp`/`getMultiSlitAmp` 的**原文**用 `new Function` 执行，改参数就是改传进去的 N/d/D/λ/L，判据全用与模型无关的解析式。2026-10-19 实测 **5/5 pass**：主极大间距 0.3995078 vs `λL/d`=0.4（0.123%）、单缝包络第一极小 4.001465 vs 4（0.037%）且同一处第 10 级主极大 `d/D=10` 恰好缺级（I = 1.34e-7）、次极大个数 N=1/2/3/5 时 0/0/1/3 全等 `N−2`、λ×2 ⇒ 间距比 2.00032 而 d×2 ⇒ 0.5004801、归一化陷阱对照组（各 N 中央强度恒为 1）。
+- `interference_lab.mjs` + `interference-lab-evidence.json` + `../upstream/probe_ejss_model.py` — 双缝/多缝干涉验收台（`node source/library/interference_lab.mjs --json`），也是 **EJSS 这条线的第一条可复用 Agent 路径**：
+  - `probe_ejss_model.py` 解开 `webejs_model_MultislitDiffraction.zip`、按 UTF-16 读 `_source.ejss`、列出 22 个 public 参数（N / D / d / lambda / L…）与模型自带的 JS 代码块；
+  - `interference_lab.mjs` 取 `Osejs.Model.Library` 里 `getSingleSlitAmp` / `getMultiSlitAmp` 的**原文**用 `new Function` 执行，改参数就是改传进去的 N / d / D / λ / L，判据全用与模型无关的解析式。
+  - 2026-10-19 实测 **5/5 pass**：主极大间距 0.3995078 vs `λL/d`=0.4（0.123%）；单缝包络第一极小 4.001465 vs 4（0.037%），且同一处第 10 级主极大 `d/D=10` 恰好缺级（I = 1.34e-7）；次极大个数 N=1/2/3/5 时 0/0/1/3 全等 `N−2`；λ×2 ⇒ 间距比 2.00032 而 d×2 ⇒ 0.5004801；外加一条归一化陷阱对照组（各 N 中央强度恒为 1）。
   - **两个必须写进模板的坑**：① 模型绘图窗只有 ±π，装不下 `λL/D = 4` 的包络零点 ⇒ 取样范围要脚本放宽（函数是纯的，放宽范围不改模型）；② 上游把多缝振幅**除以 N** 归一化，中央主极大永远 = 1，所以这张图**不能**用来讲「缝越多主极大越亮（∝N²）」，要讲得自己按未归一化的 `(sin Nβ/sin β)²` 出数。视图层（EJSS 的 plot/Shape 描述）本轮没执行，只验了物理函数与参数表。
-  - **EJSS 这条线现在有多少面**（2026-10-19 由 `../upstream/survey_ejss_models.py` 量出，证据 `../upstream/ejss-survey.json`）：6 仓 84 个 zip 里 **28 个**带 `.ejss` 模型源码，**26 个**能程序化读出可改参数表（7~29 个变量、中位 13），**28 个**都能取到模型自己的代码块；视图层验过 **1 个**：`../upstream/assemble_ejss_offline.py` 把 webejs 那份导出的 5 处 CDN 换成本地资源（plotly 必须钉 1.x、MathJax 替身必须真跑 `Hub.Queue` 的回调），`file://` 打开后 Plotly 出 3 条 4096 点曲线，且**改过的烘焙参数在画面里跟变了**——主极大间距 1.1976 vs `λL/d`=1.2（0.2%）、两主极大之间次极大 3 个 = `N−2`（N 改成 5），证据 `../upstream/ejss-offline-evidence.json`；EJS 6.02 那族更省事（25 个包仿真主页面 0 个远程引用、解压即用），且 `window._model` 有 `serialize()/unserialize()/step()` 三件套 ⇒ 运行时就能读数写数：`Illustration2_6`（t=1.9 处 y 与 `45−4.9·1.9²` 差 ~1e-13）与 `Problem2_18`（烘焙 y_r=2/v_r=10 后 t=0.1/0.2/0.4 三点全落在解析抛物线上；运行时注入 y_r=3.5/v_r=6.0，一步得 3.61804 与 `3.5+6·0.02−4.9·0.02²` 逐位相同）两个模型各自实测过，证据 `../upstream/ejss-runtime-evidence.json`。写值有两个**不报错的失效写法**要知道：`unserialize()` 必须喂 `serialize()` 的完整信封（只喂里面的 `model` 子对象等于没写），直接改 `_model.<字段>` 也一样被引擎忽略 ⇒ Agent 工具里必须「写后回读」才算改成。结构面（26 个主页面都带这套 API，但只有这 2 个跑过）由 `../upstream/survey_ejss_models.py` 全量量出；「其余包 HTML 引用包外资源/包内不存在的目录名」这句要按口径理解——坏路径在 `EjsLauncher.html`、`<Name>_Contents.xhtml` 这些包装页上，仿真主页面实测 0 个缺失引用。⇒ 优先走「读参数 + 执行模型函数」这条已经量过的路，别承诺「这批 26 个模型立刻能嵌给教师用」。
-- `ejss_headless_lab.mjs` + `ejss-headless-lab-evidence.json` — **浏览器态引擎的无头验收台**（`node source/library/ejss_headless_lab.mjs --zip <ejss包> --param y=45 --param a=-9.8 --kinematic y,v,a --steps 19 --assert-baked y=45 --inject y=20,v=0 --json source/library/ejss-headless-lab-evidence.json`）。它不自己写浏览器：用仓库里已有的 `playwright-core` + 本机 Playwright 缓存里的 chromium（`findChromium()` 取版本号最大的那个，可用 `EJSS_CHROMIUM` 覆盖），`file://` 直接打开 `assemble_ejss_offline.py` 拼出的包。判据是三条独立的：烘焙值必须出现在 `serialize()` 里（证明改参进了引擎）、每一步必须落在匀加速解析解上（`--kinematic 位置,速度,加速度`，默认容差 1e-6%）、写值必须「写后回读一致 + 后续轨迹与基线分离」。两个包各自跑过：Illustration2_6 11/11（worst 相对误差 2.6e-14%，注入 y=20 后一步 19.951 与解析逐位相同，证据 `ejss-headless-lab-evidence-Illustration2_6.json`）、Problem2_18 10/10（20 步 worst 1.17e-13%，证据 `ejss-headless-lab-evidence.json`）。⇒ 从此「浏览器里才能验」的引擎也能进回归，不再只能口头演示。
-- `ejss_headless_sweep.mjs` + `ejss-headless-sweep.json` — **把控制面从 n=2 量成整批**（`node source/library/ejss_headless_sweep.mjs --steps 8`）。对 survey 判为 EJS 6.02 的 25 个包逐个跑三趟：基线轨迹 / 重载复现 / 干净页面上「先写后跑」。实测 **25/25 零 JS 异常与资源失败、25/25 有全套 8 个方法、25/25 推进时间、25/25 同一条轨迹可复现**；写值 23 个「落地且改变行为」、1 个「落地但被模型每步重算」（2.12，选中的是派生量 `a`）、1 个「不落地」（2.13，派生量 `x_hill`）⇒ 24/25 判 `runtime_writable`。两个例外都是**选靶规则**的锅（挑「步内变化最快的量」当注入目标，而这类量常是派生量），不是包不可控；这一点写在 `summary.recompute_note` 里，没有为了让数字好看把它们算成通过。另有 3 个包的状态是数组（两车/多体），探针上一版只认标量，会把它们误报成「状态没变」——已修。 画面这一项也量了，而且**上一轮那句「画面没有值」是错的**：探针按 `<canvas>` 计数得 0 就下了结论，其实 EJS 6.02（2012 编译期）用 **SVG** 画 —— 实测 25/25 个包都有 `<svg>`（1~4 个）与 15~173 个几何节点，#_topFrame 里有 35 KB DOM；canvas 才是 0。再往上，运行时写入 + `initialize()` + `play()` 之后**整页 PNG 的 sha1 变了**（Illustration2_6 抽样 2048/2067 个字节位置不一致、几何节点 103→108）⇒ 批量 21/25「画面跟着状态变」；剩下 4 个里 3 个（2.6/2.15/2.16）注入的是 `xi` 这类「初值存储量」（同一批在 40 步窗口里也没动），1 个（2.13）写入本身没被接受——又是选靶规则，不是画不出来。教训与前几条同类：**0 是探针选错了可观测量时，不能读成资源没有画面**。
+  - **EJSS 这条线现在有多少面**（2026-10-19 由 [`../upstream/survey_ejss_models.py`](../upstream/survey_ejss_models.py) 量出，证据 [`../upstream/ejss-survey.json`](../upstream/ejss-survey.json)）。先把「面」按层次列清楚，因为**下一层都没做过**是这条线最容易讲过头的地方：
+
+    | 层次 | 实测到多少 | 依据 |
+    |---|---|---|
+    | 带 `.ejss` 模型源码的包 | **28 个**（6 仓共 84 个 zip 里） | survey 全量 |
+    | 能程序化读出可改参数表 | **26 个**（每包 7~29 个变量，中位 13） | 同上 |
+    | 能取到模型自己的代码块 | **28 个** | 同上 |
+    | **视图层**验过（画面真的跟着参数变） | **1 个** | `assemble_ejss_offline.py` |
+    | **运行时控制面**验过（读数 + 写数） | **2 个** | `ejss-runtime-evidence.json` |
+    | 整批跑过回归 | 25 个 EJS 6.02 包 | 见下面 `ejss_headless_sweep.mjs` 那条 |
+
+  - **视图层那一个是怎么验的**：[`../upstream/assemble_ejss_offline.py`](../upstream/assemble_ejss_offline.py) 把 webejs 那份导出里的 5 处 CDN 换成本地资源——两个硬约束：**plotly 必须钉 1.x**，**MathJax 替身必须真跑 `Hub.Queue` 的回调**（不然公式不出）。`file://` 打开后 Plotly 画出 3 条 4096 点曲线，且**改过的烘焙参数在画面里跟着变了**：主极大间距 1.1976 vs `λL/d` = 1.2（差 0.2%），两主极大之间次极大 3 个 = `N−2`（N 被改成 5）。证据 [`../upstream/ejss-offline-evidence.json`](../upstream/ejss-offline-evidence.json)。
+
+  - **EJS 6.02 那族更省事**：25 个包的仿真主页面 **0 个远程引用**（解压即用），且 `window._model` 自带 `serialize() / unserialize() / step()` 三件套 ⇒ 运行时就能读数写数。两个模型各自实测过（证据 [`../upstream/ejss-runtime-evidence.json`](../upstream/ejss-runtime-evidence.json)）：
+    - `Illustration2_6`：t=1.9 处 y 与 `45 − 4.9·1.9²` 差约 1e-13；
+    - `Problem2_18`：烘焙 `y_r=2 / v_r=10` 后 t=0.1/0.2/0.4 三点全落在解析抛物线上；运行时注入 `y_r=3.5 / v_r=6.0`，一步得 3.61804，与 `3.5 + 6·0.02 − 4.9·0.02²` 逐位相同。
+
+  - **两个「不报错的失效写法」必须记住**（写值时最阴的坑）：`unserialize()` 必须喂 `serialize()` 的**完整信封**——只喂信封里那个 `model` 子对象，等于没写；直接改 `_model.<字段>` 也一样被引擎忽略。⇒ Agent 工具侧必须「**写后回读**」才算改成，别拿「调用没报错」当成功。
+
+  - **口径提醒两句**：① 「其余包的 HTML 引用了包外资源 / 包里不存在的目录名」这句要按页面分档理解——坏路径都在 `EjsLauncher.html`、`<Name>_Contents.xhtml` 这类**包装页**上，26 个可运行包的**仿真主页面实测 0 个缺失引用**；② 结构面上 26 个主页面都有这套 API，但**只有这 2 个真跑过运行时**。所以优先走「读参数 + 执行模型函数」这条已经量过的路，**别承诺「这 26 个模型立刻能嵌给教师用」**。
+- `ejss_headless_lab.mjs` + `ejss-headless-lab-evidence.json` — **浏览器态引擎的无头验收台**（`node source/library/ejss_headless_lab.mjs --zip <ejss包> --param y=45 --param a=-9.8 --kinematic y,v,a --steps 19 --assert-baked y=45 --inject y=20,v=0 --json source/library/ejss-headless-lab-evidence.json`）。
+  - 它不自己写浏览器：用仓库里已有的 `playwright-core` + 本机 Playwright 缓存里的 chromium（`findChromium()` 取版本号最大的那个，可用 `EJSS_CHROMIUM` 覆盖），`file://` 直接打开 `assemble_ejss_offline.py` 拼出的包。
+  - 判据是三条独立的：烘焙值必须出现在 `serialize()` 里（证明改参进了引擎）、每一步必须落在匀加速解析解上（`--kinematic 位置,速度,加速度`，默认容差 1e-6%）、写值必须「写后回读一致 + 后续轨迹与基线分离」。
+  - 两个包各自跑过：`Illustration2_6` 11/11（worst 相对误差 2.6e-14%，注入 y=20 后一步 19.951 与解析逐位相同，证据 `ejss-headless-lab-evidence-Illustration2_6.json`）、`Problem2_18` 10/10（20 步 worst 1.17e-13%，证据 `ejss-headless-lab-evidence.json`）。⇒ 从此「浏览器里才能验」的引擎也能进回归，不再只能口头演示。
+- `ejss_headless_sweep.mjs` + `ejss-headless-sweep.json` — **把控制面从 n=2 量成整批**（`node source/library/ejss_headless_sweep.mjs --steps 8`）。对 survey 判为 EJS 6.02 的 25 个包逐个跑三趟：基线轨迹 / 重载复现 / 干净页面上「先写后跑」。
+  - **写值面**：25/25 零 JS 异常与资源失败、25/25 有全套 8 个方法、25/25 推进时间、25/25 同一条轨迹可复现；写值 23 个「落地且改变行为」、1 个「落地但被模型每步重算」（2.12，选中的是派生量 `a`）、1 个「不落地」（2.13，派生量 `x_hill`）⇒ **24/25 判 `runtime_writable`**。两个例外都是**选靶规则**的锅（挑「步内变化最快的量」当注入目标，而这类量常是派生量），不是包不可控；这一点写在 `summary.recompute_note` 里，没有为了让数字好看把它们算成通过。另有 3 个包的状态是数组（两车 / 多体），探针上一版只认标量，会把它们误报成「状态没变」——已修。
+  - **画面面，并且上一轮那句「画面没有值」是错的**：探针按 `<canvas>` 计数得 0 就下了结论，其实 EJS 6.02（2012 编译期）用 **SVG** 画——实测 25/25 个包都有 `<svg>`（1~4 个）与 15~173 个几何节点，`#_topFrame` 里有 35 KB DOM，canvas 才是 0。再往上，运行时写入 + `initialize()` + `play()` 之后**整页 PNG 的 sha1 变了**（`Illustration2_6` 抽样 2048/2067 个字节位置不一致、几何节点 103→108）⇒ 批量 21/25「画面跟着状态变」；剩下 4 个里 3 个（2.6 / 2.15 / 2.16）注入的是 `xi` 这类「初值存储量」（同一批在 40 步窗口里也没动），1 个（2.13）写入本身没被接受——又是选靶规则，不是画不出来。
+  - 教训与前几条同类：**探针选错可观测量时量出来的 0，不能读成「资源没有画面」**。
 - **这两个验收台依赖两样「本机既有」的东西**，换机器不会自动成立：① `playwright-core`（本机实测 1.58.2，在仓库根 `node_modules` 里，但根 `package.json` 只声明了 `rea-agents` ⇒ 它是**传递依赖**，上游哪天去掉就会连带失效，进 CI 前要显式装）；② 本机 Playwright 浏览器缓存里有 chromium 构建（实测取 `chromium-1248/chrome-win64/chrome.exe`，可用环境变量 `EJSS_CHROMIUM` 指定绝对路径）。找不到浏览器时脚本会明确报 `本机有可用的 chromium` 这一项 FAIL，而不是静默降级成「没测」。
 - `ejss_kinematics_selfcheck.mjs` + `ejss-kinematics-selfcheck.json` — **不写解析式也判得出引擎跑的是不是它自己声明的物理**（`node source/library/ejss_kinematics_selfcheck.mjs --steps 40`）。两条独立判据：① 主角状态量 p(t) 的二次拟合残差 / 取值范围 ≤1e-6，且拟合出的加速度与引擎自报的某个恒定变量对得上；② 梯形差分链 `p→v→a`（用 `(v_i+v_{i−1})/2` 而不是 `v_i`——EJSS 的 leapfrog 把 v 与 p 错开半步，第一版用后向差分直接比 v_i，2.18/2.19 这种解析上完全正确的模型被误判成不自洽）。实测 25 个包：**13 个自洽（6 匀速 + 7 匀加速，含 `x→vx→ax`、`y→v→a`、数组两车模型）**、5 个轨迹是抛物线但找不到与之相等的恒定加速度变量（主角被选成绘图辅助量一类）、4 个本来就非匀加速（碰撞、弹簧、分段摩擦），3 个在这 40 步里主角量没动（模型在等事件）⇒ 后三类分开记账，不写成「坏了」也不写成「过了」。
   判据本身改过三次，每次都留了痕：要求 `|a|>0` 会把 14 个 a=0 的匀速包判错；全 0 变量能骗过差分判据（`r_vel[0]→r_vel[1]` 两个都是 0 也算「链成立」），所以加了非退化要求；残余的「不自洽」再拆成三档，避免把「窗口太短」读成「模型不对」。
-- `phet_headless_probe.mjs` + `phet-headless-probe.json`、`phet_a11y_channel_probe.mjs` + `phet-a11y-channel-probe.json`、`phet_ohms_writeproof.mjs` + `phet-ohms-writeproof.json`、`phet_keyboard_channel_probe.mjs` + `phet-keyboard-channel-probe.json` — **把 PhET 官方成品从「一句话印象」量成四档事实**（`node source/library/phet_headless_probe.mjs`，13 份各跑基线 / `?screens=2` / `?locale=es` 三次加载 + 键盘驱动，复用 `ejss_headless_lab.mjs` 的 `findChromium()`）。实测：13/13 离线起得来且 `window.phet` 命名空间齐全；**仿真本体报错 0 条**（先前那 6~7 条全是发布包内嵌的 Cloudflare 遥测桩在 `file://` 下的必然失败：`file:///cdn-cgi/rum` + `sendBeacon` 只允许 HTTP(S)——第一版把遥测桩混进总错误数，得出过「0/13 干净」的假阴性）；`?screens=2` 真换屏 **11/13**，另 2 只（ohms-law 1.4.31、charges-and-fields 1.0.67）是单屏，抛 `Error: invalid screen index: 2` 把画面变空白，已从「换屏成功」里排掉（第一版报的 13/13 就含这 2 个假阳性）；`?locale=es` 改画 13/13。**可调用 PhET-iO 接口 0/13**（`data-phetio-id` 全 0；`window.phetio` 在 7/13 存在，但静态核对发布 HTML 那一行是 `window.phetio=window.phetio||{};window.phetio.PhetioIDUtils={append…}`，只是给 wrapper 拼 ID 的字符串工具）。读数面：默认只有 **6/13** 能从 `[aria-valuenow]` 读到物理量（ohms-law 4.5 V/500 Ω、geometric-optics 1.5 折射率、wave-interference 0.625、energy-skate 62.5/0.05、circuit-construction-kit-dc 1e-10/1e-4、gas-properties 全 0）。写数面：`phet_a11y_channel_probe.mjs` 逐只定点 focus，**只有 ohms-law 的两个 INPUT 有实际尺寸（51×253）能 focus 进去**，另外 5 只 rect 全是 0×0；`phet_ohms_writeproof.mjs` 于是在这只上做了闭环——方向键改电压 4.5→2/6/9 V、改电阻 500→320/980/220 Ω，取仿真**自己念出来**的电流与 `I = V/R` 对账，**6/6 pass**（4/12/18 mA 逐位相同；28.1/9.2/40.9 mA vs 解析 28.125/9.184/40.909，最大偏差 0.18% = 画面显示位数），V 与 R 同时有 aria 属性与画面文本两路一致。`phet_keyboard_channel_probe.mjs` 试图把这条通道推广到那 5 只：点画布中心、关欢迎屏后走 30 步 Tab 环，**5/5 判 `no_focusable_value_target`**（Tab 环里只有无标签的 2×2 / 7×3 像素 BUTTON）⇒ 只能说我们的探针没打开它，不写「PhET 不支持键盘」。四档口径：展示级 13/13、可读级 6/13、可写级 1/13、API 级 0/13。⇒ 「成品改不了物理量」这句被实测推翻了一半（ohms-law 能改且验得过），但**不能**因此把 PhET 说成「AI 可定制的交付实验」：没有参数 API、写通路逐只不同、成品还是 CC BY-NC 4.0。
+- **PhET 官方成品 13 份，被量成四档事实**（四支探针 + 四份证据）：
+
+  | 探针 | 证据 | 管哪一档 |
+  |---|---|---|
+  | [`phet_headless_probe.mjs`](phet_headless_probe.mjs) | [`phet-headless-probe.json`](phet-headless-probe.json) | 展示级（三次加载：基线 / `?screens=2` / `?locale=es`） |
+  | [`phet_a11y_channel_probe.mjs`](phet_a11y_channel_probe.mjs) | [`phet-a11y-channel-probe.json`](phet-a11y-channel-probe.json) | 可读级与「哪一只的控件真能 focus」 |
+  | [`phet_ohms_writeproof.mjs`](phet_ohms_writeproof.mjs) | [`phet-ohms-writeproof.json`](phet-ohms-writeproof.json) | 可写级（改 V/R 后与 `I=V/R` 对账） |
+  | [`phet_keyboard_channel_probe.mjs`](phet_keyboard_channel_probe.mjs) | [`phet-keyboard-channel-probe.json`](phet-keyboard-channel-probe.json) | 试图把写通路推广到其余几只（结论：没打开） |
+
+  跑法 `node source/library/phet_headless_probe.mjs`，浏览器由 `ejss_headless_lab.mjs` 的 `findChromium()` 现找。
+
+  | 档位 | 实测 | 依据与限度 |
+  |---|---|---|
+  | 展示级 | **13/13** | `file://` 离线起得来、`window.phet` 命名空间齐全、**仿真本体报错 0 条**；`?locale=es` 改画 13/13；`?screens=2` 真换屏 **11/13**——另 2 只（ohms-law 1.4.31、charges-and-fields 1.0.67）本身就是单屏，抛 `Error: invalid screen index: 2` 把画面变空白，已从「换屏成功」里排掉 |
+  | 可读级 | **6/13** | 默认能从 `[aria-valuenow]` 读到物理量数值：ohms-law 4.5 V / 500 Ω、geometric-optics 1.5 折射率、wave-interference 0.625、energy-skate 62.5/0.05、circuit-construction-kit-dc 1e-10/1e-4、gas-properties 全 0 |
+  | 可写级 | **1/13** | 只有 ohms-law 能改：无障碍层定点 focus 后走方向键，改电压 4.5→2/6/9 V、改电阻 500→320/980/220 Ω，取仿真**自己念出来**的电流与 `I = V/R` 对账，**6/6 pass**（4/12/18 mA 逐位相同；28.1/9.2/40.9 mA vs 解析 28.125/9.184/40.909，最大偏差 0.18%，就是画面显示位数）。V 与 R 都有 aria 属性与画面文本两路一致 |
+  | API 级 | **0/13** | `data-phetio-id` 全 0，没有一个可调用的 PhET-iO 接口。`window.phetio` 在 7/13 存在，但发布 HTML 那一行是 `window.phetio=window.phetio||{};window.phetio.PhetioIDUtils={append…}`，只是给 wrapper 拼 ID 的字符串工具 |
+
+  **为什么只有这一只能写**：`phet_a11y_channel_probe.mjs` 逐只定点 focus，实测 13 份里**只有 ohms-law 的两个 INPUT 有实际尺寸（51×253）能 focus 进去**，另外 5 只 rect 全是 0×0。`phet_keyboard_channel_probe.mjs` 想把这条通道推广到那 5 只——点画布中心、关掉欢迎屏、走 30 步 Tab 环——**5/5 判 `no_focusable_value_target`**（Tab 环里只有无标签的 2×2 / 7×3 像素 BUTTON）。结论只能写到「我们的探针没打开它」，**不能**写「PhET 不支持键盘」。
+
+  **三次口径修正（都是自己的错，留在这里当反面教材）**：
+  1. 第一版把发布包内嵌的 Cloudflare 遥测桩算进总错误数，得出过「0/13 干净」的假阴性。那 6~7 条其实是 `file:///cdn-cgi/rum` 与 `sendBeacon` 在 `file://` 下的必然失败（只允许 HTTP(S)），与仿真无关。
+  2. 第一版报 `?screens=2` **13/13**，含上面那 2 只单屏的假阳性。
+  3. 旧记录那句「queryParameters 48 项」是单只旧读数；实测逐只 62~97 项（`phet.chipper.queryParameters`，能切屏能改语言，只到框架层）。
+
+  ⇒ 于是「物理量一律改不动」被推翻了一半，但「都改得动」同样不成立：没有参数 API、写通路逐只不同，而且成品 HTML 还带 **CC BY-NC 4.0** 非商业条款。这一族的正确归类是「成熟展示资源 + 个别已实测可改参」，不是整批「AI 可定制的交付实验」。
   「能不能把那 5 只的无障碍 input 打开」也单独试过了（`phet_a11y_enable_probe.mjs` + `phet-a11y-enable-probe.json`，48 次加载）：候选开关 `?a11y=visible|label|sound`、`?accessibility=true`、`?fuzz=false`、`?supportsMultipleSim=visible`、`?peak=0` 逐个逐只实测，**没有一只是被某个参数打开的**（`peers_with_size` 在 5 只上恒为 0）；顺带量出一条对交付有用的机械事实——**已知参数给非法值会让仿真根本起不来**（`?fuzz=false` 6/6 打死、`?a11y=visible|label|sound` 与 `?accessibility=true` 各打死声明了该键的 ohms-law，未知参数才被忽略）。同一趟里 ohms-law 基线的 focus+方向键写通路**第三次复现**（4.5→6 V），所以那条 pass 不是偶发。⇒ 写通路仍是 1/13，别再指望「一个开关整批点亮」；要扩大覆盖只能逐只定点试或走 GPL 源码重编译。
   这一轮攒下的仪器纪律（都已写进脚本注释）：**结论文案不许预先写死**（第一版把「13 只都拿不到接口」写进 `summary.conclusion`，实测却冒出 7 只带 `window.phetio`，现在 conclusion 由计数派生）；**报错按「哪一次加载」归账**（探针自塞的 `?screens=2` 抛的错记在探针头上）；**画面对照要排掉「变成报错页」**；**「改画了」不能当键盘驱动的证据**（动画类仿真不按键也在变画，没对照组）；**读数正则要同时收符号与英文单词**（仿真念 `40.9 milliamps` 而不是 `40.9 mA`，第一版因此把明明成立的写通路判成 FAIL）；**`page.evaluate` 要传函数引用**（写成 `p.evaluate(TEXT())` 会在 Node 侧执行，5 只全报 `ReferenceError: document is not defined`——是仪器坏了，不是仿真坏了）。旧单只记录里那句「queryParameters 只有 48 项」也一并校正：逐只实测 `phet.chipper.queryParameters` 的项数是 62/78/88/94/95/97（`phet.queryParameters` 在生产包里读不到）。
-- `jcn3_batch_probe.mjs` + `jcn3-batch-probe.json` — 3JCN 批量分档探针（`node source/library/jcn3_batch_probe.mjs`，直接读 `../upstream/3jcn/site/` 里的本地页）。本地镜像 31 份演示页逐只跑 `jcn3_batch_probe.mjs`，按档记账：写值后**能采到 DOM 数字读数**的 1 份、只有画面响应（先过「不操作两帧一致」对照组、且改回原值画面回基线）12 份、只写得进数值却看不到后果 1 份、页面自己在动因而画面通道不可用 2 份、根本没有 range 控件 14 份、载入失败 1 份；运行时会显示数字读数的页面共 13 份，但写值之后读数真跟着变的只有 1 份。⇒ 这一族的大头仍是「参考素材 + UI 可驱动」，不是「已具备解析式对账的交付实验」——简报那句警告被量化成了分档数字而不是印象。 逐只判据与结论在 JSON 的 `pages[]` 里。 **这一批数字的测量口径已于同日作废，别拿去当实况**：当时用 `file://` 打开本地页（ES module 被 CORS 挡，canvas 从来没起来过）、有网（three.js 可从 CDN 兜住）、画面哈希取**整页截图**（于是 DOM 文字区重排也算「画面变了」）——「画面可驱动 12 份」里有多少是真 3D 场景被驱动，这个口径量不出来。探针已按三条重写：打 `offline/` 那棵派生树并**同源伺服 + 掐掉非本机请求**、画面只取 `<canvas>` 元素像素、`--repeat` 连跑多趟且**只有趟趟一致才算稳定**（有一趟不同就单列 `*_unstable`），canvas 起不来的页面单列 `canvas_absent` 而不是算进「画面可驱动」。逐趟重测已跑完（同日十 pass，`--tree offline --repeat 2`，**31 页两趟全部同档、unstable 0**）：**可读数量数 1 份（`Phyc140/seesaw2.html`，杠杆力矩）、画面可驱动 2 份（`apparent_weight_exp`、`Simulation/projectile_motion_exp`）、只写得进看不到后果 5 份、canvas 根本没起来 7 份、无控件 14 份、rejected 1 份（`Simulation/sun_earth_distance.html`，回读对不上——旧口径把它当成「可读数量数那一份」是假阳性）、载入失败 1 份；离线时画面真起来 19/31。⇒ 旧口径那句「画面可驱动 12 份」在新口径只剩 2 份，作废得值。**但同一批也收窄了「离线已做成」这句：`any_blocked_runtime_left = 28`，31 页里只有 2 页断网被拦归零，其余每页各自还有被拦的外部运行期资源与若干本地 404 ⇒ 现在的诚实说法是「一只页面离线可用」而不是「整批离线可用」，逐页补闭包（每页跑一遍 `audit_offline_gaps.mjs`，需联网）是剩下的机械活；要谈解析式对账，下一只拿 seesaw2。
+- `jcn3_batch_probe.mjs` + `jcn3-batch-probe.json` — **3JCN 的逐页分档**（`node source/library/jcn3_batch_probe.mjs`）。同一只驱动台的批量版：把本地镜像里的 31 份演示页逐只跑一遍，按档记账。这一族的大头结论从这里来，也在这里翻过一次车，所以新旧两套口径都留着。
+
+  **旧口径（已作废，别引用它的数字）**：当时用 `file://` 打开本地页——ES module 被 CORS 挡，**canvas 从来没起来过**；同时有网，three.js 可以从 CDN 兜住；画面哈希取的是**整页截图**，于是 DOM 文字区重排也算「画面变了」。那一批记的是「可读数量数 1 份 / 画面可驱动 12 份 / 只写得进看不到后果 1 份 / 页面自己在动 2 份 / 无 range 控件 14 份 / 载入失败 1 份」，显示数字的页面 13 份、写值后读数真变的只有 1 份。⇒ 问题不在算错，而在**这个口径量不出它想量的东西**：「画面可驱动 12 份」里有几份是真 3D 场景被驱动，从这套测量里根本读不出来。
+
+  **探针按三条重写**：① 打 `offline/` 那棵派生树，**同源伺服 + 掐掉所有非本机请求**；② 画面只取 `<canvas>` 元素的像素，不再用整页截图；③ `--repeat` 连跑多趟，**只有趟趟一致才算稳定**（有一趟不同就单列 `*_unstable`），canvas 起不来的页面单列 `canvas_absent`，不再混进「画面可驱动」。
+
+  **新口径实测**（同日十 pass，`--tree offline --repeat 2`）：**31 页两趟全部同档、unstable 0**。分档如下：
+
+  | 档 | 份数 | 说明 |
+  |---|---|---|
+  | 可读数量数 | **1** | `Phyc140/seesaw2.html`（杠杆力矩） |
+  | 画面可驱动 | **2** | `Phyc140/apparent_weight_exp`、`Simulation/projectile_motion_exp` |
+  | 只写得进、看不到后果 | 5 | 回读一致但画面与读数都不动 |
+  | canvas 根本没起来 | 7 | 单列 `canvas_absent`，不计入画面档 |
+  | 无 range 控件 | 14 | 没有可写控件 |
+  | rejected | 1 | `Simulation/sun_earth_distance.html` 回读对不上——**旧口径把这一只当成「可读数量数那一份」，是假阳性** |
+  | 载入失败 | 1 | |
+
+  离线时画面真起来的合计 **19/31**。⇒ 旧那句「画面可驱动 12 份」在新口径只剩 2 份，作废作得值。
+
+  **同一批也收窄了「离线已经做成」这句**：`any_blocked_runtime_left = 28`——31 页里只有 2 页断网后被拦的请求归零，其余每页各自还有被拦的外部运行期资源与若干本地 404。⇒ 诚实说法是「**一只页面离线可用**」，不是「整批离线可用」；剩下的活是逐页跑一遍 [`../upstream/3jcn/audit_offline_gaps.mjs`](../upstream/3jcn/audit_offline_gaps.mjs)（需要联网）补闭包，纯机械但没有捷径。要谈解析式对账，下一只拿 `seesaw2`。
+
+  逐只判据与结论都在 JSON 的 `pages[]` 里；「参考素材 + UI 可驱动」不等于「已具备解析式对账的交付实验」这条判断，就是被这批分档数字量化下来的，不是印象。
 
 
 ### 3JCN 驱动台：`jcn3_headless_lab.mjs` 的七份证据
@@ -54,20 +141,14 @@ node source/library/jcn3_headless_lab.mjs --url http://127.0.0.1:8123/Phyc140/ap
 
 另外每次运行都要求 `page_errors` 为空。
 
-**为什么要按趟记账**：2026-10-19 一天里这条线跑了四趟，结论每趟都在变，而前两趟的「失败」其实失败在**判据本身**。把趟次排开看，是本项目最直白的一条教训——**「滑块能写值」离「Agent 能改实验」还差一整段验证**。
+**为什么这条线要按趟记账**：2026-10-19 一天里跑了六趟，结论每趟都在变，而前两趟的「失败」败在**判据本身**——被我当成读数的 6 个数字其实是滑块量程标注（100/200、1500/3000、10/100），canvas 恒 0 则是依赖闭包没补全。留下的结论只有四条：
 
-| 趟次 | 这趟改了什么 | 结果 | 为什么 |
-|---|---|---|---|
-| 一 pass | 首跑 `buoyant_force_exp` | **FAIL，且败在判据** | 被我当成「读数」的 6 个数字其实是滑块量程标注（100/200、1500/3000、10/100），对照组必然守不住。同时 canvas 恒 0：补了 `--use-gl=angle --use-angle=swiftshader`、WebGL 明确可用，场景仍不建。卡点是依赖缺失——`css/final.css`、`css/main3.css`、jQuery/bootstrap、three.js 出处 |
-| 二 pass | 判据修可信：只认「数字 + 物理单位」、排除 INPUT 文本、加 `--url` 走同源伺服（ES module 在 `file://` 下被 CORS 挡，必须伺服） | **FAIL，判 `accepted_but_no_observable_change`** | 对照组与「改回原值」都过了、写值回读匹配，但 canvas 仍 0、没有可观测的读数变化。诊断抓到根因：页面实际 import 的是 `../js/three.module.js`（404；站点同时有 `js/` 与 `jsm/` 两套目录），依赖闭包还没补全。补依赖用 [`../upstream/3jcn/mirror_3jcn_site.py`](../upstream/3jcn/mirror_3jcn_site.py) |
-| 三 pass | 对准**真站**重测 | 拿到第一条正向证据，但**仍记 FAIL** | 不作操作两帧完全一致（`render_is_static=true`，画面差异因此可用）、canvas 存在；写 `xSlider` 2→2.5 后整页 PNG 从 `898e13f2824b` 变 `a8c46ff79ebf` ⇒ Agent 的输入真的改到了 3D 场景。但改回原值画面没回来（`reverted_to_baseline=false`），双向判据不成立 |
-| 三 pass 判别实验 | `--url` 分别指真站与本地镜像，各跑一遍 | 结论一致：**失败在我的复原写法，不在页面** | 程序化改回原值仍不回基线；但**点页面自己的 Reset 后画面精确回到基线帧**（真站 `898e13f2824b` → 写值 `a8c46ff79ebf` → 不回 → Reset → `898e13f2824b`；镜像 `734c3edec38e` 同构）。两路的渲染对照组都成立 ⇒ `input.value` + 派发事件，不等价于页面自己那条 Reset 路径 |
+- **三 / 四 pass**：判别实验（真站与本地镜像双路一致）证明「写滑块改得到 3D 画面、程序化改回原值不回基线、但点页面自己的 Reset 精确回基线」⇒ 画面通道成立，失败在复原写法 ⇒ 3JCN 记 **UI 可驱动**。
+- **五 pass**：改用 `../upstream/3jcn/audit_offline_gaps.mjs` 以**浏览器真实发出的请求**为清单补依赖（正则 BFS 永远看不见拼在 JS 运行时字符串里的路径），补齐后本地 http 伺服重跑，与真站**逐哈希一致**。
+- **六 pass**：换 `Phyc140/apparent_weight_exp.html` 拿到第一只完整一档——5/5 具名滑块判 `agent_writable_and_observable`（写值回读一致、对照组守住、画面变、改回原值回基线、异常 0 条）。
+- **仍差的那半截**：这只页面读数画在 3D 文字里、`readout_tokens` 为空，「改参 → 解析式对账」没做 ⇒ 只标「UI 可驱动且可观测」，**不标** `engine_*_verified`。
 
-到这一步，3JCN 可以记为「**UI 可驱动**」：写滑块确实改得到 3D 画面，且能用页面自身的 Reset 复原。但**不能**升格成已验证实验——那只页面采不到任何物理量数字读数（`readout_tokens` 为空），「改参 → 解析式对账」那一半还空着。
-
-**镜像侧遗留的缺口也已闭合，闭合方式本身又是一条经验。** 本地跑出 3 条 `Cannot read properties of undefined (reading 'position')`（真站 0 条），一开始怀疑 GLTF 模型路径没进正则 BFS，结论对但不够：那些路径是**拼在 JS 运行时字符串里**的（`models/free_kick/scene.gltf` + `scene.bin` 2,030,680 B + 打包贴图 3,115,426 B），静态扫描永远看不见。改用 [`../upstream/3jcn/audit_offline_gaps.mjs`](../upstream/3jcn/audit_offline_gaps.mjs)，以**浏览器真实发出的请求**为清单补齐：该页 13 个同源请求，盘上已有 8、缺 5，全部抓回，真站自身 0 个未返回。补齐后本地 http 伺服重跑驱动台，与真站**逐哈希一致**：canvas=1、不作操作两帧一致 `898e13f2824b`、写 `xSlider` 2→2.5 → `a8c46ff79ebf`、点页面自身 Reset 回 `898e13f2824b`、页面异常 0 条 ⇒ 可写「离线可跑 + UI 可驱动 + 与真站像素一致」。
-
-**换到 `Phyc140/apparent_weight_exp.html` 才拿到完整一档。** 本地镜像 + 自建同源伺服连跑两遍，5/5 具名滑块全部判 `agent_writable_and_observable`（写值回读一致、同值再派发事件的对照组守住、写值后整页 PNG 变、改回原值画面**回到基线帧**、异常 0 条）⇒ 这是 3JCN 第一只「离线可跑 + Agent 改参 + 可观测 + 可复原」的样本。仍差的那半截照实写：读数没有 DOM 数字（数值画在 3D 文字里，`readout_tokens` 为空），「改参 → 解析式对账」没做，所以只标「UI 可驱动且可观测」，不标 `engine_*_verified`。
+逐趟的哈希、页名、依赖清单与判据修正过程是这一族的原始记录，归 [`../upstream/3jcn/README.md`](../upstream/3jcn/README.md) 所有（那份顶部有「能说什么 / 不能说什么」总表，下面是一到十 pass 的现场）；本文件只留驱动台与判据，不重抄数字。
 
 ### 三份 A/B 离线口径证据（`jcn3-offline-*.json`）
 
@@ -107,16 +188,42 @@ python source/library/check_catalog.py   # 退出码 0 = 路径全通
 
 - 上游是 [`../upstream/inventory.json`](../upstream/inventory.json)（脚本生成的实测事实）与 [`../upstream/upstream.lock.json`](../upstream/upstream.lock.json)（身份与构建结论）；这里的数字全部从那儿誊来，不另起一套计数。
 - 组件类（three / matter-js / rapier3d-compat）落在 [`../components/`](../components/README.md)，可加载性实测证据是 `../components/component-probe.json`。
-- 下游是 `code/eduforge/catalog/templates/`：那边放**已经能做参数修改与验证**的模板三件套，这边放**资源已装但还没适配器**的候选。两边状态词不同，不能混用——当前只有 `optics/convex-lens` 在下游是 `template_connected`。
+- 下游是 `code/eduforge/catalog/templates/`：那边放**已经能做参数修改与验证**的模板，这边放**资源已装但还没接通**的候选。两边状态词不同，不能混用——18 条里目前 3 条是 `template_connected`（`optics-concave-lens` 走 engine-host 主链路；`mechanics-pendulum`、`mechanics-projectile` 走 `tools/labkit/` 的文件级链路）。另要注意：`optics/convex-lens` 与 `optics/camera-principle` 也有模板目录，但它们**不在这 18 条之内**，别把它们算进这组的档位分布。
 
 ## 已知的坑与纪律
 
-1. **状态词不许拔高**。18 条实验**全部**达到了「本机真跑出可对账的物理量」（逐档条数只记在本文件第 7 行与 `experiments.json` 的 `status` 字段里，此处不再抄一份以免过期）：5 条光学（`optics_hall.mjs`：平面镜 200.5 vs 解析 200、折射 449.5 vs 450、临界角落在 (40°,42°] 对上 asin(1/1.5)=41.81°、凹透镜由束宽反解出 |f|=100.00000000000037、三棱镜两 n 落点 −165.5/−186.5 vs 自写矢量斯涅尔 −165.815/−186.609）、单摆（2.00835 s vs 2.00834 s）、弹簧振子（a=−1.1999976 vs −kx/m=−1.2，周期 3.14159 vs 2π√(m/k)）、**理想气体（p 0.855085 Pa vs 有限半径修正式 0.823045、三条状态律比 2.08236/1.99666/2.00013）**、**绳波（v 3.179644 vs √(T/μ)=3.162278、反射峰反号、扫频峰值落 f₁）**、**开普勒（两条椭圆 T²/a³ = 0.99860/0.99955、质量 1→50 周期比 0.99999667）**、抛体（射程 30.2733 vs 30.3046、互补角比 0.9991）、**牛顿摆（末球峰值角/释放角 0.999984、二进二出、elasticity 对照组）**、**双缝干涉（间距 0.3995078 vs λL/d=0.4、包络零点 4.001465 vs 4、缺级 I=1.34e-7、次极大数 = N−2）**、3D 自由落体（15.075 vs 15.095）、3D 带电粒子（半径 3.3597 vs 3.3333、周期 5.23603 vs 5.23599）、电学 3 条（CircuitJS1 在浏览器里读自己的电气量：R=470 Ω ⇒ 0.010638297872340425 A 与 5/470 逐位相同；串联 15.625 mA 与分压 1.563+3.438 V；并联 50 / 22.727 mA、Req 68.75 Ω）。但「18/18 已验证」**只到物理层**：这 18 条都还没有模板三件套与适配器接线（当前只有凸透镜那条线有），也没有一条把视图/交互层跑通——`interference_lab.mjs` 执行的是模型自己的物理函数，EJSS 的绘图描述本轮没执行。引擎能算出对得上的数 ≠ 教师能一句话定制并拿到离线包。
+1. **状态词不许拔高**。18 条实验**全部**达到了「本机真跑出可对账的物理量」，逐档条数只认 `experiments.json` 的 `status` 字段（取法见上面 `experiments.json` 那条里的命令行，本文件不再抄第二份，以免两处数字各过期各的）。每条的实测数与解析式对照如下——这些是「物理层过了」的凭据，不是「能交付」的凭据：
+
+   | 实验 | 实测 vs 独立参考式 |
+   |---|---|
+   | 平面镜（`optics_hall.mjs`） | 200.5 vs 200 |
+   | 折射 | 449.5 vs 450 |
+   | 全反射 | 临界角落在 (40°, 42°]，对上 `asin(1/1.5)` = 41.81° |
+   | 凹透镜 | 由束宽反解出 \|f\| = 100.00000000000037 |
+   | 三棱镜 | 两 n 落点 −165.5 / −186.5 vs 自写矢量斯涅尔 −165.815 / −186.609 |
+   | 单摆 | 2.00835 s vs 2.00834 s |
+   | 弹簧振子 | a = −1.1999976 vs −kx/m = −1.2；周期 3.14159 vs 2π√(m/k) |
+   | 理想气体 | p 0.855085 Pa vs 有限半径修正式 0.823045；三条状态律比 2.08236 / 1.99666 / 2.00013 |
+   | 绳波 | v 3.179644 vs √(T/μ) = 3.162278；反射峰反号；扫频峰值落在 f₁ |
+   | 开普勒 | 两条椭圆 T²/a³ = 0.99860 / 0.99955；中心质量 1→50 的周期比 0.99999667 |
+   | 抛体 | 射程 30.2733 vs 30.3046；互补角比 0.9991 |
+   | 牛顿摆 | 末球峰值角 / 释放角 0.999984；二进二出；elasticity 对照组 |
+   | 双缝干涉 | 间距 0.3995078 vs λL/d = 0.4；包络零点 4.001465 vs 4；缺级 I = 1.34e-7；次极大个数 = N−2 |
+   | 3D 自由落体 | 15.075 vs 15.095 |
+   | 3D 带电粒子 | 半径 3.3597 vs 3.3333；周期 5.23603 vs 5.23599 |
+   | 电学 3 条（欧姆 / 串联 / 并联） | CircuitJS1 在浏览器里读自己的电气量：R = 470 Ω ⇒ 0.010638297872340425 A 与 5/470 **逐位相同**；串联 15.625 mA 与分压 1.563 + 3.438 V；并联 50 / 22.727 mA、Req 68.75 Ω |
+
+   **但「18/18 已验证」只到物理层。** 教师端的一句话定制与离线包交付，18 条里只有 **3 条**升格成 `template_connected`（2026-10-20 实测，取法同上）：`optics-concave-lens` 走的是下游 engine-host 主链路三件套；`mechanics-pendulum` 与 `mechanics-projectile` 走的是 `code/eduforge/tools/labkit/` 的**文件级链路**（L1→L2→渲染→L3，产物是单文件 HTML，主链路的适配器与 `domain/contracts.py` 的 `EngineId` 里还只有 `ray_optics` / `myphysicslab` / `circuitjs`，没有 `matter_js` 与 `circuit_mna`）。**上一版本这里写的是「18 条都还没有模板三件套，只有凸透镜那条线有」——那句已经过期**：凸透镜与照相机原理有模板目录但不在这 18 条之内，而 18 条里恰恰有 3 条接了模板。
+
+   还有一条同样要分清：`interference_lab.mjs` 执行的是模型自己的物理函数，**EJSS 的绘图描述本轮没执行**。引擎能算出对得上的数 ≠ 教师能一句话定制并拿到离线包。
 2. **光学的两个静默陷阱**（本轮实测踩过）：点必须写成 `{x,y}`，写成 `[x,y]` 时 `loadJSON` 不报错但光线一步就没了；`PlaneGlass` 的玻璃在 `p1→p2` 的**左手侧**，光源放错侧时「全反射」会退化成光在空气里直走而**看起来仍然通过**。所以验收台自带一条 `refIndex=1.0` 的对照跑：先证明几何基线，再谈物理。
 3. **PhET 的 main 分支是空壳**。各仿真仓库 main 只剩 README.md + doc/（实测 3~5 个文件），完整源码在 X.Y 发行分支上；`experiments.json` 里记录的 sim 路径全部指向 `source/upstream/phet/sims/<name>`（发行分支克隆）。`circuit-construction-kit-common` 只有 main，是这批里唯一的空壳。
 4. **许可义务要在装的时候就写清楚**，不要等到分发前。GPL-2.0（circuitjs1）、GPL-3.0（PhET 仿真源码、OSP 家族的 webejs/resources/csm/STP）、AGPL-3.0（Stellarium Web Engine）各有不同的触发条件，已分别登记在 `experiments.json` 的 `license_obligation` 里。本轮新增一条硬事实：`../upstream/osp/` 与 `../upstream/osp_ejs/` **仓库根没有 LICENSE 文件**（`inventory.json` 的 `license_files` 实测为空）⇒ 许可未定，只读参考、禁止进任何交付包。
 
-5. **「查不到来源」必须是查过的结果**。上一轮把 OSP@Singapore/EJSS 与 3JCN 写进 `not_installed`，理由是「找不到权威仓库」，但当时只猜了三个组织名。本轮实测 `api.github.com/orgs/OpenSourcePhysics/repos` 返回 13 个仓库、`www.new3jcn.com` 是可抓的静态站 ⇒ 两条旧结论已在 lock 里显式撤销。**第三条是本轮补的**：PhET 官方发布成品也曾记成「装不上」（旧记录试的是 `*.zip` 与三条元数据路径，404 就收了手），真形态是 `sims/html/<sim>/latest/<sim>_all.html`，实测 13 份全 200 OK 并已落盘（清单 `../upstream/phet-published.json`）⇒ `not_installed` 归零。反面照样成立：**能下载不等于能被 Agent 改**——13 份成品逐只实测下来，可调用 PhET-iO 接口 0/13，URL 参数只到框架层（`phet.chipper.queryParameters` 逐只 62~97 项，能切屏能改语言；旧记录那句「48 项」是单只旧读数，已校正），默认只有 6/13 读到物理量数值、1/13（ohms-law）实测能改参数并对上 `I=V/R`，成品 HTML 还是 CC BY-NC 4.0。⇒ 分档说话，别说「都改得动」，也别说「一个都改不动」。同时记住反面：**装上了也不等于能控**——`3jcn-catalog` 至今只有目录（控制面 pending），`osp-ejss` 的控制面本轮才算**测通了一条**（读 `.ejss` 参数表 + 执行模型自己的函数），其余 EJSS/OSP 模型能不能同一条路走还没逐个验。
+5. **「查不到来源」必须是查过的结果**。上一轮把 OSP@Singapore/EJSS 与 3JCN 写进 `not_installed`，理由是「找不到权威仓库」，但当时只猜了三个组织名。本轮实测 `api.github.com/orgs/OpenSourcePhysics/repos` 返回 13 个仓库、`www.new3jcn.com` 是可抓的静态站 ⇒ 两条旧结论已在 lock 里显式撤销。
+   - **第三条是本轮补的**：PhET 官方发布成品也曾记成「装不上」（旧记录试的是 `*.zip` 与三条元数据路径，404 就收了手），真形态是 `sims/html/<sim>/latest/<sim>_all.html`，实测 13 份全 200 OK 并已落盘（清单 `../upstream/phet-published.json`）⇒ `not_installed` 归零。
+   - **反面照样成立：能下载不等于能被 Agent 改**。13 份成品逐只实测下来，可调用 PhET-iO 接口 0/13，URL 参数只到框架层（`phet.chipper.queryParameters` 逐只 62~97 项，能切屏能改语言；旧记录那句「48 项」是单只旧读数，已校正），默认只有 6/13 读到物理量数值、1/13（ohms-law）实测能改参数并对上 `I=V/R`，成品 HTML 还是 CC BY-NC 4.0。⇒ 分档说话，别说「都改得动」，也别说「一个都改不动」。
+   - **还有第二个反面：装上了也不等于能控**。`3jcn-catalog` 至今只有目录（控制面 pending），`osp-ejss` 的控制面本轮才算**测通了一条**（读 `.ejss` 参数表 + 执行模型自己的函数），其余 EJSS/OSP 模型能不能同一条路走还没逐个验。
 6. **改完这个 JSON 必须重跑校验**。路径写错在肉眼 review 时最难发现，而 Agent 取种子时必然踩。
 7. **负结果也要落盘**。collisions_lab 里 Matter 的弹性正碰与两个引擎的牛顿摆都是 fail，证据文件照写不误；把「引擎能跑出画面」写成「这条实验已可交付」是本目录最严重的一类错误。
 8. 调研阶段那份 44 项候选清单（Markdown + JSON）**在本仓库磁盘上不存在**（2026-10-19 全库搜过），这里落的是其中 18 项 P0/P1/P2 的可核对版本；其余候选要接的时候再补条目，不要凭记忆扩写。

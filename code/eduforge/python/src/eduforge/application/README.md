@@ -11,8 +11,19 @@
 | `experiment_service.py` | 142 | 模板实例化与版本管理：`create_from_template`（克隆基础版本）、`rollback`（回退 head，校验 owner/活跃任务） | `ExperimentService`, `ExperimentLookup`, `ExperimentNotFound`, `TemplateNotFound`, `RevisionNotFound`, `ActiveJobConflict` |
 | `job_service.py` | 106 | 任务生命周期：提交前**归属与基础版本核对**（实验属于该身份、`base_revision` 属于该实验且等于当前 head）、幂等提交、取消（已成功不回滚）、查询按身份限定 | `JobService`, `assert_submittable`, `ExperimentNotOwned`, `RevisionNotOfExperiment`, `BaseNotHead` |
 | `publication.py` | 83 | **发布门禁**：`record_report` 写验证报告（含候选绑定列：`candidate_id`/`content_hash`/`engine_version`/`profile`）；`publish` 在 `verdict≠passed` 时抛 `NotPublishable`，通过才调仓储发布事务 | `Publisher`, `NotPublishable` |
-| `package_builder.py` | 493 | **Gate C §C.4/§C.5/§C.5b R2 统一交付构建器**：把已冻结候选变成可核对的字节——`native.json`/`teaching_views.json` 落盘并逐字节回读核对；离线包由引擎组装，但**包内场景替换成交付的那一份字节**；最终 `manifest.json` = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要；建完立刻让 Engine Host 用 Chromium **实测这份包**（§C.5），不通过就抛 `DeliveryIntegrityError(code="OFFLINE_NOT_RENDERED")`；**§C.5b R2 确定性离线 ZIP 构建与校验**：构建确定性 ZIP（`build_deterministic_zip` 走 `asyncio.to_thread` 调度防卡租约心跳，固定 2026-01-01 时间戳、0o100644 权限、文件字典序、防 Zip Slip、集成 LICENSE 与离线 README.md），记录 ZIP SHA256 与大小，登记 `offline_zip` 产物（`media_type="application/zip"`），提供 `verify_offline_zip` 完整性核对。工具层与 Worker 都调这里，产物 id 一律内容派生（重跑幂等） | `PackageBuilder`, `BuiltPackage`, `package_digest`, `verify_package_on_disk`, `build_deterministic_zip`, `verify_offline_zip`, `file_sha256`, `ENGINE_METADATA_KEYS`, `MANIFEST_NAME` |
+| `package_builder.py` | 493 | **Gate C §C.4/§C.5/§C.5b R2 统一交付构建器**：把已冻结候选变成可核对的字节，建完立刻让浏览器实测这份包，不过就不发布。工具层与 Worker 都调这里，产物 id 一律内容派生（重跑幂等）。细节见下面「`package_builder.py` 到底做哪几件事」 | `PackageBuilder`, `BuiltPackage`, `package_digest`, `verify_package_on_disk`, `build_deterministic_zip`, `verify_offline_zip`, `file_sha256`, `ENGINE_METADATA_KEYS`, `MANIFEST_NAME` |
 | `services.py` | 29 | 聚合导出入口（向后兼容）：把上述服务类从本文件统一再导出 | `ExperimentService`, `JobService` 等 |
+
+## `package_builder.py` 到底做哪几件事
+
+表格里那一格只留了摘要。它是整条交付链上「把结论变成可核对字节」的唯一出口，做四件事：
+
+1. **落盘并回读核对（§C.4）**：`native.json` / `teaching_views.json` 写盘后**逐字节回读**核对，登记的不是「我以为写了什么」而是「盘上是什么」。
+2. **离线包由引擎组装，但场景换成交付那份字节**：引擎给的是它自己的产物，包内场景必须替换成本次要交付的那一份；最终 `manifest.json` = 引擎交付元数据 + 逐文件 SHA256 + `package_sha256` 整包摘要。
+3. **建完立刻实测这份包（§C.5）**：让 Engine Host 用 Chromium 真开一次；不过就抛 `DeliveryIntegrityError(code="OFFLINE_NOT_RENDERED")`。顺序是刻意的——**没有「先发布再验证」这条路**。
+4. **确定性 ZIP 与完整性核对（§C.5b R2）**：`build_deterministic_zip` 固定 2026-01-01 时间戳、`0o100644` 权限、文件字典序、防 Zip Slip，并集成 LICENSE 与离线 `README.md`；它走 `asyncio.to_thread` 调度，**否则打包会把租约心跳卡住**（同一条事件循环上不能又打包又续租）。记录 ZIP 的 SHA256 与大小，登记 `offline_zip` 产物（`media_type="application/zip"`），并提供 `verify_offline_zip` 做事后完整性核对。
+
+对端可读的判据是 `code` 具名化：`OFFLINE_NOT_RENDERED` / `DELIVERY_INTEGRITY` / `SCENE_SHA256_MISSING` / `SCENE_SHA256_MISMATCH` / `zip_unexpected_files` 等，逐条对应的用例在 [`../../../../tests/python/README.md`](../../../../tests/python/README.md) 的「两支长用例」一节。
 
 ## 与上下层的关系
 

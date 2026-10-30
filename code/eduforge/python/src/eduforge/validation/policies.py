@@ -175,7 +175,8 @@ def build_report(
 
     usable = [p for p in probes if (p.get("power_fraction") or 0) >= POWER_FLOOR]
     types = {o["type"] for o in engine_result.get("validation", {}).get("objs", [])}
-    comparable = types == {"IdealLens", "PointSource", "Detector"}
+    allowed_types = {"IdealLens", "PointSource", "Detector", "Screen", "CropBox", "Blocker", "Aperture", "TextLabel", "Ruler"}
+    comparable = {"IdealLens", "PointSource"}.issubset(types) and types.issubset(allowed_types)
 
     if all_edits:
         r.add(Check(
@@ -198,7 +199,7 @@ def build_report(
 
         if comparable and usable and actual_f_cm is not None and u_eval is not None:
             f_eval = actual_f_cm
-            ref = thin_lens_reference(f_eval, u_eval)
+            ref = thin_lens_reference(f_eval, u_eval, allow_diverging=(f_eval < 0))
             kind = ref["image_kind"]
             v_pred = ref["image_distance_cm"]
             min_probe = min(usable, key=lambda p: p.get("rms_units", 999.0))
@@ -210,7 +211,8 @@ def build_report(
             if kind == "real":
                 # 实像工况：屏阵列上有可核对的聚焦点。像面「落在哪块屏」的判据
                 # 用分辨率表达（屏间距最小 4cm ⇒ 分辨率 2cm），不再写 1e-9 的假精确。
-                expected_screen = nearest_screen(v_pred)
+                available_screens = sorted([float(p["x_cm"]) for p in usable if "x_cm" in p])
+                expected_screen = min(available_screens, key=lambda cm: abs(cm - v_pred)) if available_screens else nearest_screen(v_pred)
                 observed_screen = min_probe["x_cm"]
                 r.add(Check(
                     id="image_plane_matches_reference",

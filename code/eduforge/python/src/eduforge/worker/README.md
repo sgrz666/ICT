@@ -32,7 +32,11 @@
 
 ## 已知的坑与纪律
 
-- **租约心跳已接线（2026-10-17 Gate B）**：`lease.py` 的 `LeaseManager` 过去调的是 `JobRepository` 上并不存在的 `heartbeat`（会 `AttributeError`），所以「有心跳」只是文档说法，真实行为是长任务自己把执行权睡丢。现在它走 `renew_and_check`，并且**必须从连接池单独拿一条连接**——asyncpg 单连接不允许并发查询，心跳与 Agent SQL 共用一条会互相打断。给 `make_worker` 传 `pool=` 才有心跳，生产入口 `worker/run.py` 已改为建池并传入；不传池只该出现在单元测试里。实测证据：[`test_gate_b_execution_rights.py`](../../../../tests/python/test_gate_b_execution_rights.py) 的第一条用例带**控制组**（有心跳时别人领不走、没心跳时同一个慢任务在租约到期后被抢走）。另有一处同类竞态本轮被抓到并修掉：心跳循环与 `check_now()` 都走这条池内连接，2026-10-17 全量跑时并发撞上，asyncpg 抛 `InterfaceError: another operation is in progress`——它长得像租约问题，实际是连接用法错了；现在 `beat()` 带串行锁，并有 20 次并发续租的回归用例钉住。
+- **租约心跳已接线（2026-10-17 Gate B / Gate C.6）**，分三条记：
+  - **修的是什么**：`lease.py` 的 `LeaseManager` 过去调的是 `JobRepository` 上并不存在的 `heartbeat`（会 `AttributeError`），所以「有心跳」只是文档说法，真实行为是长任务自己把执行权睡丢。现在它走 `renew_and_check`，并且**必须从连接池单独拿一条连接**——asyncpg 单连接不允许并发查询，心跳与 Agent SQL 共用一条会互相打断。
+  - **怎么接的**：给 `make_worker` 传 `pool=` 才有心跳，生产入口 `worker/run.py` 已改为建池并传入；不传池只该出现在单元测试里。实测证据：[`test_gate_b_execution_rights.py`](../../../../tests/python/test_gate_b_execution_rights.py) 的第一条用例带**控制组**（有心跳时别人领不走、没心跳时同一个慢任务在租约到期后被抢走）。
+  - **顺带抓到的同类竞态**：心跳循环与 `check_now()` 都走这条池内连接，2026-10-17 全量跑时并发撞上，asyncpg 抛 `InterfaceError: another operation is in progress`——它长得像租约问题，实际是连接用法错了；现在 `beat()` 带串行锁，并有 20 次并发续租的回归用例钉住。
+  - **租约周期自适应（Gate C.6）**：`Worker` 增加 `__post_init__`，若 `heartbeat_seconds >= lease_seconds / 2.0` 则自动下调为 `max(0.5, lease_seconds / 3.0)`，杜绝因心跳周期长于租约本身而在首次续租前超时丢权。
 - `attempt` 与 `next_run_at` 现在真的被写：`CLAIM_SQL` 领取即 `attempt + 1`，可重试失败经 `retry_later` 退回 `queued` 并把 `next_run_at` 推到未来（`backoff_seconds=(5,15,60)` 有限退避），超过 `max_attempts`（默认 5）由 `run_once` 终态化为 `MAX_ATTEMPTS_EXCEEDED`。**取消现在会中断执行中的阶段**：每个阶段与每次工具写动作前都查 `status`，`cancelled` 直接停（`JOB_CANCELLED`），不再只靠发布事务间接生效。
 - **执行权 token 的来源是纪律**：Runner 从前必须回读 `jobs.lease_token` 来构造 `JobContext`，于是被抢权的旧 Worker 会把**新主人的 token 当成自己的**继续写（本轮实测抓到，`test_two_workers_cannot_double_publish` 钉住）。现在 token 由 Worker 领取时那一个注入（`Chain` 把 `guard` 与 `lease_token` 一起交给端口），旧 Worker 在第一次写动作前就被 `LEASE_LOST` 拦下。
 - `StaticPlanner`（`--planner-static-focal`）只用于**链路验证**；其产物不构成"Agent 规划"证据，README 与报告里不得含糊表述。`scripts/eduforge.ps1` 已不再无 key 时自动注入它——现在必须显式 `EDUFORGE_ALLOW_STATIC_PLANNER=1`，否则 Worker 拒绝启动并说明原因。本轮它经 `agent/proposal_runner.py` 接到候选链上，**不再有一套自己的重放实现**。

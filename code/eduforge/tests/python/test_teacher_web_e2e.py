@@ -126,17 +126,19 @@ def _worker(stack, *, entity: str = "lens_1", focal: str = "15", views: tuple[st
     argv = [sys.executable, "-m", "eduforge.worker.run",
             "--planner-static-focal", focal, "--planner-static-entity", entity,
             "--dsn", stack["uri"], "--engine-url", stack["engine"],
-            "--artifact-dir", str(stack["art"]), "--lease-seconds", "20", "--idle-seconds", "0.5"]
+            "--artifact-dir", str(stack["art"]), "--lease-seconds", "60", "--idle-seconds", "0.5"]
     # §C.3 需要链路上真的有视图数据：只注入焦距的提案不会开启任何教学视图
     for v in views:
         argv += ["--planner-static-view", v]
+    log_fp = open(stack["tmp"] / f"worker-{entity}.log", "w", encoding="utf-8")
     proc = subprocess.Popen(
         argv,
         env={**os.environ, "DEEPSEEK_API_KEY": "", "PYTHONIOENCODING": "utf-8"},
-        stdout=subprocess.PIPE,
+        stdout=log_fp,
         stderr=subprocess.STDOUT,
         text=True,
     )
+    proc._log_fp = log_fp
     return proc
 
 
@@ -201,7 +203,7 @@ def test_golden_path_selects_submits_previews_and_downloads(stack):
 
             # 桥接的 ready 落到界面上，才算"预览显示的是已验证版本"
             page.wait_for_function(
-                "() => document.body.innerText.includes('已载入版本')", timeout=120000
+                "() => document.body.innerText.includes('已载入版本')", timeout=90000
             )
 
             sims = [f for f in page.frames if "/simulator/" in (f.url or "")]

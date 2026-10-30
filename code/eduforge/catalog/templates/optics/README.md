@@ -6,7 +6,9 @@
 
 | 条目 | 类型 | 说明 |
 |---|---|---|
-| [`convex-lens/`](convex-lens/README.md) | 模板实例目录 | 凸透镜成像（`template_id: optics.convex_lens`，`engine_id: ray_optics`，manifest 无 `status` 字段 = 已启用）。三件套齐备：`manifest.yaml` 137 行（量程唯一定义处）、`native.json` 33 行（上游原生场景 version 5）、`lesson.md` 49 行（课文草稿，尚未接入教师端） |
+| [`convex-lens/`](convex-lens/README.md) | 模板实例目录 | 凸透镜成像（`template_id: optics.convex_lens`，`engine_id: ray_optics`，manifest 无 `status` 字段 = 已启用）。三件套齐备：`manifest.yaml`、`native.json`、`lesson.md`。 |
+| [`concave-lens/`](concave-lens/README.md) | 模板实例目录 | 凹透镜发散与成像（`template_id: optics.concave_lens`，`engine_id: ray_optics`）。四件套齐备：`manifest.yaml`（负焦距）、`native.json`、`lesson.md`、`README.md`。 |
+| [`camera-principle/`](camera-principle/README.md) | 模板实例目录 | 照相机成像原理（`template_id: optics.camera_principle`，`engine_id: ray_optics`）。四件套齐备：`manifest.yaml`（物距大于二倍焦距倒立缩小实像）、`native.json`、`lesson.md`、`README.md`。 |
 
 本目录自身不放任何数据文件——学科层只做分组，模板事实一律在实例目录的 `manifest.yaml` 里。
 

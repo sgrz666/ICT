@@ -39,7 +39,15 @@
 
 - 被谁用：[`../worker/run.py`](../worker/run.py) 的 `select_planner()` 按 `--planner model|deep|static` 选择执行端口（`deep` 构造 `DeepAgentRunner`，`model`/`static` 产出提案由 `ProposalRunner` 适配）；[`../worker/steps.py`](../worker/steps.py) 的 `Chain.planning` 调用端口的 `run()`。[`../entrypoints/agent_local.py`](../entrypoints/agent_local.py) 与 [`../entrypoints/agentarts.py`](../entrypoints/agentarts.py) 仍经 `bootstrap.build_planner` 组装单轮图（它们只出 `WorkOrder`，不是执行入口；AgentArts 侧接入 Runner 属 Gate F）。
 - 依赖：[`../domain/contracts.py`](../domain/contracts.py)（全部出入参模型）、[`../infrastructure/catalog.py`](../infrastructure/catalog.py)（policy 读模板）、[`../experiment_tools/`](../experiment_tools/README.md)（deep 路径的真实工具面）、`deepagents` + `langchain-openai`（本轮新增依赖）。
-- 测试：[`../../../../tests/python/test_gate6_planning.py`](../../../../tests/python/test_gate6_planning.py)（单轮与授权）、[`test_planner_port.py`](../../../../tests/python/test_planner_port.py)、[`test_plan_architecture_alignment.py`](../../../../tests/python/test_plan_architecture_alignment.py)、[`test_entrypoints.py`](../../../../tests/python/test_entrypoints.py)、[`test_deepagents_runtime.py`](../../../../tests/python/test_deepagents_runtime.py)（循环与门禁，假模型）、[`test_deepagents_real_model.py`](../../../../tests/python/test_deepagents_real_model.py)（真模型，无 key 时 SKIPPED）、[`test_gate_a_candidate.py`](../../../../tests/python/test_gate_a_candidate.py)（Runner → 候选 → 发布哈希一致，含纯视图与 CAS 负向用例）、[`test_single_publish_path.py`](../../../../tests/python/test_single_publish_path.py)（结构守卫）。
+- 测试（八支，各钉一件事）：
+  - [`test_gate6_planning.py`](../../../../tests/python/test_gate6_planning.py) 单轮规划与授权（顺序七步的判据都在这支）
+  - [`test_planner_port.py`](../../../../tests/python/test_planner_port.py) `PlannerPort` 端口契约
+  - [`test_plan_architecture_alignment.py`](../../../../tests/python/test_plan_architecture_alignment.py) 代码结构与 `plan/` 方案的一致性
+  - [`test_entrypoints.py`](../../../../tests/python/test_entrypoints.py) 两个入口仍经 `build_planner()` 组装
+  - [`test_deepagents_runtime.py`](../../../../tests/python/test_deepagents_runtime.py) 循环与门禁（假模型；含「SKILL.md 与行为规范必须真进系统提示词」那条）
+  - [`test_deepagents_real_model.py`](../../../../tests/python/test_deepagents_real_model.py) 真模型，**无 key 时 SKIPPED**
+  - [`test_gate_a_candidate.py`](../../../../tests/python/test_gate_a_candidate.py) Runner → 候选 → 发布哈希一致，含纯视图与 CAS 负向用例
+  - [`test_single_publish_path.py`](../../../../tests/python/test_single_publish_path.py) 结构守卫（发布只能有一条路）
 
 ## 已知的坑与纪律
 

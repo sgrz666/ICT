@@ -4,14 +4,16 @@
 
 ## 内容
 
-- [`optics/`](optics/README.md) — 光学分组层（1 个模板在位）→ [`optics/convex-lens/`](optics/convex-lens/README.md) 凸透镜成像（首批唯一就绪模板）：
-  - `manifest.yaml` — 模板清单：场景单位约定（`units_per_unit: 10`、锁 `lengthScale: 1`）、对象布局（`lens_1` IdealLens + `object_1` PointSource + 7 块 Detector 光屏阵列，身份一律用 `name`）、可改参数（焦距 5–50 cm、物距 10–60 cm，非正值拒）、观测判据（光斑二矩半径 RMS + 功率下限，**弃用 peak_share**，理由见文件内 `why_not_peak_share`）、实测基线（f=5/6/8/10/12/15/20/25 八档 argmax 全部与独立薄透镜预测一致）、允许的路由（config / code）。
-
+- [`optics/`](optics/README.md) — 光学分组层（3 个真实模板在位）→ [`optics/convex-lens/`](optics/convex-lens/README.md) 凸透镜成像、[`optics/concave-lens/`](optics/concave-lens/README.md) 凹透镜发散与成像、[`optics/camera-principle/`](optics/camera-principle/README.md) 照相机成像原理：
+  - `manifest.yaml` — 模板清单：场景单位约定（`units_per_unit: 10`、锁 `lengthScale: 1`）、对象布局（命名实体、Detector 光屏阵列）、可改参数、观测判据与科学规约。
   - `native.json` — 上游原生场景（version 5），被 engine-host 适配器与探针直接加载。
   - `lesson.md` — 课文草稿（尚未接入教师端）：学生任务三步 + 已实测的「焦距-像距-光屏 rms」数据表。
   - 逐文件说明见 [optics/convex-lens/README.md](optics/convex-lens/README.md)。
-- [`mechanics/`](mechanics/README.md) — 力学分组层（引擎 deferred，整层 pending）→ [`mechanics/pendulum/`](mechanics/pendulum/README.md) 单摆周期与简谐振动（第 7～8 周切片 9 保留位，`manifest.yaml` 声明摆长控制与能量视图，标记 `status: pending_slice_9`）。
-- [`circuits/`](circuits/README.md) — 电路分组层（引擎 deferred，整层 pending）→ [`circuits/ohms-law/`](circuits/ohms-law/README.md) 欧姆定律与伏安特性（第 7～8 周切片 9 保留位，`manifest.yaml` 声明电阻/电压控制与电表读数视图，标记 `status: pending_slice_9`）。
+- [`mechanics/`](mechanics/README.md) — 力学分组层 →
+  [`mechanics/projectile/`](mechanics/projectile/README.md) 抛体运动（`engine_id: matter_js`，**LabKit 文件级链路**：三配方 L1/L2/L3 已实测、产出单文件 HTML；未接入 engine-host / 教师端）、
+  [`mechanics/pendulum/`](mechanics/pendulum/README.md) 单摆周期与简谐振动（同为 **LabKit 链路**：两配方 L1/L2/L3 已实测，产物约 108 KB；myPhysicsLab 只保留为历史无头证据）。
+- [`circuits/`](circuits/README.md) — 电路分组层 →
+  [`circuits/ohms-law/`](circuits/ohms-law/README.md) 直流电路：欧姆定律与串并联（**LabKit 链路**，`engine_id: circuit_mna`；三配方 L1/L2/L3 已实测，CircuitJS1 交叉验证 8/8；产物约 27 KB；未接入 engine-host / 教师端）。
 
 ## 结构约定
 
@@ -21,6 +23,8 @@ templates/<学科>/<实验>/
 ├── native.json      # 上游原生场景
 └── lesson.md        # 教学课文（草稿）
 ```
+
+LabKit 模板（[`mechanics/projectile/`](mechanics/projectile/README.md)、[`mechanics/pendulum/`](mechanics/pendulum/README.md)、[`circuits/ohms-law/`](circuits/ohms-law/README.md)）额外带 `recipes.json` 与 `render/`。`recipes.json` 不是重复声明，而是因为 `catalog.py` 是手写逐行解析器：嵌套的 recipes / acceptance / render 放进 `manifest.yaml` 会被当成 control 项解析坏。
 
 ## 与其他层的关系
 

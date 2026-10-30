@@ -9,7 +9,7 @@
 | [`simulate.mjs`](simulate.mjs) | `experiment_simulate` | 60 s | L2 物理对账，写 `evidence.json` |
 | [`render.mjs`](render.mjs) | `experiment_render` | 60 s | 先跑 L1/L2 再渲染单文件，不做 L3 |
 | [`verify.mjs`](verify.mjs) | `experiment_verify` | 120 s | L3 Playwright `file://` 六项判据 |
-| [`build.mjs`](build.mjs) | `experiment_build` | 240 s | 一次完成 L1→L2→渲染→L3，标准请求入口 |
+| [`build.mjs`](build.mjs) | `experiment_build` | 240 s | 一次完成 L1→L2→渲染→L3→交付包（教师手册/学生任务单/包清单），标准请求入口 |
 
 ## 统一约定
 

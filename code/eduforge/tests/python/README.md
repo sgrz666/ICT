@@ -1,6 +1,6 @@
 # python — pytest 用例
 
-EduForge Python 侧的全部测试：**25 个文件（23 个 `test_*.py` + `conftest.py` + `_regex_baseline.py` 对照组夹具）**，收集 148 项、147 通过、1 SKIPPED（2026-10-17 19:50 实测）（计数唯一来源仍是 [`../../catalog/engines/ray-optics.yaml`](../../catalog/engines/ray-optics.yaml) 的 `test_totals`；SKIPPED 是无 key 的真模型用例）。跑法：工程根 `uv run pytest`（`-q`）。这里的共同风格是**起真东西**：真 Postgres（pgserver）、真 uvicorn、真 Worker 子进程、真浏览器；只有规划在部分用例里由命令行注入固定提案，那种绿不代表模型能力。
+EduForge Python 侧的全部测试：**26 个文件（24 个 `test_*.py` + `conftest.py` + `_regex_baseline.py` 对照组夹具）**，收集 158 项、157 通过、1 SKIPPED（2026-10-17 22:20 实测）（计数唯一来源仍是 [`../../catalog/engines/ray-optics.yaml`](../../catalog/engines/ray-optics.yaml) 的 `test_totals`；SKIPPED 是无 key 的真模型用例）。跑法：工程根 `uv run pytest`（`-q`）。这里的共同风格是**起真东西**：真 Postgres（pgserver）、真 uvicorn、真 Worker 子进程、真浏览器；只有规划在部分用例里由命令行注入固定提案，那种绿不代表模型能力。
 
 **临时目录必须自己收尾**：各文件各自 `pgserver.get_server(mkdtemp(...), cleanup_mode=None)` 起一次性 Postgres，Windows 上 `stop()` 还常慢一拍；历史上每次全量都在 `%TEMP%` 留下一堆数据簇与产物目录（2026-10-17 一天内堆到上千个，用户因此抱怨磁盘）。清扫由 `conftest.py` 兜底，但新增夹具时请自己在收尾删目录，别把兜底当借口。
 
@@ -12,6 +12,7 @@ EduForge Python 侧的全部测试：**25 个文件（23 个 `test_*.py` + `conf
 |---|---|---|
 | `conftest.py` | 128 | 共享夹具：真起 Engine Host 子进程（`engine_url`，端口随机、缺 dist 先编译）＋会话级临时目录清扫 `_sweep_own_temp_dirs`（开场清 30 分钟以上的历史遗留 `eduforge-*`，收尾清本轮新建的；删不掉就 warn，不假装干净） |
 | `test_agent_tools_acceptance.py` | 641 | 8 项原子工具的端到端验收与**门禁负向用例**：真实导入、多参数与测量表格生效、连续编辑父子链（先构建核验再原子发布）、离线包 manifest 逐文件对上磁盘、并发 RevisionConflict、超量程请求如实被拒（不得偷换值）、过期验证结论不得授权发布、无执行上下文不得回报「已发布」。边界用例 3（u=f 准直与 u<f 虚像）自 §C.2 起**必须 passed** 并核对实测交点与 `|slope| ≤ 2σ`，不再接受"测不出来所以 inconclusive 也算对" |
+| `test_gate_c6_gallery_import.py` | 150 | **Gate C §C.6 案例库真实导入与多模板支持（新增，5 项）**：catalog 载入 3 个真实光学模板（凸透镜、凹透镜、照相机）；案例库元数据严格区分可定制与只读；薄透镜独立参考计算扩展支持凹透镜（allow_diverging）；工具服务与创建实验多模板全链路（凹透镜、照相机真实创建与种子生成）；工具服务 search_experiments 动态读取并返回全部模板清单 |
 | `test_gate2_protocol.py` | 126 | 修改协议：pydantic 校验、阈值（清晰 ≥0.8 / 弥散 ≤0.4 / 之间不可判）与控制组 |
 | `test_gate5_api_chain.py` | 280 | §6.1 使用链：选模板→建实验→提交(幂等)→查任务→取消→查实验→下载产物；§C.5c 种子版本可信实体只读端点（`GET /api/v1/revisions/{id}/native`）与严格租户隔离（未授权 404）；产物完整性（哈希锁定、缺失 404、不符 500、`storage_key` 越界 403） |
 | `test_gate5_cancel.py` | 143 | 取消语义（已成功不回滚、活跃任务状态一致性） |
@@ -23,10 +24,10 @@ EduForge Python 侧的全部测试：**25 个文件（23 个 `test_*.py` + `conf
 | `test_entrypoints.py` | 116 | §6.3 智能体入口：华为云 AgentArts 运行时契约、本地 HTTP 规划与策略错误码映射 |
 | `test_benchmarks.py` | 43 | §7.4 基准评测回归：区分 screening / direct / agent_graph 三种评测，无 key 显式 SKIPPED 杜绝规则伪充 |
 | `test_plan_architecture_alignment.py` | 205 | 方案全貌架构对齐：验证 domain/models/errors、agent/retrieval、coding/workspace/budget、worker/lease、research/rea_runner、infrastructure 各模块自洽性 |
-| `test_chain_worker.py` | 468 | 生产链路：API 提交→Worker 五阶段→原子发布→产物字节级校验；策略拒绝与验证不过都落 `failed` 且不动 head；支持复合操作（改焦距+设置记录表）。**物理边界两条凭实测发布**（2026-10-17 §C.2 补量具后）：`test_chain_far_virtual_image_publishes_on_measured_divergence`（f=40 虚像，实测交点 −119.6cm 对上参考 −120）与 `test_chain_parallel_beam_publishes_on_measured_parallelism`（u=f，斜率与零不可区分）；`test_validation_failure_blocks_publish`（f=5，交付屏上不成像）仍必须失败。候选版本与产物 id 改为**读 `jobs.candidate_revision_id`**（内容派生 id 由生产计算，用例不自己拼）。§C.4 起一次发布登记**三份**产物（`native.json` + `offline_package/manifest.json` + `offline_package.zip`），用例同时核对包内场景字节 = 交付字节、清单里引擎交付元数据仍在、`package_sha256` 可由逐文件表重算。**§C.5b**：还查 `GET /revisions/{id}/offline_verification`（`verified=true` 且 `checked_files` 等于清单文件数，并随附发布前的浏览器实测记录），随后故意改一个 `www/index.html` 再查一次，必须 `verified=false` 且 `changed=["www/index.html"]`——用例内 try/finally 还原，不留被改坏的现场 |
+| `test_chain_worker.py` | 468 | 生产链路端到端（API 提交→五阶段→原子发布→产物字节级校验）。**细目见下面「两支长用例」** |
 | `test_gate_b_execution_rights.py` | 631 | **Gate B 执行权与归属（2026-10-17 新增，12 项）**：心跳续租并带控制组（没池就会被抢走）、租约过期不得自续、丢权后新写入与发布都被拒、取消回报 `JOB_CANCELLED`、`attempt` 递增 + `retry_later` 退避 + `MAX_ATTEMPTS_EXCEEDED`、并发追加事件序号唯一、发布重放核对字节与归属、跨 owner 读改下载一律 404、关闭开发身份后无凭据 401、双 Worker 只产生一份交付；**并发续租必须串行**（20 次 `beat()` 同时打在一条守护连接上，没有锁就当场抛 asyncpg `InterfaceError`，全量跑时真抓到过一次） |
 | `test_gate_a_candidate.py` | 690 | **Gate A 统一候选执行链 + Gate C.0 并发冻结守卫（14 项）**：旧库能升级到 `experiment_candidates` 且迁移幂等、一个 job 只有一行候选、新建 service 实例读回同一份未发布内容、先改 A 再改 B 只能交付 B（A 的绿灯当场清空）、重复构建/发布不产生第二候选或重复产物、换绑实验被拒、两个 service 并发写后者被 CAS 拒绝、纯视图（只开记录表）任务跑通且基线未被误判改写、脚本模型经 `make_worker` 全链交付且「候选字节 = 落盘字节 = 下载哈希」逐字节成立、纯视图任务走完整五阶段不被误判为基线被改；**Gate C.0 双独立连接交错测试**（已冻结候选绝不被旧写入重新写开，抛 `CandidateFrozen`）、`freeze` 幂等与防篡改、`bind_validation` 限制在 `editing/frozen` 且哈希严格匹配、`rebase` 必须在 `frozen/published` 态推进基线并恢复 `editing` |
-| `test_package_builder.py` | 445 | **Gate C §C.4/§C.5/§C.5b/§C.5c 统一交付构建器（19 项）**：用假引擎客户端把构建器自己的职责钉住——清单保留引擎交付元数据并附逐文件表与整包摘要、包内场景=交付字节（不是引擎的 pretty 副本）、改一个 www/ 文件后磁盘重算的摘要与清单不符（篡改可查）、缺元数据必须 `DELIVERY_INTEGRITY` 而不是静默补默认、同内容重跑幂等、`include_offline=False` 不产出包、路径上留有坏字节时重写而非发出坏字节；**§C.5 三条实测闸门**：浏览器判据不过就没有包也就没有发布、实测结论写在 `offline_verification.json`（含截图哈希与 source=browser:chromium）、客户端不认识实测方法时宁可拒绝也不默认通过；**§C.5b 磁盘重算**（改一个 www/ 文件必须报 changed、多出的文件报 unexpected、没清单报 manifest_missing）；**§C.5b R2 确定性 ZIP 打包与校验**：两次构建产出逐字节相同 ZIP、ZIP 内完整包含清单声明文件与 LICENSE/README、`verify_offline_zip` 拦截篡改包与缺失文件、符号链接强力拒绝、未经清单声明额外注入文件拦截（`zip_unexpected_files`）、清单 package_sha256 篡改与空 README/LICENSE 拦截；**§C.5c 浏览器预检场景哈希核对（新增 2 项）**：浏览器预检未回报场景哈希（`SCENE_SHA256_MISSING`）或与候选场景哈希不一致（`SCENE_SHA256_MISMATCH`）时强力拦截放行 |
+| `test_package_builder.py` | 445 | 交付构建器自己的职责（**19 项**，用假引擎客户端钉住）。**细目见下面「两支长用例」** |
 | `test_gate_c5b_offline_package.py` | 381 | **Gate C §C.5b R2 离线包端到端下载与验证（新增，3 项）**：API 提交→Worker 真实五阶段推进→原子发布 offline_package.zip 产物→通过 HTTP API 完整下载（核对 Content-Disposition 与 SHA256）→落地独立临时目录解压核对 files 逐项哈希与整包 package_sha256→起本地临时 HTTP 服务并拉起真实无头 Chromium 模拟器验证光路渲染（canvasLight 像素 > 0，零脚本错误）；RFC 7233 HTTP Range 分段请求测试（206 Partial Content 前缀/后缀/中段截取，RFC 7233 §2.1 顺从的大 end 钳位截取，416 越界拒绝）；安全隔离与负向拦截（跨租户 404 ARTIFACT_NOT_FOUND、活跃租约 token 临时执行权放行 200、磁盘文件篡改 500 CONTENT_HASH_MISMATCH、磁盘文件丢失 404 ARTIFACT_FILE_MISSING） |
 | `test_publish_chain.py` | 305 | 发布链（原子性、版本可恢复） |
 | `test_contracts_surface.py` | 132 | §6.2 守卫：每个业务接口 2xx 都必须指向具名 DTO（生成物落后于后端即红） |
@@ -35,6 +36,26 @@ EduForge Python 侧的全部测试：**25 个文件（23 个 `test_*.py` + `conf
 | `test_deepagents_real_model.py` | 123 | 真实模型（`deepseek-flash`）自主完成「焦距 15 + 物距 30 + 记录表」并落 Tool Trace 报告；**无 key 时显式 SKIPPED**，不拿规则冒充模型 |
 | `test_single_publish_path.py` | 68 | 结构守卫：带租约证明的发布插入只存在于持久层一条事务、工具层发布不再自写 SQL、DDL 单一来源、回滚不改写既有修订 |
 | `_regex_baseline.py` | 51 | 对照组夹具（非用例）：从 `main` 分支原样取回已删除的正则意图解析器，用于「模型 vs 模式匹配」的可执行比较 |
+
+## 两支长用例，各自钉住了什么
+
+上面表里 `test_chain_worker.py`（468 行）与 `test_package_builder.py`（445 行）两格只留了摘要，细节在这里——它们是全套件里最长的两支，判据多而具体。
+
+### `test_chain_worker.py` — 生产链路端到端
+
+- **主链**：API 提交 → Worker 五阶段 → 原子发布 → 产物字节级校验；策略拒绝与验证不过都落 `failed` 且**不动 head**；支持复合操作（改焦距 + 设置记录表）。
+- **两条「物理边界靠实测发布」的用例**（2026-10-17 §C.2 补量具之后才成立）：`test_chain_far_virtual_image_publishes_on_measured_divergence`（f=40 成虚像，实测交点 −119.6 cm 对上参考 −120）与 `test_chain_parallel_beam_publishes_on_measured_parallelism`（u=f，出射斜率与零不可区分）；而 `test_validation_failure_blocks_publish`（f=5，交付屏上不成像）**仍必须失败**——一正两负成对存在，才说明判据不是摆设。
+- **id 一律读库**：候选版本与产物 id 改为读 `jobs.candidate_revision_id`（内容派生 id 由生产侧计算），用例不自己拼 id，否则测的就不是那条路。
+- **§C.4 起一次发布登记三份产物**（`native.json` + `offline_package/manifest.json` + `offline_package.zip`），同时核对包内场景字节 = 交付字节、清单里引擎交付元数据仍在、`package_sha256` 可由逐文件表重算。
+- **§C.5b 的破坏性检查**：先查 `GET /revisions/{id}/offline_verification`（`verified=true` 且 `checked_files` 等于清单文件数，并随附发布前的浏览器实测记录），然后**故意改一个 `www/index.html` 再查一次**，必须 `verified=false` 且 `changed=["www/index.html"]`；用例内 `try/finally` 还原，不留被改坏的现场。
+
+### `test_package_builder.py` — 交付构建器的职责边界（19 项，用假引擎客户端）
+
+- **清单与字节的一致性**：清单保留引擎交付元数据并附逐文件表与整包摘要；包内场景 = 交付的那份字节（不是引擎的 pretty 副本）；改一个 `www/` 文件后，磁盘重算的摘要必须与清单不符（篡改可查）；缺元数据必须报 `DELIVERY_INTEGRITY`，不许静默补默认值；同内容重跑幂等；`include_offline=False` 不产出包；路径上留着坏字节时是**重写**而不是发出坏字节。
+- **§C.5 三条实测闸门**：浏览器判据不过就没有包、也就没有发布；实测结论写进 `offline_verification.json`（含截图哈希与 `source=browser:chromium`）；客户端**不认识**实测方法时宁可拒绝，也不默认通过。
+- **§C.5b 磁盘重算**：改一个 `www/` 文件必须报 `changed`、多出的文件报 `unexpected`、没清单报 `manifest_missing`。
+- **§C.5b R2 确定性 ZIP**：两次构建产出逐字节相同的 ZIP；ZIP 内完整包含清单声明文件与 LICENSE/README；`verify_offline_zip` 拦篡改包与缺失文件；符号链接强力拒绝；未经清单声明的额外注入文件被拦（`zip_unexpected_files`）；清单 `package_sha256` 被篡改、README/LICENSE 为空都拦。
+- **§C.5c 场景哈希核对（新增 2 项）**：浏览器预检没回报场景哈希（`SCENE_SHA256_MISSING`），或回报的与候选场景哈希不一致（`SCENE_SHA256_MISMATCH`），都强力拦截放行。
 
 ## 测试 → 被测代码（主要映射）
 

@@ -12,8 +12,8 @@
 
 ## 与上下层的关系
 
-- 配套模板：[`../../catalog/templates/mechanics/pendulum/`](../../catalog/templates/mechanics/pendulum/README.md)（同为 `status: pending_slice_9`，只有 manifest、无 `native.json`）。
-- 配套引擎描述：[`../../catalog/engines/`](../../catalog/engines/README.md) 的 `myphysicslab.yaml`（deferred）。
+- 配套模板：[`../../catalog/templates/mechanics/pendulum/`](../../catalog/templates/mechanics/pendulum/README.md) 与同组的 `projectile/`——两者现在都 `status: verified`，但走的是 **LabKit 文件级链路**（matter-js，摆两配方 2/2、抛体三配方 3/3 已实测通过 L1/L2/L3）。**模板可用 ≠ 本技能生效**：`SKILL_PATH` 仍只指向 `ray-optics-customization/SKILL.md`，这两份规范依然零代码读取。
+- 配套引擎描述：[`../../catalog/engines/`](../../catalog/engines/README.md) 里的 `myphysicslab.yaml` 仍是 `status: pending_slice_9`，那是 EduForge 主链路的描述；而模板实际运行时用的 `engine_id: matter_js` 在 `catalog/engines/` 下**还没有对应的 yaml**，`domain/contracts.py` 的 `EngineId` 里也没有它。接入主链路时要一并补。
 - 参考式桩：[`../../python/src/eduforge/validation/scientific/`](../../python/src/eduforge/validation/README.md) 的 `mechanics.py`（单摆周期，未接入运行时）。
 - 分组层说明：[`../README.md`](../README.md)；已接通的那条线见 [`../ray-optics-customization/README.md`](../ray-optics-customization/README.md)。
 

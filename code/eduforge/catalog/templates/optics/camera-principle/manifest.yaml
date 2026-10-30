@@ -1,0 +1,74 @@
+template_id: optics.camera_principle
+title: 照相机成像原理
+engine_id: ray_optics
+engine_version: "5.5.0"
+native_format_version: 5
+
+native_file: native.json
+lesson_file: lesson.md
+
+units_per_unit: 10
+lengthScale: 1
+
+scene_layout:
+  - entity_id: lens_1
+    native_type: IdealLens
+    geometry: { p1: [786, 405], p2: [786, 675] }
+    teaching_meaning: 照相机镜头（凸透镜，焦距 155 场景单位 = 15.5cm）
+  - entity_id: object_1
+    native_type: PointSource
+    geometry: { x: -191, y: 572 }
+    teaching_meaning: 外部被拍摄景物点光源（物距 977 场景单位 = 97.7cm > 2f）
+  - entity_id: sensor_1
+    native_type: Detector
+    geometry: { p1: [1060, 397], p2: [1060, 680] }
+    irradMap: true
+    binSize: 4.5
+    teaching_meaning: 照相机 CMOS 感光传感器光屏面
+
+controls:
+  - entity_id: lens_1
+    native_type: IdealLens
+    parameter: focal_length_cm
+    native_field: focalLength
+    label: 镜头焦距
+    unit: cm
+    min: 5
+    max: 30
+    initial: 15.5
+  - entity_id: object_1
+    native_type: PointSource
+    parameter: object_distance_cm
+    native_field: x
+    label: 景物距离
+    unit: cm
+    min: 35
+    max: 150
+    initial: 97.7
+
+views:
+  - scene
+  - controls
+  - measurement_table
+
+observations:
+  - id: sensor_focal_imaging
+    method: detector_rms_spot_width
+    reads: Detector.binData
+    criterion: 物距大于二倍焦距时，在 CMOS 传感器面上呈现倒立缩小的清晰实像。
+
+exports:
+  - native_scene
+  - offline_package
+
+science_profile: ideal_convex_lens
+science_profile_note: >-
+  照相机镜头采用凸透镜会聚成像原理，当物距 u > 2f 时，像距满足 f < v < 2f，成倒立、缩小的实像。
+
+ray_density:
+  rayModeDensity: 2.0
+  measured_processed_ray_count: 1855
+
+routes:
+  - config
+  - code

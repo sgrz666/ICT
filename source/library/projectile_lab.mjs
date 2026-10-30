@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { createProjectileCore } from "../../code/eduforge/tools/labkit/lib/projectile-core.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(path.join(here, "..", "components", "probe_components.mjs"));
@@ -18,82 +19,12 @@ const OUT = path.join(here, "projectile-lab-evidence.json");
 const M = require("matter-js");
 
 const G = 9.8; // m/s²，教学单位下想要的重力加速度
-const SCALE = 1e-6; // 由下面的实测标定定律反推：a = gravity.y × gravity.scale × 1e6
-const DT_S = 1 / 240; // 每一步的物理时长（秒）
-const DT_MS = DT_S * 1000; // Matter 的 delta 按毫秒解释
 
-// 源码事实（matter-js 0.20.0）：Engine._bodiesApplyGravity 里 force.y = mass × gravity.y × gravity.scale；
-// Body.update 里 velocity += (force/mass) × deltaMs²，position += velocity。
-// 合并 ⇒ 每步位移增量 = g_y·scale·dt_ms²，换算到「单位/秒²」就是 a = g_y·scale·1e6，与 dt 无关。
-function makeEngine() {
-  const engine = M.Engine.create();
-  engine.gravity.x = 0;
-  engine.gravity.y = G;
-  engine.gravity.scale = SCALE;
-  return engine;
-}
-
-// 无初速落体：从 0 掉到 H，用实测反算这个配置下的真实加速度。
-// Matter 的离散轨迹是 y_n = ½·a·(n²+n)·dt²（比连续式多半个步长的相位），所以用它反解 a。
-function calibrate() {
-  const engine = makeEngine();
-  const body = M.Bodies.circle(0, 0, 0.25, { frictionAir: 0, mass: 1 });
-  M.Composite.add(engine.world, body);
-  const H = 20;
-  let n = 0;
-  while (body.position.y < H && n < 20000) {
-    M.Engine.update(engine, DT_MS);
-    n += 1;
-  }
-  const y = body.position.y;
-  const a_measured = (2 * y) / ((n * n + n) * DT_S * DT_S);
-  const t = n * DT_S;
-  M.World.clear(engine.world, false);
-  M.Engine.clear(engine);
-  return { a_measured, t, y, n, config: { gravity_y: G, gravity_scale: SCALE, dt_s: DT_S } };
-}
-
-// 投一个物体并逐步采样；Matter 的 y 向下为正，对外一律翻成「高度向上为正」。
-// 落点靠位置序列线性插值求穿地时刻，不造地面碰撞体——碰撞会把 restitution 的误差混进来。
-function fly(opts) {
-  const engine = makeEngine();
-  const { h0, v0, angleDeg, frictionAir = 0, maxT = 60 } = opts;
-  const th = (angleDeg * Math.PI) / 180;
-  const vx = v0 * Math.cos(th);
-  const vy = -v0 * Math.sin(th);
-  const body = M.Bodies.circle(0, -h0, 0.25, { frictionAir, mass: 1 });
-  // Matter 的 velocity 单位是「每个 baseDelta(16.667 ms) 的位移」，不是「每秒」也不是「每步」。
-  // 手写 positionPrev 会被首步的 correction = dt/baseDelta 再乘一次（实测 1/240 s 步长 ⇒ 初速度缩水 4 倍），
-  // 所以必须走 Body.setVelocity，让它按 deltaTime/baseDelta 自己换算。
-  M.Body.setVelocity(body, { x: vx / 60, y: vy / 60 });
-  M.Composite.add(engine.world, body);
-
-  let t = 0;
-  let px = 0;
-  let py = h0;
-  let apex = { t: 0, y: h0 };
-  let landed = null;
-  let steps = 0;
-  while (t < maxT) {
-    M.Engine.update(engine, DT_MS);
-    t += DT_S;
-    steps += 1;
-    const nx = body.position.x;
-    const ny = -body.position.y;
-    if (ny > apex.y) apex = { t, y: ny };
-    if (py > 0 && ny <= 0) {
-      const f = py / (py - ny);
-      landed = { t: t - DT_S + f * DT_S, x: px + f * (nx - px) };
-      break;
-    }
-    px = nx;
-    py = ny;
-    if (ny < -500 || Math.abs(nx) > 5000) break;
-  }
-  M.World.clear(engine.world, false);
-  M.Engine.clear(engine);
-  return { landed, apex, steps };
-}
+// 物理内核抽到 code/eduforge/tools/labkit/lib/projectile-core.mjs：
+// Node（本文件）与单文件页面共用同一份实现，避免「验收读数」与「页面读数」漂移。
+const core = createProjectileCore(M);
+const fly = core.fly;
+const calibrate = core.calibrate;
 
 function near(label, measured, expected, tolPct) {
   const err = Math.abs(measured - expected);
@@ -219,7 +150,7 @@ for (const r of results) {
 const pass = results.filter((r) => r.verdict === "pass").length;
 const payload = {
   generated_at: new Date().toISOString(),
-  engine: `matter-js ${M.version}（无头步进，dt=${DT_S}s，1 单位 = 1 m）`,
+  engine: `matter-js ${M.version}（无头步进，dt=${core.config.dtS}s，1 单位 = 1 m）`,
   run_command: "node source/library/projectile_lab.mjs --json",
   pass,
   fail: results.length - pass,

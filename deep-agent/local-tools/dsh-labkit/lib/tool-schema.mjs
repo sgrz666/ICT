@@ -35,7 +35,7 @@ export function designParams() {
       required: true,
       additionalProperties: true,
       properties: {},
-      description: '单场景：{v0, angle_deg, h0}；互补角：{v0, h0, angles_deg:[θ1,θ2]}。单位 m/s、度、m。',
+      description: '按模板传参：抛体 {v0, angle_deg, h0} 或互补角 {v0, h0, angles_deg:[θ1,θ2]}；单摆 {}（配方固定扫描）；电路 {voltage_v, resistance_ohm, r2_ohm?}。不确定就传 {}，用配方默认值。',
     },
     why_recipe: {
       type: 'string',
@@ -55,7 +55,7 @@ export function designParams() {
     },
     template_id: {
       type: 'string',
-      description: '模板 id，默认 mechanics.projectile。',
+      description: '模板 id：mechanics.projectile（抛体）/ mechanics.pendulum（单摆）/ circuits.ohms_law（直流电路）。先调 experiment_recipes 获取。',
     },
     out_name: {
       type: 'string',

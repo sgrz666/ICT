@@ -1,5 +1,5 @@
 /** 读取实验模板：目录按 manifest 的 template_id 查找，不靠目录名猜。 */
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
 function collectManifests(dir, out) {
@@ -8,6 +8,32 @@ function collectManifests(dir, out) {
     if (entry.isDirectory()) collectManifests(p, out)
     else if (entry.name === 'manifest.yaml') out.push(p)
   }
+}
+
+/** 列出所有带 recipes.json 的 LabKit 模板（供 experiment_recipes 无参调用）。 */
+export function listTemplates(repoRoot) {
+  const base = join(repoRoot, 'code', 'eduforge', 'catalog', 'templates')
+  const manifests = []
+  collectManifests(base, manifests)
+  const out = []
+  for (const manifest of manifests) {
+    const dir = dirname(manifest)
+    const recipesPath = join(dir, 'recipes.json')
+    if (!existsSync(recipesPath)) continue
+    const text = readFileSync(manifest, 'utf8')
+    const m = text.match(/^template_id:\s*(.+)$/m)
+    if (!m) continue
+    const recipes = JSON.parse(readFileSync(recipesPath, 'utf8'))
+    out.push({
+      template_id: m[1].trim(),
+      title: recipes.title,
+      engine: recipes.engine,
+      recipes: recipes.recipes,
+      decision: recipes.decision,
+      dir,
+    })
+  }
+  return out.sort((a, b) => a.template_id.localeCompare(b.template_id))
 }
 
 export function findTemplateDir(repoRoot, templateId) {

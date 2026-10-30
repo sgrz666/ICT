@@ -1,0 +1,73 @@
+{
+  "schema": "eduforge.labkit.recipes/v1",
+  "template_id": "mechanics.pendulum",
+  "title": "单摆周期与简谐振动",
+  "engine": {
+    "id": "matter_js",
+    "version": "0.20.0",
+    "dt_s": 0.004166666666666667,
+    "gravity": 9.8,
+    "gravity_scale": 1e-06,
+    "radius": 0.02,
+    "damping": 0
+  },
+  "recipes": [
+    {
+      "id": "period-length",
+      "title": "摆长与周期：T ∝ √L",
+      "intent": "周期只由摆长和重力决定，T=2π√(L/g)；摆长翻 4 倍，周期变 2 倍。",
+      "intent_keywords": ["周期", "摆长", "平方根", "2 倍", "正比"],
+      "params_mode": "multi",
+      "scenarios": [
+        { "id": "L0.5", "params": { "length_m": 0.5, "angle0_deg": 5 } },
+        { "id": "L1", "params": { "length_m": 1.0, "angle0_deg": 5 } },
+        { "id": "L2", "params": { "length_m": 2.0, "angle0_deg": 5 } }
+      ],
+      "metric_keys": ["T_L0.5", "T_L1", "T_L2", "ratio"],
+      "metrics": ["T"],
+      "tolerances_pct": { "T": 1, "ratio": 1 }
+    },
+    {
+      "id": "angle-correction",
+      "title": "振幅与周期：小角度近似何时失效",
+      "intent": "小角度近似 T≈2π√(L/g) 只在小振幅成立；振幅增大时周期变长，30° 需按椭圆积分修正。",
+      "intent_keywords": ["小角度", "振幅", "椭圆积分", "周期", "修正"],
+      "params_mode": "multi",
+      "scenarios": [
+        { "id": "deg5", "params": { "length_m": 1.0, "angle0_deg": 5 } },
+        { "id": "deg10", "params": { "length_m": 1.0, "angle0_deg": 10 } },
+        { "id": "deg30", "params": { "length_m": 1.0, "angle0_deg": 30 } }
+      ],
+      "metric_keys": ["T_5", "T_10", "T_30"],
+      "metrics": ["T"],
+      "tolerances_pct": { "T": 1 }
+    }
+  ],
+  "acceptance": {
+    "formulas_display": {
+      "T0": "T₀ = 2π√(L/g)（小角度）",
+      "Texact": "T = 4√(L/g)·K(sin(θ₀/2))（椭圆积分精确解）",
+      "ratio": "T(4L) / T(L) = 2"
+    },
+    "note": "θ0≤10° 时小角度近似误差 <0.2%；30° 时约 1.7%，必须用椭圆积分修正。"
+  },
+  "decision": {
+    "length_range": [0.2, 3.0],
+    "angle_range": [1, 30],
+    "max_period_s": 6,
+    "min_amplitude_deg": 1
+  },
+  "reason": {
+    "variables": ["周期", "摆长", "角度", "振幅", "重力", "平方根", "长度"],
+    "task_verbs": ["改变", "调整", "设置", "记录", "比较", "观察", "测量", "拖动", "保持"],
+    "task_metrics": ["周期", "摆长", "角度", "振幅", "时间", "比值"],
+    "generic_phrases": ["更有趣", "更直观", "效果好", "更生动", "更美观"]
+  },
+  "render": {
+    "canvas": { "width": 960, "height": 540 },
+    "colors": ["#0f766e", "#b45309", "#6d28d9"],
+    "readouts": ["T", "T0", "Texact", "length_m", "angle0_deg"],
+    "show_analytic": true,
+    "show_energy": false
+  }
+}

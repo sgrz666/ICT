@@ -60,9 +60,9 @@
 - 上游源码内部：`source/upstream/` 下**每一个引擎克隆**（`ray-optics/`、`myphysicslab/`、`circuitjs1/`、`matter-js/`、`rapier-js/`、`three/`、`stellarium-web-engine/`、`webots/`、`phet/libs/`、`phet/sims/`）的各级 README 都是上游资产，保持原样、不入库；项目侧说明降级写在 [`source/upstream/README.md`](source/upstream/README.md) 的引擎表里，体积与文件数以 [`source/upstream/inventory.json`](source/upstream/inventory.json) 为准。同理：`source/components/node_modules/` 是依赖目录，说明在 [`source/components/README.md`](source/components/README.md)。**遍历时必须先剪掉带 `.git` 的子目录**（这些克隆每个都自带 `.git` 与上万文件，不剪就走不完）。
 - 数据叶子：`output/eduforge/candidates/offline-package/www/`（当前实测 2162 个静态资源文件，随构建内容变化）——模式写在父层 README，不逐叶撰写。模板实例目录（如 `catalog/templates/optics/convex-lens/`）**各配一份短 README**（状态、文件、关系），模板模式说明仍以 `catalog/templates/README.md` 为准。
 
-**反向纪律：入库目录 100% 要有 README，包括只做分组的中间层。** 分组层（`catalog/templates/optics/`、`services/engine-host/src/adapters/`、`tests/adapters/` 这类「只装下一层目录」的目录）最容易被跳过——一旦漏掉，下一层 README 就成了没有父亲的孩子，读者无法判断层级关系。当前实测基线：命令 (1) 输出 **`tracked dirs: 100 | missing README: 0`**，磁盘上项目侧 README 共 **108 份**（2026-10-19 资源库安装轮）。与上一基线 101 份（2026-10-18）的差额来源：本轮新增 `source/components/README.md` 与 `source/library/README.md` 两份，其余是并行会话在 `code/eduforge` 一侧同期落盘的 README——本轮没动那些目录，只按实测登记，不改写别人的数字。
+**反向纪律：入库目录 100% 要有 README，包括只做分组的中间层。** 分组层（`catalog/templates/optics/`、`services/engine-host/src/adapters/`、`tests/adapters/` 这类「只装下一层目录」的目录）最容易被跳过——一旦漏掉，下一层 README 就成了没有父亲的孩子，读者无法判断层级关系。当前实测基线：命令 (1) 输出 **`tracked dirs: 110 | missing README: 0`**，磁盘上项目侧 README 共 **133 份**（2026-10-20；其中 110 份已入库、20 份待 `git add`、3 份在已忽略的产物目录里）。按 `git ls-files` + 可 add 口径，入库/可入库目录 **129 个、缺失 0**。上一基线是 `tracked dirs: 100 | 108 份`（2026-10-19 资源库安装轮）与 `101 份`（2026-10-18）。差额来源都是新增目录，不改写别人的数字。
 
-不写 README 的目录只有以下 11 类（磁盘实测目录数，截至 2026-10-16，后三类截至 2026-10-18 与 2026-10-19；每类都必须由「谁说明它」那份 README 兜住，兜不住就是文档缺陷）：
+不写 README 的目录只有以下 12 类（磁盘实测目录数，截至 2026-10-16，后四类截至 2026-10-18 至 2026-10-20；每类都必须由「谁说明它」那份 README 兜住，兜不住就是文档缺陷）：
 
 | 类别 | 目录数 | 谁说明它 |
 |---|---|---|
@@ -77,6 +77,7 @@
 | `candidates/offline-package/` | 1 | `output/eduforge/candidates/README.md` |
 | `deep-agent/deepseek-harness/` 内部 | 不实测（剪枝要求见上） | `deep-agent/README.md`、`deep-agent/AGENTS.md` 第 3 节 |
 | `deep-agent/` 运行时目录（`.dsh-home/`、`_corepack/`、`harness-smoke-workspace/`、`_probe/__pycache__/`） | 4 | `deep-agent/README.md` 目录地图（`.dsh-home/` 含 `.credentials.yaml`，敏感，勿复制外发） |
+| `2026-10-18-11-03-28/runs/<时间戳>/` | 14 | 每次端到端运行的现场档案（1,258 KB），已被 `.gitignore` 按 `runs/*` + `!README.md` 排除；结构与判读写在 `2026-10-18-11-03-28/runs/README.md` |
 
 被 `.gitignore` 整目录挡住的类别（candidates、artifacts），若要给它或它的子目录写 README，`.gitignore` 必须写成 `dir/*` + `!dir/README.md` 两行——只写 `dir/` 会让 README 无法入库，README 体系在克隆出来之后就残缺了。
 
@@ -137,7 +138,11 @@ for b in bad: print('BROKEN:', b)
 
 实测基线（2026-10-18）：命令 (1) 输出 `tracked dirs: 98 | missing README: 0 []`（另有 2 个正在写入、尚未 `git add` 的目录 `code/eduforge/catalog/templates/optics/{camera-principle,concave-lens}`，磁盘上也已各有 README，故入库目录 + 待入库目录 = 100 个且缺失为 0）；命令 (2) 输出 `READMEs: 101 | broken links: 0`。
 
-实测基线（2026-10-19，资源库安装轮）：命令 (1) 输出 `tracked dirs: 100 | missing README: 0 []`；命令 (2) 输出 `READMEs: 108 | broken links: 0`。命令 (2) 的剪枝这一轮加了一条通用规则——**任何自带 `.git` 的子目录直接剪掉**，因此 `source/upstream/` 下新装的 8 类引擎克隆（myphysicslab / circuitjs1 / matter-js / rapier-js / three / stellarium-web-engine / webots / phet 的 30 个仓库）不会把上万个上游 README 计进来；不加这一刀，实测会多扫 1.8 万多个文件并把上游 README 误计入项目侧数字。`deep-agent/` 另有自己的更严的门：`python deep-agent/_tools/check_docs.py`（它同时要求该目录下每个含文件的子目录都有 README，2026-10-18 实测 `dirs checked: 9 | README missing: 0 | broken links: 0`）。
+实测基线（2026-10-19，资源库安装轮）：命令 (1) 输出 `tracked dirs: 100 | missing README: 0 []`；命令 (2) 输出 `READMEs: 108 | broken links: 0`。命令 (2) 的剪枝这一轮加了一条通用规则——**任何自带 `.git` 的子目录直接剪掉**，因此 `source/upstream/` 下新装的 8 类引擎克隆（myphysicslab / circuitjs1 / matter-js / rapier-js / three / stellarium-web-engine / webots / phet 的 30 个仓库）不会把上万个上游 README 计进来；不加这一刀，实测会多扫 1.8 万多个文件并把上游 README 误计入项目侧数字。
+
+实测基线（2026-10-20，教学流水线登记轮）：命令 (1) 输出 `tracked dirs: 110 | missing README: 0 []`；命令 (2) 输出 `READMEs: 133 | broken links: 0`——其中 **110 份已入库、23 份还在工作树里没 `git add`**（`2026-10-18-11-03-28/` 那 13 份，加上新模板 `optics/{concave-lens,camera-principle}`、`tools/labkit/{circuit,pendulum}`、`catalog/templates/*/*/render/`、`deep-agent/local-tools/` 的现场说明）。本轮仓库侧另有一处安全修补：根 `.gitignore` 加了裸 `.env` 规则（`2026-10-18-11-03-28/01_single_agent/.env` 里是 `LLM_API_KEY`，此前**没有任何规则**挡它，只因为整个目录未 `git add` 才没泄进历史），并忽略 `/nul` 与内含 `.env` 的 `2026-10-18-11-03-28.zip`。
+
+`deep-agent/` 另有自己的更严的门：`python deep-agent/_tools/check_docs.py`（它同时要求该目录下每个含文件的子目录都有 README，2026-10-18 实测 `dirs checked: 9 | README missing: 0 | broken links: 0`）。
 
 ## 6. 与其他纪律的关系
 

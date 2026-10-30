@@ -25,5 +25,8 @@ export function outPaths(recipeId, outName) {
     dir,
     html: join(dir, `${base}.html`),
     evidence: join(dir, `${base}.evidence.json`),
+    teacher: join(dir, `${base}.teacher.md`),
+    student: join(dir, `${base}.student.md`),
+    manifest: join(dir, `${base}.package.json`),
   }
 }

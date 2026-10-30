@@ -28,12 +28,12 @@ export function apply(ctx) {
     name: 'eduforge:labkit',
     order: 1150,
     text: () =>
-      '当用户要求制作、生成或修改物理实验时：先调 experiment_recipes 读取配方与参数范围；' +
-      '标准需求直接调 experiment_build，一次完成 L1 参数校验、L2 物理对账、单文件渲染与 L3 离线实测。' +
+      '当用户要求制作、生成或修改物理实验时：先调 experiment_recipes 读取可用模板（抛体 / 单摆 / 直流电路）与配方；' +
+      '标准需求直接调 experiment_build，一次完成 L1 参数校验、L2 物理对账、单文件 HTML 渲染、L3 离线实测与交付包（教师手册 / 学生任务单 / 包清单）。' +
       '只有需要分步排查时才使用 experiment_validate / experiment_simulate / experiment_render / experiment_verify。' +
       '不得自行编写物理公式、手写 HTML 或修改验收容差；实验页面必须由这些工具生成。' +
-      'experiment_build 成功后直接汇报 HTML 路径与实测读数，不要再用 read / grep / pwsh 去检查产物内容——' +
-      '页面已嵌入实验目的、操作步骤、解析式与读数表。' +
+      'experiment_build 成功后直接汇报 HTML 路径、交付包路径与实测读数，不要再用 read / grep / pwsh 去检查产物内容——' +
+      '页面已嵌入实验目的、操作步骤、解析式与读数表，教师手册与学生任务单已落盘。' +
       '若 experiment_build 返回 ok=false，按 hints 调整参数或理由后重试，最多 3 次；仍失败则如实上报。',
   })
 

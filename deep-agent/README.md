@@ -45,6 +45,7 @@
 | [patches/](patches/README.md) | 官方 `--patch` 覆盖层，把 Agent 的工作区钉在一次性目录上；含「它不够用」的实测结论 | 2 个条目（README + `smoke-workspace.patch.yml`） | ✅ |
 | [dsh-acl-recovery/](dsh-acl-recovery/README.md) | **官方 ACL 脚本**为 `harness-ui-workspace` 置备权限时生成的备份、回滚脚本与完整记录——系统权限改动可逐一撤销的凭据 | 4 个条目（README + 备份 json + 回滚 ps1 + 记录 jsonl） | ✅ |
 | [harness-ui-workspace/](harness-ui-workspace/README.md) | Web UI 界面核验用的沙盒目录，里面有审批放行后真实写入的 `note.txt` | 4 个条目（README + `hello.txt`、`note.txt`、`notes.txt`） | ✅ |
+| [local-tools/](local-tools/README.md) | 挂到 dsh 上的**本地插件层**（不改上游树）；当前有 `dsh-labkit`（六个 `experiment_*` 工具 + `physics-lab` agent preset + 交付包） | 2 个条目（README + `dsh-labkit/`） | ✅ |
 | `harness-smoke-workspace/` | 五项测试的真实工作区（自带嵌套 `.git`，基线提交 `b6e600c`），另有 `_acl-out/` 权限备份 | 不入库，故不写 README（说明见 AGENTS.md 第 3 节） | ❌ 嵌套仓库 |
 | `deepseek-harness/` | 官方源码克隆，本轮验证对象 | 工作树 2.7 GB 含 node_modules；内部 README 是上游资产 | ❌ 第三方资产，按上游 commit 随时可重取 |
 | `_corepack/`、`.dsh-home/` | pnpm 缓存与隔离的 `DSH_HOME`（会话、日志、配置都落在这里） | 可再生 | ❌ 可再生 |
@@ -56,7 +57,7 @@
 计数口径：2026-10-18 用 `ls -A` 就地实测，「条目数」含该目录的 `README.md`。文档门 `python _tools/check_docs.py` 当前输出 `dirs checked: 9 | md files: 20 | README missing: 0 | broken links: 0`。
 
 ```
-deep-agent/                       13 个条目（2 份本层文档 + 8 个入库目录 + 3 个不入库目录）
+deep-agent/                       14 个条目（2 份本层文档 + 9 个入库目录 + 3 个不入库目录）
 ├── README.md                     ← 本文件：结论摘要、目录地图、精细索引、启动指南、坑
 ├── AGENTS.md                     ← 本目录的硬门：每个含文件的目录都要有 README + 安全纪律 + 验证命令
 │
@@ -100,6 +101,9 @@ deep-agent/                       13 个条目（2 份本层文档 + 8 个入库
 ├── patches/                       2 条  ✅  README.md + smoke-workspace.patch.yml（实测「不足以移动会话 cwd」的结论留在表里）
 ├── dsh-acl-recovery/               4 条  ✅  README.md + acl-backup-<id>.json + 同名 .ps1 回滚脚本 + acl-report-<id>.jsonl 完整记录
 ├── harness-ui-workspace/           4 条  ✅  README.md + hello.txt / note.txt / notes.txt（审批放行后由 Agent 真实写入）
+├── local-tools/                    2 条  ✅  本地 dsh 插件层（不改上游树）
+│   ├── README.md                   装配方式、回滚、安全纪律
+│   └── dsh-labkit/                 README + index.mjs + tools/ + lib/ + preset.patch.yml + 两支 selftest：六个 experiment_* 工具、教师端 preset、交付包
 ├── harness-smoke-workspace/       ❌ 不入库：嵌套 .git（基线 b6e600c）、_acl-out/ 权限备份、__pycache__/
 ├── deepseek-harness/              ❌ 不入库：2.7 GB 上游源码 + node_modules，唯一密钥在它的 .env（53 字节，变量名 DEEPSEEK_API_KEY，值不打印）
 ├── _corepack/                     ❌ 不入库：corepack/pnpm 缓存（COREPACK_HOME 指这里，避开全局安装的 EPERM）
@@ -253,7 +257,9 @@ git -C deepseek-harness status --porcelain --untracked-files=no   # 每一行都
 
 ## 与上层（ICT / EduForge）的关系
 
-这是 ICT 仓库里一个**与被验证对象隔离**的验证工作区：EduForge 的生产代码、依赖、数据库都没被碰过，`git status` 里 EduForge 侧的改动全部来自并行会话。上游那份 `deep-agent/` 忽略规则（现已被拆成细粒度规则）早先已被并行会话带入提交。
+这是 ICT 仓库里一个**与被验证对象隔离**的验证工作区：EduForge 的生产代码、依赖、数据库都没被碰过，`git status` 里 EduForge 侧的改动全部来自并行会话。
+
+阶段 H 起，[`local-tools/dsh-labkit/`](local-tools/dsh-labkit/README.md) 把 EduForge LabKit 注册成 dsh 原生工具（六个 `experiment_*`），并带一个 `physics-lab` agent preset 与交付包；这是本工作区与 EduForge 的**唯一有意接通点**：核心库仍在 [`../code/eduforge/tools/labkit/`](../code/eduforge/tools/labkit/README.md)，插件只做 `defineTool` 适配、结果投影与文档生成，不改上游 loop、不写 EduForge 生产表，也不经过 engine-host。上游那份 `deep-agent/` 忽略规则（现已被拆成细粒度规则）早先已被并行会话带入提交。
 
 按 ICT 的 `AGENTS.md` 纪律，本目录的**每一个文件夹都必须有自己的 README**，这条要求在 [deep-agent/AGENTS.md](AGENTS.md) 里对后续 Agent 生效。仓库根的 `README.md` 目录地图是否要登记 `deep-agent/`，因该文件正被并行会话编辑，本轮未改，缺口登记在此。
 

@@ -6,7 +6,7 @@
 
 | 文件 | 行数 | 职责 | 关键符号 |
 |---|---|---|---|
-| `optics.py` | 25 | 薄透镜成像参考计算：v = fu/(u−f)，区分实像/虚像/无穷远边界。**唯一在链路上工作的参考式** | `thin_lens_reference` |
+| `optics.py` | 35 | 薄透镜成像参考计算：v = fu/(u−f)，区分实像/虚像/无穷远边界；支持 `allow_diverging`（允许 f < 0 凹透镜计算）与 `concave_lens_reference`。**唯一在链路上工作的参考式** | `thin_lens_reference`, `concave_lens_reference` |
 | `mechanics.py` | 16 | 单摆周期计算**桩**（为 mechanics 模板预留）；仅测试可达 | `calculate_pendulum_period` |
 | `circuits.py` | 14 | 欧姆定律计算**桩**（为 circuits 模板预留）；仅测试可达 | `calculate_ohms_law` |
 

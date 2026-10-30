@@ -1,0 +1,98 @@
+{
+  "name": "相机成像原理",
+  "version": 5,
+  "objs": [
+    {
+      "type": "Blocker",
+      "name": "blocker_bottom",
+      "p1": { "x": 1060, "y": 680 },
+      "p2": { "x": 760, "y": 680 }
+    },
+    {
+      "type": "Blocker",
+      "name": "blocker_top",
+      "p1": { "x": 1060, "y": 400 },
+      "p2": { "x": 760, "y": 400 }
+    },
+    {
+      "type": "Ruler",
+      "name": "ruler_1",
+      "p1": { "x": 1063, "y": 698 },
+      "p2": { "x": -141, "y": 694 }
+    },
+    {
+      "type": "Aperture",
+      "name": "aperture_1",
+      "p1": { "x": 760, "y": 400 },
+      "p2": { "x": 760, "y": 680 },
+      "p3": { "x": 760, "y": 504 },
+      "p4": { "x": 760, "y": 575 }
+    },
+    {
+      "type": "TextLabel",
+      "name": "text_outside",
+      "x": 200,
+      "y": 368,
+      "text": "外面的物体",
+      "alignment": "right"
+    },
+    {
+      "type": "TextLabel",
+      "name": "text_camera",
+      "x": 913,
+      "y": 393,
+      "text": "相机",
+      "alignment": "center"
+    },
+    {
+      "type": "CropBox",
+      "name": "crop_box_1",
+      "p1": { "x": -308, "y": 297 },
+      "p4": { "x": 1210, "y": 803 }
+    },
+    {
+      "type": "CropBox",
+      "name": "crop_box_2",
+      "p1": { "x": 729, "y": 338 },
+      "p4": { "x": 1158, "y": 766 }
+    },
+    {
+      "type": "IdealLens",
+      "name": "lens_1",
+      "p1": { "x": 786, "y": 405 },
+      "p2": { "x": 786, "y": 675 },
+      "focalLength": 155
+    },
+    {
+      "type": "PointSource",
+      "name": "object_1",
+      "x": -191,
+      "y": 572,
+      "brightness": 0.7,
+      "wavelength": 620
+    },
+    {
+      "type": "Detector",
+      "name": "sensor_1",
+      "p1": { "x": 1060, "y": 397 },
+      "p2": { "x": 1060, "y": 680 },
+      "twoSided": true,
+      "irradMap": true,
+      "binSize": 4.5
+    },
+    {
+      "type": "TextLabel",
+      "name": "text_cmos",
+      "x": 1066,
+      "y": 423,
+      "text": "CMOS"
+    }
+  ],
+  "width": 2278,
+  "height": 1265,
+  "rayModeDensity": 2,
+  "origin": { "x": 688, "y": 82 },
+  "scale": 1,
+  "mode": "rays",
+  "simulateColors": true
+}

@@ -1,0 +1,83 @@
+template_id: optics.concave_lens
+title: 凹透镜发散与成像
+engine_id: ray_optics
+engine_version: "5.5.0"
+native_format_version: 5
+
+native_file: native.json
+lesson_file: lesson.md
+
+units_per_unit: 10
+lengthScale: 1
+
+scene_layout:
+  - entity_id: lens_1
+    native_type: IdealLens
+    geometry: { p1: [0, -250], p2: [0, 250] }
+    teaching_meaning: 凹透镜，焦距负值 (-100 场景单位 = -10cm)
+  - entity_id: object_1
+    native_type: PointSource
+    geometry: { x: -300, y: 0 }
+    teaching_meaning: 物点，物距 300 场景单位 = 30cm
+  - entity_id: screen_10
+    native_type: Detector
+    geometry: { p1: [100, -120], p2: [100, 120] }
+    irradMap: true
+    binSize: 2
+  - entity_id: screen_20
+    native_type: Detector
+    geometry: { p1: [200, -120], p2: [200, 120] }
+    irradMap: true
+    binSize: 2
+  - entity_id: screen_30
+    native_type: Detector
+    geometry: { p1: [300, -120], p2: [300, 120] }
+    irradMap: true
+    binSize: 2
+
+controls:
+  - entity_id: lens_1
+    native_type: IdealLens
+    parameter: focal_length_cm
+    native_field: focalLength
+    label: 焦距
+    unit: cm
+    min: -50
+    max: -5
+    initial: -10
+  - entity_id: object_1
+    native_type: PointSource
+    parameter: object_distance_cm
+    native_field: x
+    label: 物距
+    unit: cm
+    min: 10
+    max: 60
+    initial: 30
+
+views:
+  - scene
+  - controls
+  - measurement_table
+
+observations:
+  - id: beam_divergence
+    method: detector_rms_spot_width
+    reads: Detector.binData
+    criterion: 凹透镜发散光束，光斑二矩半径沿光轴传播方向单调增大。
+
+exports:
+  - native_scene
+  - offline_package
+
+science_profile: ideal_concave_lens
+science_profile_note: >-
+  凹透镜焦距为负值，折射光线发散，任意正实物距均成正立、缩小虚像。
+
+ray_density:
+  rayModeDensity: 2.0
+  measured_processed_ray_count: 1855
+
+routes:
+  - config
+  - code

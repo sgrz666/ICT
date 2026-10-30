@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T04:37:04.020Z",
+  "generated_at": "2026-10-19T16:57:08.366Z",
   "engine": "matter-js 0.20.0（无头步进，dt=0.004166666666666667s，1 单位 = 1 m）",
   "run_command": "node source/library/projectile_lab.mjs --json",
   "pass": 5,

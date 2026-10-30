@@ -56,6 +56,10 @@ class Worker:
     backoff_seconds: tuple[float, ...] = (5.0, 15.0, 60.0)
     last_guard: LeaseManager | None = None
 
+    def __post_init__(self) -> None:
+        if self.lease_seconds > 0 and self.heartbeat_seconds >= self.lease_seconds / 2.0:
+            self.heartbeat_seconds = max(0.5, self.lease_seconds / 3.0)
+
     async def run_once(self, *, crash_before: str | None = None) -> dict | None:
         token = f"w-{uuid.uuid4().hex[:8]}"
         job = await self.repo.claim(token, self.lease_seconds)

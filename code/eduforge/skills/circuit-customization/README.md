@@ -12,8 +12,8 @@
 
 ## 与上下层的关系
 
-- 配套模板：[`../../catalog/templates/circuits/ohms-law/`](../../catalog/templates/circuits/ohms-law/README.md)（`status: pending_slice_9`，只有 manifest；两个受控参数电阻/电压，视图 `voltmeter` / `ammeter`）。
-- 配套引擎描述：[`../../catalog/engines/`](../../catalog/engines/README.md) 的 `circuitjs.yaml`（deferred；Java-GWT 工具链与 Docker 前置未就绪的理由记在 `source/upstream/upstream.lock.json`）。
+- 配套模板：[`../../catalog/templates/circuits/ohms-law/`](../../catalog/templates/circuits/ohms-law/README.md)——现在 `status: verified`，走 **LabKit 文件级链路**（自包含 MNA 求解器，欧姆/串联/并联三配方 3/3 通过 L1/L2/L3，与解析式偏差 0，另有 CircuitJS1 外部交叉验证，产物约 27 KB）。**模板可用 ≠ 本技能生效**：`SKILL_PATH` 仍只指向 `ray-optics-customization/SKILL.md`，这份规范依然零代码读取。
+- 配套引擎描述：[`../../catalog/engines/`](../../catalog/engines/README.md) 里的 `circuitjs.yaml` 仍是 `status: pending_slice_9`（Java-GWT 工具链与 Docker 前置未就绪的理由记在 `source/upstream/upstream.lock.json`），那是 EduForge 主链路的描述；模板运行时用的 `engine_id: circuit_mna` 在 `catalog/engines/` 下**还没有对应 yaml**，`EngineId` 里也没有它。
 - 参考式桩：[`../../python/src/eduforge/validation/scientific/`](../../python/src/eduforge/validation/README.md) 的 `circuits.py`（欧姆定律，未接入运行时）。
 - 分组层说明：[`../README.md`](../README.md)。
 
