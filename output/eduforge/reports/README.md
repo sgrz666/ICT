@@ -6,6 +6,12 @@
 
 | 文件 | 来源 | 内容 |
 |---|---|---|
+| `native-dsh-runtime-verification.json`、`native-dsh-runtime-verification-ui.json` / `.png` | 原生 runtime `verify -Live` | 源码运行时实际启动、工具白名单、真实实验构建/篡改、文件与原生进程边界、取消、审批、SDK、浏览器预设切换/配置重载/拒绝按钮；模型缺凭据时明确 pending |
+| `native-dsh-portable-verification.json`、`native-dsh-portable-verification-ui.json` / `.png` | 仓库外目录使用包内 Node 与 Headless Shell 运行 `verify -Live` | 发行独立性；与源码运行使用同一组真实验收，完整逐文件哈希另见发行包 inventory |
+| `native-dsh-web-smoke.json` / `.png` | `src/ui-smoke.mjs` | 独立浏览器 UI 取证：启智品牌、双预设切换、设置重载、实际拒绝审批按钮、零页面异常与观测期间外部请求 |
+| `native-dsh-portable-ui-onboarding-race.json` | 移动发行包复跑的历史失败现场 | 延迟出现的 API Key 引导弹窗拦截预设点击；修复为 Playwright 在动作时处理引导弹窗，复跑结果看当前 portable verification；本文件按历史现场理解 |
+| `native-dsh-baseline-benchmark.json`、`native-dsh-pruned-benchmark.json` | 各自新 Node 进程的 `src/benchmark.mjs` | 现有隐私补丁版与精简版：启动耗时、空闲 RSS、实际加载行、预设和模块清单；单次观测，不以源码仓库体积比较发行体积 |
+| `native-dsh-runtime-implementation.md` | `src/report.mjs` 读取验收与发行清单生成 | 保留/裁剪范围、测量、发行路径、复跑方式与待验项目，按本轮实际证据解读 |
 | `slice1-rayoptics-probe.json` | `tools/rayoptics_probe.cjs` | 第一切片核心证据：上游接受手写场景（error/warning 均 null）、toJSON 往返闭合、纯函数改焦距（15cm→150）、绑定方式结论（下标绑定否决，改 `name`）、与薄透镜参考式吻合 |
 | `slice1-browser.json` / `slice1-browser-loaded.png` | `tools/browser_gate1.py` | 真实 Chromium 经分享 URL 载入场景：标题、canvas 层数、页面错误、UI 元素清单 |
 | `slice1-browser-edit.json` / `slice1-browser-edit-final.png` | `tools/browser_gate1_edit.py` | UI 内改焦距 → 同步 → 复制分享链接 → 解回：`focalLength` 由缺失变 150、四个 `name` 保留 |

@@ -1,0 +1,40 @@
+# ICT / EduForge 教育智能体基座剪枝覆盖层 (Cordis Patch Overlay)
+#
+# 设计原则：
+# 1. 遵循 dsh "Everything is a Plugin" 架构，不暴力删除核心包，通过配置层精确卸载与项目无关的模块；
+# 2. 100% 保留 dsh 的 12 大核心 Agent 支柱能力（Agent Loop、工具管线、VFS与写前必读守卫、
+#    受控沙箱、两阶段压缩与Spill落盘、Format v4会话与投影查询、Todo/Plan/Goal自治、
+#    Skill与指令加载、Subagent派生与Fork、后台任务Jobs、审批与交互、物理实验LabKit扩展）；
+# 3. 仅剪枝（disabled: true）与本地教育交付无关或存在数据外发隐患的云端遥测、商业账号登录与打点模块。
+
+# ── 1. 剪枝：官方云端遥测与会话日志外发 (Privacy & Telemetry Pruning) ──────────
+- id: otel
+  disabled: true
+
+- id: session-telemetry-otel
+  disabled: true
+
+- id: session-log-deepseek
+  disabled: true
+
+- id: plugin-package-inventory-deepseek
+  disabled: true
+
+- id: command-feedback
+  disabled: true
+
+# ── 2. 剪枝：DeepSeek 商业平台 OAuth 账号与计费路由 (保留 API Key 与 pi-ai 多路由) ──
+- id: deepseek-account
+  disabled: true
+
+- id: llm-deepseek-account
+  disabled: true
+
+# ── 3. 定制：面向 ICT / EduForge 教育与物理仿真智能体的系统提示词基座 ──────────
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You are the ICT EduForge AI Agent (启智AGENT), an advanced educational and physics-simulation
+      engineering assistant powered by the {{model}} model. You combine rigorous software engineering
+      (read-before-write file operations, sandboxed verification, structured planning) with verified
+      physics and circuit laboratory tools.

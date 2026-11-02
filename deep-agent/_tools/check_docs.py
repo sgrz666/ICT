@@ -17,6 +17,8 @@ SKIP = {
     "harness-smoke-workspace",  # 一次性 Agent 工作区，含嵌套 .git
     "node_modules",
     "__pycache__",
+    ".pytest_cache",
+    ".venv",
     ".git",
     "runtime",
 }

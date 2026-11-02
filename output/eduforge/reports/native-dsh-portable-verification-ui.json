@@ -1,0 +1,51 @@
+{
+  "schema": "eduforge.agent-runtime.ui/v1",
+  "checks": [
+    {
+      "id": "preset_switch",
+      "passed": true
+    },
+    {
+      "id": "settings_reload_preserves_bundle",
+      "passed": true
+    },
+    {
+      "id": "approval_reject_button",
+      "passed": true,
+      "outcome": "rejected"
+    },
+    {
+      "id": "brand_and_shell",
+      "passed": true
+    },
+    {
+      "id": "no_browser_exception",
+      "passed": true
+    },
+    {
+      "id": "no_cloud_account",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "external_origins": [],
+  "body_excerpt": "启智\nAGENT\n新会话\nCtrl\n+\nAlt\n+\nN\n工作区\n验收工作区\n默认工作区\n未命名\n刚刚\n设置\ndefault-workspace\n开发助手\n对话\n轨迹\n已完成\n已完成，用时 1秒\n发消息或创建任务, / 调用指令, @ 文件或对话\n工作区内修改\n请选择模型",
+  "buttons": [
+    "启智AGENT",
+    "",
+    "新会话Ctrl+Alt+N",
+    "",
+    "",
+    "",
+    "设置",
+    "",
+    "",
+    "已完成，用时 1秒",
+    "",
+    "工作区内修改",
+    "请选择模型",
+    ""
+  ],
+  "screenshot": "D:\\codeplus\\ICT\\output\\eduforge\\reports\\native-dsh-portable-verification-ui.png",
+  "status": "passed"
+}

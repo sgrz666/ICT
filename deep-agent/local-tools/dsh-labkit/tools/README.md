@@ -15,7 +15,8 @@
 
 - 领域失败**返回** `{ok:false, stage, code, summary, hints}`，不抛异常；只有未预期异常才冒泡。
 - `summary` 是模型看到的主文本：只放结论、关键读数、路径与建议；完整数据放 `data`，不倾倒 evidence。
-- 所有写操作经 [`../lib/paths.mjs`](../lib/paths.mjs) 的 `outPaths()`，输出根固定在 `output/eduforge/candidates/labkit/`。
+- 所有写操作经 [`../lib/paths.mjs`](../lib/paths.mjs) 的 `outPaths()`；`build`/`render`/`verify` 显式传配置 `outRoot`，默认仍在 `output/eduforge/candidates/labkit/`。复验时 HTML、evidence 和渲染清单都必须在该根内。
+- `build`/`render` 返回 `data.artifact_manifest_path`；交付与归档需保留它。`verify` 会先核对设计、HTML、证据哈希，再运行真实浏览器；没有清单的旧产物需重建。
 - `execute(args, exec)` 在进入 L3 前检查 `exec.signal.aborted`；Playwright 在 `finally` 里关闭。
 
 ## 与上下层的关系

@@ -5,7 +5,7 @@ EduForge 跑出来的东西分四类，按性质分目录，不混放：
 | 目录 | 性质 | 状态 |
 |---|---|---|
 | [`reports/`](reports/README.md) | 验证证据（切片/gate 的原始输出：JSON、日志、截图） | 15 个文件，内容最实 |
-| `candidates/` | 候选交付物（给用户/评委看的东西） | `offline-package/`：GATE-8 离线网页包；**已列入 `.gitignore`** |
+| `candidates/` | 候选交付物（给用户/评委看的东西） | `offline-package/`、LabKit 与原生 dsh `agent-runtime/` 发行候选；**已列入 `.gitignore`**，具体模式见 [候选说明](candidates/README.md) |
 | `artifacts/` | 运行期产物区（worker building 阶段写 `revisions/{candidate}/native.json`） | **运行数据，不入库**（已列入 `.gitignore`） |
 | `research/` | 调研材料 | 预留，当前只有 README |
 

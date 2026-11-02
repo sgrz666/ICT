@@ -44,6 +44,8 @@ importers:
 
   packages/contracts: {}
 
+  services/agent-runtime: {}
+
   services/engine-host:
     devDependencies:
       '@types/node':

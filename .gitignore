@@ -78,3 +78,15 @@ deep-agent/deepseek-harness/
 deep-agent/_corepack/
 deep-agent/.dsh-home/
 deep-agent/harness-smoke-workspace/
+
+# 1024交付：排除大体积逐帧动图缓存与工作目录（实测 >830MB，详见 1024交付/README.md 纪律）
+1024交付/_gif_frames*/
+1024交付/_gif_work/
+
+# 教学实验生成流水线：排除单机测试与截图大文件现场
+2026-10-18-11-03-28/.tmptest/
+2026-10-18-11-03-28/deliver_bak_x1/
+2026-10-18-11-03-28/shots/
+
+# 本地 Agent 协作工作区现场与过程记录
+.agents/

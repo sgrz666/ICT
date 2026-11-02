@@ -1,6 +1,12 @@
 # candidates — 候选交付物
 
-放「准备交出去的东西」。目前只有一个：`offline-package/`——**GATE-8 离线网页包**，已通过断网检查。
+放「准备交出去的东西」：`offline-package/` 为 GATE-8 离线网页包，`labkit/` 为实验页面，`agent-runtime/` 为原生 dsh Windows 发行候选。
+
+## agent-runtime/
+
+`win-x64-20261031/` 是本轮原生 dsh 启智 Web 候选，使用包内 Node、运行依赖、实验资源与 Chromium Headless Shell；文件哈希和字节数以包内 `inventory.json` 为准。构建中断的 `portable-win-x64-20261031-a/` 留作现场，不作为交付件。
+
+发行候选是生成的数据树，`runtime/node_modules/`、浏览器与 `assets/` 不逐目录维护项目侧 README，按本父层说明和 `inventory.json` 管理；根包自己的启动 README 由构建器生成。源码与复跑命令见 [agent-runtime](../../../code/eduforge/services/agent-runtime/README.md)。真实模型仍需有效凭据，候选不等于已通过全部生产验收。
 
 ## offline-package/
 
@@ -11,7 +17,7 @@
 
 `labkit/` 是 LabKit 单文件实验的产物区（**不是离线包**）：
 
-- `<recipe>/<name>.html` — 单文件页面，双击即开、零网络：
+- `<recipe>/<name>.html` — 历史单文件页面，双击即开、零网络；2026-10-31 起插件新调用使用 `<recipe>/<uuid>/<name>`，每次分配独立目录：
   - 抛体：内联 matter-js + 物理内核，约 113–118 KB；
   - 单摆：内联 matter-js + 单摆内核，约 108 KB；
   - 直流电路：内联 MNA 求解器（无外部引擎），约 27 KB。

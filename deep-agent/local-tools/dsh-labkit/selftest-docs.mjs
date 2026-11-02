@@ -6,14 +6,15 @@
  *
  * 跑法：node deep-agent/local-tools/dsh-labkit/selftest-docs.mjs
  */
-import { mkdirSync, readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { checkDesign, simulateDesign, loadTemplate } from './lib/labkit.mjs'
 import { buildDeliveryDocs } from './lib/package.mjs'
-import { outRoot, repoRoot } from './lib/paths.mjs'
+import { repoRoot } from './lib/paths.mjs'
 
-const outDir = join(outRoot, 'selftest', 'docs-all')
-mkdirSync(outDir, { recursive: true })
+const outDir = mkdtempSync(join(tmpdir(), 'labkit-docs-selftest-'))
+console.log(`Selftest output: ${outDir}`)
 
 const TASKS = {
   horizontal: '拖动初速度滑块，用“记录本次”按钮记录三次射程与飞行时间；比较不同初速度下的读数。',

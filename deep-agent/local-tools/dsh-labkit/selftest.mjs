@@ -5,8 +5,15 @@
  * 跑法：node deep-agent/local-tools/dsh-labkit/selftest.mjs
  * 需要本机已装 Playwright Chromium（与 LabKit selftest 同一条依赖）。
  */
-import { existsSync, readFileSync } from 'node:fs'
-import { registerBuild } from './tools/build.mjs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+const outputBase = process.env.EDUFORGE_LABKIT_OUTPUT_ROOT || tmpdir()
+mkdirSync(outputBase, { recursive: true })
+process.env.EDUFORGE_LABKIT_OUTPUT_ROOT = mkdtempSync(join(outputBase, 'labkit-package-selftest-'))
+console.log(`Selftest output: ${process.env.EDUFORGE_LABKIT_OUTPUT_ROOT}`)
+const { registerBuild } = await import('./tools/build.mjs')
 
 const tools = {}
 const ctx = { tools: { register: tool => { tools[tool.name] = tool } } }
@@ -34,7 +41,7 @@ if (!result.ok) {
   process.exit(1)
 }
 
-for (const key of ['html_path', 'evidence_path', 'teacher_path', 'student_path', 'manifest_path']) {
+for (const key of ['html_path', 'evidence_path', 'teacher_path', 'student_path', 'manifest_path', 'artifact_manifest_path']) {
   check(`${key} 存在`, typeof result.data[key] === 'string' && existsSync(result.data[key]), result.data[key] ?? '')
 }
 
@@ -48,6 +55,9 @@ check('学生任务单含先预测', student.includes('## 先预测'))
 check('学生任务单含空白数据表', student.includes('____'))
 check('包清单 schema', manifest.schema === 'eduforge.labkit.delivery/v1')
 check('包清单 design_hash', manifest.design_hash === result.data.design_hash)
+check('包清单 HTML 与 L3 哈希一致', manifest.artifacts.html.sha256 === manifest.checks.l3.html_sha256)
+check('包清单证据与 L3 哈希一致', manifest.artifacts.evidence.sha256 === manifest.checks.l3.evidence_sha256)
+check('渲染清单已登记', !!manifest.artifacts.render_manifest.file)
 check('包清单三份文档', manifest.artifacts.teacher?.file && manifest.artifacts.student?.file)
 check('L2 通过', manifest.checks.l2.verdict === 'pass', `max ${manifest.checks.l2.max_deviation_pct}%`)
 check('L3 零外链', manifest.checks.l3.network_requests === 0)

@@ -1,6 +1,6 @@
 import { verifySingleFile } from '../lib/labkit.mjs'
 import { fmt, hintBlock } from '../lib/format.mjs'
-import { repoRoot } from '../lib/paths.mjs'
+import { outRoot, repoRoot } from '../lib/paths.mjs'
 import { resultSchema, renderResult } from '../lib/tool-schema.mjs'
 
 export function registerVerify(ctx, defineTool) {
@@ -8,7 +8,7 @@ export function registerVerify(ctx, defineTool) {
     name: 'experiment_verify',
     description: 'L3 单文件实测：用真 Chromium 以 file:// 打开，断网检查零外链、canvas 非空、改参后轨迹变化、无 console error、页面读数与 L2 证据一致、体积上限。对已有成品做复验时调用。',
     parameters: {
-      html_path: { type: 'string', required: true, description: '单文件 HTML 的绝对路径（须在 output/eduforge/candidates/labkit 下）。' },
+      html_path: { type: 'string', required: true, description: '单文件 HTML 的绝对路径（须在配置的 LabKit 输出根下）。' },
       evidence_path: { type: 'string', required: true, description: '对应 evidence.json 的绝对路径。' },
     },
     output: { schema: resultSchema(), render: renderResult },
@@ -16,6 +16,7 @@ export function registerVerify(ctx, defineTool) {
     async execute(args) {
       const r = await verifySingleFile({
         repoRoot,
+        outRoot,
         htmlPath: args.html_path,
         evidencePath: args.evidence_path,
       })

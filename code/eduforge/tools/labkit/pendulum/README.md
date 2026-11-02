@@ -9,7 +9,7 @@
 | [`core.mjs`](core.mjs) | `createPendulumCore(Matter)` → `calibrate / swing`；另有 `pendulumAnalytic()`（小角度 + AGM 椭圆积分精确解） |
 | [`check.mjs`](check.mjs) | L1：配方存在、扫描点量程、理由质量；多场景配方忽略 `params` 并给 warning |
 | [`simulate.mjs`](simulate.mjs) | L2：matter-js 摆角过零测周期，对照 `T0` 与 `Texact`；写 evidence |
-| [`render.mjs`](render.mjs) | 单文件 HTML：内联 matter-js + `core.mjs` + `render/runtime.js` |
+| [`render.mjs`](render.mjs) | 单文件 HTML：内联 matter-js + `core.mjs` + `render/runtime.js`，同时写 `.html.manifest.json` 绑定设计、HTML 与证据 |
 
 ## 口径
 
@@ -22,3 +22,4 @@
 - 物理只写 `core.mjs`；`simulate.mjs` 只调用它，页面运行时也只调用它。
 - 小角度公式只用于教学对照，判据必须用精确解；30° 时两者差约 1.7%。
 - 约束长度有 ~4e-5 m 的拉伸，不能把「摆长严格不变」当断言。
+- 渲染与 L3 共用 [`../lib/artifact.mjs`](../lib/artifact.mjs)；复验时保留 HTML、证据与清单。共享验证器现逐场景调用页面内核对账，2026-10-31 已用真实 Chromium 复跑摆长与振幅配方通过。

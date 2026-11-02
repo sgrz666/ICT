@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dsh-core"
+version = "0.1.0"
+description = "Lightweight, decoupled educational agent infrastructure extracted from DeepSeek Harness"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "EduForge Agent Team" }
+]
+dependencies = [
+    "pydantic>=2.7.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+http = [
+    "httpx>=0.27.0",
+]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dsh_core"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

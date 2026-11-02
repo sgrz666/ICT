@@ -1,0 +1,329 @@
+diff --git a/apps/web/index.html b/apps/web/index.html
+index f5c2ffac06..0729ea2131 100644
+--- a/apps/web/index.html
++++ b/apps/web/index.html
+@@ -6,7 +6,7 @@
+     <link rel="manifest" href="/manifest.webmanifest" />
+     <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)" />
+     <link rel="icon" type="image/svg+xml" href="/favicon.svg" media="(prefers-color-scheme: light)" />
+-    <title>DSH Local Build</title>
++    <title>启智AGENT</title>
+   </head>
+   <body>
+     <div id="root"></div>
+diff --git a/apps/web/package.json b/apps/web/package.json
+index 6e90bc5d2c..2188d361bc 100644
+--- a/apps/web/package.json
++++ b/apps/web/package.json
+@@ -61,6 +61,7 @@
+     "vitest": "^4.1.11",
+     "ws": "8.21.3",
+     "@deepseek-ai/dsh-client-ui-theme": "workspace:*",
++    "@deepseek-ai/dsh-client-ui-brand-qizhi": "workspace:*",
+     "@deepseek-ai/dsh-launch-environment": "workspace:*",
+     "@deepseek-ai/dsh-workspace-changes": "workspace:*",
+     "@deepseek-ai/dsh-subprocess-local": "workspace:*",
+diff --git a/apps/web/public/favicon-dark.svg b/apps/web/public/favicon-dark.svg
+index 648fe4f2b9..1c589c1988 100644
+--- a/apps/web/public/favicon-dark.svg
++++ b/apps/web/public/favicon-dark.svg
+@@ -1,3 +1,15 @@
+-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50.000000" height="50.000000" viewBox="0 0 50 50" fill="none">
+-	<path id="path" d="M48.8354 10.0479C48.3232 9.79199 48.1025 10.2798 47.8032 10.5278C47.7007 10.6079 47.6143 10.7119 47.5273 10.8076C46.7793 11.624 45.9048 12.1597 44.7622 12.0957C43.0923 12 41.666 12.5356 40.4058 13.8398C40.1377 12.2319 39.2476 11.272 37.8926 10.6558C37.1836 10.3359 36.4668 10.0156 35.9702 9.31982C35.6235 8.82373 35.5293 8.27197 35.356 7.72754C35.2456 7.3999 35.1353 7.06396 34.7651 7.00781C34.3633 6.94385 34.2056 7.2876 34.0479 7.57568C33.418 8.75195 33.1733 10.0479 33.1973 11.3599C33.2524 14.312 34.4736 16.6641 36.8999 18.3359C37.1758 18.5278 37.2466 18.7197 37.1597 19C36.9946 19.5757 36.7974 20.1357 36.624 20.7119C36.5137 21.0801 36.3486 21.1597 35.9624 21C34.6309 20.4321 33.481 19.5918 32.4644 18.5757C30.7393 16.8721 29.1792 14.9917 27.2334 13.52C26.7764 13.1758 26.3193 12.856 25.8467 12.5518C23.8618 10.584 26.1069 8.96777 26.627 8.77588C27.1704 8.57568 26.8159 7.8877 25.0591 7.896C23.3022 7.90381 21.6953 8.50391 19.647 9.30371C19.3477 9.42383 19.0322 9.51172 18.7095 9.58398C16.8501 9.22363 14.9199 9.14355 12.9033 9.37598C9.10596 9.80762 6.07275 11.6396 3.84326 14.7681C1.16455 18.5278 0.53418 22.7998 1.30664 27.2559C2.11768 31.9521 4.46582 35.8398 8.07373 38.8799C11.8159 42.0322 16.1255 43.5762 21.041 43.2803C24.0269 43.104 27.3516 42.6963 31.1016 39.4561C32.0469 39.936 33.0396 40.1279 34.686 40.272C35.9546 40.3921 37.1758 40.208 38.1211 40.0078C39.6021 39.688 39.4995 38.2881 38.9639 38.0322C34.623 35.9678 35.5762 36.8081 34.71 36.1279C36.9155 33.4639 40.2402 30.6958 41.54 21.728C41.6426 21.0161 41.5557 20.5679 41.54 19.9917C41.5322 19.6396 41.6108 19.5039 42.0049 19.4639C43.0923 19.3359 44.1479 19.0317 45.1167 18.4878C47.9292 16.9199 49.064 14.3438 49.3315 11.2559C49.3711 10.7837 49.3237 10.2959 48.8354 10.0479ZM24.3262 37.8398C20.1196 34.4639 18.0791 33.3521 17.2358 33.3999C16.4482 33.4482 16.5898 34.3682 16.7632 34.9678C16.9443 35.5601 17.1812 35.9683 17.5117 36.4878C17.7402 36.832 17.8979 37.3442 17.2832 37.728C15.9282 38.584 13.5728 37.4399 13.4624 37.3838C10.7207 35.7358 8.42822 33.5601 6.81348 30.584C5.25342 27.7197 4.34766 24.6479 4.19775 21.3677C4.1582 20.5757 4.38672 20.2959 5.15869 20.1519C6.17529 19.96 7.22314 19.9199 8.23926 20.0718C12.5327 20.7119 16.1885 22.6719 19.2529 25.7759C21.002 27.5439 22.3252 29.6558 23.6885 31.7202C25.1377 33.9121 26.6978 36 28.6831 37.7119C29.3843 38.312 29.9434 38.7681 30.479 39.104C28.8643 39.2881 26.1699 39.3281 24.3262 37.8398ZM26.3433 24.6001C26.3433 24.248 26.6191 23.9678 26.9658 23.9678C27.0444 23.9678 27.1152 23.9839 27.1782 24.0078C27.2651 24.04 27.3438 24.0879 27.4067 24.1602C27.5171 24.272 27.5801 24.4321 27.5801 24.6001C27.5801 24.9521 27.3042 25.2319 26.9575 25.2319C26.6108 25.2319 26.3433 24.9521 26.3433 24.6001ZM32.6064 27.8799C32.2046 28.0479 31.8027 28.1919 31.4165 28.208C30.8179 28.2397 30.1641 27.9922 29.8096 27.688C29.2583 27.2158 28.8643 26.9521 28.6987 26.1279C28.6279 25.7759 28.6675 25.2319 28.7305 24.9199C28.8721 24.248 28.7144 23.8159 28.2495 23.4238C27.8716 23.104 27.3911 23.0161 26.8633 23.0161C26.666 23.0161 26.4849 22.9277 26.3511 22.856C26.1304 22.7441 25.9492 22.4639 26.1226 22.1201C26.1777 22.0078 26.4458 21.7358 26.5088 21.688C27.2256 21.272 28.0527 21.4077 28.8169 21.7197C29.5259 22.0161 30.0615 22.5601 30.834 23.3281C31.6216 24.2559 31.7632 24.5117 32.2124 25.208C32.5669 25.752 32.8901 26.312 33.1104 26.9521C33.2446 27.3521 33.0713 27.6802 32.6064 27.8799Z" fill="#fff" fill-opacity="1.000000" fill-rule="nonzero"/>
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
++  <title>启智AGENT</title>
++  <defs>
++    <linearGradient id="qizhi" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
++      <stop offset="0" stop-color="#38e1ff" />
++      <stop offset="0.55" stop-color="#7c5cff" />
++      <stop offset="1" stop-color="#4ef0b0" />
++    </linearGradient>
++  </defs>
++  <path d="M12 2.4 20.4 7.2v9.6L12 21.6 3.6 16.8V7.2z" stroke="url(#qizhi)" stroke-width="1.6" stroke-linejoin="round" />
++  <path d="M12 6.6 13.35 10.65 17.4 12 13.35 13.35 12 17.4 10.65 13.35 6.6 12 10.65 10.65z" fill="url(#qizhi)" />
++  <circle cx="12" cy="2.4" r="1.4" fill="url(#qizhi)" />
++  <circle cx="20.4" cy="16.8" r="1.4" fill="url(#qizhi)" />
++  <circle cx="3.6" cy="16.8" r="1.4" fill="url(#qizhi)" />
+ </svg>
+diff --git a/apps/web/public/favicon.svg b/apps/web/public/favicon.svg
+index 754615a37a..c8bd6a45e8 100644
+--- a/apps/web/public/favicon.svg
++++ b/apps/web/public/favicon.svg
+@@ -1,3 +1,8 @@
+-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50.000000" height="50.000000" viewBox="0 0 50 50" fill="none">
+-	<path id="path" d="M48.8354 10.0479C48.3232 9.79199 48.1025 10.2798 47.8032 10.5278C47.7007 10.6079 47.6143 10.7119 47.5273 10.8076C46.7793 11.624 45.9048 12.1597 44.7622 12.0957C43.0923 12 41.666 12.5356 40.4058 13.8398C40.1377 12.2319 39.2476 11.272 37.8926 10.6558C37.1836 10.3359 36.4668 10.0156 35.9702 9.31982C35.6235 8.82373 35.5293 8.27197 35.356 7.72754C35.2456 7.3999 35.1353 7.06396 34.7651 7.00781C34.3633 6.94385 34.2056 7.2876 34.0479 7.57568C33.418 8.75195 33.1733 10.0479 33.1973 11.3599C33.2524 14.312 34.4736 16.6641 36.8999 18.3359C37.1758 18.5278 37.2466 18.7197 37.1597 19C36.9946 19.5757 36.7974 20.1357 36.624 20.7119C36.5137 21.0801 36.3486 21.1597 35.9624 21C34.6309 20.4321 33.481 19.5918 32.4644 18.5757C30.7393 16.8721 29.1792 14.9917 27.2334 13.52C26.7764 13.1758 26.3193 12.856 25.8467 12.5518C23.8618 10.584 26.1069 8.96777 26.627 8.77588C27.1704 8.57568 26.8159 7.8877 25.0591 7.896C23.3022 7.90381 21.6953 8.50391 19.647 9.30371C19.3477 9.42383 19.0322 9.51172 18.7095 9.58398C16.8501 9.22363 14.9199 9.14355 12.9033 9.37598C9.10596 9.80762 6.07275 11.6396 3.84326 14.7681C1.16455 18.5278 0.53418 22.7998 1.30664 27.2559C2.11768 31.9521 4.46582 35.8398 8.07373 38.8799C11.8159 42.0322 16.1255 43.5762 21.041 43.2803C24.0269 43.104 27.3516 42.6963 31.1016 39.4561C32.0469 39.936 33.0396 40.1279 34.686 40.272C35.9546 40.3921 37.1758 40.208 38.1211 40.0078C39.6021 39.688 39.4995 38.2881 38.9639 38.0322C34.623 35.9678 35.5762 36.8081 34.71 36.1279C36.9155 33.4639 40.2402 30.6958 41.54 21.728C41.6426 21.0161 41.5557 20.5679 41.54 19.9917C41.5322 19.6396 41.6108 19.5039 42.0049 19.4639C43.0923 19.3359 44.1479 19.0317 45.1167 18.4878C47.9292 16.9199 49.064 14.3438 49.3315 11.2559C49.3711 10.7837 49.3237 10.2959 48.8354 10.0479ZM24.3262 37.8398C20.1196 34.4639 18.0791 33.3521 17.2358 33.3999C16.4482 33.4482 16.5898 34.3682 16.7632 34.9678C16.9443 35.5601 17.1812 35.9683 17.5117 36.4878C17.7402 36.832 17.8979 37.3442 17.2832 37.728C15.9282 38.584 13.5728 37.4399 13.4624 37.3838C10.7207 35.7358 8.42822 33.5601 6.81348 30.584C5.25342 27.7197 4.34766 24.6479 4.19775 21.3677C4.1582 20.5757 4.38672 20.2959 5.15869 20.1519C6.17529 19.96 7.22314 19.9199 8.23926 20.0718C12.5327 20.7119 16.1885 22.6719 19.2529 25.7759C21.002 27.5439 22.3252 29.6558 23.6885 31.7202C25.1377 33.9121 26.6978 36 28.6831 37.7119C29.3843 38.312 29.9434 38.7681 30.479 39.104C28.8643 39.2881 26.1699 39.3281 24.3262 37.8398ZM26.3433 24.6001C26.3433 24.248 26.6191 23.9678 26.9658 23.9678C27.0444 23.9678 27.1152 23.9839 27.1782 24.0078C27.2651 24.04 27.3438 24.0879 27.4067 24.1602C27.5171 24.272 27.5801 24.4321 27.5801 24.6001C27.5801 24.9521 27.3042 25.2319 26.9575 25.2319C26.6108 25.2319 26.3433 24.9521 26.3433 24.6001ZM32.6064 27.8799C32.2046 28.0479 31.8027 28.1919 31.4165 28.208C30.8179 28.2397 30.1641 27.9922 29.8096 27.688C29.2583 27.2158 28.8643 26.9521 28.6987 26.1279C28.6279 25.7759 28.6675 25.2319 28.7305 24.9199C28.8721 24.248 28.7144 23.8159 28.2495 23.4238C27.8716 23.104 27.3911 23.0161 26.8633 23.0161C26.666 23.0161 26.4849 22.9277 26.3511 22.856C26.1304 22.7441 25.9492 22.4639 26.1226 22.1201C26.1777 22.0078 26.4458 21.7358 26.5088 21.688C27.2256 21.272 28.0527 21.4077 28.8169 21.7197C29.5259 22.0161 30.0615 22.5601 30.834 23.3281C31.6216 24.2559 31.7632 24.5117 32.2124 25.208C32.5669 25.752 32.8901 26.312 33.1104 26.9521C33.2446 27.3521 33.0713 27.6802 32.6064 27.8799Z" fill="#000" fill-opacity="1.000000" fill-rule="nonzero"/>
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
++  <title>启智AGENT</title>
++  <path d="M12 2.4 20.4 7.2v9.6L12 21.6 3.6 16.8V7.2z" stroke="#12203a" stroke-width="1.6" stroke-linejoin="round" />
++  <path d="M12 6.6 13.35 10.65 17.4 12 13.35 13.35 12 17.4 10.65 13.35 6.6 12 10.65 10.65z" fill="#12203a" />
++  <circle cx="12" cy="2.4" r="1.4" fill="#12203a" />
++  <circle cx="20.4" cy="16.8" r="1.4" fill="#12203a" />
++  <circle cx="3.6" cy="16.8" r="1.4" fill="#12203a" />
+ </svg>
+diff --git a/apps/web/public/manifest.webmanifest b/apps/web/public/manifest.webmanifest
+index 6592d6a700..53d78d9e2e 100644
+--- a/apps/web/public/manifest.webmanifest
++++ b/apps/web/public/manifest.webmanifest
+@@ -1,6 +1,6 @@
+ {
+-  "name": "DeepSeek Harness",
+-  "short_name": "DSH",
++  "name": "启智AGENT",
++  "short_name": "启智AGENT",
+   "start_url": "./",
+   "scope": "./",
+   "display": "fullscreen",
+diff --git a/apps/web/src/main.ts b/apps/web/src/main.ts
+index 5f4786acb7..787f43db65 100644
+--- a/apps/web/src/main.ts
++++ b/apps/web/src/main.ts
+@@ -1,6 +1,10 @@
+ /** Browser entry for the Web client. */
+ import '@deepseek-ai/dsh-client-ui-theme/brand-font.css'
+ import { AppWebEntry, applyIndexInjections } from '@deepseek-ai/dsh-client-web'
++// Last so the deployment theme layer wins the cascade against the bundles the
++// client packages contribute; the upstream palette sheet declares the same
++// `--dsw-alias-*` properties on `body` at equal specificity.
++import '@deepseek-ai/dsh-client-ui-brand-qizhi/qizhi-theme.css'
+ 
+ interface DesktopBootGlobal {
+   dshDesktopBoot?: {
+diff --git a/packages/bundle/web-app/cordis.patch.yml b/packages/bundle/web-app/cordis.patch.yml
+index a56cda5e3a..cff7f949e3 100644
+--- a/packages/bundle/web-app/cordis.patch.yml
++++ b/packages/bundle/web-app/cordis.patch.yml
+@@ -332,9 +332,10 @@
+     - id: ui-chat
+       name: '@deepseek-ai/dsh-client-ui-chat'
+ 
+-    # Official occupants for the generic sidebar and conversation brand slots.
+-    - id: ui-brand-official
+-      name: '@deepseek-ai/dsh-client-ui-brand-official'
++    # 启智AGENT occupants for the generic sidebar and conversation brand slots.
++    # The official package stays installed but unmounted; see ui-brand-qizhi/README.md.
++    - id: ui-brand-qizhi
++      name: '@deepseek-ai/dsh-client-ui-brand-qizhi'
+ 
+     - id: ui-attachment
+       name: '@deepseek-ai/dsh-client-ui-attachment'
+diff --git a/packages/bundle/web-app/package.json b/packages/bundle/web-app/package.json
+index b466b32fc3..bc3157f4c6 100644
+--- a/packages/bundle/web-app/package.json
++++ b/packages/bundle/web-app/package.json
+@@ -77,6 +77,7 @@
+     "@deepseek-ai/dsh-client-ui-approval": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-attachment": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-brand-official": "workspace:*",
++    "@deepseek-ai/dsh-client-ui-brand-qizhi": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-chat": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-commands": "workspace:*",
+     "@deepseek-ai/dsh-client-ui-conversation": "workspace:*",
+diff --git a/packages/client/locale/src/locales/en.ts b/packages/client/locale/src/locales/en.ts
+index b649bbc3dc..d9df4e75ab 100644
+--- a/packages/client/locale/src/locales/en.ts
++++ b/packages/client/locale/src/locales/en.ts
+@@ -33,7 +33,7 @@ export const en = {
+   'collapse': 'Collapse',
+   'expand': 'Expand',
+   'back': 'Back',
+-  'brand.localBuild': 'DSH Local Build',
++  'brand.localBuild': 'QIZHI AGENT',
+   'workspace.defaultName': 'Default workspace',
+   'unknown': 'Unknown',
+   'none': 'None',
+diff --git a/packages/client/locale/src/locales/zh.ts b/packages/client/locale/src/locales/zh.ts
+index 11ff789b8a..283a2e3324 100644
+--- a/packages/client/locale/src/locales/zh.ts
++++ b/packages/client/locale/src/locales/zh.ts
+@@ -31,7 +31,7 @@ export const zh = {
+   'collapse': '收起',
+   'expand': '展开',
+   'back': '返回',
+-  'brand.localBuild': 'DSH 本地构建',
++  'brand.localBuild': '启智AGENT',
+   'workspace.defaultName': '默认工作区',
+   'unknown': '未知',
+   'none': '无',
+diff --git a/packages/client/ui-conversation/src/client/locales.ts b/packages/client/ui-conversation/src/client/locales.ts
+index f1f708073b..f2c9b0ceb4 100644
+--- a/packages/client/ui-conversation/src/client/locales.ts
++++ b/packages/client/ui-conversation/src/client/locales.ts
+@@ -74,7 +74,8 @@ export const zh = {
+   'settings.enter.description': '智能体运行时 Enter 键和发送按钮的行为；Cmd/Ctrl+Enter 使用另一行为',
+   'settings.enter.queue': '排队发送',
+   'settings.enter.steer': '插话发送',
+-  'hero.headline': '探索未至之境',
++  'hero.headline': '启智AGENT',
++  'hero.subheading': '面向复杂任务的多工具智能体工作台',
+   'hero.preview': '预览版',
+   'hero.chooseWorkspace': '选择工作区',
+   'session.hierarchy': '会话层级',
+@@ -454,7 +455,8 @@ export const en = {
+   'settings.enter.description': 'What Enter and the Send button do while the agent is running; Cmd/Ctrl+Enter uses the other behavior',
+   'settings.enter.queue': 'Queue',
+   'settings.enter.steer': 'Steer',
+-  'hero.headline': 'Into the Unknown',
++  'hero.headline': '启智AGENT',
++  'hero.subheading': 'A multi-tool agent workspace for complex work',
+   'hero.preview': 'Preview',
+   'hero.chooseWorkspace': 'Choose workspace',
+   'session.hierarchy': 'Session hierarchy',
+diff --git a/packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx b/packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx
+index 40df87269b..0724337419 100644
+--- a/packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx
++++ b/packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx
+@@ -151,10 +151,11 @@ export function HeroShell({ t, renderSlot, children }: HeroShellProps) {
+           </span>
+           <span className={css.titleGroup}>
+             {/* Own element: keeps the headline text addressable apart from the badge. */}
+-            <span>{t('hero.headline')}</span>
++            <span className={css.heroTitle}>{t('hero.headline')}</span>
+             <span className={css.previewBadge}>{t('hero.preview')}</span>
+           </span>
+         </div>
++        <div className={css.subtitle}>{t('hero.subheading')}</div>
+         <div className={css.body}>
+           {/* The composer remains mounted outside this component. */}
+         </div>
+diff --git a/packages/client/ui-conversation/src/client/skeleton/HeroShell.module.css b/packages/client/ui-conversation/src/client/skeleton/HeroShell.module.css
+index aac6a5cf61..a7b0b8aa5a 100644
+--- a/packages/client/ui-conversation/src/client/skeleton/HeroShell.module.css
++++ b/packages/client/ui-conversation/src/client/skeleton/HeroShell.module.css
+@@ -77,6 +77,27 @@
+ 
+ /* Keep hover detection on a stationary box while the mark moves within it;
+    hover rules target the hitbox so a slot-occupant mark swims too. */
++/* 启智AGENT hero main visual: oversized gradient title and its subtitle line.
++   Appended after the shipped headline rules so the cascade overrides cleanly. */
++.heroTitle {
++  font-size: clamp(28px, 4.4vw, 44px);
++  font-weight: 700;
++  letter-spacing: 0.01em;
++  background: linear-gradient(96deg, #38e1ff 0%, #7c5cff 48%, #4ef0b0 100%);
++  -webkit-background-clip: text;
++  background-clip: text;
++  color: transparent;
++  filter: drop-shadow(0 0 18px rgba(56, 225, 255, 0.18));
++}
++
++.subtitle {
++  margin-top: -4px;
++  text-align: center;
++  font-size: 13px;
++  letter-spacing: 0.06em;
++  opacity: 0.62;
++}
++
+ .fishHitbox {
+   display: inline-flex;
+   flex: none;
+diff --git a/packages/client/ui-conversation/tests/skeleton.client.spec.tsx b/packages/client/ui-conversation/tests/skeleton.client.spec.tsx
+index bcd1005a30..007326feb2 100644
+--- a/packages/client/ui-conversation/tests/skeleton.client.spec.tsx
++++ b/packages/client/ui-conversation/tests/skeleton.client.spec.tsx
+@@ -389,7 +389,7 @@ describe('Hero chrome', () => {
+   it('renders the English preview badge through the hero locale seat', () => {
+     const renderSlot = vi.fn<HeroShellProps['renderSlot']>(() => null)
+     const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={renderSlot} />)
+-    expect(view.getByText('Into the Unknown')).toBeTruthy()
++    expect(view.getByText('启智AGENT')).toBeTruthy()
+     expect(view.getByText('Preview')).toBeTruthy()
+     expect(renderSlot).toHaveBeenCalledOnce()
+     expect(renderSlot.mock.calls[0]?.[0]).toBe('conversation.hero.brand.mark')
+@@ -553,7 +553,7 @@ describe('ConversationRoot resident composer', () => {
+     expect(b.view.queryByRole('tablist')).toBeNull()
+     expect(b.slotCalls).not.toContain('conversation.session.header.utilities')
+     expect(b.slotCalls).not.toContain('conversation.session.header.actions')
+-    expect(b.view.getByText('探索未至之境')).toBeTruthy()
++    expect(b.view.getByText('启智AGENT')).toBeTruthy()
+     expect(b.view.getByText('预览版')).toBeTruthy()
+     expect(b.view.queryByTestId('view-chat')).toBeNull()
+     // The same machine-backed textarea is live in the hero, and the
+@@ -587,7 +587,7 @@ describe('ConversationRoot resident composer', () => {
+     expect(conversationPhase(failed, EMPTY_CONVERSATION_SNAPSHOT)).toBe('engaging')
+     const b = mount(failed, undefined, undefined, { summaryBlank: true })
+     expect(b.view.container.querySelector('[data-phase]')?.getAttribute('data-phase')).toBe('active')
+-    expect(b.view.queryByText('探索未至之境')).toBeNull()
++    expect(b.view.queryByText('启智AGENT')).toBeNull()
+   })
+ 
+   it('settling phase: a summary that does not prove the session blank hides the composer while it opens', () => {
+@@ -619,7 +619,7 @@ describe('ConversationRoot resident composer', () => {
+     // blank the column for the history round-trip.
+     const root = b.view.container.querySelector('[data-phase]')
+     expect(root?.getAttribute('data-phase')).toBe('hero')
+-    expect(b.view.getByText('探索未至之境')).toBeTruthy()
++    expect(b.view.getByText('启智AGENT')).toBeTruthy()
+     expect(b.view.getByRole('textbox')).toBeTruthy()
+   })
+ 
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+index 5f38bae356..47e8a49d14 100644
+--- a/pnpm-lock.yaml
++++ b/pnpm-lock.yaml
+@@ -879,6 +879,9 @@ importers:
+       '@deepseek-ai/dsh-client-test-runtime':
+         specifier: workspace:*
+         version: link:../../packages/test-support/client-runtime
++      '@deepseek-ai/dsh-client-ui-brand-qizhi':
++        specifier: workspace:*
++        version: link:../../packages/client/ui-brand-qizhi
+       '@deepseek-ai/dsh-client-ui-deliverables':
+         specifier: workspace:*
+         version: link:../../packages/client/ui-deliverables
+@@ -2763,6 +2766,9 @@ importers:
+       '@deepseek-ai/dsh-client-ui-brand-official':
+         specifier: workspace:*
+         version: link:../../client/ui-brand-official
++      '@deepseek-ai/dsh-client-ui-brand-qizhi':
++        specifier: workspace:*
++        version: link:../../client/ui-brand-qizhi
+       '@deepseek-ai/dsh-client-ui-chat':
+         specifier: workspace:*
+         version: link:../../client/ui-chat
+@@ -3575,6 +3581,33 @@ importers:
+         specifier: ^18.2.0
+         version: 18.3.1(react@18.3.1)
+ 
++  packages/client/ui-brand-qizhi:
++    devDependencies:
++      '@deepseek-ai/cordis':
++        specifier: workspace:~
++        version: link:../../../vendor/cordis
++      '@deepseek-ai/dsh-client-ui-conversation':
++        specifier: workspace:*
++        version: link:../ui-conversation
++      '@deepseek-ai/dsh-client-ui-renderer':
++        specifier: workspace:*
++        version: link:../ui-renderer
++      '@deepseek-ai/dsh-client-ui-sidebar':
++        specifier: workspace:*
++        version: link:../ui-sidebar
++      '@deepseek-ai/dsh-client-ui-slots':
++        specifier: workspace:*
++        version: link:../ui-slots
++      '@deepseek-ai/dsh-client-ui-theme':
++        specifier: workspace:*
++        version: link:../ui-theme
++      react:
++        specifier: ^18.2.0
++        version: 18.3.1
++      react-dom:
++        specifier: ^18.2.0
++        version: 18.3.1(react@18.3.1)
++
+   packages/client/ui-chat:
+     dependencies:
+       '@deepseek-ai/schemastery':
+diff --git a/tsconfig.client.json b/tsconfig.client.json
+index b2f0423c7c..8e25481218 100644
+--- a/tsconfig.client.json
++++ b/tsconfig.client.json
+@@ -98,6 +98,7 @@
+     { "path": "./packages/client/ui-layout" },
+     { "path": "./packages/client/ui-sidebar" },
+     { "path": "./packages/client/ui-brand-official" },
++    { "path": "./packages/client/ui-brand-qizhi" },
+     { "path": "./packages/client/ui-approval" },
+     { "path": "./packages/client/ui-chat/tsconfig.client.json" },
+     { "path": "./packages/client/ui-conversation/tsconfig.client.json" },

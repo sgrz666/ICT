@@ -6,6 +6,7 @@
 
 | 文件 | 性质 | 内容 |
 |---|---|---|
+| [26.10.31_EduForge_原生dsh精简实施.md](26.10.31_EduForge_原生dsh精简实施.md) | 原生运行时实施与实测 | 启智 Web 双预设、正式 bundle 配置重载、真实 LabKit 可迁移交付、Windows 发行与验证；真模型缺凭据仍为 pending |
 | `26.10.14.md` | 早期头脑风暴 | ICT 赛道方向讨论：平台痛点、纯静态交付、教师本地运行、安全与成本等原始想法 |
 | `26.10.15-REA部署.md` | 部署记录 | REA（rea-agents 6.5.0）本地 + 全局双安装、MCP 注册、`rea doctor` 现状（缺 Hopper/Ghidra/IDA/JADX/JEB 外部引擎）、用法备忘与一个待办 |
 | `26.10.15_EduForge_推进计划.md` | 主排期 | 切片 1–8 与 AgentArts 迁移（第 7–8 周）的排期、闸门、置顶「实况」节、风险登记、逐轮记录（第 1–20 轮） |
@@ -16,6 +17,7 @@
 | [26.10.17_EduForge_GateB_执行权与归属.md](26.10.17_EduForge_GateB_执行权与归属.md) | Gate B 实施与实况 | 心跳接 `renew_and_check`（独立连接）、租约过期不得自续、`attempt`/`next_run_at`/重试上限记账、`job_events` 序号行锁、发布加归属与字节核对、API 与工具层的 owner 过滤与身份边界；含指令 §2 Gate B 八条的逐条落点表，以及本轮实测新抓到的「Runner 回读 lease_token」缺陷 |
 | [26.10.17_EduForge_GateA_统一候选执行链.md](26.10.17_EduForge_GateA_统一候选执行链.md) | Gate A 实施与实况 | 按《Deep Agents 实施指令（执行版）》第一轮只做 Gate A：删掉 `operations_from_trace` → `Chain._apply` 的重放语义、候选落 `experiment_candidates`（含迁移与 CAS）、`DeepAgentRunner` 交回候选完成记录；含 §6 模板汇报、对审查文档 P0-1～P0-6 的逐条核对、顺带修掉的 4 项缺陷（含 `eduforge.ps1` 在 PowerShell 5.1 下的 BOM 问题）与 Gate B–F 的 pending 清单 |
 | [26.10.17_EduForge_GateC.0_并发冻结竞态与路径安全实测.md](26.10.17_EduForge_GateC.0_并发冻结竞态与路径安全实测.md) | Gate C.0 实施与实况（R1） | 修复候选 freeze 竞态（SQL `WHERE status='editing'` 谓词原子 CAS 防重新写开，双连接交错测试先红后绿）、Engine Host 内部接口路径白名单沙箱、manifest entry 限制在 www/ 内、URL origin 严格比对与 10MB 请求限额 |
+| [26.10.31_EduForge_架构演进与全量更新记录.md](26.10.31_EduForge_架构演进与全量更新记录.md) | 阶段性架构演进白皮书 | 从 10.17 凸透镜单场景到 10.31 全量多学科矩阵的演进总揽：services/agent-runtime 启智原生运行时落盘、dsh-core 纯 Python 解耦内核（9 大子系统 51 项测试）、LabKit 产物完整性与防篡改体系（.html.manifest.json）、1024 多学科交付物、全库 154 份 README 0 断链治理 |
 
 ## 阅读顺序
 

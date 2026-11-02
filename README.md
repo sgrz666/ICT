@@ -15,6 +15,7 @@
 | [`task/`](task/README.md) | 赛题原件 | ICT创新赛道赛题.docx |
 | [`deep-agent/`](deep-agent/README.md) | **独立验证工作区**：DeepSeek 官方 Harness（`dsh`）源码部署 + 原生 Agent 能力验证，与 EduForge 生产代码隔离 | [启动指南与逐文件索引](deep-agent/README.md)（2026-10-17 入库，本轮登记进本地图） |
 | [`2026-10-18-11-03-28/`](2026-10-18-11-03-28/README.md) | **教学实验生成流水线**：一句需求 → 检索知识 → 生成单文件 HTML → 无头浏览器审查 → 返工交付 | 四个角色目录 + `run_pipeline.py`；**当前未入版本库**，`01_single_agent/.env` 已被 `.gitignore` 挡住 |
+| [`1024交付/`](1024交付/README.md) | **多学科交互实验交付区**：物理/数学/化学 12 项独立交互实验离线包 + 六学科统一设计总览 + 高清动态预览 | [1024交付/README.md](1024交付/README.md) |
 | [`agent/`](agent/README.md) | 预留目录，当前只有一份 README | 计划放智能体侧资产 |
 
 `node_modules/`（根目录下的 `rea-agents` 及其依赖）是依赖目录，不属于项目结构，本 README 体系不覆盖它。
@@ -50,7 +51,7 @@
     - [`infrastructure/`](code/eduforge/python/src/eduforge/infrastructure/README.md) 外部适配 → [`clients/`](code/eduforge/python/src/eduforge/infrastructure/clients/README.md) · [`db/`](code/eduforge/python/src/eduforge/infrastructure/db/README.md) · [`storage/`](code/eduforge/python/src/eduforge/infrastructure/storage/README.md)
     - [`validation/`](code/eduforge/python/src/eduforge/validation/README.md) 验证与发布门禁 → [`scientific/`](code/eduforge/python/src/eduforge/validation/scientific/README.md) 独立科学参考式
     - [`coding/`](code/eduforge/python/src/eduforge/coding/README.md) 代码定制（切片 7 预留）· [`entrypoints/`](code/eduforge/python/src/eduforge/entrypoints/README.md) 智能体运行入口 · [`research/`](code/eduforge/python/src/eduforge/research/README.md) REA 运行器
-  - **Node 侧服务** [`services/`](code/eduforge/services/README.md) → [`engine-host/`](code/eduforge/services/engine-host/README.md) 引擎宿主
+  - **Node 侧服务** [`services/`](code/eduforge/services/README.md) → [`engine-host/`](code/eduforge/services/engine-host/README.md) 引擎宿主；新增 [`agent-runtime/`](code/eduforge/services/agent-runtime/README.md) 原生 dsh 启智 Web、教学/开发双预设与 Windows 发行入口
     - [`src/`](code/eduforge/services/engine-host/src/README.md) 源码头 → [`adapters/`](code/eduforge/services/engine-host/src/adapters/README.md) 适配器分组层 → [`adapters/ray-optics/`](code/eduforge/services/engine-host/src/adapters/ray-optics/README.md) · [`export/`](code/eduforge/services/engine-host/src/export/README.md) 离线包组装 · [`gateway/`](code/eduforge/services/engine-host/src/gateway/README.md) 浏览器网关 · [`preview/`](code/eduforge/services/engine-host/src/preview/README.md) 预览桥接
     - [`tests/`](code/eduforge/services/engine-host/tests/README.md) vitest 套件 → [`adapters/`](code/eduforge/services/engine-host/tests/adapters/README.md) → [`adapters/ray-optics/`](code/eduforge/services/engine-host/tests/adapters/ray-optics/README.md) · [`e2e/`](code/eduforge/services/engine-host/tests/e2e/README.md) 真实浏览器 · [`engines/`](code/eduforge/services/engine-host/tests/engines/README.md) 引擎级验收 · [`gateway/`](code/eduforge/services/engine-host/tests/gateway/README.md) 网关路由
   - **领域规范** [`skills/`](code/eduforge/skills/README.md) → [`ray-optics-customization/`](code/eduforge/skills/ray-optics-customization/README.md) **已启用** · [`mechanics-customization/`](code/eduforge/skills/mechanics-customization/README.md) · [`circuit-customization/`](code/eduforge/skills/circuit-customization/README.md)（后两个零代码读取）
@@ -69,7 +70,18 @@
 - [`dsh-acl-recovery/`](deep-agent/dsh-acl-recovery/README.md) — 系统权限改动的备份、回滚脚本与完整记录
 - [`harness-ui-workspace/`](deep-agent/harness-ui-workspace/README.md) — Web UI 核验沙盒（含审批放行后真实写入的文件）
 - [`local-tools/`](deep-agent/local-tools/README.md) — **dsh 本地插件层**（不改上游树）：`dsh-labkit` 把 LabKit 注册成六个 `experiment_*` 原生工具，带 `physics-lab` agent preset 与交付包，一句话产出一节实验课（HTML + 教师手册 + 学生任务单）
+- [`dsh-core/`](deep-agent/dsh-core/README.md) — **Python 研究原型**：自有测试通过不代表官方运行时等价，隔离、子智能体、压缩和实验验证仍有缺口；正式运行路线为原生 [`agent-runtime/`](code/eduforge/services/agent-runtime/README.md)
 - 不入库：`deepseek-harness/`（2.7 GB 上游源码，验证对象本体）、`harness-smoke-workspace/`（一次性工作区 + 嵌套 `.git`）、`_corepack/`、`.dsh-home/`（含 `.credentials.yaml`，敏感）
+
+### [`1024交付/`](1024交付/README.md) — 多学科教学实验离线交付区
+
+包含 12 门基础学科教学交互实验的独立离线发布包、全套运行态 GIF 高清动图与六学科统一设计风格页面。
+
+- [`六学科统一质感.html`](1024交付/六学科统一质感.html) — 六大学科一致性设计语言总览
+- [`物理/`](1024交付/物理/README.md) — 4 个物理实验包（伏安法测电阻、探究浮力规律、杠杆实验、验证动量守恒）
+- [`数学/`](1024交付/数学/README.md) — 4 个数学探究包（二次函数、截正方体、椭圆离心率、长方体外接球）
+- [`化学/`](1024交付/化学/README.md) — 4 个化学实验包（有机分子球棍模型、盐类水解、指示剂与pH、铁与硫酸铜反应）
+- [`GIF预览/`](1024交付/GIF预览/README.md) — 全量实验高清录屏 GIF 动图展示库
 
 ### [`2026-10-18-11-03-28/`](2026-10-18-11-03-28/README.md) — 教学实验生成流水线
 

@@ -3,17 +3,19 @@
  * LabKit 自检：抛体 / 单摆 / 直流电路各配方各跑一遍 L1 → L2 → 渲染 → L3。
  *
  * 跑法：node code/eduforge/tools/labkit/selftest.mjs
- * 产物：output/eduforge/candidates/labkit/selftest/<template>/<recipe>/...
+ * 产物：系统临时目录的独立 labkit-selftest-*，不覆盖历史证据。
  * 退出码：0 全过；1 任一失败。
  */
-import { readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { renderSingleFile, simulateDesign, verifySingleFile } from './dispatcher.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const repoRoot = resolve(here, '../../../..')
-const outRoot = join(repoRoot, 'output', 'eduforge', 'candidates', 'labkit', 'selftest')
+const repoRoot = resolve(process.env.EDUFORGE_LABKIT_ROOT || resolve(here, '../../../..'))
+const outRoot = mkdtempSync(join(tmpdir(), 'labkit-selftest-'))
+console.log(`Selftest output: ${outRoot}`)
 
 const CASES = [
   {
@@ -101,16 +103,16 @@ for (const c of CASES) {
     continue
   }
   const evidence = JSON.parse(readFileSync(evidencePath, 'utf8'))
-  const render = renderSingleFile({ repoRoot, design: c.design, evidence, outPath: htmlPath })
+  const render = renderSingleFile({ repoRoot, outRoot, design: c.design, evidence, outPath: htmlPath })
   if (!render.ok) {
     failed += 1
     console.log(`[FAIL] ${c.name} RENDER: ${render.code || ''} ${render.detail || JSON.stringify(render.errors)}`)
     continue
   }
-  const ver = await verifySingleFile({ repoRoot, htmlPath: render.html_path, evidencePath })
+  const ver = await verifySingleFile({ repoRoot, outRoot, htmlPath: render.html_path, evidencePath })
   if (!ver.ok) {
     failed += 1
-    console.log(`[FAIL] ${c.name} L3: ${(ver.errors || []).join('; ')}`)
+    console.log(`[FAIL] ${c.name} L3: ${ver.code || ''} ${ver.detail || (ver.errors || []).join('; ')}`)
     continue
   }
   console.log(

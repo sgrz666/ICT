@@ -15,6 +15,7 @@
   - `headless`：无头调用走 `dist-node/rayOptics.js`（1,715,044 字节），观测取 Detector 读数（power/normal/shear/binData），不经浏览器；**必须显式调 `simulator.updateSimulation(false, false)`**，否则 `simulationComplete` 永不触发、进程静默退出。
   - `capabilities`：只声明实测过的（如 `set_parameter`、`set_view`、`sample_measurement`、`export_native_scene` 为真；`export_offline_package` 经随包静态服务打开已实测通过；单文件直开因上游 iframe 内部 i18n HTTP fetch 受限已实测留痕）。
   - `verification_baseline`：探针与报告路径、`measured_at`、**`test_totals`（全仓库唯一计数处）**、passed/rejected/not_yet_measured 三张清单。
+  - `test_totals` 新增独立 Node 口径：`node_agent_runtime`、`node_labkit_integrity`、`node_labkit_portable`；不与原 vitest/pytest 口径相加，也不据此扩大引擎物理能力声明。
 - `myphysicslab.yaml` — 经典力学仿真引擎描述（Apache-2.0，第 7～8 周切片 9 保留位，标记 `status: pending_slice_9`）。
 - `circuitjs.yaml` — 电路仿真引擎描述（GPL-2.0，第 7～8 周切片 9 保留位，标记 `status: pending_slice_9`）。
 

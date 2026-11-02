@@ -11,11 +11,12 @@
  *
  * 这不是「看起来能打开」的冒烟测试：读数对不上、画布空白、偷偷联网，都会判 fail。
  */
-import { readFileSync, statSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { assertUnder } from './fs-safe.mjs'
+import { artifactManifestPath, verifyArtifactManifest } from './artifact.mjs'
 
 const MAX_BYTES = 2 * 1024 * 1024
 const READOUT_REL_TOL = 1e-6
@@ -35,13 +36,17 @@ export async function verifySingleFile({ repoRoot, htmlPath, evidencePath, outRo
   const keys = metricKeys ?? ['T', 'R', 'H']
   const root = outRoot ?? join(repoRoot, 'output', 'eduforge', 'candidates', 'labkit')
   let safeHtml
+  let evidence
   try {
     safeHtml = assertUnder(root, htmlPath)
+    assertUnder(root, artifactManifestPath(safeHtml))
+    evidence = JSON.parse(readFileSync(assertUnder(root, evidencePath), 'utf8'))
   } catch (e) {
-    return { ok: false, stage: 'L3', code: 'PATH_ESCAPE', detail: e.message, hints: ['把 HTML 放到 output/eduforge/candidates/labkit 下。'] }
+    return { ok: false, stage: 'L3', code: e.code === 'PATH_ESCAPE' ? 'PATH_ESCAPE' : 'EVIDENCE_UNREADABLE', detail: e.message, hints: ['把同一批生成的 HTML、证据与渲染清单放到配置的输出根下。'] }
   }
-  const evidence = JSON.parse(readFileSync(evidencePath, 'utf8'))
-  const bytes = statSync(safeHtml).size
+  const integrity = verifyArtifactManifest({ htmlPath: safeHtml, evidence })
+  if (!integrity.ok) return integrity
+  const { bytes, manifest } = integrity
 
   let chromium
   try {
@@ -134,17 +139,29 @@ export async function verifySingleFile({ repoRoot, htmlPath, evidencePath, outRo
     const pageScenarios = before.result.scenarios ?? []
     let maxRel = 0
     let compared = 0
+    const missingReadouts = []
     for (const ev of evidence.scenarios ?? []) {
-      const ps = pageScenarios.find(s => s.id === ev.id)
-      if (!ps) continue
+      // ratio 是 L2 的派生场景，不是页面上的独立运行；其来源读数逐场景核验。
+      if (ev.id === 'ratio') continue
+      let ps = pageScenarios.find(s => s.id === ev.id)
+      // 单摆页面只暴露当前摆长的结果；主动重跑每一个 L2 场景，不把其余场景跳过。
+      if (evidence.template_id === 'mechanics.pendulum') {
+        ps = await page.evaluate(params => window.__LAB.setParams(params).current, ev.params)
+      }
       for (const key of keys) {
-        if (typeof ev.measured?.[key] !== 'number' || typeof ps.measured?.[key] !== 'number') continue
+        if (!Number.isFinite(ev.measured?.[key]) || !Number.isFinite(ps?.measured?.[key])) {
+          missingReadouts.push(`${ev.id}.${key}`)
+          continue
+        }
         maxRel = Math.max(maxRel, relErr(ps.measured[key], ev.measured[key]))
         compared += 1
       }
     }
 
     const checks = {
+      design_hash: before.result.design_hash,
+      html_sha256: manifest.html_sha256,
+      evidence_sha256: manifest.evidence_sha256,
       status,
       network_requests: network.length,
       canvas_nonbg_ratio: Number(canvas.nonBgRatio.toFixed(4)),
@@ -167,6 +184,8 @@ export async function verifySingleFile({ repoRoot, htmlPath, evidencePath, outRo
     }
 
     const failures = []
+    if (missingReadouts.length) failures.push(`L3_READOUT_MISSING: ${missingReadouts.join(', ')}`)
+    if (before.result.design_hash !== manifest.design_hash) failures.push('L3_DESIGN_MISMATCH: 页面设计指纹与渲染清单不同')
     if (network.length > 0) failures.push(`L3_NETWORK: ${network.slice(0, 3).join(', ')}`)
     if (canvas.opaqueRatio < 0.5 || canvas.nonBgRatio < 0.001 || canvas.distinctColors < 8) {
       failures.push(

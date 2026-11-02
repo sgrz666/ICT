@@ -32,6 +32,8 @@ node code/eduforge/tools/pack_static_html.mjs --no-verify     # 只清洗+出索
 
 纯 JS，不依赖 dsh / engine-host / 数据库：`dispatcher.mjs` 按 `template_id` 分派；三条实验线各自的 `core / check / simulate / render` 在 `lib/`、`pendulum/`、`circuit/`；`selftest.mjs` 一次跑 7 个配方。dsh 原生工具插件 [`../../../deep-agent/local-tools/dsh-labkit/`](../../../deep-agent/local-tools/dsh-labkit/README.md) 只是它的一层薄封装。
 
+2026-10-31 新增 `labkit/lib/artifact.mjs` 与 `labkit/artifact-integrity.test.mjs`：渲染清单绑定设计、HTML 和证据，真实 Chromium 复验前先拦截篡改/错配，并要求全部必要读数和单摆场景齐备。它们由原生 [agent-runtime](../services/agent-runtime/README.md) 的真实实验工具复用；测试规模只记引擎清单的 `test_totals`。
+
 ```bash
 node code/eduforge/tools/labkit/selftest.mjs   # 期望 7/7 pass
 ```

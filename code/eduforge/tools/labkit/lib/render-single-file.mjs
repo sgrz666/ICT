@@ -8,6 +8,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { checkDesign } from './check.mjs'
 import { assertUnder } from './fs-safe.mjs'
+import { writeArtifactManifest } from './artifact.mjs'
 import { canonicalJson, designHash, sha256Hex } from './hash.mjs'
 import { loadTemplate } from './template.mjs'
 
@@ -196,6 +197,7 @@ export function renderSingleFile({ repoRoot, design, evidence, outPath, outRoot 
     ok: true,
     stage: 'RENDER',
     html_path: safeOut,
+    artifact_manifest_path: writeArtifactManifest({ htmlPath: safeOut, html, design: l1.normalized, evidence }),
     readme_path: readmePath,
     sha256: sha256Hex(html),
     bytes: Buffer.byteLength(html, 'utf8'),

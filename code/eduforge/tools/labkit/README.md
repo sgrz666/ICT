@@ -21,6 +21,7 @@
 | [`dispatcher.mjs`](dispatcher.mjs) | 106 | 按 `template_id` 分派 check / simulate / render / verify；插件只认这层 |
 | [`lib/template.mjs`](lib/template.mjs) | 73 | 按 `template_id` 找模板目录、读 `recipes.json`、`listTemplates()` |
 | [`lib/hash.mjs`](lib/hash.mjs) | 27 | canonical JSON + sha256；`design_hash` 绑定设计与证据 |
+| [`lib/artifact.mjs`](lib/artifact.mjs) | — | 渲染清单写入/核验：绑定规范化设计、HTML 字节与 canonical JSON L2 证据 |
 | [`lib/fs-safe.mjs`](lib/fs-safe.mjs) | 13 | 输出路径白名单 |
 | [`lib/verify-single-file.mjs`](lib/verify-single-file.mjs) | 205 | L3：Playwright `file://`，六项判据；探针参数与指标键可配置 |
 | [`vendor/matter.min.js`](vendor/matter.min.js) | — | 内联引擎 0.20.0（MIT，83,476 字节，sha256 `72d30be0…88e24ae`） |
@@ -76,6 +77,7 @@ verifySingleFile() ──► {ok, checks, verdict}
 
 - **同一物理内核**：L2 与页面运行时来自同一份 `core.mjs`；渲染时把 `export` 剥掉后内联，逻辑零复制。
 - **证据绑定内容**：`evidence.design_hash = sha256(canonical(normalized design))`；设计改了，旧证据立即失配。
+- **复验绑定文件（2026-10-31）**：每次渲染同时写 `<htmlPath>.manifest.json`，schema 为 `eduforge.labkit.render/v1`。L3 先核对其中的 design_hash、HTML sha256、canonical JSON evidence sha256，再启动 Chromium；页面实际 design_hash 也须一致。历史 HTML 没有清单时需重渲染。
 - **确定性渲染**：同 design + evidence 连渲两次 sha256 相同；HTML 不含 `generated_at`。
 - **L3 探针可配置**：抛体 `v0→R`、单摆 `length_m→T`、电路 `resistance_ohm→I`；指标键按模板传。
 
@@ -86,6 +88,14 @@ node code/eduforge/tools/labkit/selftest.mjs
 # 期望：7/7 pass
 # projectile 2 配方 ~118 KB；pendulum 2 配方 ~108 KB；circuit 3 配方 ~27 KB；network 0
 ```
+
+自检现使用唯一的系统临时目录并打印位置，不再覆盖 `output/eduforge/candidates/labkit/selftest/` 旧证据。可用 `EDUFORGE_LABKIT_ROOT` 指定保留 ICT 布局的资源根。2026-10-31 本机完整自检 exit 0。
+
+```bash
+node --test code/eduforge/tools/labkit/artifact-integrity.test.mjs
+```
+
+[`artifact-integrity.test.mjs`](artifact-integrity.test.mjs) 使用临时目录，复现并钉住 HTML 追加注释、证据 design_hash 改动、越界证据路径、必需指标缺失；正例保留真实 Chromium 检查，单摆逐场景改变参数后核对 L2 读数。2026-10-31 本机 exit 0。`ratio` 是 L2 派生场景，不作为页面独立运行，但其原始场景全部核对；清单哈希也覆盖派生证据。
 
 物理回归（抛体历史口径）：
 
@@ -146,3 +156,4 @@ node code/eduforge/tools/labkit/drag-control-probe.mjs <html 路径> # 测指定
 5. **Playwright 解析**：从 `code/eduforge/services/engine-host/package.json` 解析 1.64.1，复用已缓存 Chromium；缺失时报 `PW_NOT_AVAILABLE`。
 6. **产物不入库**：默认写 `output/eduforge/candidates/labkit/`，被根 `.gitignore` 挡住。
 7. **路径白名单**：`assertUnder()` 只允许写 `candidates/labkit`；新增输出位置必须显式传 `outRoot`。
+8. **内容清单不是签名**：能检出单个 HTML/证据的改动与错配；不声称能防止有人同时改写 HTML、证据与清单。缺清单、不完整指标或不匹配的页面设计指纹不能报告通过。

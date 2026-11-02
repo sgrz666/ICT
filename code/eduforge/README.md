@@ -16,7 +16,7 @@
 | [`catalog/`](catalog/README.md) | 引擎描述与教学模板（数据，不是代码） | [`catalog/engines/`](catalog/engines/README.md)、[`catalog/templates/`](catalog/templates/README.md)（实测 **6 个模板**：光学 `convex-lens` / `concave-lens` / `camera-principle`，力学 `projectile` / `pendulum`，电路 `ohms-law`；`engine_id` 三种：`ray_optics` ×3、`matter_js` ×2、`circuit_mna` ×1） |
 | [`packages/`](packages/README.md) | 跨栈共享契约包 | [`packages/contracts/`](packages/contracts/README.md) |
 | [`python/`](python/README.md) | Python 包源码 | [`python/src/`](python/src/README.md)（agent/api/application/coding/domain/infrastructure/research/validation/worker/entrypoints） |
-| [`services/`](services/README.md) | Node 侧服务 | [`services/engine-host/`](services/engine-host/README.md)（适配器、预览桥接、浏览器网关、离线导出） |
+| [`services/`](services/README.md) | Node 侧服务 | [`services/engine-host/`](services/engine-host/README.md)（适配器、预览桥接、浏览器网关、离线导出）；[`services/agent-runtime/`](services/agent-runtime/README.md)（原生 dsh 启智 Web、双预设、验证与独立发行，尚未替换现有 Worker） |
 | [`skills/`](skills/README.md) | 定制智能体可信领域规范 | [`skills/ray-optics-customization/`](skills/ray-optics-customization/SKILL.md) |
 | [`infra/`](infra/README.md) | 容器编排与 Dockerfile | [`infra/compose.local.yaml`](infra/compose.local.yaml) |
 | [`tests/`](tests/README.md) | pytest 套件 | [`tests/python/`](tests/python/README.md)（19 个 `test_*.py` + conftest.py + 正则对照组夹具） |

@@ -5,6 +5,8 @@
  * student_task / expected_numbers），但 L1/L2/渲染/验证的细节各自独立。
  */
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { assertUnder } from './lib/fs-safe.mjs'
 import { checkDesign as projectileCheck } from './lib/check.mjs'
 import { simulateDesign as projectileSimulate } from './lib/simulate.mjs'
 import { renderSingleFile as projectileRender } from './lib/render-single-file.mjs'
@@ -91,10 +93,13 @@ export function renderSingleFile(args) {
 export function verifySingleFile(args) {
   let evidence
   try {
+    const root = args.outRoot ?? join(args.repoRoot, 'output/eduforge/candidates/labkit')
+    assertUnder(root, args.htmlPath)
+    assertUnder(root, args.evidencePath)
     evidence = JSON.parse(readFileSync(args.evidencePath, 'utf8'))
   } catch (e) {
     return {
-      ok: false, stage: 'L3', code: 'EVIDENCE_UNREADABLE',
+      ok: false, stage: 'L3', code: e.code === 'PATH_ESCAPE' ? 'PATH_ESCAPE' : 'EVIDENCE_UNREADABLE',
       detail: `读不到 evidence：${e.message}`,
       hints: ['先跑 experiment_simulate 生成 evidence.json。'],
     }

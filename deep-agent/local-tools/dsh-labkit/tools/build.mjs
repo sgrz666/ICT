@@ -3,7 +3,7 @@ import { checkDesign, renderSingleFile, simulateDesign, verifySingleFile } from 
 import { writeDeliveryPackage } from '../lib/package.mjs'
 import { errorBlock, fmt, hintBlock } from '../lib/format.mjs'
 import { simulationSummary } from '../lib/summary.mjs'
-import { defaultTemplateId, outPaths, repoRoot } from '../lib/paths.mjs'
+import { defaultTemplateId, outPaths, outRoot, repoRoot } from '../lib/paths.mjs'
 import { designParams, resultSchema, renderResult } from '../lib/tool-schema.mjs'
 
 export function registerBuild(ctx, defineTool) {
@@ -46,7 +46,7 @@ export function registerBuild(ctx, defineTool) {
       }
 
       const evidence = JSON.parse(readFileSync(sim.evidence_path, 'utf8'))
-      const ren = renderSingleFile({ repoRoot, design, evidence, outPath: paths.html })
+      const ren = renderSingleFile({ repoRoot, outRoot, design, evidence, outPath: paths.html })
       if (!ren.ok) {
         return {
           ok: false, stage: 'RENDER', code: ren.code || 'RENDER_FAILED',
@@ -55,7 +55,7 @@ export function registerBuild(ctx, defineTool) {
         }
       }
 
-      const ver = await verifySingleFile({ repoRoot, htmlPath: ren.html_path, evidencePath: sim.evidence_path })
+      const ver = await verifySingleFile({ repoRoot, outRoot, htmlPath: ren.html_path, evidencePath: sim.evidence_path })
       if (!ver.ok) {
         return {
           ok: false, stage: 'L3', code: ver.code || 'L3_FAILED',
@@ -108,6 +108,7 @@ export function registerBuild(ctx, defineTool) {
           teacher_path: pkg.teacher_path,
           student_path: pkg.student_path,
           manifest_path: pkg.manifest_path,
+          artifact_manifest_path: ren.artifact_manifest_path,
           sha256: ren.sha256,
           bytes: ren.bytes,
           design_hash: ren.design_hash,

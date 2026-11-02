@@ -1,0 +1,1161 @@
+{
+  "schema": "eduforge.agent-runtime.verification/v1",
+  "generated_at": "2026-10-31T05:44:37.465Z",
+  "checks": [
+    {
+      "id": "presets_ready",
+      "status": "pass",
+      "detail": [
+        {
+          "id": "physics-lab",
+          "name": "教学实验",
+          "description": "由真实 LabKit 引擎生成并验证离线实验课。",
+          "order": 1
+        },
+        {
+          "id": "eduforge-dev",
+          "name": "开发助手",
+          "description": "原生文件、命令、技能、规划与子智能体；工作区写入受控。",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": "web_http",
+      "status": "pass",
+      "detail": 200
+    },
+    {
+      "id": "teacher_tool_allowlist",
+      "status": "pass",
+      "detail": [
+        "ask_user_question",
+        "experiment_build",
+        "experiment_recipes",
+        "experiment_render",
+        "experiment_simulate",
+        "experiment_validate",
+        "experiment_verify",
+        "present"
+      ]
+    },
+    {
+      "id": "teacher_execution_denied",
+      "status": "pass",
+      "detail": {
+        "isError": true,
+        "error": {
+          "message": "unknown tool \"pwsh\"",
+          "info": {
+            "name": "ToolNotFoundError",
+            "code": "UNKNOWN_TOOL"
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Error: unknown tool \"pwsh\""
+          }
+        ]
+      }
+    },
+    {
+      "id": "real_labkit_recipes",
+      "status": "pass",
+      "detail": {
+        "isError": false,
+        "content": [
+          {
+            "type": "text",
+            "text": "可用实验模板：\n- circuits.ohms_law | 直流电路：欧姆定律与串并联\n  配方：ohms-law（欧姆定律：I = U / R） / series（串联：电流相同，电压按阻值分配） / parallel（并联：电压相同，电流按电阻分配）\n- mechanics.pendulum | 单摆周期与简谐振动\n  配方：period-length（摆长与周期：T ∝ √L） / angle-correction（振幅与周期：小角度近似何时失效）\n- mechanics.projectile | 抛体运动\n  配方：horizontal（平抛：高度决定飞行时间） / oblique45（斜抛：45° 射程最大） / complementary（互补角：30° 与 60° 射程相同）\n\n下一步：选一个 template_id 后再调用本工具，获取该模板的配方细节与量程；或在 experiment_build 里直接传 template_id + recipe_id。"
+          }
+        ],
+        "value": {
+          "ok": true,
+          "stage": "LOAD",
+          "summary": "可用实验模板：\n- circuits.ohms_law | 直流电路：欧姆定律与串并联\n  配方：ohms-law（欧姆定律：I = U / R） / series（串联：电流相同，电压按阻值分配） / parallel（并联：电压相同，电流按电阻分配）\n- mechanics.pendulum | 单摆周期与简谐振动\n  配方：period-length（摆长与周期：T ∝ √L） / angle-correction（振幅与周期：小角度近似何时失效）\n- mechanics.projectile | 抛体运动\n  配方：horizontal（平抛：高度决定飞行时间） / oblique45（斜抛：45° 射程最大） / complementary（互补角：30° 与 60° 射程相同）\n\n下一步：选一个 template_id 后再调用本工具，获取该模板的配方细节与量程；或在 experiment_build 里直接传 template_id + recipe_id。",
+          "data": {
+            "templates": [
+              {
+                "template_id": "circuits.ohms_law",
+                "title": "直流电路：欧姆定律与串并联",
+                "recipes": [
+                  {
+                    "id": "ohms-law",
+                    "title": "欧姆定律：I = U / R"
+                  },
+                  {
+                    "id": "series",
+                    "title": "串联：电流相同，电压按阻值分配"
+                  },
+                  {
+                    "id": "parallel",
+                    "title": "并联：电压相同，电流按电阻分配"
+                  }
+                ]
+              },
+              {
+                "template_id": "mechanics.pendulum",
+                "title": "单摆周期与简谐振动",
+                "recipes": [
+                  {
+                    "id": "period-length",
+                    "title": "摆长与周期：T ∝ √L"
+                  },
+                  {
+                    "id": "angle-correction",
+                    "title": "振幅与周期：小角度近似何时失效"
+                  }
+                ]
+              },
+              {
+                "template_id": "mechanics.projectile",
+                "title": "抛体运动",
+                "recipes": [
+                  {
+                    "id": "horizontal",
+                    "title": "平抛：高度决定飞行时间"
+                  },
+                  {
+                    "id": "oblique45",
+                    "title": "斜抛：45° 射程最大"
+                  },
+                  {
+                    "id": "complementary",
+                    "title": "互补角：30° 与 60° 射程相同"
+                  }
+                ]
+              }
+            ]
+          },
+          "hints": []
+        }
+      }
+    },
+    {
+      "id": "teacher_real_build",
+      "status": "pass",
+      "detail": {
+        "isError": false,
+        "content": [
+          {
+            "type": "text",
+            "text": "已生成并通过三层验收，交付包已落盘。\n文件：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.html\n证据：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.evidence.json\n教师手册：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.teacher.md\n学生任务单：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.student.md\n包清单：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.package.json\n大小：125.7 KB · sha256=08e3357ffdf46f11…\n\nL2 物理对账通过。\n场景     | R(m) 实测 / 解析 | T(s) 实测 / 解析 | H(m) 实测 / 解析\na30      | 35.28 / 35.35 | 2.0366 / 2.0408 | 5.08 / 5.10  (max 0.41%)\na60      | 35.31 / 35.35 | 3.5306 / 3.5348 | 15.27 / 15.31  (max 0.24%)\n\n阻力对照：无阻力偏离 0.144%，开阻力偏离 56.498%，比值 391.2×（要求 >5× 且开阻力偏离 >1%）→ pass\n\nL3：网络请求 0 · canvas 3.48% · 改参 有效 · console error 0 · 读数误差 1.35e-7\n\n页面已嵌入：实验目的（why_recipe）、操作步骤（student_task）、解析式与读数表；\n教师手册含 5E 流程与含答案的数据表，学生任务单含先预测/空表/迁移题；\n无需再用 read/grep 检查 HTML 内容，直接把路径与读数汇报给用户即可。\n\n双击该 HTML 即可使用；可调参数由模板决定（抛体：初速度/角度/高度；单摆：摆长/初始角；电路：电压/电阻）。"
+          }
+        ],
+        "value": {
+          "ok": true,
+          "stage": "DONE",
+          "summary": "已生成并通过三层验收，交付包已落盘。\n文件：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.html\n证据：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.evidence.json\n教师手册：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.teacher.md\n学生任务单：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.student.md\n包清单：C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.package.json\n大小：125.7 KB · sha256=08e3357ffdf46f11…\n\nL2 物理对账通过。\n场景     | R(m) 实测 / 解析 | T(s) 实测 / 解析 | H(m) 实测 / 解析\na30      | 35.28 / 35.35 | 2.0366 / 2.0408 | 5.08 / 5.10  (max 0.41%)\na60      | 35.31 / 35.35 | 3.5306 / 3.5348 | 15.27 / 15.31  (max 0.24%)\n\n阻力对照：无阻力偏离 0.144%，开阻力偏离 56.498%，比值 391.2×（要求 >5× 且开阻力偏离 >1%）→ pass\n\nL3：网络请求 0 · canvas 3.48% · 改参 有效 · console error 0 · 读数误差 1.35e-7\n\n页面已嵌入：实验目的（why_recipe）、操作步骤（student_task）、解析式与读数表；\n教师手册含 5E 流程与含答案的数据表，学生任务单含先预测/空表/迁移题；\n无需再用 read/grep 检查 HTML 内容，直接把路径与读数汇报给用户即可。\n\n双击该 HTML 即可使用；可调参数由模板决定（抛体：初速度/角度/高度；单摆：摆长/初始角；电路：电压/电阻）。",
+          "data": {
+            "html_path": "C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.html",
+            "evidence_path": "C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.evidence.json",
+            "teacher_path": "C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.teacher.md",
+            "student_path": "C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.student.md",
+            "manifest_path": "C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.package.json",
+            "artifact_manifest_path": "C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\labkit\\complementary\\6b02d8f1-9b66-41b4-8b94-d7ba86fa3408\\runtime-verification.html.manifest.json",
+            "sha256": "08e3357ffdf46f11790b0d45e1f21b5877a9d159393bda1cb2be294eb5bbace2",
+            "bytes": 128671,
+            "design_hash": "sha256:e8cfd503048caabc102f871a458d877b747bc5603ea2b925262dfb1e8db5d397",
+            "scenarios": [
+              {
+                "id": "a30",
+                "params": {
+                  "v0": 20,
+                  "angle_deg": 30,
+                  "h0": 0
+                },
+                "measured": {
+                  "T": 2.036648274,
+                  "R": 35.275782869,
+                  "H": 5.081215278,
+                  "apex_y": 5.081215278
+                },
+                "analytic": {
+                  "T": 2.040816327,
+                  "R": 35.347975665,
+                  "H": 5.102040816,
+                  "apex_y": 5.102040816
+                },
+                "checks": [],
+                "verdict": "pass"
+              },
+              {
+                "id": "a60",
+                "params": {
+                  "v0": 20,
+                  "angle_deg": 60,
+                  "h0": 0
+                },
+                "measured": {
+                  "T": 3.530629779,
+                  "R": 35.306297794,
+                  "H": 15.270050378,
+                  "apex_y": 15.270050378
+                },
+                "analytic": {
+                  "T": 3.534797566,
+                  "R": 35.347975665,
+                  "H": 15.306122449,
+                  "apex_y": 15.306122449
+                },
+                "checks": [],
+                "verdict": "pass"
+              },
+              {
+                "id": "ratio",
+                "params": {
+                  "v0": 20,
+                  "h0": 0
+                },
+                "measured": {
+                  "ratio_R": 0.999135709
+                },
+                "analytic": {
+                  "ratio_R": 1
+                },
+                "checks": [
+                  {
+                    "metric": "ratio_R",
+                    "measured": 0.9991,
+                    "analytic": 1,
+                    "abs_error": 0.00086,
+                    "rel_error_pct": 0.086,
+                    "tolerance_pct": 1,
+                    "verdict": "pass"
+                  }
+                ],
+                "verdict": "pass"
+              }
+            ],
+            "drag_control": {
+              "params": {
+                "v0": 20,
+                "angle_deg": 45,
+                "h0": 0
+              },
+              "friction_air": 0.01,
+              "analytic_range": 40.8163,
+              "range_no_drag": 40.7574,
+              "range_with_drag": 17.7558,
+              "deviation_no_drag_pct": 0.144,
+              "deviation_with_drag_pct": 56.498,
+              "ratio": 391.23,
+              "verdict": "pass"
+            },
+            "checks": {
+              "design_hash": "sha256:e8cfd503048caabc102f871a458d877b747bc5603ea2b925262dfb1e8db5d397",
+              "html_sha256": "08e3357ffdf46f11790b0d45e1f21b5877a9d159393bda1cb2be294eb5bbace2",
+              "evidence_sha256": "dfb4c004c9f76377b0b74fd523e45266399c775d7884c5a02551440766487f45",
+              "status": "ready",
+              "network_requests": 0,
+              "canvas_nonbg_ratio": 0.0348,
+              "canvas_opaque_ratio": 1,
+              "canvas_distinct_colors": 164,
+              "v0_before": 20,
+              "v0_after": 25,
+              "probe_param": "v0",
+              "probe_metric": "R",
+              "probe_metric_before": 35.275783,
+              "probe_metric_after": 55.140974,
+              "probe_changed": true,
+              "range_before": 35.275783,
+              "range_after": 55.140974,
+              "range_changed": true,
+              "console_errors": [],
+              "readout_compared_fields": 6,
+              "readout_max_rel_error": 1.3453476651821323e-7,
+              "bytes": 128671
+            }
+          },
+          "hints": []
+        }
+      }
+    },
+    {
+      "id": "teacher_tamper_rejected",
+      "status": "pass",
+      "detail": {
+        "isError": false,
+        "content": [
+          {
+            "type": "text",
+            "text": "L3 单文件实测未通过（ARTIFACT_HTML_MISMATCH）。\n详情：HTML 已变化，与渲染清单的 sha256 不同。\n建议：\n- 重新运行 experiment_build 或 experiment_render；保留同一次生成的 HTML、evidence 与 .html.manifest.json。\n\n建议：\n- 重新运行 experiment_build 或 experiment_render；保留同一次生成的 HTML、evidence 与 .html.manifest.json。"
+          }
+        ],
+        "value": {
+          "ok": false,
+          "stage": "L3",
+          "code": "ARTIFACT_HTML_MISMATCH",
+          "summary": "L3 单文件实测未通过（ARTIFACT_HTML_MISMATCH）。\n详情：HTML 已变化，与渲染清单的 sha256 不同。\n建议：\n- 重新运行 experiment_build 或 experiment_render；保留同一次生成的 HTML、evidence 与 .html.manifest.json。",
+          "data": {
+            "ok": false,
+            "stage": "L3",
+            "code": "ARTIFACT_HTML_MISMATCH",
+            "detail": "HTML 已变化，与渲染清单的 sha256 不同。",
+            "hints": [
+              "重新运行 experiment_build 或 experiment_render；保留同一次生成的 HTML、evidence 与 .html.manifest.json。"
+            ]
+          },
+          "hints": [
+            "重新运行 experiment_build 或 experiment_render；保留同一次生成的 HTML、evidence 与 .html.manifest.json。"
+          ]
+        }
+      }
+    },
+    {
+      "id": "developer_core_tools",
+      "status": "pass",
+      "detail": [
+        "ask_user_question",
+        "create_goal",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "present",
+        "pwsh",
+        "read",
+        "read_image",
+        "send_message",
+        "skill",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "working_directory",
+        "write"
+      ]
+    },
+    {
+      "id": "developer_spawn_tool",
+      "status": "pass",
+      "detail": "Agent-scoped spawn registration"
+    },
+    {
+      "id": "read_before_write",
+      "status": "pass",
+      "detail": {
+        "isError": true,
+        "error": {
+          "message": "cannot modify \"C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\workspace\\unread.txt\": file has not been read — read the file, then retry",
+          "info": {
+            "name": "FsError",
+            "code": "FS_NOT_OBSERVED"
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Error: cannot modify \"C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\workspace\\unread.txt\": file has not been read — read the file, then retry"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workspace_write_boundary",
+      "status": "pass",
+      "detail": {
+        "isError": true,
+        "error": {
+          "message": "[sandbox: file access denied under workspace-write mode]\n[sandbox: escalation available — retry this exact operation once with sandbox_permissions (the narrowest wider mode that suffices) + justification; the approval prompt asks the user]",
+          "info": {
+            "name": "FsError",
+            "code": "FS_SANDBOX_DENIED"
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Error: [sandbox: file access denied under workspace-write mode]\n[sandbox: escalation available — retry this exact operation once with sandbox_permissions (the narrowest wider mode that suffices) + justification; the approval prompt asks the user]"
+          }
+        ]
+      }
+    },
+    {
+      "id": "os_process_write_boundary",
+      "status": "pass",
+      "detail": {
+        "isError": false,
+        "content": [
+          {
+            "type": "text",
+            "text": "[stderr]\nSet-Content: Access to the path 'C:\\Users\\sg\\.eduforge-boundary-vWHfCZ\\outside.txt' is denied.\r\n[sandbox: file access denied under workspace-write mode]\n[sandbox: escalation available — retry this exact command once with sandbox_permissions (the narrowest wider mode that suffices) + justification; the approval prompt asks the user]\n[exit code: 1]"
+          }
+        ],
+        "meta": {
+          "cwd": "C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\workspace"
+        },
+        "value": {
+          "cwd": "C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-runtime-verify-usaLmD\\workspace",
+          "kind": "foreground",
+          "exitCode": 1,
+          "signal": null,
+          "timedOut": false,
+          "aborted": false,
+          "timeoutMs": 10000,
+          "stdout": {
+            "text": "",
+            "truncated": false
+          },
+          "stderr": {
+            "text": "Set-Content: Access to the path 'C:\\Users\\sg\\.eduforge-boundary-vWHfCZ\\outside.txt' is denied.\r\n",
+            "truncated": false
+          },
+          "sandbox": {
+            "mode": "workspace-write",
+            "denied": true,
+            "enforcement": "partial"
+          }
+        }
+      }
+    },
+    {
+      "id": "native_process_cancel",
+      "status": "pass",
+      "detail": {
+        "isError": true,
+        "error": {
+          "message": "tool call aborted",
+          "info": {
+            "name": "AbortError",
+            "code": "ABORTED"
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Error: tool call aborted"
+          }
+        ]
+      }
+    },
+    {
+      "id": "approval_rejection",
+      "status": "pass",
+      "detail": "rejected"
+    },
+    {
+      "id": "approval_unavailable_denies",
+      "status": "pass",
+      "detail": "unavailable"
+    },
+    {
+      "id": "sdk_jsonrpc_and_shutdown",
+      "status": "pass",
+      "detail": {
+        "status": "pass",
+        "initialize": {
+          "serverInfo": {
+            "name": "deepseek-harness-sdk-runtime",
+            "version": "0.0.1"
+          }
+        },
+        "working_directory": {
+          "cwd": "C:\\Users\\sg\\AppData\\Local\\Temp\\eduforge-sdk-smoke-Lm8cDY"
+        },
+        "missing_resume_rejected": true,
+        "exit": 0
+      }
+    },
+    {
+      "id": "browser_presets_settings_approval",
+      "status": "pass",
+      "detail": [
+        {
+          "id": "preset_switch",
+          "passed": true
+        },
+        {
+          "id": "settings_reload_preserves_bundle",
+          "passed": true
+        },
+        {
+          "id": "approval_reject_button",
+          "passed": true,
+          "outcome": "rejected"
+        },
+        {
+          "id": "brand_and_shell",
+          "passed": true
+        },
+        {
+          "id": "no_browser_exception",
+          "passed": true
+        },
+        {
+          "id": "no_cloud_account",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "no_observed_telemetry",
+      "status": "pass",
+      "detail": "Observed Node HTTP origins during these probes only; not a machine-wide network audit."
+    }
+  ],
+  "pending": [
+    {
+      "id": "live_model",
+      "reason": "DEEPSEEK_API_KEY is absent in this verification process. Existing credential stores are not copied."
+    }
+  ],
+  "measurements": {
+    "startup_ms": 2833,
+    "rss_bytes": 190529536,
+    "configured_host_rows": 127,
+    "loaded_plugin_rows": 128
+  },
+  "network_origins": [
+    "http://127.0.0.1:49778"
+  ],
+  "modules": [
+    {
+      "id": "include",
+      "name": "cordis:include",
+      "state": 2
+    },
+    {
+      "id": "include:timer",
+      "name": "@deepseek-ai/cordis-plugin-timer",
+      "state": 2
+    },
+    {
+      "id": "include:llm",
+      "name": "@deepseek-ai/dsh-llm",
+      "state": 2
+    },
+    {
+      "id": "include:deepseek-llm-api-extensions",
+      "name": "@deepseek-ai/dsh-deepseek-llm-api-extensions",
+      "state": 2
+    },
+    {
+      "id": "include:session",
+      "name": "@deepseek-ai/dsh-session",
+      "state": 2
+    },
+    {
+      "id": "include:typert",
+      "name": "@deepseek-ai/dsh-typert-registry",
+      "state": 2
+    },
+    {
+      "id": "include:typert-loader",
+      "name": "@deepseek-ai/dsh-typert-loader",
+      "state": 2
+    },
+    {
+      "id": "include:typert-gateway",
+      "name": "@deepseek-ai/dsh-api-gateway",
+      "state": 2
+    },
+    {
+      "id": "include:remote-access",
+      "name": "@deepseek-ai/dsh-api-remote-access",
+      "state": 2
+    },
+    {
+      "id": "include:session-title",
+      "name": "@deepseek-ai/dsh-session-title",
+      "state": 2
+    },
+    {
+      "id": "include:session-title-llm",
+      "name": "@deepseek-ai/dsh-session-title-first-prompt-llm",
+      "state": 2
+    },
+    {
+      "id": "include:user-questions",
+      "name": "@deepseek-ai/dsh-user-questions",
+      "state": 2
+    },
+    {
+      "id": "include:agent",
+      "name": "@deepseek-ai/dsh-agent",
+      "state": 2
+    },
+    {
+      "id": "include:agent-default-model",
+      "name": "@deepseek-ai/dsh-agent-default-model",
+      "state": 2
+    },
+    {
+      "id": "include:jobs",
+      "name": "@deepseek-ai/dsh-jobs-local",
+      "state": 2
+    },
+    {
+      "id": "include:llm-retry",
+      "name": "@deepseek-ai/dsh-llm-retry",
+      "state": 2
+    },
+    {
+      "id": "include:config-editor",
+      "name": "@deepseek-ai/dsh-config-editor",
+      "state": 2
+    },
+    {
+      "id": "include:settings",
+      "name": "@deepseek-ai/dsh-settings",
+      "state": 2
+    },
+    {
+      "id": "include:authorization",
+      "name": "@deepseek-ai/dsh-authorization",
+      "state": 2
+    },
+    {
+      "id": "include:credentials",
+      "name": "@deepseek-ai/dsh-credentials-local",
+      "state": 2
+    },
+    {
+      "id": "include:llm-pi-ai",
+      "name": "@deepseek-ai/dsh-llm-pi-ai",
+      "state": 2
+    },
+    {
+      "id": "include:session-persistence-jsonl",
+      "name": "@deepseek-ai/dsh-session-persistence-jsonl",
+      "state": 2
+    },
+    {
+      "id": "include:attachment-local",
+      "name": "@deepseek-ai/dsh-attachment-local",
+      "state": 2
+    },
+    {
+      "id": "include:session-query-sqlite",
+      "name": "@deepseek-ai/dsh-session-query-sqlite",
+      "state": 2
+    },
+    {
+      "id": "include:working-directory",
+      "name": "@deepseek-ai/dsh-working-directory",
+      "state": 2
+    },
+    {
+      "id": "include:session-projection",
+      "name": "@deepseek-ai/dsh-session-projection",
+      "state": 2
+    },
+    {
+      "id": "include:storage",
+      "name": "@deepseek-ai/dsh-storage",
+      "state": 2
+    },
+    {
+      "id": "include:storage-json",
+      "name": "@deepseek-ai/dsh-storage-json",
+      "state": 2
+    },
+    {
+      "id": "include:storage-domain",
+      "name": "@deepseek-ai/dsh-storage-domain",
+      "state": 2
+    },
+    {
+      "id": "include:session-projection-cache",
+      "name": "@deepseek-ai/dsh-session-projection-cache",
+      "state": 2
+    },
+    {
+      "id": "include:subprocess",
+      "name": "@deepseek-ai/dsh-subprocess-local",
+      "state": 2
+    },
+    {
+      "id": "include:sandbox",
+      "name": "@deepseek-ai/dsh-sandbox-local",
+      "state": 2
+    },
+    {
+      "id": "include:sandbox-policy",
+      "name": "@deepseek-ai/dsh-sandbox-policy",
+      "state": 2
+    },
+    {
+      "id": "include:pwsh-sandbox",
+      "name": "@deepseek-ai/dsh-pwsh-sandbox",
+      "state": 2
+    },
+    {
+      "id": "include:approval",
+      "name": "@deepseek-ai/dsh-user-approval",
+      "state": 2
+    },
+    {
+      "id": "include:permission",
+      "name": "@deepseek-ai/dsh-permission-presets",
+      "state": 2
+    },
+    {
+      "id": "include:shell-env",
+      "name": "@deepseek-ai/dsh-shell-env",
+      "state": 2
+    },
+    {
+      "id": "include:fs-observation-policy",
+      "name": "@deepseek-ai/dsh-fs-observation-policy",
+      "state": 2
+    },
+    {
+      "id": "include:skill",
+      "name": "@deepseek-ai/dsh-skill",
+      "state": 2
+    },
+    {
+      "id": "include:commands",
+      "name": "@deepseek-ai/dsh-commands",
+      "state": 2
+    },
+    {
+      "id": "include:goal",
+      "name": "@deepseek-ai/dsh-goal",
+      "state": 2
+    },
+    {
+      "id": "include:goal-round-driver",
+      "name": "@deepseek-ai/dsh-goal-round-driver",
+      "state": 2
+    },
+    {
+      "id": "include:token-meter",
+      "name": "@deepseek-ai/dsh-token-meter",
+      "state": 2
+    },
+    {
+      "id": "include:subagent",
+      "name": "@deepseek-ai/dsh-subagent",
+      "state": 2
+    },
+    {
+      "id": "include:subagent-spawn-in-process",
+      "name": "@deepseek-ai/dsh-subagent-spawn-in-process",
+      "state": 2
+    },
+    {
+      "id": "include:subagent-fork-in-process",
+      "name": "@deepseek-ai/dsh-subagent-fork-in-process",
+      "state": 2
+    },
+    {
+      "id": "include:timeout-policy",
+      "name": "@deepseek-ai/dsh-tool-call-timeout-policy",
+      "state": 2
+    },
+    {
+      "id": "include:spill-local",
+      "name": "@deepseek-ai/dsh-spill-local",
+      "state": 2
+    },
+    {
+      "id": "include:spill-policy",
+      "name": "@deepseek-ai/dsh-spill-policy",
+      "state": 2
+    },
+    {
+      "id": "include:session-checkpoint-policy",
+      "name": "@deepseek-ai/dsh-session-checkpoint-policy",
+      "state": 2
+    },
+    {
+      "id": "include:image-offload",
+      "name": "@deepseek-ai/dsh-compaction-image-offload",
+      "state": 2
+    },
+    {
+      "id": "include:repeat-tool-reminder",
+      "name": "@deepseek-ai/dsh-repeat-tool-reminder",
+      "state": 2
+    },
+    {
+      "id": "include:tools",
+      "name": "@deepseek-ai/dsh-tools",
+      "state": 2
+    },
+    {
+      "id": "include:system-prompt",
+      "name": "@deepseek-ai/dsh-system-prompt",
+      "state": 2
+    },
+    {
+      "id": "include:agent-loop",
+      "name": "@deepseek-ai/dsh-agent-loop",
+      "state": 2
+    },
+    {
+      "id": "include:fs-sandbox",
+      "name": "@deepseek-ai/dsh-fs-sandbox",
+      "state": 2
+    },
+    {
+      "id": "include:llm-deepseek",
+      "name": "@deepseek-ai/dsh-llm-deepseek-api-key",
+      "state": 2
+    },
+    {
+      "id": "include:subagent-model-selection-settings",
+      "name": "@deepseek-ai/dsh-tool-subagent/model-selection-settings",
+      "state": 2
+    },
+    {
+      "id": "include:session-log-download",
+      "name": "@deepseek-ai/dsh-session-log-export",
+      "state": 2
+    },
+    {
+      "id": "include:workspace",
+      "name": "@deepseek-ai/dsh-workspace",
+      "state": 2
+    },
+    {
+      "id": "include:session-reference",
+      "name": "@deepseek-ai/dsh-session-reference",
+      "state": 2
+    },
+    {
+      "id": "include:file-reference-local",
+      "name": "@deepseek-ai/dsh-file-reference-local",
+      "state": 2
+    },
+    {
+      "id": "include:session-stats",
+      "name": "@deepseek-ai/dsh-session-stats",
+      "state": 2
+    },
+    {
+      "id": "include:session-turn-outline",
+      "name": "@deepseek-ai/dsh-session-turn-outline",
+      "state": 2
+    },
+    {
+      "id": "include:directory-picker",
+      "name": "@deepseek-ai/dsh-host-directory-picker-auto",
+      "state": 2
+    },
+    {
+      "id": "include:plugin-inventory",
+      "name": "@deepseek-ai/dsh-host-plugin-inventory",
+      "state": 2
+    },
+    {
+      "id": "include:session-controller",
+      "name": "@deepseek-ai/dsh-api-session-controller",
+      "state": 2
+    },
+    {
+      "id": "include:job-controller",
+      "name": "@deepseek-ai/dsh-api-job-controller",
+      "state": 2
+    },
+    {
+      "id": "include:terminal-controller",
+      "name": "@deepseek-ai/dsh-api-terminal-controller",
+      "state": 2
+    },
+    {
+      "id": "include:workspace-files",
+      "name": "@deepseek-ai/dsh-api-workspace-files",
+      "state": 2
+    },
+    {
+      "id": "include:settings-controller",
+      "name": "@deepseek-ai/dsh-api-settings-controller",
+      "state": 2
+    },
+    {
+      "id": "include:workspace-controller",
+      "name": "@deepseek-ai/dsh-api-workspace-controller",
+      "state": 2
+    },
+    {
+      "id": "include:web-startup",
+      "name": "@deepseek-ai/dsh-web-app/startup",
+      "state": 2
+    },
+    {
+      "id": "include:webserver",
+      "name": "@deepseek-ai/dsh-host-webserver",
+      "state": 2
+    },
+    {
+      "id": "include:web-runtime",
+      "name": "@deepseek-ai/dsh-web-app",
+      "state": 2
+    },
+    {
+      "id": "include:modules",
+      "name": "@deepseek-ai/dsh-client-modules",
+      "state": 2
+    },
+    {
+      "id": "include:connection",
+      "name": "@deepseek-ai/dsh-client-connection",
+      "state": 2
+    },
+    {
+      "id": "include:file-upload",
+      "name": "@deepseek-ai/dsh-client-file-upload",
+      "state": 2
+    },
+    {
+      "id": "include:api-remotes",
+      "name": "@deepseek-ai/dsh-api-remotes",
+      "state": 2
+    },
+    {
+      "id": "include:cordis-client-runner",
+      "name": "@deepseek-ai/dsh-cordis-client-runner",
+      "state": 2
+    },
+    {
+      "id": "include:ui-theme",
+      "name": "@deepseek-ai/dsh-client-ui-theme",
+      "state": 2
+    },
+    {
+      "id": "include:locale",
+      "name": "@deepseek-ai/dsh-client-locale",
+      "state": 2
+    },
+    {
+      "id": "include:shortcuts",
+      "name": "@deepseek-ai/dsh-client-shortcuts",
+      "state": 2
+    },
+    {
+      "id": "include:ui-shortcuts",
+      "name": "@deepseek-ai/dsh-client-ui-shortcuts",
+      "state": 2
+    },
+    {
+      "id": "include:ui-layout",
+      "name": "@deepseek-ai/dsh-client-ui-layout",
+      "state": 2
+    },
+    {
+      "id": "include:ui-renderer",
+      "name": "@deepseek-ai/dsh-client-ui-renderer",
+      "state": 2
+    },
+    {
+      "id": "include:ui-session",
+      "name": "@deepseek-ai/dsh-client-ui-session",
+      "state": 2
+    },
+    {
+      "id": "include:resources",
+      "name": "@deepseek-ai/dsh-client-resources",
+      "state": 2
+    },
+    {
+      "id": "include:ui-sidebar",
+      "name": "@deepseek-ai/dsh-client-ui-sidebar",
+      "state": 2
+    },
+    {
+      "id": "include:ui-sidebar-right",
+      "name": "@deepseek-ai/dsh-client-ui-sidebar-right",
+      "state": 2
+    },
+    {
+      "id": "include:ui-sidebar-documentpreview",
+      "name": "@deepseek-ai/dsh-client-ui-sidebar-documentpreview",
+      "state": 2
+    },
+    {
+      "id": "include:ui-sidebar-terminal",
+      "name": "@deepseek-ai/dsh-client-ui-sidebar-terminal",
+      "state": 2
+    },
+    {
+      "id": "include:ui-sidebar-files",
+      "name": "@deepseek-ai/dsh-client-ui-sidebar-files",
+      "state": 2
+    },
+    {
+      "id": "include:ui-settings",
+      "name": "@deepseek-ai/dsh-client-ui-settings",
+      "state": 2
+    },
+    {
+      "id": "include:ui-settings-general",
+      "name": "@deepseek-ai/dsh-client-ui-settings-general",
+      "state": 2
+    },
+    {
+      "id": "include:ui-settings-models",
+      "name": "@deepseek-ai/dsh-client-ui-settings-models",
+      "state": 2
+    },
+    {
+      "id": "include:ui-conversation",
+      "name": "@deepseek-ai/dsh-client-ui-conversation",
+      "state": 2
+    },
+    {
+      "id": "include:ui-approval",
+      "name": "@deepseek-ai/dsh-client-ui-approval",
+      "state": 2
+    },
+    {
+      "id": "include:ui-chat",
+      "name": "@deepseek-ai/dsh-client-ui-chat",
+      "state": 2
+    },
+    {
+      "id": "include:ui-brand-qizhi",
+      "name": "@deepseek-ai/dsh-client-ui-brand-qizhi",
+      "state": 2
+    },
+    {
+      "id": "include:ui-attachment",
+      "name": "@deepseek-ai/dsh-client-ui-attachment",
+      "state": 2
+    },
+    {
+      "id": "include:ui-tool",
+      "name": "@deepseek-ai/dsh-client-ui-tool",
+      "state": 2
+    },
+    {
+      "id": "include:ui-deliverables",
+      "name": "@deepseek-ai/dsh-client-ui-deliverables",
+      "state": 2
+    },
+    {
+      "id": "include:workspace-changes",
+      "name": "@deepseek-ai/dsh-workspace-changes",
+      "state": 2
+    },
+    {
+      "id": "include:ui-workspace",
+      "name": "@deepseek-ai/dsh-client-ui-workspace",
+      "state": 2
+    },
+    {
+      "id": "include:ui-input-trigger",
+      "name": "@deepseek-ai/dsh-client-ui-input-trigger",
+      "state": 2
+    },
+    {
+      "id": "include:ui-commands",
+      "name": "@deepseek-ai/dsh-client-ui-commands",
+      "state": 2
+    },
+    {
+      "id": "include:ui-skill",
+      "name": "@deepseek-ai/dsh-client-ui-skill",
+      "state": 2
+    },
+    {
+      "id": "include:ui-subagent",
+      "name": "@deepseek-ai/dsh-client-ui-subagent",
+      "state": 2
+    },
+    {
+      "id": "include:ui-reference",
+      "name": "@deepseek-ai/dsh-client-ui-reference",
+      "state": 2
+    },
+    {
+      "id": "include:ui-secret-mask",
+      "name": "@deepseek-ai/dsh-client-ui-secret-mask",
+      "state": 2
+    },
+    {
+      "id": "include:ui-jobs",
+      "name": "@deepseek-ai/dsh-client-ui-jobs",
+      "state": 2
+    },
+    {
+      "id": "include:ui-goal",
+      "name": "@deepseek-ai/dsh-client-ui-goal",
+      "state": 2
+    },
+    {
+      "id": "include:ui-model-selection",
+      "name": "@deepseek-ai/dsh-client-ui-model-selection",
+      "state": 2
+    },
+    {
+      "id": "include:ui-deepseek-model-label-1017",
+      "name": "@deepseek-ai/dsh-client-ui-deepseek-model-label-1017",
+      "state": 2
+    },
+    {
+      "id": "include:ui-permission",
+      "name": "@deepseek-ai/dsh-client-ui-permission-presets",
+      "state": 2
+    },
+    {
+      "id": "include:ui-agent-preset",
+      "name": "@deepseek-ai/dsh-client-ui-agent-preset",
+      "state": 2
+    },
+    {
+      "id": "include:ui-settings-shell",
+      "name": "@deepseek-ai/dsh-client-ui-settings-shell",
+      "state": 2
+    },
+    {
+      "id": "include:ui-settings-agent-loop",
+      "name": "@deepseek-ai/dsh-client-ui-settings-agent-loop",
+      "state": 2
+    },
+    {
+      "id": "include:ui-settings-subagent",
+      "name": "@deepseek-ai/dsh-client-ui-settings-subagent",
+      "state": 2
+    },
+    {
+      "id": "include:ui-plan",
+      "name": "@deepseek-ai/dsh-client-ui-plan",
+      "state": 2
+    },
+    {
+      "id": "include:ui-user-questions",
+      "name": "@deepseek-ai/dsh-client-ui-user-questions",
+      "state": 2
+    },
+    {
+      "id": "include:ui-trajectory",
+      "name": "@deepseek-ai/dsh-client-ui-trajectory",
+      "state": 2
+    },
+    {
+      "id": "include:agent-preset-registry",
+      "name": "@deepseek-ai/dsh-agent-preset-registry",
+      "state": 2
+    },
+    {
+      "id": "include:preset-physics-lab",
+      "name": "@deepseek-ai/dsh-agent-preset",
+      "state": 2
+    },
+    {
+      "id": "include:preset-eduforge-dev",
+      "name": "@deepseek-ai/dsh-agent-preset",
+      "state": 2
+    },
+    {
+      "id": "e7a209b3",
+      "name": "@deepseek-ai/dsh-host-directory-picker-native",
+      "state": 2
+    },
+    {
+      "id": "e33d8c99",
+      "name": "@deepseek-ai/dsh-client-ui-directory-picker-native",
+      "state": 2
+    }
+  ],
+  "status": "partial"
+}

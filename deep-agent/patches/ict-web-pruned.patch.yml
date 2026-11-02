@@ -1,0 +1,51 @@
+# ICT / EduForge Web 端 (启智AGENT) 专用剪枝覆盖层 (Cordis Patch Overlay)
+#
+# 适用范围：dsh --patch deep-agent/patches/ict-web-pruned.patch.yml --profile web
+# 作用：
+# 1. 继承 Base 层剪枝（关闭 OTel 遥测上报、Session Log 随请求上传、插件清单上报、DeepSeek 商业账号 OAuth）；
+# 2. 额外剪枝 Web 表面中与本地教学无关的 UI 设置项（商业账号与计费页面、会话日志上传开关、消息打点反馈）；
+# 3. 完整保留 启智AGENT (ui-brand-qizhi) 视觉层、多预设切换（含格物·物理实验工坊）、右侧文件/文档/终端边栏与全套 Agent 核心能力。
+
+# ── 1. Base 层遥测与商业账号剪枝 ──────────────────────────────────────────────
+- id: otel
+  disabled: true
+
+- id: session-telemetry-otel
+  disabled: true
+
+- id: session-log-deepseek
+  disabled: true
+
+- id: plugin-package-inventory-deepseek
+  disabled: true
+
+- id: command-feedback
+  disabled: true
+
+- id: deepseek-account
+  disabled: true
+
+- id: llm-deepseek-account
+  disabled: true
+
+# ── 2. Web / Host 层专属遥测、商业账号与反馈 UI 剪枝 ─────────────────────────
+- id: desktop-product-telemetry
+  disabled: true
+
+- id: product-analytics
+  disabled: true
+
+- id: message-feedback
+  disabled: true
+
+- id: ui-message-feedback
+  disabled: true
+
+- id: account-controller
+  disabled: true
+
+- id: ui-settings-account
+  disabled: true
+
+- id: ui-settings-session-log
+  disabled: true

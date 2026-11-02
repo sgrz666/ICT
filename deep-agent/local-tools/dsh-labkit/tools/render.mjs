@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { renderSingleFile, simulateDesign } from '../lib/labkit.mjs'
 import { errorBlock, fmt, hintBlock } from '../lib/format.mjs'
-import { defaultTemplateId, outPaths, repoRoot } from '../lib/paths.mjs'
+import { defaultTemplateId, outPaths, outRoot, repoRoot } from '../lib/paths.mjs'
 import { designParams, resultSchema, renderResult } from '../lib/tool-schema.mjs'
 
 export function registerRender(ctx, defineTool) {
@@ -33,7 +33,7 @@ export function registerRender(ctx, defineTool) {
         }
       }
       const evidence = JSON.parse(readFileSync(sim.evidence_path, 'utf8'))
-      const ren = renderSingleFile({ repoRoot, design, evidence, outPath: paths.html })
+      const ren = renderSingleFile({ repoRoot, outRoot, design, evidence, outPath: paths.html })
       if (!ren.ok) {
         return {
           ok: false, stage: 'RENDER', code: ren.code || 'RENDER_FAILED',
@@ -54,6 +54,7 @@ export function registerRender(ctx, defineTool) {
         data: {
           html_path: ren.html_path,
           evidence_path: sim.evidence_path,
+          artifact_manifest_path: ren.artifact_manifest_path,
           sha256: ren.sha256,
           bytes: ren.bytes,
           design_hash: ren.design_hash,

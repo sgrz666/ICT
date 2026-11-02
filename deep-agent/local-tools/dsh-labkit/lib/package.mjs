@@ -10,7 +10,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
-import { getRecipe, loadTemplate } from './labkit.mjs'
+import { canonicalJson, getRecipe, loadTemplate, sha256Hex } from './labkit.mjs'
 
 const PARAM_META = {
   v0: ['初速度', 'm/s'],
@@ -431,13 +431,17 @@ export function buildDeliveryDocs({ repoRoot, design, evidence, checks, html, pa
     },
     artifacts: {
       html: { file: htmlName, bytes: html?.bytes ?? null, sha256: html?.sha256 ?? null },
-      evidence: { file: evidenceName },
+      evidence: { file: evidenceName, sha256: evidence ? sha256Hex(canonicalJson(evidence)) : null, hash_encoding: 'canonical-json' },
+      render_manifest: { file: html?.artifact_manifest_path ? basename(html.artifact_manifest_path) : null },
       teacher: { file: basename(paths?.teacher ?? 'teacher.md') },
       student: { file: studentName },
     },
     checks: {
       l2: { verdict: evidence?.verdict ?? null, max_deviation_pct: Number(deviation.toFixed(6)), scenario_count: evidence?.scenarios?.length ?? 0 },
       l3: {
+        design_hash: checks?.design_hash ?? null,
+        html_sha256: checks?.html_sha256 ?? null,
+        evidence_sha256: checks?.evidence_sha256 ?? null,
         network_requests: checks?.network_requests ?? null,
         canvas_nonbg_ratio: checks?.canvas_nonbg_ratio ?? null,
         range_changed: checks?.range_changed ?? null,

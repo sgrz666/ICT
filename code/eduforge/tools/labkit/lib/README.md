@@ -11,6 +11,7 @@
 | [`verify-single-file.mjs`](verify-single-file.mjs) | 194 | L3：Playwright `file://` 六项判据（canvas 要求不透明 + 非背景 + 多色，透明空白页会被判 fail） |
 | [`template.mjs`](template.mjs) | 47 | 按 `template_id` 找目录、读 `recipes.json` |
 | [`hash.mjs`](hash.mjs) | 27 | canonical JSON + sha256 + `designHash` |
+| [`artifact.mjs`](artifact.mjs) | — | `.html.manifest.json`：写入并核对规范化设计、HTML 字节和 canonical JSON 证据哈希 |
 | [`fs-safe.mjs`](fs-safe.mjs) | 13 | 输出路径白名单 |
 
 ## 数据流
@@ -20,6 +21,7 @@
 ## 纪律
 
 - 四个阶段共享 `design_hash`；改设计后旧证据必须失配，不允许「新设计配旧证据」。
+- 2026-10-31 起，渲染器返回 `artifact_manifest_path`；L3 要求同目录清单存在、HTML/证据都在 `outRoot` 内，且哈希和页面指纹一致，再执行真实浏览器检查。旧产物缺清单需重新渲染。必要读数缺失会失败；单摆逐个改参实测，不再只对上第一组。回归见 [`../artifact-integrity.test.mjs`](../artifact-integrity.test.mjs)，本机已运行 exit 0。
 - 物理只写在 `projectile-core.mjs`；`check.mjs` 只调用 `analyticProjectile()`，`render-single-file.mjs` 只拼接源码，不复制公式。
 - 新增引擎时复制的是「core + render + verify」三件，不是把 matter-js 分支塞进同一个文件。
 

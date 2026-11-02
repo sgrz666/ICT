@@ -42,10 +42,11 @@
 | [_tools/](_tools/README.md) | 复现驱动：`run_headless.sh` 跑一次官方 headless 会话，`summarize_events.mjs` 把事件流压成工具调用表，`check_docs.py` 是文档门 | 5 个条目（README + 3 个工具 + `prompts/`） | ✅ |
 | [_tools/prompts/](_tools/prompts/README.md) | 五项测试与只读探针的任务原文 | 7 个条目（README + `t1..t5.txt` + `probe_shell.txt`） | ✅ |
 | [_probe/](_probe/README.md) | 故意带缺陷的基线副本（`cart.py` + 暴露它的 `test_cart.py`）与官方要求原文快照，证明测试 3 不是提前修好的 | 10 个条目（README + 2 份 py + 6 份 `gh_*` + `__pycache__/`） | ✅（`__pycache__/` ❌） |
-| [patches/](patches/README.md) | 官方 `--patch` 覆盖层，把 Agent 的工作区钉在一次性目录上；含「它不够用」的实测结论 | 2 个条目（README + `smoke-workspace.patch.yml`） | ✅ |
+| [patches/](patches/README.md) | 官方 `--patch` 覆盖层：含工作区测试补丁及面向 ICT 教学基座的双轨无损剪枝补丁（`ict-agent-pruned.patch.yml` / `ict-web-pruned.patch.yml`，关闭遥测与商业账号；配置合成与实际能力验证分开记录） | 4 个条目（README + 3 份 `.patch.yml`） | ✅ |
 | [dsh-acl-recovery/](dsh-acl-recovery/README.md) | **官方 ACL 脚本**为 `harness-ui-workspace` 置备权限时生成的备份、回滚脚本与完整记录——系统权限改动可逐一撤销的凭据 | 4 个条目（README + 备份 json + 回滚 ps1 + 记录 jsonl） | ✅ |
 | [harness-ui-workspace/](harness-ui-workspace/README.md) | Web UI 界面核验用的沙盒目录，里面有审批放行后真实写入的 `note.txt` | 4 个条目（README + `hello.txt`、`note.txt`、`notes.txt`） | ✅ |
 | [local-tools/](local-tools/README.md) | 挂到 dsh 上的**本地插件层**（不改上游树）；当前有 `dsh-labkit`（六个 `experiment_*` 工具 + `physics-lab` agent preset + 交付包） | 2 个条目（README + `dsh-labkit/`） | ✅ |
+| [dsh-core/](dsh-core/README.md) | Python 研究原型；历史自有测试不证明官方能力等价，隔离、子智能体、压缩与 LabKit 证据缺口已在入口留痕 | 正式路线迁至 [原生 agent-runtime](../code/eduforge/services/agent-runtime/README.md)，保留本目录供研究复核 | 研究 |
 | `harness-smoke-workspace/` | 五项测试的真实工作区（自带嵌套 `.git`，基线提交 `b6e600c`），另有 `_acl-out/` 权限备份 | 不入库，故不写 README（说明见 AGENTS.md 第 3 节） | ❌ 嵌套仓库 |
 | `deepseek-harness/` | 官方源码克隆，本轮验证对象 | 工作树 2.7 GB 含 node_modules；内部 README 是上游资产 | ❌ 第三方资产，按上游 commit 随时可重取 |
 | `_corepack/`、`.dsh-home/` | pnpm 缓存与隔离的 `DSH_HOME`（会话、日志、配置都落在这里） | 可再生 | ❌ 可再生 |
@@ -98,7 +99,7 @@ deep-agent/                       14 个条目（2 份本层文档 + 9 个入库
 │   ├── gh_README.md gh_AGENTS.md gh_SAFETY.md gh_development.md gh_package.json gh_pnpm-workspace.yaml   官方要求逐字快照（链接按 gh_* 豁免检查）
 │   └── __pycache__/               ❌ 字节码缓存，可再生
 │
-├── patches/                       2 条  ✅  README.md + smoke-workspace.patch.yml（实测「不足以移动会话 cwd」的结论留在表里）
+├── patches/                       4 条  ✅  README.md + smoke-workspace.patch.yml + ict-agent-pruned.patch.yml + ict-web-pruned.patch.yml
 ├── dsh-acl-recovery/               4 条  ✅  README.md + acl-backup-<id>.json + 同名 .ps1 回滚脚本 + acl-report-<id>.jsonl 完整记录
 ├── harness-ui-workspace/           4 条  ✅  README.md + hello.txt / note.txt / notes.txt（审批放行后由 Agent 真实写入）
 ├── local-tools/                    2 条  ✅  本地 dsh 插件层（不改上游树）
@@ -287,3 +288,5 @@ git -C deepseek-harness status --porcelain --untracked-files=no   # 每一行都
 10. **会话不在工作区，在 `DSH_HOME`**：本目录 [AGENTS.md](AGENTS.md) 第 8 节与 `_logs/README.md` 都写「会话持久化落在工作区的 `.sessions/`」，但 `dsh-v0.2.1-rc.2` 实测 `harness-smoke-workspace/` 里没有 `.sessions/`；会话实际在 `.dsh-home/sessions/--D-codeplus-ICT-deep-agent-harness-smoke-workspace--/<sessionId>/`（该桶实测 11 个会话目录），另有索引 `.dsh-home/storages/session_projcache/sessions/*.json`（23 份）。这条影响启动的两处：`--session-id` 续跑的前提是 `.dsh-home/` 还在；换 `DSH_HOME` 等于换一批会话。
 11. **`.dsh-home/` 是敏感目录**：里面有 `.credentials.yaml` 与 `.anonymous-user-id`。它已被 `.gitignore` 挡住，但**不要复制、打包或外发**该目录，也不要在报告里贴其中任何文件内容。
 12. **遍历本目录时不要走到上游树**：`deepseek-harness/` 是 2.7 GB。任何 `rglob` / `find` 全量遍历都会先钻进去（实测卡到超时），文档门 `_tools/check_docs.py` 用 `os.walk` 就地剪枝就是为了这个。
+
+2026-10-31：正式原生精简实现位于 [agent-runtime](../code/eduforge/services/agent-runtime/README.md)，使用原 JS LabKit、独立数据目录和原生审批/隔离，保留启智 Web 与教学/开发双预设。上游检出本轮未修改；原型与旧补丁继续作为研究及回退资料。
